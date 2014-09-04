@@ -1,5 +1,9 @@
 
-select * from c##tagan.hello
+
+
+select * from geo@dblcntg
+
+
 where alfa = '�'
 
 
@@ -257,9 +261,22 @@ select lpad(' ',2*(level-1)) || to_char(nls_name) s
 
 
 
+select * from geo
+
+select * from c##tagan.t_doc_country
+
+select distinct object_type 
+
+from  geo
 
 
 
 
 
-
+select * from dba_objects
+where
+--object_name like '%TEST%'
+--AND 
+OBJECT_TYPE = 'TABLE'
+AND OWNER = 'PDBUN1'
+ORDER BY OBJECT_NAME

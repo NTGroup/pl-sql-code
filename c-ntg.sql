@@ -78,7 +78,17 @@ inner join
 using (GUID)
 order by v.create_scn;
 
+ select 
+*
+from 
+   v$pdbs     v 
+inner join 
+   dba_pdbs d
+using (GUID)
+order by v.create_scn;
 
+
+/* name of tablespace */
 select 
    con_id, 
    tablespace_name, 
@@ -99,10 +109,60 @@ admin user
    app_admin identified by mypass
 file_name_convert = ('/pdbseed/', '/cont01plug01/');
 
-alter pluggable database cont01_plug01 open;
+alter pluggable database rpepdb3 open;
 -- alter pluggable database ALL open;
+
+
+CREATE PLUGGABLE DATABASE rpepdb4 ADMIN USER rpeadm4 IDENTIFIED BY RPEpdb4  ROLES=(DBA)
+  STORAGE (MAXSIZE 2G MAX_SHARED_TEMP_SIZE 100M)
+  DEFAULT TABLESPACE USERS 
+    DATAFILE '/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/rpepdb04.dbf' SIZE 250M AUTOEXTEND ON;
+    
+
+select * from DBA_USERS
+
 
 
 select NAME, CDB, CON_ID, OPEN_MODE from V$DATABASE;  
 
  alter pluggable database pdbn1 open read write; 
+  alter pluggable database SALESPDB open read write; 
+ SALESPDB
+ 
+ 
+ select * from c##ntg.geo
+ 
+ create table test (
+ id number,
+ name varchar2(256)
+ )
+ 
+ 
+ 
+ 
+ create user database2 identified by cccCCC111;
+
+alter user rpeadm3 
+DEFAULT TABLESPACE users
+TEMPORARY TABLESPACE temp
+QUOTA UNLIMITED ON users
+ACCOUNT UNLOCK;
+
+GRANT 
+create session,
+CONNECT, 
+--RESOURCE,    
+--DBA,
+--CREATE DATABASE LINK,
+--CREATE MATERIALIZED VIEW,
+CREATE PROCEDURE,
+--CREATE PUBLIC SYNONYM,
+--CREATE ROLE,
+CREATE SEQUENCE,
+--CREATE SYNONYM,
+CREATE TABLE,    
+CREATE TRIGGER,
+CREATE TYPE, 
+CREATE VIEW
+to pdbun1;
+
