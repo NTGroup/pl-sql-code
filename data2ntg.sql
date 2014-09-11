@@ -1,8 +1,11 @@
 
 
 
-select * from geo@dblcntg
+select * from geo@dblntg
 
+
+
+select * from dual
 
 where alfa = '�'
 
@@ -37,6 +40,8 @@ add parent_id number not null
 
 
 select * from  c##tagan.t_doc_airport
+
+
 where id is not null
 and country_id is null
 
@@ -194,16 +199,6 @@ where id is not null;
 commit;
 
 
-select * from c##tagan.t_version where f_parent_id in (
-  select f_document_id from c##tagan.t_version where f_version_id in (
-    select f_version_id from c##tagan.t_doc_city where id is not null
-  )
-)
-and f_actuality =2  
-
-
-select * from  c##tagan.t_doc_airport where id is not null
-
 
 insert into geo
 
@@ -224,32 +219,6 @@ where id is not null
 commit;
 
 
-select * from 
-(
-select
-iata, count(*) c
-from geo
-where iata is not null
-group by iata
-)
-order by c desc
-
-select
-*
-from geo
-where iata ='@STW'
-
-select * from geo where id in (127,
-390) 
-
-
-select lpad(' ',2*(level-1)) || to_char(nls_name) s 
-  from geo 
-    where nls_name is not null
-  start with parent_id = -1
-  connect by prior id = parent_id;
-
-
 
     CREATE TABLE "C##NTG"."ALIAS_N" 
    (	"GEO_ID" NUMBER, 
@@ -261,22 +230,80 @@ select lpad(' ',2*(level-1)) || to_char(nls_name) s
 
 
 
-select * from geo
-
-select * from c##tagan.t_doc_country
-
-select distinct object_type 
-
-from  geo
 
 
+select * from geo@dblntg
+where upper(nls_name) like '%БЫКОВО%'
+/*and id not in (
+634,955,2848, 3439,3480,4257,4728,4766,5219 ,8069,10266, 10729, 11280, 11535, 12232, 12324,12395,12808,13367,13565)
+*/
+order by id desc
 
 
 
-select * from dba_objects
-where
---object_name like '%TEST%'
---AND 
-OBJECT_TYPE = 'TABLE'
-AND OWNER = 'PDBUN1'
-ORDER BY OBJECT_NAME
+
+select id, lpad(' ',2*(level-1)) || to_char(nls_name) s, parent_id, iata,code, object_type  from
+(
+select * from geo@dblntg -- where id in  (388,240,137,88,140,337,291,173)
+)
+  start with id in  (287,137,
+135)   
+  connect by prior id = parent_id
+  
+
+  
+
+
+
+select 
+F_SYS_NAME, F_CODE, F_ISO_CODE, F_NAME_EN, F_NAME_RU, F_SIRENA_2000_CODE, F_STATE, F_PREVIOUS_STATE, F_DATE, GEO_ID
+--F_SYS_NAME, F_PHONE_CODE, F_CODE, F_CIS, F_SCHENGEN, F_ACADEM_SERVICE_CODE, F_ISO_CODE, F_NAME_EN, F_NAME_RU, F_SIRENA_2000_CODE, F_EXPRESS_CODE, F_UTS_CODE, ID, PARENT_ID
+from t_doc_country@dbltagan c, t_version@dbltagan v
+where c.id in ( select id from geo@dblntg
+where object_type = 'country'
+    and code in ('FK',
+'KP',
+'KR')
+ )
+ and c.id = v.geo_id
+order by F_CODE, f_date;
+
+
+
+SELECT * FROM GEO@DBLNTG
+WHERE ID IN (
+  SELECT ID FROM (
+    select distinct
+    F_NAME_EN,
+    --MIN(id) KEEP (DENSE_RANK FIRST ORDER BY f_date) OVER (PARTITION BY f_name_en) "Lowest",
+    MAX(id) KEEP (DENSE_RANK LAST ORDER BY f_date) OVER (PARTITION BY f_name_en) ID
+    from t_doc_country@dbltagan c, t_version@dbltagan v
+    where c.id in ( select id from geo@dblntg
+    where object_type = 'country'
+    and id in (388,240,375,67,137,88,140,337,291,443,173,35,286,410,13 )
+     )
+     and c.id = v.geo_id
+  )
+)
+
+
+UPDATE GEO@DBLNTG SET IS_ACTIVE = 'A'
+WHERE ID IN (
+  SELECT ID FROM (
+    select distinct
+    F_NAME_EN,
+    --MIN(id) KEEP (DENSE_RANK FIRST ORDER BY f_date) OVER (PARTITION BY f_name_en) "Lowest",
+    MAX(id) KEEP (DENSE_RANK LAST ORDER BY f_date) OVER (PARTITION BY f_name_en) ID
+    from t_doc_country@dbltagan c, t_version@dbltagan v
+    where c.id in ( select id from geo@dblntg
+    where object_type = 'country'
+ --   and name in ('Izrael', 'Russia')
+     )
+     and c.id = v.geo_id
+  )
+);
+commit;
+
+update GEO@DBLNTG SET IS_ACTIVE = NULL
+where id in (287,135);
+commit;
