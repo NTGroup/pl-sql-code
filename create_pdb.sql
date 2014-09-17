@@ -1,14 +1,14 @@
 /* system connect */
-CREATE PLUGGABLE DATABASE rpepdb4 ADMIN USER rpeadm4 IDENTIFIED BY RPEpdb4  ROLES=(DBA)
+CREATE PLUGGABLE DATABASE ntg ADMIN USER ntg IDENTIFIED BY NTGdba1  ROLES=(DBA)
   STORAGE (MAXSIZE 2G MAX_SHARED_TEMP_SIZE 100M)
   DEFAULT TABLESPACE USERS 
-    DATAFILE '/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/rpepdb04.dbf' SIZE 250M AUTOEXTEND ON;
+    DATAFILE '/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/ntg.dbf' SIZE 250M AUTOEXTEND ON;
 
 /* sys as sysdba */
-alter pluggable database rpepdb4 open read write; 
+alter pluggable database ntg open read write; 
      
 /* inside pdb */ 
-alter user rpeadm4 
+alter user ntg 
 DEFAULT TABLESPACE users
 TEMPORARY TABLESPACE temp
 QUOTA UNLIMITED ON users
@@ -29,8 +29,8 @@ select 2,'д' from dual;
 commit;
 select * from blahblah where id = 1;
 /* test abilyty get data from others db */
-CREATE PUBLIC DATABASE LINK DBLTAGAN 
-CONNECT TO c##tagan IDENTIFIED BY tagan 
-USING 'orcl';
-select * from geo@dblntg;
+CREATE PUBLIC DATABASE LINK dblcntg 
+CONNECT TO c##ntg IDENTIFIED BY NTGasdf1234 
+USING 'rpe';
+select * from geo@dblcntg;
 select * from t_version@dbltagan;
