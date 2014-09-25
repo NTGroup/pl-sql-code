@@ -6,7 +6,8 @@ CREATE PLUGGABLE DATABASE ntg ADMIN USER ntg IDENTIFIED BY NTGdba1  ROLES=(DBA)
 
 /* sys as sysdba */
 alter pluggable database ntg open read write; 
-     
+
+
 /* inside pdb */ 
 alter user ntg 
 DEFAULT TABLESPACE users
@@ -34,3 +35,14 @@ CONNECT TO c##ntg IDENTIFIED BY NTGasdf1234
 USING 'rpe';
 select * from geo@dblcntg;
 select * from t_version@dbltagan;
+
+
+/* create new user shcheme inside pdb */
+create user blng identified by BLNGasdf1234;
+     
+/* inside pdb */ 
+alter user blng 
+DEFAULT TABLESPACE users
+TEMPORARY TABLESPACE temp
+QUOTA UNLIMITED ON users
+/*ACCOUNT UNLOCK*/ ;
