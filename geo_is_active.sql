@@ -132,13 +132,31 @@ where parent_id in (
 declare
 begin
   for i in (
-      select
-      *
-      from  GEO@dblntg
-      where id in (10729)
+select
+*
+from  GEO
+where parent_id in (
+    /*city */
+    select
+    id
+    from  GEO
+    where parent_id in (
+                /* country */
+                select id
+                from  GEO
+                where object_type = 'country'
+                and is_active = 'Y'
+
+    )
+    and  is_active in ('W','Y')
+    and object_type != 'region'
+)
+and is_active is null
+--and iata = 'NQT'
+and iata is not null
   )
   loop
-    update GEO@dblntg set is_active = 'N' where id = i.id;
+    update GEO set is_active = 'Y' where id = i.id;
   end loop;
 commit;
 end;
@@ -235,8 +253,10 @@ where parent_id in (
           and  is_active in ('W','Y')
       )
       and is_active is not null
-
 )
+
+
+
 
 select
 *
@@ -259,5 +279,62 @@ ADD CONSTRAINT geo_pk PRIMARY KEY (id);
 
 commit;
 
+/* airport без региона*/
+select
+*
+from  GEO
+where parent_id in (
+    /*city */
+    select
+    id
+    from  GEO
+    where parent_id in (
+                /* country */
+                select id
+                from  GEO
+                where object_type = 'country'
+                and is_active = 'Y'
 
+    )
+    and  is_active in ('W','Y')
+    and object_type != 'region'
+)
+and is_active is null
+--and iata = 'NQT'
+and iata is not null
+group  by iata
+having count(*)>1
+
+select
+* from  GEO
+where parent_id in (
+    /*city */
+    select
+    id
+    from  GEO
+    where parent_id in (
+                /* country */
+                select id
+                from  GEO
+                where object_type = 'country'
+                and is_active = 'Y'
+
+    )
+    and  is_active in ('W','Y')
+    and object_type != 'region'
+)
+and is_active is null
+and iata in ('SDV',
+'LCY',
+'CUR',
+'PLQ')
+and iata is not null
+order by iata
+
+
+
+select * from geo where iata like  '%NQT%'
+
+select * from v_geo
+where iata = 'NQT'
 
