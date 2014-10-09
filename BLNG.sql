@@ -31,6 +31,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.client MODIFY ("ID" CONSTRAINT "CLT_ID_NN" NOT NULL ENABLE);
+  ALTER TABLE BLNG.client  MODIFY (AMND_DATE DEFAULT sysdate );
+  ALTER TABLE BLNG.client  MODIFY (AMND_USER DEFAULT user );
+  ALTER TABLE BLNG.client  MODIFY (AMND_STATE DEFAULT 'A' );
 
   ALTER TABLE blng.client ADD CONSTRAINT CLT_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.CLT_ID_IDX ENABLE;
@@ -63,6 +66,7 @@ REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
   select BLNG.clt_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual;
 end;
 
 ALTER TRIGGER BLNG.CLT_TRGR ENABLE;
@@ -103,6 +107,13 @@ begin
 
   ALTER TABLE blng.contract MODIFY ("ID" CONSTRAINT "CNTR_ID_NN" NOT NULL ENABLE);
 
+ALTER TABLE BLNG.CONTRACT  MODIFY (AMND_DATE DEFAULT sysdate );
+ALTER TABLE BLNG.CONTRACT  MODIFY (AMND_USER DEFAULT user );
+ALTER TABLE BLNG.CONTRACT  MODIFY (AMND_STATE DEFAULT 'A' );
+
+ALTER TABLE BLNG.CONTRACT  
+MODIFY (AMND_PREV DEFAULT :id );
+
   ALTER TABLE blng.contract ADD CONSTRAINT CNTR_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.CNTR_ID_IDX ENABLE;
 
@@ -126,7 +137,7 @@ ALTER TABLE BLNG.contract ADD CONSTRAINT CNTR_CLT_OID_FK FOREIGN KEY (client_oid
 --  DDL for Trigger MKP_TRGR
 --------------------------------------------------------
 
-CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.CNTR_TRGR 
+create or replace TRIGGER BLNG.cntr_TRGR 
 BEFORE
 INSERT
 ON BLNG.contract
@@ -134,6 +145,7 @@ REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
   select BLNG.cntr_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
 
 ALTER TRIGGER BLNG.CNTR_TRGR ENABLE;
@@ -182,6 +194,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.account_type MODIFY ("ID" CONSTRAINT "ACCT_ID_NN" NOT NULL ENABLE);
+ALTER TABLE BLNG.account_type  MODIFY (AMND_DATE DEFAULT sysdate );
+ALTER TABLE BLNG.account_type  MODIFY (AMND_USER DEFAULT user );
+ALTER TABLE BLNG.account_type  MODIFY (AMND_STATE DEFAULT 'A' );
 
   ALTER TABLE blng.account_type ADD CONSTRAINT ACCT_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.ACCT_ID_IDX ENABLE;
@@ -213,6 +228,7 @@ REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
   select BLNG.acct_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
 
 ALTER TRIGGER BLNG.acct_TRGR ENABLE;
@@ -230,7 +246,7 @@ begin
 --  DDL for Table MARKUP
 --------------------------------------------------------
 
-  CREATE TABLE blng.accounts 
+  CREATE TABLE blng.account
    (	ID NUMBER(18,0), 
    amnd_date date,
    amnd_user VARCHAR2(50),
@@ -261,6 +277,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.account MODIFY ("ID" CONSTRAINT "ACC_ID_NN" NOT NULL ENABLE);
+ALTER TABLE BLNG.account  MODIFY (AMND_DATE DEFAULT sysdate );
+ALTER TABLE BLNG.account  MODIFY (AMND_USER DEFAULT user );
+ALTER TABLE BLNG.account  MODIFY (AMND_STATE DEFAULT 'A' );
 
   ALTER TABLE blng.account ADD CONSTRAINT ACC_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.ACC_ID_IDX ENABLE;
@@ -299,6 +318,7 @@ REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
   select BLNG.acc_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
 
 ALTER TRIGGER BLNG.acc_TRGR ENABLE;
@@ -339,6 +359,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.trans_type MODIFY ("ID" CONSTRAINT "TRT_ID_NN" NOT NULL ENABLE);
+ALTER TABLE BLNG.trans_type  MODIFY (AMND_DATE DEFAULT sysdate );
+ALTER TABLE BLNG.trans_type  MODIFY (AMND_USER DEFAULT user );
+ALTER TABLE BLNG.trans_type  MODIFY (AMND_STATE DEFAULT 'A' );
 
   ALTER TABLE blng.trans_type ADD CONSTRAINT TRT_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.TRT_ID_IDX ENABLE;
@@ -367,6 +390,7 @@ REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
   select BLNG.trt_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
 
 ALTER TRIGGER BLNG.trt_TRGR ENABLE;
@@ -381,7 +405,7 @@ begin
 --  DDL for Table MARKUP
 --------------------------------------------------------
 
-  CREATE TABLE blng.documents 
+  CREATE TABLE blng.document
    (	ID NUMBER(18,0), 
    amnd_date date,
    amnd_user VARCHAR2(50),
@@ -410,6 +434,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.document MODIFY ("ID" CONSTRAINT "DOC_ID_NN" NOT NULL ENABLE);
+ALTER TABLE BLNG.document  MODIFY (AMND_DATE DEFAULT sysdate );
+ALTER TABLE BLNG.document  MODIFY (AMND_USER DEFAULT user );
+ALTER TABLE BLNG.document  MODIFY (AMND_STATE DEFAULT 'A' );
 
   ALTER TABLE blng.document ADD CONSTRAINT DOC_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.DOC_ID_IDX ENABLE;
@@ -444,6 +471,7 @@ REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
   select BLNG.doc_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
 
 ALTER TRIGGER BLNG.doc_TRGR ENABLE;
@@ -459,7 +487,7 @@ begin
 --  DDL for Table MARKUP
 --------------------------------------------------------
 
-  CREATE TABLE blng.transactions
+  CREATE TABLE blng.transaction
    (	ID NUMBER(18,0), 
    amnd_date date,
    amnd_user VARCHAR2(50),
@@ -482,25 +510,27 @@ begin
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX blng.trn_ID_IDX ON blng.transactions ("ID") 
+  CREATE INDEX blng.trn_ID_IDX ON blng.transaction ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE blng.transactions MODIFY ("ID" CONSTRAINT "TRN_ID_NN" NOT NULL ENABLE);
-
-  ALTER TABLE blng.transactions ADD CONSTRAINT TRN_ID_PK PRIMARY KEY (ID)
+  ALTER TABLE blng.transaction MODIFY ("ID" CONSTRAINT "TRN_ID_NN" NOT NULL ENABLE);
+ALTER TABLE BLNG.transaction  MODIFY (AMND_DATE DEFAULT sysdate );
+ALTER TABLE BLNG.transaction  MODIFY (AMND_USER DEFAULT user );
+ALTER TABLE BLNG.transaction  MODIFY (AMND_STATE DEFAULT 'A' );
+  ALTER TABLE blng.transaction ADD CONSTRAINT TRN_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.trn_ID_IDX ENABLE;
 
-ALTER TABLE BLNG.transactions ADD CONSTRAINT TRN_ACC_OID_FK FOREIGN KEY (target_account_oid)
+ALTER TABLE BLNG.transaction ADD CONSTRAINT TRN_ACC_OID_FK FOREIGN KEY (target_account_oid)
   REFERENCES BLNG.account ("ID") ENABLE;
 
 
-ALTER TABLE BLNG.transactions ADD CONSTRAINT TRN_TRT_OID_FK FOREIGN KEY (trans_type_oid)
+ALTER TABLE BLNG.transaction ADD CONSTRAINT TRN_TRT_OID_FK FOREIGN KEY (trans_type_oid)
   REFERENCES BLNG.trans_type ("ID") ENABLE;
 
-ALTER TABLE BLNG.transactions ADD CONSTRAINT TRN_DOC_OID_FK FOREIGN KEY (doc_oid)
+ALTER TABLE BLNG.transaction ADD CONSTRAINT TRN_DOC_OID_FK FOREIGN KEY (doc_oid)
   REFERENCES BLNG.document ("ID") ENABLE;
 
 --------------------------------------------------------
@@ -522,11 +552,12 @@ ALTER TABLE BLNG.transactions ADD CONSTRAINT TRN_DOC_OID_FK FOREIGN KEY (doc_oid
 CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.trn_TRGR 
 BEFORE
 INSERT
-ON BLNG.transactions
+ON BLNG.transaction
 REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
   select BLNG.trn_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
 
 ALTER TRIGGER BLNG.trn_TRGR ENABLE;
@@ -575,7 +606,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.event MODIFY ("ID" CONSTRAINT "EVNT_ID_NN" NOT NULL ENABLE);
-
+ALTER TABLE BLNG.event  MODIFY (AMND_DATE DEFAULT sysdate );
+ALTER TABLE BLNG.event  MODIFY (AMND_USER DEFAULT user );
+ALTER TABLE BLNG.event  MODIFY (AMND_STATE DEFAULT 'A' );
   ALTER TABLE blng.event ADD CONSTRAINT EVNT_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.EVNT_ID_IDX ENABLE;
 
@@ -611,6 +644,7 @@ REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
   select BLNG.evnt_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
 
 ALTER TRIGGER BLNG.evnt_TRGR ENABLE;
@@ -653,7 +687,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.event_type MODIFY ("ID" CONSTRAINT "ETT_ID_NN" NOT NULL ENABLE);
-
+ALTER TABLE BLNG.event_type  MODIFY (AMND_DATE DEFAULT sysdate );
+ALTER TABLE BLNG.event_type  MODIFY (AMND_USER DEFAULT user );
+ALTER TABLE BLNG.event_type  MODIFY (AMND_STATE DEFAULT 'A' );
   ALTER TABLE blng.event_type ADD CONSTRAINT ETT_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.ETT_ID_IDX ENABLE;
 
@@ -682,6 +718,7 @@ REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
   select BLNG.ett_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
 
 
@@ -727,7 +764,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.status_type MODIFY ("ID" CONSTRAINT "STT_ID_NN" NOT NULL ENABLE);
-
+ALTER TABLE BLNG.status_type  MODIFY (AMND_DATE DEFAULT sysdate );
+ALTER TABLE BLNG.status_type  MODIFY (AMND_USER DEFAULT user );
+ALTER TABLE BLNG.status_type  MODIFY (AMND_STATE DEFAULT 'A' );
   ALTER TABLE blng.status_type ADD CONSTRAINT STT_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.STT_ID_IDX ENABLE;
 
@@ -756,6 +795,7 @@ REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
   select BLNG.stt_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
 
 
