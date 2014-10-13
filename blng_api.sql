@@ -1,46 +1,95 @@
-declare
-  p_name ntg.log.PROC_NAME%type;
-  p_id ntg.log.id%type;
-begin
-  ntg.LOG_API.LOG_ADD(p_proc_name=>'one', p_msg_type=>'Error');
- -- dbms_output.put_line(p_id);
-end;
+select * from blng.client
+
+DECLARE
+ v_ReturnValue  NUMBER;
+BEGIN
+  v_ReturnValue := BLNG.BLNG_API.client_add();
+  DBMS_OUTPUT.PUT_LINE('v_ReturnValue = ' || v_ReturnValue);
+END;
 
 
-ALTER PACKAGE BLNG COMPILE PACKAGE; 
-ALTER PACKAGE NTG COMPILE PACKAGE; 
+DECLARE
+  P_ID NUMBER;
+  P_NAME VARCHAR2(255);
+ v_ReturnValue  blng.blng_api.t_message;
+BEGIN
+  P_ID := 3;
+  P_NAME := 'Pavel Ryzhikov1';
 
-desc blng.client
+  v_ReturnValue := BLNG.BLNG_API.client_set_name(P_ID => P_ID,
+P_NAME => P_NAME);
+  DBMS_OUTPUT.PUT_LINE('v_ReturnValue = ' || v_ReturnValue);
+END;
+--3	10.10.2014 10:40:59	NTG	A	3	P.Ryzhikov	
+select * from log
+select * from blng.client order by amnd_date desc
+commit
+DECLARE
+  P_CLIENT_OID NUMBER;
+ v_ReturnValue  NUMBER;
+BEGIN
+  P_CLIENT_OID := 3;
+
+  v_ReturnValue := BLNG.BLNG_API.contract_add(P_CLIENT_OID => P_CLIENT_OID);
+  DBMS_OUTPUT.PUT_LINE('v_ReturnValue = ' || v_ReturnValue);
+END;
+
+select * from blng.contract order by amnd_date desc
+
+DECLARE
+  P_ID NUMBER;
+  P_NUMBER VARCHAR2(50);
+  v_ReturnValue  blng.blng_api.t_message;
+BEGIN
+  P_ID := 11;
+  P_NUMBER := 'num2';
+
+  v_ReturnValue := BLNG.BLNG_API.contract_set_number(P_ID => P_ID,
+P_NUMBER => P_NUMBER);
+  DBMS_OUTPUT.PUT_LINE('v_ReturnValue = ' || v_ReturnValue);
+END;
+
+DECLARE
+  P_CONTRACT_OID NUMBER;
+ v_ReturnValue   blng.blng_api.t_message;
+BEGIN
+  P_CONTRACT_OID := 11;
+
+  v_ReturnValue := BLNG.BLNG_API.account_init(P_CONTRACT_OID => P_CONTRACT_OID);
+  DBMS_OUTPUT.PUT_LINE('v_ReturnValue = ' || v_ReturnValue);
+END;
+
+select * from blng.account
 
 
-select * from dba_objects
-where owner = 'BLNG'
+SELECT * FROM dba_CONSTRAINTS WHERE 
+SEARCH_CONDITION_vc not like '%IS NOT NULL%'
 
 
-/* get package description */
-select * from ALL_SOURCE
-where owner = 'BLNG'
-and type = 'PACKAGE'
-and text like '%spec%'
+
+DECLARE
+  P_NAME VARCHAR2(50);
+  P_CODE VARCHAR2(10);
+  P_DETAILS VARCHAR2(255);
+ v_ReturnValue  NUMBER;
+BEGIN
+  P_NAME := 'decline';
+  P_CODE := 'D';
+  P_DETAILS := '';
+
+  v_ReturnValue := BLNG.BLNG_API.status_type_add(P_NAME => P_NAME,
+P_CODE => P_CODE,
+P_DETAILS => P_DETAILS);
+  DBMS_OUTPUT.PUT_LINE('v_ReturnValue = ' || v_ReturnValue);
+END;
 
 
-TYPE comp_depend_record_t IS RECORD(
-    cid VARCHAR2(30), -- component id
-    cnamespace VARCHAR2(30) -- component namespace
-    );
+select * from blng.event_type
 
 
-PROCEDURE downgrading (comp_id      IN VARCHAR2,
-                       old_name     IN VARCHAR2 DEFAULT NULL,
-                       old_proc     IN VARCHAR2 DEFAULT NULL,
-                       old_schema   IN VARCHAR2 DEFAULT NULL,
-                       old_parent   IN VARCHAR2 DEFAULT NULL);
-                       
-                       
-                      desc blng.contract
-                      
-                      
-                      
-                      select * from blng.account_type
-                      
-                      
+select * from DBA_SCHEDULER_JOBS
+
+
+select * from DBA_CREDENTIALS
+
+

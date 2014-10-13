@@ -31,9 +31,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.client MODIFY ("ID" CONSTRAINT "CLT_ID_NN" NOT NULL ENABLE);
-  ALTER TABLE BLNG.client  MODIFY (AMND_DATE DEFAULT sysdate );
-  ALTER TABLE BLNG.client  MODIFY (AMND_USER DEFAULT user );
-  ALTER TABLE BLNG.client  MODIFY (AMND_STATE DEFAULT 'A' );
+  ALTER TABLE BLNG.client  MODIFY (AMND_DATE DEFAULT on null sysdate);
+  ALTER TABLE BLNG.client  MODIFY (AMND_USER DEFAULT  on null user );
+  ALTER TABLE BLNG.client  MODIFY (AMND_STATE DEFAULT  on null 'A' );
 
   ALTER TABLE blng.client ADD CONSTRAINT CLT_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.CLT_ID_IDX ENABLE;
@@ -105,14 +105,16 @@ begin
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE blng.contract MODIFY ("ID" CONSTRAINT "CNTR_ID_NN" NOT NULL ENABLE);
+ALTER TABLE blng.contract MODIFY ("ID" CONSTRAINT "CNTR_ID_NN" NOT NULL ENABLE);
+ALTER TABLE blng.contract MODIFY ("AMND_STATE" CONSTRAINT "CNTR_AST_NN" NOT NULL ENABLE);
+ALTER TABLE blng.contract MODIFY ("AMND_DATE" CONSTRAINT "CNTR_ADT_NN" NOT NULL ENABLE);
+ALTER TABLE blng.contract MODIFY ("AMND_USER" CONSTRAINT "CNTR_AUR_NN" NOT NULL ENABLE);
 
-ALTER TABLE BLNG.CONTRACT  MODIFY (AMND_DATE DEFAULT sysdate );
-ALTER TABLE BLNG.CONTRACT  MODIFY (AMND_USER DEFAULT user );
-ALTER TABLE BLNG.CONTRACT  MODIFY (AMND_STATE DEFAULT 'A' );
+ALTER TABLE BLNG.CONTRACT  MODIFY (AMND_DATE DEFAULT  on null sysdate );
+ALTER TABLE BLNG.CONTRACT  MODIFY (AMND_USER DEFAULT  on null user );
+ALTER TABLE BLNG.CONTRACT  MODIFY (AMND_STATE DEFAULT on null 'A' );
 
-ALTER TABLE BLNG.CONTRACT  
-MODIFY (AMND_PREV DEFAULT :id );
+
 
   ALTER TABLE blng.contract ADD CONSTRAINT CNTR_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.CNTR_ID_IDX ENABLE;
@@ -174,7 +176,7 @@ begin
    
 --   amount number,
    priority number,
-   info  varchar2(255)
+   details varchar2(255)
    /*,
    status VARCHAR2(1)*/
    ) SEGMENT CREATION IMMEDIATE 
@@ -194,9 +196,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.account_type MODIFY ("ID" CONSTRAINT "ACCT_ID_NN" NOT NULL ENABLE);
-ALTER TABLE BLNG.account_type  MODIFY (AMND_DATE DEFAULT sysdate );
-ALTER TABLE BLNG.account_type  MODIFY (AMND_USER DEFAULT user );
-ALTER TABLE BLNG.account_type  MODIFY (AMND_STATE DEFAULT 'A' );
+ALTER TABLE BLNG.account_type  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE BLNG.account_type  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE BLNG.account_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 
   ALTER TABLE blng.account_type ADD CONSTRAINT ACCT_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.ACCT_ID_IDX ENABLE;
@@ -277,9 +279,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.account MODIFY ("ID" CONSTRAINT "ACC_ID_NN" NOT NULL ENABLE);
-ALTER TABLE BLNG.account  MODIFY (AMND_DATE DEFAULT sysdate );
-ALTER TABLE BLNG.account  MODIFY (AMND_USER DEFAULT user );
-ALTER TABLE BLNG.account  MODIFY (AMND_STATE DEFAULT 'A' );
+ALTER TABLE BLNG.account  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE BLNG.account  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE BLNG.account  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 
   ALTER TABLE blng.account ADD CONSTRAINT ACC_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.ACC_ID_IDX ENABLE;
@@ -341,7 +343,8 @@ begin
    amnd_prev NUMBER(18,0), 
 	 --contract_oid NUMBER(18,0),
    name varchar2(50),
-   code varchar2(10)
+   code varchar2(10),
+   details varchar2(255)
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
@@ -359,9 +362,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.trans_type MODIFY ("ID" CONSTRAINT "TRT_ID_NN" NOT NULL ENABLE);
-ALTER TABLE BLNG.trans_type  MODIFY (AMND_DATE DEFAULT sysdate );
-ALTER TABLE BLNG.trans_type  MODIFY (AMND_USER DEFAULT user );
-ALTER TABLE BLNG.trans_type  MODIFY (AMND_STATE DEFAULT 'A' );
+ALTER TABLE BLNG.trans_type  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE BLNG.trans_type  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE BLNG.trans_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 
   ALTER TABLE blng.trans_type ADD CONSTRAINT TRT_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.TRT_ID_IDX ENABLE;
@@ -434,9 +437,18 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.document MODIFY ("ID" CONSTRAINT "DOC_ID_NN" NOT NULL ENABLE);
-ALTER TABLE BLNG.document  MODIFY (AMND_DATE DEFAULT sysdate );
-ALTER TABLE BLNG.document  MODIFY (AMND_USER DEFAULT user );
-ALTER TABLE BLNG.document  MODIFY (AMND_STATE DEFAULT 'A' );
+
+ALTER TABLE blng.document MODIFY ("AMND_STATE" CONSTRAINT "DOC_AST_NN" NOT NULL ENABLE);
+ALTER TABLE blng.document MODIFY ("AMND_DATE" CONSTRAINT "DOC_ADT_NN" NOT NULL ENABLE);
+ALTER TABLE blng.document MODIFY ("AMND_USER" CONSTRAINT "DOC_AUR_NN" NOT NULL ENABLE);
+ALTER TABLE blng.document MODIFY ("STATUS" CONSTRAINT "DOC_ST_NN" NOT NULL ENABLE);
+
+ALTER TABLE BLNG.document  MODIFY (AMND_DATE DEFAULT  on null sysdate );
+ALTER TABLE BLNG.document  MODIFY (AMND_USER DEFAULT  on null user );
+ALTER TABLE BLNG.document  MODIFY (AMND_STATE DEFAULT on null 'A' );
+ALTER TABLE BLNG.document  MODIFY (STATUS DEFAULT on null 'W' );
+
+
 
   ALTER TABLE blng.document ADD CONSTRAINT DOC_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.DOC_ID_IDX ENABLE;
@@ -517,9 +529,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.transaction MODIFY ("ID" CONSTRAINT "TRN_ID_NN" NOT NULL ENABLE);
-ALTER TABLE BLNG.transaction  MODIFY (AMND_DATE DEFAULT sysdate );
-ALTER TABLE BLNG.transaction  MODIFY (AMND_USER DEFAULT user );
-ALTER TABLE BLNG.transaction  MODIFY (AMND_STATE DEFAULT 'A' );
+ALTER TABLE BLNG.transaction  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE BLNG.transaction  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE BLNG.transaction  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   ALTER TABLE blng.transaction ADD CONSTRAINT TRN_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.trn_ID_IDX ENABLE;
 
@@ -580,15 +592,13 @@ begin
    amnd_user VARCHAR2(50),
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
-	-- doc_oid NUMBER(18,0),
    event_type_oid NUMBER(18,0),
    transaction_oid NUMBER(18,0),
-   --target_account_oid NUMBER(18,0),
    date_to date,
-   cotract_oid number(18,0),
-   --code varchar2(10),
+   contract_oid number(18,0),
    amount number,
-   status VARCHAR2(1)
+   status VARCHAR2(1),
+   priority number
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
@@ -606,17 +616,20 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.event MODIFY ("ID" CONSTRAINT "EVNT_ID_NN" NOT NULL ENABLE);
-ALTER TABLE BLNG.event  MODIFY (AMND_DATE DEFAULT sysdate );
-ALTER TABLE BLNG.event  MODIFY (AMND_USER DEFAULT user );
-ALTER TABLE BLNG.event  MODIFY (AMND_STATE DEFAULT 'A' );
+  ALTER TABLE blng.event MODIFY (AMND_DATE CONSTRAINT "EVNT_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.event MODIFY (AMND_USER CONSTRAINT "EVNT_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.event MODIFY (AMND_STATE CONSTRAINT "EVNT_AST_NN" NOT NULL ENABLE);
+ALTER TABLE BLNG.event  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE BLNG.event  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE BLNG.event  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   ALTER TABLE blng.event ADD CONSTRAINT EVNT_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.EVNT_ID_IDX ENABLE;
-
+ 
 ALTER TABLE BLNG.event ADD CONSTRAINT EVNT_ETT_OID_FK FOREIGN KEY (event_type_oid)
   REFERENCES BLNG.event_type ("ID") ENABLE;
 ALTER TABLE BLNG.event ADD CONSTRAINT EVNT_TRN_OID_FK FOREIGN KEY (transaction_oid)
   REFERENCES BLNG.transaction ("ID") ENABLE;
-ALTER TABLE BLNG.event ADD CONSTRAINT EVNT_CNTR_OID_FK FOREIGN KEY (cotract_oid)
+ALTER TABLE BLNG.event ADD CONSTRAINT EVNT_CNTR_OID_FK FOREIGN KEY (contract_oid)
   REFERENCES BLNG.contract ("ID") ENABLE;
 
 
@@ -687,9 +700,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.event_type MODIFY ("ID" CONSTRAINT "ETT_ID_NN" NOT NULL ENABLE);
-ALTER TABLE BLNG.event_type  MODIFY (AMND_DATE DEFAULT sysdate );
-ALTER TABLE BLNG.event_type  MODIFY (AMND_USER DEFAULT user );
-ALTER TABLE BLNG.event_type  MODIFY (AMND_STATE DEFAULT 'A' );
+ALTER TABLE BLNG.event_type  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE BLNG.event_type  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE BLNG.event_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   ALTER TABLE blng.event_type ADD CONSTRAINT ETT_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.ETT_ID_IDX ENABLE;
 
@@ -764,9 +777,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.status_type MODIFY ("ID" CONSTRAINT "STT_ID_NN" NOT NULL ENABLE);
-ALTER TABLE BLNG.status_type  MODIFY (AMND_DATE DEFAULT sysdate );
-ALTER TABLE BLNG.status_type  MODIFY (AMND_USER DEFAULT user );
-ALTER TABLE BLNG.status_type  MODIFY (AMND_STATE DEFAULT 'A' );
+ALTER TABLE BLNG.status_type  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE BLNG.status_type  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE BLNG.status_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   ALTER TABLE blng.status_type ADD CONSTRAINT STT_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.STT_ID_IDX ENABLE;
 
@@ -806,4 +819,89 @@ end;
 
 
 
+
+/* delay */
+begin
+
+--------------------------------------------------------
+--  DDL for Table MARKUP
+--------------------------------------------------------
+
+  CREATE TABLE blng.delay
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+   event_type_oid NUMBER(18,0),
+   transaction_oid NUMBER(18,0),
+   date_to date,
+   contract_oid number(18,0),
+   amount number,
+   status VARCHAR2(1),
+   priority number
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+  
+  --drop table  blng.account 
+--------------------------------------------------------
+--  DDL for Index MKP_ID_IDX
+--------------------------------------------------------
+
+  CREATE INDEX blng.dly_ID_IDX ON blng.delay ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table MARKUP
+--------------------------------------------------------
+
+  ALTER TABLE blng.delay MODIFY ("ID" CONSTRAINT dly_ID_NN NOT NULL ENABLE);
+  ALTER TABLE blng.delay MODIFY (AMND_DATE CONSTRAINT "DLY_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.delay MODIFY (AMND_USER CONSTRAINT "DLY_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.delay MODIFY (AMND_STATE CONSTRAINT "DLY_AST_NN" NOT NULL ENABLE);
+ALTER TABLE BLNG.delay  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE BLNG.delay  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE BLNG.delay  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE blng.delay ADD CONSTRAINT DLY_ID_PK PRIMARY KEY (ID)
+  USING INDEX BLNG.DLY_ID_IDX ENABLE;
+
+ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_ETT_OID_FK FOREIGN KEY (event_type_oid)
+  REFERENCES BLNG.event_type ("ID") ENABLE;
+ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_TRN_OID_FK FOREIGN KEY (transaction_oid)
+  REFERENCES BLNG.transaction ("ID") ENABLE;
+ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_CNTR_OID_FK FOREIGN KEY (contract_oid)
+  REFERENCES BLNG.contract ("ID") ENABLE;
+
+
+--------------------------------------------------------
+--  DDL for Secuence MKP_SEQ
+--------------------------------------------------------
+ 
+  create sequence  BLNG.DLY_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+  
+--------------------------------------------------------
+--  DDL for Trigger MKP_TRGR
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.DLY_TRGR 
+BEFORE
+INSERT
+ON BLNG.delay
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select BLNG.DLY_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
+end;
+
+ALTER TRIGGER BLNG.DLY_TRGR ENABLE;
+
+end;
 
