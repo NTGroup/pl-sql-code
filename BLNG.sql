@@ -259,8 +259,8 @@ begin
   -- account_name VARCHAR2(50),
    code varchar2(10),
    amount number,
-   priority number /*,
-   status VARCHAR2(1)*/
+   priority number,
+   last_document number(18,0)
    
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 

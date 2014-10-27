@@ -93,3 +93,366 @@ select * from DBA_SCHEDULER_JOBS
 select * from DBA_CREDENTIALS
 
 
+
+SELECT event, total_waits waits, total_timeouts timeouts,
+time_waited total_time, average_wait avg
+FROM V$SYSTEM_EVENT
+where event like 'db file s%'
+order by 4 desc;
+
+
+select * from blng.event
+
+begin
+
+
+
+declare
+  P_CONTRACT NUMBER;
+  P_AMOUNT NUMBER;
+  P_TRANSACTION NUMBER;
+  P_DATE_TO DATE;
+  P_EVENT_TYPE NUMBER;
+  P_STATUS VARCHAR2(1);
+  P_PRIORITY NUMBER;
+ v_ReturnValue  number;
+BEGIN
+  P_CONTRACT := 10;
+  P_AMOUNT := 10;
+  P_TRANSACTION := 1;
+  P_DATE_TO := sysdate;
+  P_EVENT_TYPE := 1;
+  P_STATUS := 'A';
+  P_PRIORITY := 1;
+
+  v_ReturnValue := BLNG.BLNG_API.event_add(P_CONTRACT => P_CONTRACT,
+P_AMOUNT => P_AMOUNT,
+P_TRANSACTION => P_TRANSACTION,
+P_DATE_TO => P_DATE_TO,
+P_EVENT_TYPE => P_EVENT_TYPE,
+P_STATUS => P_STATUS,
+P_PRIORITY => P_PRIORITY);
+  DBMS_OUTPUT.PUT_LINE('v_ReturnValue = ' || v_ReturnValue);
+END;
+
+
+begin
+blng.core.event_ins_test;
+end;
+
+DTYPE
+
+
+select * from log
+
+show error
+
+select * from blng.event
+
+alter session set plsql_warnings = 'enable:all'
+
+    
+      SELECT   *
+   FROM     dba_scheduler_window_log
+   ORDER BY log_date DESC
+    
+    
+    SELECT * FROM USER_SCHEDULER_JOBS;
+    SELECT * FROM USER_SCHEDULER_JOB_LOG;
+    SELECT * FROM USER_SCHEDULER_RUNNING_JOBS
+    SELECT * FROM USER_SCHEDULER_JOB_RUN_DETAILS
+    SELECT * FROM USER_SCHEDULER_JOB_DESTS
+    SELECT * FROM USER_SCHEDULER_RUNNING_JOBS
+    SELECT * FROM USER_SCHEDULER_RUNNING_JOBS
+    
+    BEGIN
+DBMS_SCHEDULER.CREATE_JOB
+( job_name   => 'simple_job'
+, job_type   => 'STORED_PROCEDURE'
+, job_action => 'updatesal'
+, enabled   => TRUE
+) ;
+END;
+/
+
+    
+    BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE (
+( name   => 'simple_job'
+, job_type   => 'STORED_PROCEDURE'
+, job_action => 'updatesal'
+, enabled   => TRUE
+) ;
+END;
+/
+
+
+
+BEGIN
+  DBMS_SCHEDULER.CREATE_JOB (
+   job_name           =>  'update_sales',
+   job_type           =>  'STORED_PROCEDURE',
+   job_action         =>  'ntg.log_api.LOG_ADD',
+   enabled            =>  TRUE);
+END;
+/
+
+
+begin
+--    NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_set_name', p_msg_type=>'Error');
+    NTG.LOG_API.LOG_ADD;
+ end;
+
+select * from log order by id desc
+
+select * from log order by id desc
+desc blng.document
+
+
+DECLARE
+ v_ReturnValue  NUMBER;
+BEGIN
+
+  v_ReturnValue := blng.BLNG_API.document_add(P_CONTRACT => 11,
+P_AMOUNT => 10010,
+P_TRANS_TYPE => 2);
+  DBMS_OUTPUT.PUT_LINE('v_ReturnValue = ' || v_ReturnValue);
+END;
+
+select * from blng.document
+
+    
+BEGIN
+  BLNG.CORE.approve_documents  ;  
+END;
+
+select * from blng.trans_type
+
+
+DECLARE
+
+ v_ReturnValue  NUMBER;
+BEGIN
+
+  v_ReturnValue := BLNG.BLNG_API.trans_type_add(P_NAME => 'max loan trans amount',
+P_CODE => 'ult',
+P_DETAILS => 'изменение максимальной суммы единоразового списания с кредитного лимита');
+  DBMS_OUTPUT.PUT_LINE('v_ReturnValue = ' || v_ReturnValue);
+END;
+
+select * from blng.account_type
+
+select * from blng.trans_type
+
+DECLARE
+ v_ReturnValue  NUMBER;
+BEGIN
+
+
+  v_ReturnValue := BLNG.BLNG_API.account_type_add(P_NAME => 'credit online',
+P_CODE => 'co',
+P_PRIORITY => 0,
+P_DETAILS => 'счет зачисления');
+  DBMS_OUTPUT.PUT_LINE('v_ReturnValue = ' || v_ReturnValue);
+END;
+
+create type 
+
+
+
+
+grant execute on dtype to blng;
+
+
+    
+BEGIN
+  BLNG.CORE.et_test  ;  
+END;
+
+select * from blng.document
+
+
+select * from blng.account
+
+
+  select sum(amount) from blng.account where amnd_state = 'A' and contract_oid = 11 and code in ('d','l','cl','clb');
+
+  select sum(amount) from blng.account where amnd_state = 'A' and contract_oid = 11 and account_type_oid in (select id from blng.account_type where amnd_state = 'A' and  code in ('d','l','cl','clb'));
+  
+  (select id from blng.account_type where amnd_state = 'A' and  code in ('d','l','cl','clb'))
+  
+select * from blng.trans_type
+
+
+
+declare
+PROCEDURE account_status (
+  due_date DATE,
+  today    DATE
+) 
+IS
+  past_due  EXCEPTION;  -- declare exception
+  v_today date;
+BEGIN
+v_today:=today;
+for i in 1..5
+loop
+  IF due_date< v_today THEN
+    RAISE past_due;  -- explicitly raise exception
+  else 
+    DBMS_OUTPUT.PUT_LINE ('ok');
+  END IF;
+  v_today:=v_today-7;
+end loop;  
+EXCEPTION
+  WHEN past_due THEN  -- handle exception
+    DBMS_OUTPUT.PUT_LINE ('Account past due.');
+END account_status;
+
+ 
+BEGIN
+  account_status (TO_DATE('01-07-2010', 'DD-MM-YYYY'),
+                  TO_DATE('09-07-2010', 'DD-MM-YYYY'));
+              
+END;
+
+
+compile all
+
+EXEC DBMS_UTILITY.compile_schema(schema => 'BLNG');
+
+declare 
+a number;
+begin
+select blng.info.available(111) into a
+from dual;
+end;
+
+
+select decode(null,1,1) from dual
+
+select * from blng.event_type
+
+select * from blng.trans_type
+
+  procedure account_edit(       p_id in dtype.t_id default null,
+                                p_contract in dtype.t_id default null,
+                                p_account_type in dtype.t_id default null,
+                                p_code in dtype.t_code default null,
+                                p_amount in dtype.t_amount default null,
+                                p_last_document in dtype.t_id default null,
+                                p_set_amount in dtype.t_status default 'Y'
+
+
+
+select * from blng.account
+
+
+[external block] 
+declare
+  doc_waiting EXCEPTION;                     
+  PRAGMA EXCEPTION_INIT (doc_waiting, -20000);  
+
+  insufficient_funds  EXCEPTION;                      
+  PRAGMA EXCEPTION_INIT (insufficient_funds, -20001);  
+is
+  [internal block]
+  begin
+    raise_application_error(-20001,'insufficient funds');
+  exception 
+    when dtype.insufficient_funds then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'buy', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => 'p_doc=' || p_doc.id || '&p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
+      raise;
+    when dtype.doc_waiting then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'buy', p_msg_type=>'Error', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20000)),p_info => 'p_doc=' || p_doc.id || '&p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
+      raise;      
+    when others then
+      rollback;
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'buy', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_doc=' || p_doc.id || '&p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      raise;
+  end [internal block];
+
+exception 
+  when dtype.insufficient_funds then
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'approve_documents', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => '&p_process=set&p_status=D&p_doc=' || r_doc.id || '&p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
+    mess := blng.blng_api.document_set_status(r_doc.id, 'D'); --commited inside. its wrong.
+    commit;
+  when dtype.doc_waiting then
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'approve_documents', p_msg_type=>'Error', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20000)),p_info => 'p_doc=' || r_doc.id || '&p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
+    commit;
+  when others then
+    rollback;
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'approve_documents.c_doc', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_doc=' || r_doc.id || '&p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+    mess := blng.blng_api.document_set_status(r_doc.id, 'E'); --commited inside. its wrong.
+    commit;
+end;
+
+
+
+select * from blng.trans_type
+select * from blng.account
+
+
+
+C:\Users\Pavel\Downloads
+
+BEGIN
+ DBMS_SCHEDULER.CREATE_SCHEDULE (
+  schedule_name     => 'document_schedule',
+  start_date        => SYSTIMESTAMP,
+  --end_date          => SYSTIMESTAMP + INTERVAL '30' day,
+  repeat_interval   => 'FREQ=SECONDLY;INTERVAL=10',
+  comments          => 'Every 10 seconds');
+END;
+/
+
+
+select 
+*
+from
+   dba_scheduler_schedules
+
+BEGIN
+  DBMS_SCHEDULER.CREATE_JOB (
+   job_name           =>  'DebitOnline',
+   schedule_name => 'document_schedule',
+   job_type           =>  'STORED_PROCEDURE',
+   job_action         =>  'blng.core.debit_online',
+   --job_style        => 'LIGHTWEIGHT',
+   enabled            =>  TRUE,
+   COMMENTS            => 'produce debit online money' );
+END;
+/
+
+      SELECT   *
+   FROM     dba_scheduler_window_log
+   ORDER BY log_date DESC
+    
+    
+    SELECT * FROM USER_SCHEDULER_JOBS;
+    SELECT * FROM USER_SCHEDULER_JOB_LOG order by log_id desc
+    SELECT * FROM USER_SCHEDULER_RUNNING_JOBS
+    SELECT * FROM USER_SCHEDULER_JOB_RUN_DETAILS
+    SELECT * FROM USER_SCHEDULER_JOB_DESTS
+    SELECT * FROM USER_SCHEDULER_RUNNING_JOBS
+    SELECT * FROM USER_SCHEDULER_RUNNING_JOBS
+    
+ select * from log
+ order by id desc
+ select * from blng.document
+ 
+    BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'document_schedule', attribute         =>  'repeat_interval', value => 'FREQ=MINUTELY;INTERVAL=2') ;
+END;
+/
+
+    
+    BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'document_schedule', attribute         =>  'repeat_interval', value => 'FREQ=SECONDLY;INTERVAL=10') ;
+END;
+/
+
+    BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'APPROVEDOCUMENTS', attribute         =>  'job_action', value => 'blng.core.approve_documents') ;
+END;
+/
