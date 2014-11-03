@@ -258,6 +258,7 @@ END;
 
 create type 
 
+COLUMN NTG.LOG
 
 
 
@@ -456,3 +457,7 @@ END;
 DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'APPROVEDOCUMENTS', attribute         =>  'job_action', value => 'blng.core.approve_documents') ;
 END;
 /
+
+
+
+SELECT * FROM BLNG.TRANS_TYPE
