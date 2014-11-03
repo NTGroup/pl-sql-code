@@ -414,13 +414,13 @@ from
 
 BEGIN
   DBMS_SCHEDULER.CREATE_JOB (
-   job_name           =>  'DebitOnline',
+   job_name           =>  'DelayExpire',
    schedule_name => 'document_schedule',
    job_type           =>  'STORED_PROCEDURE',
-   job_action         =>  'blng.core.debit_online',
+   job_action         =>  'blng.core.delay_expire',
    --job_style        => 'LIGHTWEIGHT',
    enabled            =>  TRUE,
-   COMMENTS            => 'produce debit online money' );
+   COMMENTS            => 'check delays' );
 END;
 /
 
@@ -430,7 +430,8 @@ END;
     
     
     SELECT * FROM USER_SCHEDULER_JOBS;
-    SELECT * FROM USER_SCHEDULER_JOB_LOG order by log_id desc
+    SELECT * FROM USER_SCHEDULER_JOB_LOG where owner = 'NTG' order by log_id desc
+    SELECT COUNT(*) FROM USER_SCHEDULER_JOB_LOG where owner = 'NTG'
     SELECT * FROM USER_SCHEDULER_RUNNING_JOBS
     SELECT * FROM USER_SCHEDULER_JOB_RUN_DETAILS
     SELECT * FROM USER_SCHEDULER_JOB_DESTS
@@ -439,7 +440,12 @@ END;
     
  select * from log
  order by id desc
- select * from blng.document
+ 
+select * from blng.account
+
+
+
+ select * from blng.document order by id desc
  
     BEGIN
 DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'document_schedule', attribute         =>  'repeat_interval', value => 'FREQ=MINUTELY;INTERVAL=2') ;
@@ -452,7 +458,166 @@ DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'document_schedule', attribute         
 END;
 /
 
+    
+    BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'document_schedule', attribute         =>  'repeat_interval', value => 'FREQ=DAILY;INTERVAL=2') ;
+END;
+/
+
     BEGIN
 DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'APPROVEDOCUMENTS', attribute         =>  'job_action', value => 'blng.core.approve_documents') ;
 END;
 /
+
+
+
+
+
+
+
+DECLARE
+
+ v_ReturnValue  NUMBER;
+BEGIN
+
+  v_ReturnValue := blng.BLNG_API.document_add(P_CONTRACT => 11,
+P_AMOUNT => 666,
+P_TRANS_TYPE =>1);
+  DBMS_OUTPUT.PUT_LINE('v_ReturnValue = ' || v_ReturnValue);
+  commit;
+END;
+
+
+
+select * from blng.trans_type
+
+select * from blng.document
+where amnd_state = 'A'
+--and status = 'W'
+order by id desc
+
+select * from blng.account where amnd_state = 'A' order by id desc
+
+select * from blng.account where amnd_prev=28
+ORDER BY AMND_DATE DESC
+
+select * from blng.DELAY where amnd_state = 'A' order by id desc  
+select * from blng.DELAY where  amnd_prev = 40  order by id desc  
+/*update blng.DELAY 
+set date_to = trunc(sysdate)
+where amnd_state = 'A' ;
+commit;*/
+select * from blng.DELAY order by id desc 
+
+select * from blng.v_account
+
+select * from blng.transaction order by AMND_DATE desc
+
+  P_CONTRACT NUMBER;
+
+DECLARE
+  P_AMOUNT NUMBER;    
+BEGIN
+  P_CONTRACT := 10;
+  P_AMOUNT := 1500;
+
+  BLNG.CORE.delay_remove (  P_CONTRACT => P_CONTRACT,
+P_AMOUNT => P_AMOUNT) ;  
+END;
+
+
+select * from 
+
+
+DECLARE
+  P_CONTRACT NUMBER;
+  P_DAYS NUMBER;    
+BEGIN
+  P_CONTRACT := 11;
+  P_DAYS := 1;
+
+  BLNG.CORE.contract_unblock (  P_CONTRACT => P_CONTRACT,
+P_DAYS => P_DAYS) ;  
+exception when others
+then
+DBMS_OUTPUT.PUT_LINE ('catch it');
+END;
+
+DECLARE
+V_TR NUMBER;
+BEGIN
+ V_TR := BLNG.BLNG_API.transaction_add(P_AMOUNT => -(-5000),
+        P_TRANS_TYPE => 10, P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => 28);        
+        COMMIT;
+                DBMS_OUTPUT.PUT_LINE (V_TR);
+        END;
+        
+        update blng.delay set date_to = trunc(sysdate) where id = 44;
+        commit;
+        
+ DECLARE
+
+ v_ReturnValue  NUMBER;
+BEGIN
+
+  v_ReturnValue := blng.BLNG_API.document_add(P_CONTRACT => 11,
+P_AMOUNT => 35,
+P_TRANS_TYPE =>11);
+  DBMS_OUTPUT.PUT_LINE('v_ReturnValue = ' || v_ReturnValue);
+  commit;
+END;
+
+
+select acc.id,
+acc.contract_oid
+from 
+BLNG.account ACC
+where 
+acc.amnd_state = 'A'
+code in 
+
+
+
+select *
+from 
+BLNG.transaction trn
+where 
+trn.amnd_state = 'A'
+
+create or replace view blng.v_statement as
+select
+doc.contract_oid contract_oid,
+tt.id trans_type_oid,
+doc.id doc_oid,
+cntr.contract_number,
+tt.name trans_type,
+tt.details trans_detals,
+doc.doc_date,
+doc.amount
+
+from BLNG.document doc,
+blng.trans_type tt,
+blng.contract cntr
+where doc.amnd_state = 'A'
+and tt.amnd_state = 'A'
+and doc.status = 'A'
+and tt.id = doc.trans_type_oid
+--and trans_type_oid = 2
+and doc.contract_oid = cntr.id
+order by doc.contract_oid, doc.doc_date
+
+
+DECLARE
+  P_CONTRACT NUMBER;    
+BEGIN
+  P_CONTRACT := 11;
+
+  blng.BLNG_API.account_init (  P_CONTRACT => P_CONTRACT) ;  
+END;
+
+
+
+select * from blng.delay order by id desc
+
+select * from blng.transaction_type
+
