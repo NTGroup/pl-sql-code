@@ -258,6 +258,7 @@ END;
 
 create type 
 
+COLUMN NTG.LOG
 
 
 
@@ -471,6 +472,7 @@ END;
 
 
 
+<<<<<<< HEAD
 
 
 
@@ -621,3 +623,6 @@ select * from blng.delay order by id desc
 
 select * from blng.transaction_type
 
+=======
+SELECT * FROM BLNG.TRANS_TYPE
+>>>>>>> origin/master
