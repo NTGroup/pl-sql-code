@@ -626,3 +626,22 @@ select * from blng.transaction_type
 =======
 SELECT * FROM BLNG.TRANS_TYPE
 >>>>>>> origin/master
+
+
+select * from blng.delay order by id desc
+
+select * from blng.delay where contract_oid = 14
+select * from blng.transaction where id in (select transaction_oid from blng.delay where contract_oid = 14)
+
+
+select id from blng.account where contract_oid =14 and amnd_state = 'A'
+select * from blng.transaction where 
+target_account_oid in (select id from blng.account where contract_oid =14 and amnd_state = 'A')
+and trans_type_oid in (1)
+and id in (select transaction_oid from blng.delay where contract_oid = 14)
+
+select * from blng.document where contract_oid = 14 
+
+select * from blng.account where contract_oid =14 and amnd_state = 'A'
+
+select * from blng.event_type
