@@ -46,3 +46,13 @@ DEFAULT TABLESPACE users
 TEMPORARY TABLESPACE temp
 QUOTA UNLIMITED ON users
 /*ACCOUNT UNLOCK*/ ;
+
+/* create new user shcheme inside pdb */
+create user ord identified by ORDasdf1234;
+     
+/* inside pdb */ 
+alter user ord 
+DEFAULT TABLESPACE users
+TEMPORARY TABLESPACE temp
+QUOTA UNLIMITED ON users
+/*ACCOUNT UNLOCK*/ ;

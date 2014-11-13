@@ -352,5 +352,7 @@ dbms_output.put_line(GEO_tapi_rec.name);
   
 end;
 
---desc geo;
 
+ ALTER USER ord ACCOUNT LOCK;
+
+select * from gba_users

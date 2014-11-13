@@ -9,6 +9,102 @@ END;
 /
 
 
+
+/* first edition with check account value only*/
+DECLARE
+  starting_time  TIMESTAMP WITH TIME ZONE;
+  ending_time    TIMESTAMP WITH TIME ZONE;
+  P_company VARCHAR2(255):='pasha_company';
+  v_company ntg.dtype.t_id;
+
+--  P_NAME VARCHAR2(255):='pasha';
+  v_client1  ntg.dtype.t_id;
+  v_client2  ntg.dtype.t_id;
+  v_client3  ntg.dtype.t_id;
+  v_client4  ntg.dtype.t_id;
+  v_client5  ntg.dtype.t_id;
+  v_client6  ntg.dtype.t_id;
+  v_contract1  ntg.dtype.t_id;
+  v_contract5  ntg.dtype.t_id;
+  P_number VARCHAR2(255);
+BEGIN
+--- create contract and account for begin test
+
+/*
+
+1	buy	b
+2	cash in	ci
+3	credit	c
+4	debit	d
+5	debit adjustment	da
+6	credit adjustment	ca
+11	set delay days	dd
+12	credit online	co
+13	debit online	do
+7	credit limit	cl
+8	max loan trans amount	ult
+9	block	clb
+10	unblock	clu
+
+*/
+
+
+  SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
+
+  /*company*/
+  v_company := blng.BLNG_API.company_add(P_name => P_company);
+  DBMS_OUTPUT.PUT_LINE('v_company = ' || v_company);
+
+
+  /*client*/
+--с1
+  v_client1 := blng.BLNG_API.client_add(P_NAME => 'HR Ася', p_company => v_company);
+  DBMS_OUTPUT.PUT_LINE('v_client1 = ' || v_client1);
+  v_client3 := blng.BLNG_API.client_add(P_NAME => 'Маша', p_company => v_company);
+  DBMS_OUTPUT.PUT_LINE('v_client3 = ' || v_client3);
+  v_client2 := blng.BLNG_API.client_add(P_NAME => 'Вася', p_company => v_company);
+  DBMS_OUTPUT.PUT_LINE('v_client2 = ' || v_client2);
+  v_client4 := blng.BLNG_API.client_add(P_NAME => 'Лида', p_company => v_company);
+  DBMS_OUTPUT.PUT_LINE('v_client4 = ' || v_client4);
+--с2
+  v_client5 := blng.BLNG_API.client_add(P_NAME => 'Head Николай', p_company => v_company);
+  DBMS_OUTPUT.PUT_LINE('v_client5 = ' || v_client5);
+  v_client6 := blng.BLNG_API.client_add(P_NAME => 'HR Head Александра', p_company => v_company);
+  DBMS_OUTPUT.PUT_LINE('v_client6 = ' || v_client6);
+
+
+
+/*contract*/
+  v_contract1 := blng.BLNG_API.contract_add(P_NUMBER => 'c1-4');
+  DBMS_OUTPUT.PUT_LINE('v_contract1 = ' || v_contract1); 
+  BLNG.BLNG_API.account_init(v_contract1);
+
+  v_contract5 := blng.BLNG_API.contract_add(P_NUMBER => 'c5-6');
+  DBMS_OUTPUT.PUT_LINE('v_contract5 = ' || v_contract5); 
+  BLNG.BLNG_API.account_init(v_contract5);
+
+/* client2contract */
+  blng.BLNG_API.client2contract_add(P_client => v_client1, p_permission=> 'B', p_contract => v_contract1);
+  blng.BLNG_API.client2contract_add(P_client => v_client2, p_permission=> 'B', p_contract => v_contract1);
+  blng.BLNG_API.client2contract_add(P_client => v_client3, p_permission=> 'B', p_contract => v_contract1);
+  blng.BLNG_API.client2contract_add(P_client => v_client4, p_permission=> 'B', p_contract => v_contract1);
+  blng.BLNG_API.client2contract_add(P_client => v_client1, p_permission=> 'I', p_contract => v_contract1);
+  blng.BLNG_API.client2contract_add(P_client => v_client5, p_permission=> 'B', p_contract => v_contract5);
+  blng.BLNG_API.client2contract_add(P_client => v_client6, p_permission=> 'B', p_contract => v_contract5);
+  blng.BLNG_API.client2contract_add(P_client => v_client6, p_permission=> 'I', p_contract => v_contract1);
+  blng.BLNG_API.client2contract_add(P_client => v_client6, p_permission=> 'I', p_contract => v_contract5);
+
+
+
+
+  SELECT SYSTIMESTAMP INTO ending_time FROM DUAL;
+  DBMS_OUTPUT.PUT_LINE('Time = ' || TO_CHAR(ending_time - starting_time));
+commit;
+end;
+
+select * from blng.client2contract;
+
+select * from blng.account where contract_oid in (17,18);
 /* first edition with check account value only*/
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;

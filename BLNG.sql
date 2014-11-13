@@ -1,3 +1,79 @@
+
+/*company*/
+begin
+
+--------------------------------------------------------
+--  DDL for Table MARKUP
+--------------------------------------------------------
+
+  CREATE TABLE blng.company 
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+   name varchar2(255),
+   status VARCHAR2(1)
+   
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index MKP_ID_IDX
+--------------------------------------------------------
+
+  CREATE INDEX blng.cmp_ID_IDX ON blng.company ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table MARKUP
+--------------------------------------------------------
+
+  ALTER TABLE blng.company MODIFY ("ID" CONSTRAINT "cmp_ID_NN" NOT NULL ENABLE);
+  ALTER TABLE BLNG.company  MODIFY (AMND_DATE DEFAULT on null sysdate);
+  ALTER TABLE BLNG.company  MODIFY (AMND_USER DEFAULT  on null user );
+  ALTER TABLE BLNG.company  MODIFY (AMND_STATE DEFAULT  on null 'A' );
+
+  ALTER TABLE blng.company ADD CONSTRAINT cmp_ID_PK PRIMARY KEY (ID)
+  USING INDEX BLNG.cmp_ID_IDX ENABLE;
+
+
+--------------------------------------------------------
+--  DDL for Secuence MKP_SEQ
+--------------------------------------------------------
+ 
+  create sequence  BLNG.cmp_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+  
+--------------------------------------------------------
+--  DDL for Trigger MKP_TRGR
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.cmp_TRGR 
+BEFORE
+INSERT
+ON BLNG.company
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select BLNG.cmp_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual;
+end;
+/
+ALTER TRIGGER BLNG.cmp_TRGR ENABLE;
+
+end;
+
+
+
+
+
+
 /*client*/
 begin
 
@@ -11,9 +87,8 @@ begin
    amnd_user VARCHAR2(50),
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
-	 --client_oid NUMBER(18,0),
+   company_oid NUMBER(18,0), 
    name varchar2(255),
-   --contract_number VARCHAR2(50),
    status VARCHAR2(1)
    
    ) SEGMENT CREATION IMMEDIATE 
@@ -38,9 +113,8 @@ begin
   ALTER TABLE blng.client ADD CONSTRAINT CLT_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.CLT_ID_IDX ENABLE;
 
-/*  ALTER TABLE "BLNG"."M_TRANSACTION" ADD CONSTRAINT "MTR_DOC_OID_FK" FOREIGN KEY ("ID")
-  REFERENCES "BLNG"."DOC" ("ID") ENABLE;
-*/
+ALTER TABLE BLNG.client ADD CONSTRAINT clt_cmp_OID_FK FOREIGN KEY (company_oid)
+  REFERENCES BLNG.company ("ID") ENABLE;
 
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
@@ -73,6 +147,322 @@ ALTER TRIGGER BLNG.CLT_TRGR ENABLE;
 
 end;
 
+
+
+
+/*permission*/
+begin
+/*
+--------------------------------------------------------
+--  DDL for Table MARKUP
+--------------------------------------------------------
+
+  CREATE TABLE blng.permission 
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+   name varchar2(255),
+   permission varchar2(1),  
+   status VARCHAR2(1)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index MKP_ID_IDX
+--------------------------------------------------------
+
+  CREATE INDEX blng.prm_ID_IDX ON blng.permission ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table MARKUP
+--------------------------------------------------------
+
+  ALTER TABLE blng.permission MODIFY ("ID" CONSTRAINT "prm_ID_NN" NOT NULL ENABLE);
+  ALTER TABLE BLNG.permission  MODIFY (AMND_DATE DEFAULT on null sysdate);
+  ALTER TABLE BLNG.permission  MODIFY (AMND_USER DEFAULT  on null user );
+  ALTER TABLE BLNG.permission  MODIFY (AMND_STATE DEFAULT  on null 'A' );
+
+  ALTER TABLE blng.permission ADD CONSTRAINT prm_ID_PK PRIMARY KEY (ID)
+  USING INDEX BLNG.prm_ID_IDX ENABLE;
+
+
+--------------------------------------------------------
+--  DDL for Secuence MKP_SEQ
+--------------------------------------------------------
+ 
+  create sequence  BLNG.prm_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache 
+  nocycle
+  order;
+  
+--------------------------------------------------------
+--  DDL for Trigger MKP_TRGR
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.prm_TRGR 
+BEFORE
+INSERT
+ON BLNG.permission
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select BLNG.prm_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual;
+end;
+/
+ALTER TRIGGER BLNG.prm_TRGR ENABLE;
+*/
+end;
+
+
+
+
+
+/*client2permission*/
+begin
+/*
+--------------------------------------------------------
+--  DDL for Table MARKUP
+--------------------------------------------------------
+
+  CREATE TABLE blng.client2permission 
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0),
+   client_oid NUMBER(18,0),
+   permission_oid NUMBER(18,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index MKP_ID_IDX
+--------------------------------------------------------
+
+  CREATE INDEX blng.cl2p_ID_IDX ON blng.client2permission ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table MARKUP
+--------------------------------------------------------
+
+  ALTER TABLE blng.client2permission MODIFY ("ID" CONSTRAINT "cl2p_ID_NN" NOT NULL ENABLE);
+  ALTER TABLE BLNG.client2permission  MODIFY (AMND_DATE DEFAULT on null sysdate);
+  ALTER TABLE BLNG.client2permission  MODIFY (AMND_USER DEFAULT  on null user );
+  ALTER TABLE BLNG.client2permission  MODIFY (AMND_STATE DEFAULT  on null 'A' );
+
+  ALTER TABLE blng.client2permission ADD CONSTRAINT cl2p_ID_PK PRIMARY KEY (ID)
+  USING INDEX BLNG.cl2p_ID_IDX ENABLE;
+
+
+ALTER TABLE BLNG.client2permission ADD CONSTRAINT cl2p_clt_OID_FK FOREIGN KEY (client_oid)
+  REFERENCES BLNG.client ("ID") ENABLE;
+ALTER TABLE BLNG.client2permission ADD CONSTRAINT cl2p_prm_OID_FK FOREIGN KEY (permission_oid)
+  REFERENCES BLNG.permission ("ID") ENABLE;
+
+--------------------------------------------------------
+--  DDL for Secuence MKP_SEQ
+--------------------------------------------------------
+ 
+  create sequence  BLNG.cl2p_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache 
+  nocycle
+  order;
+  
+--------------------------------------------------------
+--  DDL for Trigger MKP_TRGR
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.cl2p_TRGR 
+BEFORE
+INSERT
+ON BLNG.client2permission
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select BLNG.cl2p_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual;
+end;
+/
+ALTER TRIGGER BLNG.cl2p_TRGR ENABLE;
+*/
+end;
+
+
+
+
+
+/*permission2contract*/
+begin
+/*
+--------------------------------------------------------
+--  DDL for Table MARKUP
+--------------------------------------------------------
+
+  CREATE TABLE blng.permission2contract 
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+   permission_oid NUMBER(18,0),
+   contract_oid NUMBER(18,0)
+   
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index MKP_ID_IDX
+--------------------------------------------------------
+
+  CREATE INDEX blng.p2cntr_ID_IDX ON blng.permission2contract ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table MARKUP
+--------------------------------------------------------
+
+  ALTER TABLE blng.permission2contract MODIFY ("ID" CONSTRAINT "p2cntr_ID_NN" NOT NULL ENABLE);
+  ALTER TABLE BLNG.permission2contract  MODIFY (AMND_DATE DEFAULT on null sysdate);
+  ALTER TABLE BLNG.permission2contract  MODIFY (AMND_USER DEFAULT  on null user );
+  ALTER TABLE BLNG.permission2contract  MODIFY (AMND_STATE DEFAULT  on null 'A' );
+
+  ALTER TABLE blng.permission2contract ADD CONSTRAINT p2cntr_ID_PK PRIMARY KEY (ID)
+  USING INDEX BLNG.p2cntr_ID_IDX ENABLE;
+
+
+
+ALTER TABLE BLNG.permission2contract ADD CONSTRAINT p2cntr_cntr_OID_FK FOREIGN KEY (contract_oid)
+  REFERENCES BLNG.contract ("ID") ENABLE;
+ALTER TABLE BLNG.permission2contract ADD CONSTRAINT p2cntr_prm_OID_FK FOREIGN KEY (permission_oid)
+  REFERENCES BLNG.permission ("ID") ENABLE;
+
+
+--------------------------------------------------------
+--  DDL for Secuence MKP_SEQ
+--------------------------------------------------------
+ 
+  create sequence  BLNG.p2cntr_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache 
+  nocycle
+  order;
+  
+--------------------------------------------------------
+--  DDL for Trigger MKP_TRGR
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.p2cntr_TRGR 
+BEFORE
+INSERT
+ON BLNG.permission2contract
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select BLNG.p2cntr_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual;
+end;
+/
+ALTER TRIGGER BLNG.p2cntr_TRGR ENABLE;
+*/
+end;
+
+
+
+
+/*client2contract*/
+begin
+
+--------------------------------------------------------
+--  DDL for Table MARKUP
+--------------------------------------------------------
+
+  CREATE TABLE blng.client2contract 
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+   client_oid NUMBER(18,0),
+   permission VARCHAR2(1),
+   contract_oid NUMBER(18,0)
+   
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index MKP_ID_IDX
+--------------------------------------------------------
+
+  CREATE INDEX blng.cl2cntr_ID_IDX ON blng.client2contract ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table MARKUP
+--------------------------------------------------------
+
+  ALTER TABLE blng.client2contract MODIFY ("ID" CONSTRAINT "cl2cntr_ID_NN" NOT NULL ENABLE);
+  ALTER TABLE BLNG.client2contract  MODIFY (AMND_DATE DEFAULT on null sysdate);
+  ALTER TABLE BLNG.client2contract  MODIFY (AMND_USER DEFAULT  on null user );
+  ALTER TABLE BLNG.client2contract  MODIFY (AMND_STATE DEFAULT  on null 'A' );
+
+  ALTER TABLE blng.client2contract ADD CONSTRAINT cl2cntr_ID_PK PRIMARY KEY (ID)
+  USING INDEX BLNG.cl2cntr_ID_IDX ENABLE;
+
+
+
+ALTER TABLE BLNG.client2contract ADD CONSTRAINT cl2cntr_cntr_OID_FK FOREIGN KEY (contract_oid)
+  REFERENCES BLNG.contract ("ID") ENABLE;
+ALTER TABLE BLNG.client2contract ADD CONSTRAINT cl2cntr_clt_OID_FK FOREIGN KEY (client_oid)
+  REFERENCES BLNG.client ("ID") ENABLE;
+
+
+--------------------------------------------------------
+--  DDL for Secuence MKP_SEQ
+--------------------------------------------------------
+ 
+  create sequence  BLNG.cl2cntr_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+  
+--------------------------------------------------------
+--  DDL for Trigger MKP_TRGR
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.cl2cntr_TRGR 
+BEFORE
+INSERT
+ON BLNG.client2contract
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select BLNG.cl2cntr_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual;
+end;
+/
+ALTER TRIGGER BLNG.cl2cntr_TRGR ENABLE;
+
+end;
+
+
+
+
 /*contract*/
 begin
 
@@ -95,6 +485,7 @@ begin
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
   TABLESPACE "USERS" ;
+  
 --------------------------------------------------------
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
@@ -119,9 +510,8 @@ ALTER TABLE BLNG.CONTRACT  MODIFY (AMND_STATE DEFAULT on null 'A' );
   ALTER TABLE blng.contract ADD CONSTRAINT CNTR_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.CNTR_ID_IDX ENABLE;
 
-ALTER TABLE BLNG.contract ADD CONSTRAINT CNTR_CLT_OID_FK FOREIGN KEY (client_oid)
-  REFERENCES BLNG.client ("ID") ENABLE;
-
+--ALTER TABLE BLNG.contract ADD CONSTRAINT CNTR_CLT_OID_FK FOREIGN KEY (client_oid)
+--  REFERENCES BLNG.client ("ID") ENABLE;
 
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
@@ -904,4 +1294,7 @@ end;
 ALTER TRIGGER BLNG.DLY_TRGR ENABLE;
 
 end;
+
+
+
 
