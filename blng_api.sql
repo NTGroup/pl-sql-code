@@ -628,6 +628,7 @@ SELECT * FROM BLNG.TRANS_TYPE
 >>>>>>> origin/master
 
 
+<<<<<<< Updated upstream
 select * from blng.delay order by id desc
 
 select * from blng.delay where contract_oid = 14
@@ -645,3 +646,7 @@ select * from blng.document where contract_oid = 14
 select * from blng.account where contract_oid =14 and amnd_state = 'A'
 
 select * from blng.event_type
+=======
+  CREATE OR REPLACE NONEDITIONABLE PUBLIC SYNONYM "DTYPE" FOR "NTG"."DTYPE";
+
+>>>>>>> Stashed changes
