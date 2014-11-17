@@ -356,3 +356,10 @@ end;
  ALTER USER ord ACCOUNT LOCK;
 
 select * from gba_users
+
+
+           select * from blng.delay d
+           where transaction_oid = 272
+           order by contract_oid asc, date_to asc, id asc
+           
+           

@@ -104,17 +104,7 @@ end;
 
 select * from blng.client2contract;
 
-select * from blng.account where contract_oid in (17,18);
-/* first edition with check account value only*/
-DECLARE
-  starting_time  TIMESTAMP WITH TIME ZONE;
-  ending_time    TIMESTAMP WITH TIME ZONE;
-  v_client  ntg.dtype.t_id;
-  P_NAME VARCHAR2(255):='pasha';
-  v_contract  ntg.dtype.t_id;
-  P_number VARCHAR2(255);
-BEGIN
---- create contract and account for begin test
+select * from blng.account where contract_oid in (20);
 
 /*
 
@@ -134,29 +124,11 @@ BEGIN
 
 */
 
-
-  SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
-
-  /*client*/
-  v_client := blng.BLNG_API.client_add(P_NAME => P_NAME);
-  DBMS_OUTPUT.PUT_LINE('v_client = ' || v_client);
-
-/*contract*/
-  v_contract := blng.BLNG_API.contract_add(P_CLIENT => v_CLIENT,
-    P_NUMBER => P_NUMBER);
-  DBMS_OUTPUT.PUT_LINE('v_contract = ' || v_contract); 
-  BLNG.BLNG_API.account_init(v_contract);
-
-  SELECT SYSTIMESTAMP INTO ending_time FROM DUAL;
-  DBMS_OUTPUT.PUT_LINE('Time = ' || TO_CHAR(ending_time - starting_time));
-end;
-
-
 --test set/update increase/decrease limit
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=14;
+  v_contract  ntg.dtype.t_id:=20;
   P_number VARCHAR2(255);
   v_DOC ntg.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
@@ -228,7 +200,7 @@ end;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=14;
+  v_contract  ntg.dtype.t_id:=20;
   P_number VARCHAR2(255);
   v_DOC ntg.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
@@ -260,7 +232,7 @@ select  /* text */ * FROM ntg.log order by id desc;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=14;
+  v_contract  ntg.dtype.t_id:=20;
   P_number VARCHAR2(255);
   v_DOC ntg.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
@@ -295,7 +267,7 @@ select  /* text */ * FROM ntg.log order by id desc;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=14;
+  v_contract  ntg.dtype.t_id:=20;
   P_number VARCHAR2(255);
   v_DOC ntg.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
@@ -340,7 +312,7 @@ select  /* text */ * FROM ntg.log order by id desc;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=14;
+  v_contract  ntg.dtype.t_id:=20;
   P_number VARCHAR2(255);
   v_DOC ntg.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
@@ -386,7 +358,7 @@ select  /* text */ * FROM ntg.log order by id desc;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=14;
+  v_contract  ntg.dtype.t_id:=20;
   P_number VARCHAR2(255);
   v_DOC ntg.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
@@ -414,7 +386,7 @@ BEGIN
 
 end;
 
-update blng.delay set date_to = trunc(sysdate)-1 where id = 61;
+update blng.delay set date_to = trunc(sysdate)-1 where id = 75;
 commit;
 
 -- CONTRACT_OID    DEPOSIT       LOAN CREDIT_LIMIT CREDIT_LIMIT_BLOCK DEBIT_ONLINE MAX_LOAN_TRANS_AMOUNT CREDIT_ONLINE DELAY_DAYS  AVAILABLE
@@ -425,7 +397,7 @@ commit;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=14;
+  v_contract  ntg.dtype.t_id:=20;
   P_number VARCHAR2(255);
   v_DOC ntg.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
@@ -457,7 +429,7 @@ select  /* text */ * FROM ntg.log order by id desc;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=14;
+  v_contract  ntg.dtype.t_id:=20;
   P_number VARCHAR2(255);
   v_DOC ntg.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
@@ -502,7 +474,7 @@ select  /* text */ * FROM ntg.log order by id desc;
 --test expire unblock limit
 
 --expire unblock limit. delay row for unblock limit set status C
-update blng.delay set date_to = trunc(sysdate) where id = 62;
+update blng.delay set date_to = trunc(sysdate) where id = 76;
 commit;
 
 -- CONTRACT_OID    DEPOSIT       LOAN CREDIT_LIMIT CREDIT_LIMIT_BLOCK DEBIT_ONLINE MAX_LOAN_TRANS_AMOUNT CREDIT_ONLINE DELAY_DAYS  AVAILABLE
@@ -521,7 +493,7 @@ commit;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=14;
+  v_contract  ntg.dtype.t_id:=20;
   P_number VARCHAR2(255);
   v_DOC ntg.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
@@ -551,7 +523,7 @@ select  /* text */ * FROM ntg.log order by id desc;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=14;
+  v_contract  ntg.dtype.t_id:=20;
   P_number VARCHAR2(255);
   v_DOC ntg.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
@@ -575,7 +547,7 @@ BEGIN
 
 -- CONTRACT_OID    DEPOSIT       LOAN CREDIT_LIMIT CREDIT_LIMIT_BLOCK DEBIT_ONLINE MAX_LOAN_TRANS_AMOUNT CREDIT_ONLINE DELAY_DAYS  AVAILABLE
 -- ------------ ---------- ---------- ------------ ------------------ ------------ --------------------- ------------- ---------- ----------
---          XXX          0        -99          999                               0                  2000             0         50        900 
+--          XXX          0       -249          999                               0                  2000             0         50        750 
 
 --delay
 --         ID AMND_DATE           AMND_USER                                          AMND_STATE  AMND_PREV EVENT_TYPE_OID TRANSACTION_OID DATE_TO             CONTRACT_OID     AMOUNT STATUS   PRIORITY
@@ -586,14 +558,30 @@ BEGIN
 --         63 04.11.2014 22:36:30 NTG                                                A                  63              2                 24.12.2014 00:00:00           14        -99                10 
 --         61 04.11.2014 22:36:30 NTG                                                C                  61              2                 04.11.2014 00:00:00           14       -200                10 
 
+--delay active
+--         ID AMND_DATE           AMND_USER                                          AMND_STATE  AMND_PREV EVENT_TYPE_OID TRANSACTION_OID DATE_TO             CONTRACT_OID     AMOUNT STATUS   PRIORITY
+-- ---------- ------------------- -------------------------------------------------- ---------- ---------- -------------- --------------- ------------------- ------------ ---------- ------ ----------
+--         68 04.11.2014 22:44:40 NTG                                                A                  68              2             202 24.12.2014 00:00:00           14       -150                10 
+--         63 04.11.2014 22:36:30 NTG                                                A                  63              2                 24.12.2014 00:00:00           14        -99                10 
 
 end;
 
+SELECT /* text */ * FROM blng.v_account order by contract_oid desc;
+--check docs
+select  /* text */ * FROM blng.document order by id desc;
+--check transactions
+select  /* text */ * FROM blng.transaction order by id desc;
+--check delay
+select  /* text */ * FROM blng.delay where id >= 61 and amnd_state = 'A' order by id desc;
+--check log
+select  /* text */ * FROM ntg.log order by id desc;
 
+
+--test revoke_document
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=14;
+  v_contract  ntg.dtype.t_id:=20;
   P_number VARCHAR2(255);
   v_DOC ntg.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
@@ -601,9 +589,34 @@ DECLARE
 BEGIN
 
   /* ins doc buy 150 */
-  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 150,P_TRANS_TYPE =>1);
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 150,P_TRANS_TYPE =>2);
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
   commit;
+
+-- CONTRACT_OID    DEPOSIT       LOAN CREDIT_LIMIT CREDIT_LIMIT_BLOCK DEBIT_ONLINE MAX_LOAN_TRANS_AMOUNT CREDIT_ONLINE DELAY_DAYS  AVAILABLE
+-- ------------ ---------- ---------- ------------ ------------------ ------------ --------------------- ------------- ---------- ----------
+--          XXX          0       -399          999                               0                  2000             0         50        600 
+
+--delay
+--         ID AMND_DATE           AMND_USER                                          AMND_STATE  AMND_PREV EVENT_TYPE_OID TRANSACTION_OID DATE_TO             CONTRACT_OID     AMOUNT STATUS   PRIORITY
+-- ---------- ------------------- -------------------------------------------------- ---------- ---------- -------------- --------------- ------------------- ------------ ---------- ------ ----------
+--         83 17.11.2014 19:16:30 NTG                                                A                  83              2             270 06.01.2015 00:00:00           20       -150                10 
+--         68 04.11.2014 22:44:40 NTG                                                A                  68              2             202 24.12.2014 00:00:00           14       -150                10 
+--         63 04.11.2014 22:36:30 NTG                                                A                  63              2                 24.12.2014 00:00:00           14        -99                10 
+
+end;
+
+DECLARE
+  starting_time  TIMESTAMP WITH TIME ZONE;
+  ending_time    TIMESTAMP WITH TIME ZONE;
+  v_contract  ntg.dtype.t_id:=20;
+  P_number VARCHAR2(255);
+  v_DOC ntg.dtype.t_id;
+  r_contract_info blng.v_account%rowtype;
+
+BEGIN
+
+  blng.core.revoke_document(P_document => 246);
 
 -- CONTRACT_OID    DEPOSIT       LOAN CREDIT_LIMIT CREDIT_LIMIT_BLOCK DEBIT_ONLINE MAX_LOAN_TRANS_AMOUNT CREDIT_ONLINE DELAY_DAYS  AVAILABLE
 -- ------------ ---------- ---------- ------------ ------------------ ------------ --------------------- ------------- ---------- ----------
@@ -623,7 +636,10 @@ select  /* text */ * FROM blng.document order by id desc;
 --check transactions
 select  /* text */ * FROM blng.transaction order by id desc;
 --check delay
-select  /* text */ * FROM blng.delay where id >= 61 and amnd_state = 'A' order by id desc;
+select  /* text */ * FROM blng.delay where id >= 61 order by id desc;
 --check log
 select  /* text */ * FROM ntg.log order by id desc;
 
+--rollback
+update blng.delay set amnd_state = 'C' where id = 83;
+commit;
