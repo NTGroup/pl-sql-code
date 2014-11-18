@@ -362,4 +362,13 @@ select * from gba_users
            where transaction_oid = 272
            order by contract_oid asc, date_to asc, id asc
            
-           
+        
+        begin
+        blng.core.credit_online;
+        end;
+        
+                  select * from blng.delay d
+           where amnd_prev = (
+             select amnd_prev from blng.delay d
+             where transaction_oid = 310)
+           order by contract_oid asc, date_to asc, id asc

@@ -1,5 +1,5 @@
     BEGIN
-DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'document_schedule', attribute         =>  'repeat_interval', value => 'FREQ=SECONDLY;INTERVAL=10') ;
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'document_schedule', attribute         =>  'repeat_interval', value => 'FREQ=SECONDLY;INTERVAL=2') ;
 END;
 
 /
@@ -572,7 +572,7 @@ select  /* text */ * FROM blng.document order by id desc;
 --check transactions
 select  /* text */ * FROM blng.transaction order by id desc;
 --check delay
-select  /* text */ * FROM blng.delay where id >= 61 and amnd_state = 'A' order by id desc;
+select  /* text */ * FROM blng.delay where id >= 61  order by id desc;
 --check log
 select  /* text */ * FROM ntg.log order by id desc;
 
@@ -588,22 +588,28 @@ DECLARE
 
 BEGIN
 
-  /* ins doc buy 150 */
-  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 150,P_TRANS_TYPE =>2);
+  /* ins doc buy 100 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT =>100,P_TRANS_TYPE =>1);
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
   commit;
-
--- CONTRACT_OID    DEPOSIT       LOAN CREDIT_LIMIT CREDIT_LIMIT_BLOCK DEBIT_ONLINE MAX_LOAN_TRANS_AMOUNT CREDIT_ONLINE DELAY_DAYS  AVAILABLE
--- ------------ ---------- ---------- ------------ ------------------ ------------ --------------------- ------------- ---------- ----------
---          XXX          0       -399          999                               0                  2000             0         50        600 
-
---delay
---         ID AMND_DATE           AMND_USER                                          AMND_STATE  AMND_PREV EVENT_TYPE_OID TRANSACTION_OID DATE_TO             CONTRACT_OID     AMOUNT STATUS   PRIORITY
--- ---------- ------------------- -------------------------------------------------- ---------- ---------- -------------- --------------- ------------------- ------------ ---------- ------ ----------
---         83 17.11.2014 19:16:30 NTG                                                A                  83              2             270 06.01.2015 00:00:00           20       -150                10 
---         68 04.11.2014 22:44:40 NTG                                                A                  68              2             202 24.12.2014 00:00:00           14       -150                10 
---         63 04.11.2014 22:36:30 NTG                                                A                  63              2                 24.12.2014 00:00:00           14        -99                10 
-
+  /* ins doc cash in 30 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT =>5,P_TRANS_TYPE =>2);
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
+  /* ins doc cash in 30 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT =>2,P_TRANS_TYPE =>2);
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
+  /* ins doc cash in 30 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT =>3,P_TRANS_TYPE =>2);
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
+  /* ins doc buy 200 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT =>200,P_TRANS_TYPE =>1);
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
+  
+  --revoke 100
 end;
 
 DECLARE
@@ -616,18 +622,8 @@ DECLARE
 
 BEGIN
 
-  blng.core.revoke_document(P_document => 246);
-
--- CONTRACT_OID    DEPOSIT       LOAN CREDIT_LIMIT CREDIT_LIMIT_BLOCK DEBIT_ONLINE MAX_LOAN_TRANS_AMOUNT CREDIT_ONLINE DELAY_DAYS  AVAILABLE
--- ------------ ---------- ---------- ------------ ------------------ ------------ --------------------- ------------- ---------- ----------
---          XXX          0       -249          999                               0                  2000             0         50        750 
-
---delay
---         ID AMND_DATE           AMND_USER                                          AMND_STATE  AMND_PREV EVENT_TYPE_OID TRANSACTION_OID DATE_TO             CONTRACT_OID     AMOUNT STATUS   PRIORITY
--- ---------- ------------------- -------------------------------------------------- ---------- ---------- -------------- --------------- ------------------- ------------ ---------- ------ ----------
---         68 04.11.2014 22:44:40 NTG                                                A                  68              2             202 24.12.2014 00:00:00           14       -150                10 
---         63 04.11.2014 22:36:30 NTG                                                A                  63              2                 24.12.2014 00:00:00           14        -99                10 
-
+  blng.core.revoke_document(P_document => 333);
+ -- commit;
 end;
 
 SELECT /* text */ * FROM blng.v_account order by contract_oid desc;
@@ -643,3 +639,34 @@ select  /* text */ * FROM ntg.log order by id desc;
 --rollback
 update blng.delay set amnd_state = 'C' where id = 83;
 commit;
+
+select * FROM BLNG.ACCOUNT WHERE AMND_STATE = 'A' and contract_oid = 20 
+
+
+select  /* text */ * FROM blng.transaction where doc_oid = 283 order by id desc;
+
+--test revoke_document
+DECLARE
+  starting_time  TIMESTAMP WITH TIME ZONE;
+  ending_time    TIMESTAMP WITH TIME ZONE;
+  v_contract  ntg.dtype.t_id:=20;
+  P_number VARCHAR2(255);
+  v_DOC ntg.dtype.t_id;
+  r_contract_info blng.v_account%rowtype;
+
+BEGIN
+
+
+  /* ins doc cash in 30 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT =>2810,P_TRANS_TYPE =>1);
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
+
+  --revoke 100
+end;
+
+select  /* text */ * FROM blng.document where amnd_prev = 308 order by amnd_date asc;
+
+select  /* text */ * FROM blng.delay where amnd_prev = 144 order by amnd_date asc;
+select  /* text */ * FROM blng.delay where amnd_prev = 144 order by transaction_oid asc;
+
