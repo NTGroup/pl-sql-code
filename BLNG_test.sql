@@ -609,6 +609,17 @@ BEGIN
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
   commit;
   
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT =>150,P_TRANS_TYPE =>1);
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
+
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT =>350,P_TRANS_TYPE =>2);
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
+
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT =>50,P_TRANS_TYPE =>1);
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
   --revoke 100
 end;
 
@@ -622,8 +633,25 @@ DECLARE
 
 BEGIN
 
-  blng.core.revoke_document(P_document => 333);
- -- commit;
+  blng.core.revoke_document(P_document => 582);
+  blng.core.revoke_document(P_document => 581);
+  blng.core.revoke_document(P_document => 587);
+
+--         r(+5)   r(-100)  r(+350)
+-- start  -------	 -------  -------
+-- 100    100      200      200
+--   5      2  	     200 	  150
+--   2      3	     150        2
+--   3      90	     60       3 
+--   90   200	       2      50
+-- 200      200	     3
+--   200  150	       85
+-- 150      60	   50
+--   60   50	       5  
+-- 50                           
+-- -----  -----  ----- finish
+
+
 end;
 
 SELECT /* text */ * FROM blng.v_account order by contract_oid desc;
@@ -632,20 +660,36 @@ select  /* text */ * FROM blng.document order by id desc;
 --check transactions
 select  /* text */ * FROM blng.transaction order by id desc;
 --check delay
-select  /* text */ * FROM blng.delay where id >= 61 order by id desc;
+select  /* text */ * FROM blng.delay where id >= 181 order by id desc;
 --check log
 select  /* text */ * FROM ntg.log order by id desc;
 
---rollback
-update blng.delay set amnd_state = 'C' where id = 83;
-commit;
+select lpad(' ',2*(level-1)) || to_char(amount) s, d.*
+from blng.delay d
+where id >= 274 and amnd_state  in ('A','C')
+start with id >= 274 and parent_id is null
+connect by prior id = parent_id;
 
-select * FROM BLNG.ACCOUNT WHERE AMND_STATE = 'A' and contract_oid = 20 
 
 
-select  /* text */ * FROM blng.transaction where doc_oid = 283 order by id desc;
+                    select
+                    amount,
+                    id,
+                    d.contract_oid,
+                    nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = d.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount_have,
+                    amount - nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = d.id and amnd_state = 'A'  and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount_need,
+                    date_to
+                    from blng.delay d
+                    where d.amnd_state = 'A'
+                    and parent_id is null
+                    and contract_oid = 20
+                    and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'b')
+                    order by contract_oid asc, date_to asc, id asc
 
---test revoke_document
+
+------
+
+
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
@@ -658,15 +702,11 @@ BEGIN
 
 
   /* ins doc cash in 30 */
-  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT =>2810,P_TRANS_TYPE =>1);
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 215,P_TRANS_TYPE =>1);
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
   commit;
 
   --revoke 100
 end;
 
-select  /* text */ * FROM blng.document where amnd_prev = 308 order by amnd_date asc;
-
-select  /* text */ * FROM blng.delay where amnd_prev = 144 order by amnd_date asc;
-select  /* text */ * FROM blng.delay where amnd_prev = 144 order by transaction_oid asc;
 
