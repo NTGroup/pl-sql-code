@@ -56,3 +56,14 @@ DEFAULT TABLESPACE users
 TEMPORARY TABLESPACE temp
 QUOTA UNLIMITED ON users
 /*ACCOUNT UNLOCK*/ ;
+
+/* create new user shcheme inside pdb */
+create user exp identified by EXPasdf1234;
+/     
+/* inside pdb */ 
+alter user exp 
+DEFAULT TABLESPACE users
+TEMPORARY TABLESPACE temp
+QUOTA UNLIMITED ON users
+/*ACCOUNT UNLOCK*/ ;
+
