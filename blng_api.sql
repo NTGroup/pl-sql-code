@@ -406,7 +406,17 @@ BEGIN
   comments          => 'Every 10 seconds');
 END;
 /
+BEGIN
+ DBMS_SCHEDULER.CREATE_SCHEDULE (
+  schedule_name     => 'delay_expire_schedule',
+  start_date        => trunc(systimestamp)+1,
+  --end_date          => SYSTIMESTAMP + INTERVAL '30' day,
+  repeat_interval   => 'FREQ=DAILY;INTERVAL=1',
+  comments          => 'Every 24 hours');
+END;
+/
 
+select trunc(systimestamp)+1 from dual
 
 select 
 *
@@ -424,6 +434,18 @@ BEGIN
    COMMENTS            => 'check delays' );
 END;
 /
+
+
+
+    BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'document_schedule', attribute         =>  'repeat_interval', value => 'FREQ=SECONDLY;INTERVAL=2') ;
+END;
+
+    BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'DELAYEXPIRE', attribute         =>  'schedule_name', value => 'delay_expire_schedule') ;
+END;
+/
+
 
       SELECT   *
    FROM     dba_scheduler_window_log

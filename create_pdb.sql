@@ -87,13 +87,45 @@ NOLOGGING;
 alter pluggable database ntg2 open read write; 
 
 
-CREATE PLUGGABLE DATABASE ntg2 FROM ntg 
---PATH_PREFIX = '/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/ntg2/'
---FILE_NAME_CONVERT = ('/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/', '/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/ntg2')
-no data
-nocopy
-NOLOGGING;
 
+
+DROP PLUGGABLE DATABASE salespdb
+  INCLUDING DATAFILES;
+
+alter pluggable database ntg close immediate;  
+alter pluggable database ntg open read write; 
+
+alter pluggable database ntg close immediate;  
+alter pluggable database ntg open read only; 
+
+-- create with data base in specified dir but temp datafiles names +++++++
 /* sys as sysdba */
-alter pluggable database ntg2 open read write; 
+alter pluggable database ntg close immediate;  
+alter pluggable database ntg open read only; 
+alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/ntg4';
+CREATE PLUGGABLE DATABASE ntg4 FROM ntg 
+NOLOGGING;
+alter pluggable database ntg4 open read write; 
+
+
+alter pluggable database ntg4 close immediate;
+drop pluggable database ntg4 including datafiles;
+
+ 
+
+-- create with no data base in specified dir but temp datafiles names +++++++
+/* sys as sysdba */
+alter pluggable database ntg close immediate;  
+alter pluggable database ntg open read only; 
+alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/test';
+CREATE PLUGGABLE DATABASE test FROM ntg 
+no data
+NOLOGGING;
+alter pluggable database test open read write; 
+
+
+--TODO implement tablespase
+--alter pluggable database test close immediate;
+--drop pluggable database test including datafiles;
+
 
