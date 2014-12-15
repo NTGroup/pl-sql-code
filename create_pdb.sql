@@ -67,3 +67,33 @@ TEMPORARY TABLESPACE temp
 QUOTA UNLIMITED ON users
 /*ACCOUNT UNLOCK*/ ;
 
+CREATE PLUGGABLE DATABASE ntg1 FROM ntg 
+--  PATH_PREFIX = '/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/ntg1/'
+--  FILE_NAME_CONVERT = ('/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/', '/home/oracle/app/oracle/oradata/ORCL/datafile/pdb')
+  NOLOGGING;
+
+/* sys as sysdba */
+alter pluggable database ntg1 open read write; 
+
+
+CREATE PLUGGABLE DATABASE ntg2 FROM ntg 
+--PATH_PREFIX = '/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/ntg2/'
+--FILE_NAME_CONVERT = ('/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/', '/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/ntg2')
+no data
+NOLOGGING;
+
+
+/* sys as sysdba */
+alter pluggable database ntg2 open read write; 
+
+
+CREATE PLUGGABLE DATABASE ntg2 FROM ntg 
+--PATH_PREFIX = '/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/ntg2/'
+--FILE_NAME_CONVERT = ('/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/', '/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/ntg2')
+no data
+nocopy
+NOLOGGING;
+
+/* sys as sysdba */
+alter pluggable database ntg2 open read write; 
+
