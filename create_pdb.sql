@@ -118,14 +118,69 @@ drop pluggable database ntg4 including datafiles;
 alter pluggable database ntg close immediate;  
 alter pluggable database ntg open read only; 
 alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/test';
+
 CREATE PLUGGABLE DATABASE test FROM ntg 
-no data
+--no data
 NOLOGGING;
 alter pluggable database test open read write; 
 
 
 --TODO implement tablespase
---alter pluggable database test close immediate;
---drop pluggable database test including datafiles;
+-- alter pluggable database test close immediate;
+-- drop pluggable database test including datafiles;
 
 
+
+truncate table ntg.log;
+truncate table blng.delay;
+truncate table blng.event;
+
+delete from blng.transaction; commit;
+delete from blng.document; commit;
+delete from blng.account; commit;
+delete from blng.client2contract; commit;
+delete from blng.contract; commit;
+delete from blng.client; commit;
+delete from blng.company; commit;
+
+/*
+truncate table blng.client;
+truncate table blng.document;
+truncate table blng.contract;
+truncate table blng.account;
+truncate table blng.transaction;
+truncate table blng.client2contract;
+truncate table blng.company;
+*/
+
+delete from ord.item_avia; commit;
+delete from ord.ord; commit;
+delete from ord.item_hotel; commit;
+delete from ord.bill; commit;
+delete from ord.ticket; commit;
+
+
+
+
+-- create with no data base in specified dir but temp datafiles names +++++++
+/* sys as sysdba */
+alter pluggable database ntg close immediate;  
+alter pluggable database ntg open read only; 
+alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/orcl/my_test';
+ALTER SESSION SET PDB_FILE_NAME_CONVERT='/home/oracle/app/oracle/oradata/orcl/ORCL/032A6356A8B256D7E055000000000002/datafile/', '/home/oracle/app/oracle/oradata/orcl/my_test/',
+'/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/', '/home/oracle/app/oracle/oradata/orcl/my_test/'
+CREATE PLUGGABLE DATABASE my_test FROM ntg 
+NOLOGGING;
+alter pluggable database my_test open read write; 
+
+
+
+
+
+alter pluggable database my_test close immediate;  
+alter pluggable database my_test open read only; 
+alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/orcl/my_test1';
+CREATE PLUGGABLE DATABASE my_test1 FROM my_test 
+--USER_TABLESPACES=ALL EXCEPT('users')
+NOLOGGING;
+alter pluggable database my_test1 open read write; 

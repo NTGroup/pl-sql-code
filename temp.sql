@@ -1081,3 +1081,136 @@ commission_oid = 34
 
 select * from log order by id desc
 
+
+
+truncate table ntg.log;
+truncate table blng.delay;
+truncate table blng.event;
+truncate table blng.client2contract;
+
+--truncate table blng.company;
+--truncate table blng.client;
+
+
+delete from blng.transaction; commit;
+delete from blng.document; commit;
+delete from blng.account; commit;
+delete from blng.client2contract; commit;
+delete from blng.contract; commit;
+delete from blng.client; commit;
+delete from blng.company; commit;
+
+truncate table blng.company;
+
+
+truncate table blng.document;
+truncate table blng.contract;
+truncate table blng.account;
+truncate table blng.transaction;
+truncate table blng.company;
+
+
+delete from ord.item_avia; commit;
+delete from ord.ord; commit;
+delete from ord.item_hotel; commit;
+delete from ord.bill; commit;
+delete from ord.ticket; commit;
+
+
+
+SELECT dd.tablespace_name tablespace_name, dd.file_name file_name, dd.bytes/1024 TABLESPACE_KB, SUM(fs.bytes)/1024 KBYTES_FREE, MAX(fs.bytes)/1024 NEXT_FREE
+FROM sys.dba_free_space fs, sys.dba_data_files dd
+WHERE dd.tablespace_name = fs.tablespace_name
+AND dd.file_id = fs.file_id
+GROUP BY dd.tablespace_name, dd.file_name, dd.bytes/1024
+ORDER BY dd.tablespace_name, dd.file_name;
+
+select * from V$SYSAUX_OCCUPANTS
+
+SELECT TABLESPACE_NAME "TABLESPACE",
+   INITIAL_EXTENT "INITIAL_EXT",
+   NEXT_EXTENT "NEXT_EXT",
+   MIN_EXTENTS "MIN_EXT",
+   MAX_EXTENTS "MAX_EXT",
+   PCT_INCREASE
+   FROM DBA_TABLESPACES;
+   
+   
+   
+SELECT p.PDB_ID, p.PDB_NAME, t.OWNER, t.TABLE_NAME 
+  FROM DBA_PDBS p, CDB_TABLES t 
+  WHERE p.PDB_ID > 2 AND
+      --  t.OWNER IN('HR','OE') AND
+        p.PDB_ID = t.CON_ID
+        and owner='NTG'
+  ORDER BY p.PDB_ID;
+  
+SELECT * FROM DBA_PDBS p
+
+create tablespace dict datafile '/home/oracle/app/oracle/oradata/orcl/my_test/ORCL/0A57CA28ACDC7FB9E055000000000002/datafile/dict01.dbf' SIZE 25M;
+
+/* by user with dba role (NTG) */
+ALTER USER ntg quota unlimited on dict;
+??? ALTER TABLESPACE dict READ WRITE;
+
+alter table geo move tablespace dict;
+alter index geo_ix modify default attribute tablespace dict;
+
+select * from all_tables
+where owner = 'NTG'
+
+ALTER INDEX GEO_IX REBUILD 
+TABLESPACE DICT;
+
+alter pluggable database my_test close immediate; 
+alter pluggable database my_test open read write; 
+ALTER TABLESPACE dict OFFLINE NORMAL;
+
+
+
+/* by user with dba role (NTG) */
+create tablespace airline datafile '/home/oracle/app/oracle/oradata/orcl/my_test/ORCL/0A57CA28ACDC7FB9E055000000000002/datafile/airline01.dbf' SIZE 25M;
+ALTER USER ntg quota unlimited on airline;
+alter tablespace airline ONLINE;
+alter table airline move tablespace airline;
+ALTER INDEX al_id_idx REBUILD 
+TABLESPACE airline;
+
+select * from all_tables
+where owner = 'NTG'
+
+
+select * from log
+
+
+create tablespace users datafile '/home/oracle/app/oracle/oradata/orcl/my_test1/ORCL/0A57CA28ACDC7FB9E055000000000002/datafile/users01.dbf' SIZE 25M;
+ALTER USER ntg quota unlimited on users;
+
+
+ALTER TABLESPACE users
+    ADD DATAFILE '/home/oracle/app/oracle/oradata/orcl/my_test1/ORCL/0A5A4A353E62231EE055000000000002/datafile/o1_mf_users_b90mk9qw_.dbf' 
+      
+ ALTER TABLESPACE users online   
+ 
+ ALTER DATABASE DATAFILE '/home/oracle/app/oracle/oradata/orcl/my_test1/ORCL/0A5A4A353E62231EE055000000000002/datafile/o1_mf_users_b90mk9qw_.dbf' ONLINE;
+ 
+ 
+ ALTER TABLESPACE dict OFFLINE NORMAL;
+ 
+ ALTER TABLESPACE dict ONLINE
+ 
+ ALTER TABLESPACE users close;
+ 
+ SELECT * from DBA_TEMP_FREE_SPACE;
+ 
+ 
+alter pluggable database my_test1 close immediate;
+ drop pluggable database my_test1 including datafiles;
+
+
+ALTER TABLESPACE dict
+   ADD DATAFILE '/home/oracle/app/oracle/oradata/orcl/my_test1/ORCL/0A5A4A353E64231EE055000000000002/datafile/dict02.dbf' SIZE 1M;
+   
+ ALTER TABLESPACE dict OFFLINE IMMEDIATE; 
+ ALTER DATABASE DATAFILE '/home/oracle/app/oracle/oradata/orcl/my_test1/ORCL/0A5A4A353E64231EE055000000000002/datafile/o1_mf_dict_b910bydw_.dbf' offline;
+ 
