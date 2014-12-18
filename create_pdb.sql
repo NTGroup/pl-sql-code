@@ -184,3 +184,18 @@ CREATE PLUGGABLE DATABASE my_test1 FROM my_test
 --USER_TABLESPACES=ALL EXCEPT('users')
 NOLOGGING;
 alter pluggable database my_test1 open read write; 
+
+
+-- ***** create user with specific grants
+-- user for application with execute grants
+
+
+
+create user po_fwdr
+    IDENTIFIED BY wppM26h8WP9nLBnS
+    DEFAULT TABLESPACE users
+    QUOTA 0 ON users;
+GRANT create session TO po_fwdr;
+
+ALTER USER po_fwdr
+    QUOTA 0 ON users

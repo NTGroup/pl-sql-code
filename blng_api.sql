@@ -416,6 +416,17 @@ BEGIN
 END;
 /
 
+/
+BEGIN
+ DBMS_SCHEDULER.CREATE_SCHEDULE (
+  schedule_name     => 'bill_pay_schedule',
+  start_date        => systimestamp,
+  --end_date          => SYSTIMESTAMP + INTERVAL '30' day,
+  repeat_interval   => 'FREQ=SECONDLY;INTERVAL=2',
+  comments          => 'Every 2 second');
+END;
+/
+
 select trunc(systimestamp)+1 from dual
 
 select 
@@ -435,6 +446,17 @@ BEGIN
 END;
 /
 
+BEGIN
+  DBMS_SCHEDULER.CREATE_JOB (
+   job_name           =>  'BILLPAY',
+   schedule_name => 'bill_pay_schedule',
+   job_type           =>  'STORED_PROCEDURE',
+   job_action         =>  'ord.core.bill_pay',
+   --job_style        => 'LIGHTWEIGHT',
+   enabled            =>  TRUE,
+   COMMENTS            => 'pay bills' );
+END;
+/
 
 
     BEGIN
@@ -446,6 +468,10 @@ DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'DELAYEXPIRE', attribute         =>  's
 END;
 /
 
+    BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'DEBITONLINE', attribute         =>  'schedule_name', value => 'debit_online_schedule') ;
+END;
+/
 
       SELECT   *
    FROM     dba_scheduler_window_log

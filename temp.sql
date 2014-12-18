@@ -1214,3 +1214,197 @@ ALTER TABLESPACE dict
  ALTER TABLESPACE dict OFFLINE IMMEDIATE; 
  ALTER DATABASE DATAFILE '/home/oracle/app/oracle/oradata/orcl/my_test1/ORCL/0A5A4A353E64231EE055000000000002/datafile/o1_mf_dict_b910bydw_.dbf' offline;
  
+
+
+ alter pluggable database salespdb close immediate;
+ drop pluggable database salespdb including datafiles;
+ 
+ 
+ 
+alter pluggable database my_test close immediate;  
+alter pluggable database my_test open read only; 
+alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/orcl/my_test1';
+CREATE PLUGGABLE DATABASE my_test1 FROM my_test 
+NO DATA
+NOLOGGING;
+alter pluggable database my_test1 open read write; 
+
+
+
+
+alter pluggable database my_test1 open read write;
+
+
+alter pluggable database my_test1 close immediate;
+ALTER PLUGGABLE DATABASE my_test1 UNPLUG INTO '/home/oracle/app/oracle/oradata/orcl/my_test1/my_test1.xml';
+
+DECLARE
+  l_result BOOLEAN;
+BEGIN
+  l_result := DBMS_PDB.check_plug_compatibility(
+                pdb_descr_file => '/home/oracle/app/oracle/oradata/orcl/my_test1/my_test1.xml',
+                pdb_name       => 'my_test2');
+
+  IF l_result THEN
+    DBMS_OUTPUT.PUT_LINE('compatible');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('incompatible');
+  END IF;
+END;
+/
+alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/orcl/my_test2'
+create pluggable database my_test2 
+AS CLONE using '/home/oracle/app/oracle/oradata/orcl/my_test1/my_test1.xml' 
+;
+alter pluggable database my_test2 open read write; 
+
+drop pluggable database my_test1 keep datafiles;
+alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/orcl/my_test1'
+create pluggable database my_test1
+using '/home/oracle/app/oracle/oradata/orcl/my_test1/my_test1.xml' 
+NOCOPY
+  TEMPFILE REUSE;
+alter pluggable database my_test1 open read write; 
+
+SELECT name, open_mode
+FROM   v$pdbs
+ORDER BY name;
+
+
+
+SELECT TABLE_NAME, PRIVILEGE, GRANTABLE FROM DBA_TAB_PRIVS
+    WHERE GRANTEE = 'BLNG';
+
+SELECT * FROM SESSION_PRIVS;
+
+SELECT * FROM DBA_ROLE_PRIVS   WHERE GRANTEE = 'NTG';
+
+
+
+select
+*
+from 
+--all_objects
+all_source
+where owner = 'ORD'
+
+
+
+select * from ntg.log order by id desc
+
+select * from ord.ord order by id desc
+
+
+select * from ord.item_avia order by id desc
+select * from blng.v_account order by id desc
+
+
+
+select ord.fwdr.order_number_generate(31)
+from dual
+
+
+grant execute on ord.ord_api to blng;
+grant execute on blng.blng_api to ord;
+
+alter user default scheme 
+
+declare
+ q dtype.t_id;
+begin
+q:=ord.fwdr.order_create;
+
+commit;
+end;
+
+
+
+declare
+ q dtype.t_id;
+s varchar2(233);
+begin
+s:=ord.fwdr.order_number_generate(31);
+q:=  ord.ord_api.ord_add(p_date => sysdate,
+                          p_order_number =>s ,
+                          p_client => 31,
+                          p_status => 'A'
+    );
+
+commit;
+end;
+
+
+select * from ntg.log order by id desc
+
+select * from ord.ord order by id desc
+
+select * from ord.item_avia order by id desc
+
+
+select * from ord.bill order by id desc
+
+select * from blng.document order by id desc
+
+
+select * from blng.document 
+where contract_oid = 21 and amount = 2244
+and amnd_STATE = 'A'
+order by id desc
+
+
+
+DECLARE
+  P_NQT_ID VARCHAR2(50);
+  P_PNR_ID VARCHAR2(50);
+  P_TIME_LIMIT DATE;
+  P_TOTAL_AMOUNT NUMBER;
+  P_TOTAL_MARKUP NUMBER;
+  P_PNR_OBJECT CLOB;
+  P_STATUS VARCHAR2(1);
+  P_CLIENT NUMBER;    
+BEGIN
+  P_NQT_ID := 'qwe1';
+  P_PNR_ID := 'qwe1';
+  P_TIME_LIMIT := sysdate;
+  P_TOTAL_AMOUNT := 555;
+  P_TOTAL_MARKUP := 55;
+  P_PNR_OBJECT := '{"id": "KGIDRD"}';
+  P_STATUS := 'W';
+  P_CLIENT := NULL;
+
+  ORD.FWDR.avia_register (  P_NQT_ID,
+P_PNR_ID,
+P_TIME_LIMIT,
+P_TOTAL_AMOUNT,
+P_TOTAL_MARKUP,
+P_PNR_OBJECT,
+P_STATUS) ;  
+END;
+
+begin
+  ord.core.bill_pay;
+end;
+
+
+-608124
+DECLARE
+  P_NQT_ID VARCHAR2(50);    
+BEGIN
+  P_NQT_ID := NULL;
+
+  ORD.FWDR.avia_pay (  P_NQT_ID => 'qwe1') ;  
+END;
+
+
+begin
+FOR I IN (
+select * from blng.document 
+where contract_oid = 21 and amount = 2244
+and amnd_STATE = 'A'
+order by id desc
+)
+loop
+  blng.core.revoke_document(i.id);
+end loop;
+commit;
+end;

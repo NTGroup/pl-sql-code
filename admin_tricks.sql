@@ -47,3 +47,45 @@ TABLESPACE airline;
 
 select * from all_tables
 where owner = 'NTG'
+
+
+------- ***** create database backup
+
+alter pluggable database my_test1 open read write;
+
+
+alter pluggable database my_test1 close immediate;
+ALTER PLUGGABLE DATABASE my_test1 UNPLUG INTO '/home/oracle/app/oracle/oradata/orcl/my_test1/my_test1.xml';
+
+DECLARE
+  l_result BOOLEAN;
+BEGIN
+  l_result := DBMS_PDB.check_plug_compatibility(
+                pdb_descr_file => '/home/oracle/app/oracle/oradata/orcl/my_test1/my_test1.xml',
+                pdb_name       => 'my_test2');
+
+  IF l_result THEN
+    DBMS_OUTPUT.PUT_LINE('compatible');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('incompatible');
+  END IF;
+END;
+/
+alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/orcl/my_test2'
+create pluggable database my_test2 
+AS CLONE using '/home/oracle/app/oracle/oradata/orcl/my_test1/my_test1.xml' 
+;
+alter pluggable database my_test2 open read write; 
+
+drop pluggable database my_test1 keep datafiles;
+alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/orcl/my_test1'
+create pluggable database my_test1
+using '/home/oracle/app/oracle/oradata/orcl/my_test1/my_test1.xml' 
+NOCOPY
+  TEMPFILE REUSE;
+alter pluggable database my_test1 open read write; 
+
+SELECT name, open_mode
+FROM   v$pdbs
+ORDER BY name;
+
