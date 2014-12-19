@@ -732,7 +732,9 @@ declare
   v_out varchar2(4000):= '';
   v_and varchar2(5):= '';
   v_or varchar2(5):= '';
-  v_crlf  varchar2(5):= chr(13)||chr(10);
+  v_crlf  varchar2(5):=|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack
+  
+  ;
   v_value number :=null; 
 begin
   for rule in (
@@ -1408,3 +1410,200 @@ loop
 end loop;
 commit;
 end;
+
+SELECT 
+ia.id,
+jt.*
+FROM ord.item_avia ia,
+json_table(pnr_object, '$'
+
+
+select 
+jr.status
+from 
+(select
+'[{ "status": "NEW" }, {"status": "INPROC" }]' a
+from dual),
+json_table (a,'$'
+columns status path '$.status'
+) jr
+
+
+
+select 
+jr.status
+from 
+(select
+'[{ "status": "NEW" }, {"status": "INPROC" }]' a
+from dual),
+json_table (a,'$'
+columns (
+
+nested path '$.[*]'
+columns (status VARCHAR2(250) path '$.status'))
+) AS jr;
+
+
+
+SELECT json_query(a, '$[*].status'
+                               WITH WRAPPER
+                               )
+  FROM (select
+'[{ "status": "NEW" }, {"status": "INPROC" }]' a
+from dual) ;
+
+
+
+
+
+
+
+select 
+jr.status
+from 
+(
+  select
+  '[{ "status": "NEW" }, {"status": "INPROC" }]' a 
+  from dual
+), json_table (a,'$[*]' columns (status VARCHAR2(250) path '$.status')
+) AS jr
+
+
+
+select jr.status from 
+(
+  select  p_status_list from dual
+), 
+json_table  (a,'$[*]' 
+            columns (status VARCHAR2(250) path '$.status')
+            ) AS jr
+;
+
+
+select status
+from
+json_table  
+  ( '[{ "status": "NEW" }, {"status": "INPROC" }]','$[*]' 
+  columns (status VARCHAR2(250) path '$.status')
+  ) 
+  ;
+
+
+
+
+select * from blng.v_account
+
+--test revoke_document
+DECLARE
+  starting_time  TIMESTAMP WITH TIME ZONE;
+  ending_time    TIMESTAMP WITH TIME ZONE;
+  v_contract  ntg.dtype.t_id:=21;
+  P_number VARCHAR2(255);
+  v_DOC ntg.dtype.t_id;
+  r_contract_info blng.v_account%rowtype;
+
+BEGIN
+
+  /* ins doc buy 100 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT =>0.25,P_TRANS_TYPE => 2);
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+
+  commit;
+  --revoke 100
+end;
+
+
+select * from blng.document 
+
+order by id desc
+
+;
+
+
+select * from ntg.log order by id desc;
+
+grant select on ord.item_avia to blng;
+
+
+select * from ntg.log order by id desc;
+
+select * from ord.ord order by id desc;
+
+select * from ord.item_avia 
+--where amnd_prev = 371
+--order by amnd_date desc;
+order by id desc;
+
+
+select * from ord.bill order by id desc;
+
+
+select * from blng.document order by id desc; 
+
+
+DECLARE
+  P_NQT_ID VARCHAR2(50);
+  P_PNR_ID VARCHAR2(50);
+  P_TIME_LIMIT DATE;
+  P_TOTAL_AMOUNT NUMBER;
+  P_TOTAL_MARKUP NUMBER;
+  P_PNR_OBJECT CLOB;
+  P_NQT_STATUS VARCHAR2(1);
+  P_CLIENT NUMBER;    
+BEGIN
+  P_NQT_ID := NULL;
+  P_PNR_ID := NULL;
+  P_TIME_LIMIT := NULL;
+  P_TOTAL_AMOUNT := NULL;
+  P_TOTAL_MARKUP := NULL;
+  P_PNR_OBJECT := NULL;
+  P_NQT_STATUS := NULL;
+  P_CLIENT := NULL;
+
+  ORD.FWDR.avia_register ( 
+P_NQT_ID => '45ba55eff8e94a8fbae29973e2366ba3',
+P_NQT_STATUS => 'NEW') ;  
+END;
+
+
+/
+        SELECT
+        ia.nqt_id, ia.nqt_status, ia.po_status, 'po_msg' po_msg, 'avia' item_type
+        from ord.item_avia ia,
+        json_table  
+          ( '[{ "status": "NEW" }, {"status": "INPROC1" }]','$[*]' 
+          columns (status VARCHAR2(250) path '$.status')
+          ) as j
+        where ia.nqt_status = j.status and amnd_state = 'A'
+        order by id;
+        
+        
+  
+    DECLARE
+  P_NQT_ID VARCHAR2(50);    
+BEGIN
+  P_NQT_ID := '45ba55eff8e94a8fbae29973e2366ba3';
+
+  ORD.FWDR.avia_pay (  P_NQT_ID => P_NQT_ID) ;  
+END;
+
+  --05386bfde5fe421b9363d52cdb56373b
+
+
+select * from ord.item_avia where nqt_id = '05386bfde5fe421b9363d52cdb56373b'
+select * from ord.item_avia where nqt_id = 'f0b41fd486364a358e5df2b2e447cb21'
+
+
+--cddc17c6b2384d0c8aced2885d4b1f34
+--3983
+
+select text from all_source
+where owner in ('NTG','BLNG','ORD')
+
+
+set spool off
+
+
+spool on to '../../../output.txt';
+
+spool off;
