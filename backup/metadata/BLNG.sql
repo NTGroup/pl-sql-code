@@ -87,9 +87,9 @@ begin
    amnd_user VARCHAR2(50),
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
-   company_oid NUMBER(18,0), 
    name varchar2(255),
    status VARCHAR2(1)
+   company_oid NUMBER(18,0), 
    
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
@@ -142,7 +142,7 @@ FOR EACH ROW
   select BLNG.clt_seq.nextval into :new.id from dual; 
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual;
 end;
-
+/
 ALTER TRIGGER BLNG.CLT_TRGR ENABLE;
 
 end;
@@ -386,7 +386,7 @@ end;
 begin
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table client2contract
 --------------------------------------------------------
 
   CREATE TABLE blng.client2contract 
@@ -476,11 +476,8 @@ begin
    amnd_user VARCHAR2(50),
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
-	 client_oid NUMBER(18,0),
-   --name varchar2(255),
    contract_number VARCHAR2(50),
    status VARCHAR2(1)
-   
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
@@ -539,7 +536,7 @@ FOR EACH ROW
   select BLNG.cntr_seq.nextval into :new.id from dual; 
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
-
+/
 ALTER TRIGGER BLNG.CNTR_TRGR ENABLE;
 
 end;
@@ -559,16 +556,10 @@ begin
    amnd_user VARCHAR2(50),
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
---	 contract_oid NUMBER(18,0),
    name varchar2(255),
---   account_name VARCHAR2(50),
    code varchar2(10),
-   
---   amount number,
    priority number,
    details varchar2(255)
-   /*,
-   status VARCHAR2(1)*/
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
@@ -622,7 +613,7 @@ FOR EACH ROW
   select BLNG.acct_seq.nextval into :new.id from dual; 
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
-
+/
 ALTER TRIGGER BLNG.acct_TRGR ENABLE;
 
 end;
@@ -645,12 +636,10 @@ begin
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
 	 contract_oid NUMBER(18,0),
-   --name varchar2(255),
-  -- account_name VARCHAR2(50),
    code varchar2(10),
    amount number,
    priority number,
-   last_document number(18,0)
+   account_type_oid number(18,0)
    
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
@@ -679,9 +668,6 @@ ALTER TABLE BLNG.account  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 ALTER TABLE BLNG.account ADD CONSTRAINT ACC_CNTR_OID_FK FOREIGN KEY (contract_oid)
   REFERENCES BLNG.contract ("ID") ENABLE;
 
-
-
-  ALTER TABLE blng.account ADD account_type_oid number(18,0);
   
 ALTER TABLE BLNG.account ADD CONSTRAINT ACC_ACCT_OID_FK FOREIGN KEY (account_type_oid)
   REFERENCES BLNG.account_type ("ID") ENABLE;
@@ -712,7 +698,7 @@ FOR EACH ROW
   select BLNG.acc_seq.nextval into :new.id from dual; 
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
-
+/
 ALTER TRIGGER BLNG.acc_TRGR ENABLE;
 
 end;
@@ -731,7 +717,6 @@ begin
    amnd_user VARCHAR2(50),
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
-	 --contract_oid NUMBER(18,0),
    name varchar2(50),
    code varchar2(10),
    details varchar2(255)
@@ -785,7 +770,7 @@ FOR EACH ROW
   select BLNG.trt_seq.nextval into :new.id from dual; 
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
-
+/
 ALTER TRIGGER BLNG.trt_TRGR ENABLE;
 
 end;
@@ -807,9 +792,11 @@ begin
 	 contract_oid NUMBER(18,0),
    doc_date date,
    --code varchar2(10),
-   amount number,
+   amount NUMBER(20,2),
    status VARCHAR2(1),
-   trans_type_oid number
+   trans_type_oid NUMBER(18,0),
+   bill_oid NUMBER(18,0)
+   
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
@@ -849,6 +836,8 @@ ALTER TABLE BLNG.document ADD CONSTRAINT DOC_CNTR_OID_FK FOREIGN KEY (contract_o
 ALTER TABLE BLNG.document ADD CONSTRAINT DOC_TRT_OID_FK FOREIGN KEY (trans_type_oid)
   REFERENCES BLNG.trans_type ("ID") ENABLE;
 
+ALTER TABLE BLNG.document ADD CONSTRAINT DOC_BILL_OID_FK FOREIGN KEY (bill_oid)
+  REFERENCES ord.bill ("ID") ENABLE;
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
 --------------------------------------------------------
@@ -875,7 +864,7 @@ FOR EACH ROW
   select BLNG.doc_seq.nextval into :new.id from dual; 
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
-
+/
 ALTER TRIGGER BLNG.doc_TRGR ENABLE;
 
 end;
@@ -900,7 +889,7 @@ begin
    trans_date date,
     trans_type_oid number(18,0),
    --code varchar2(10),
-   amount number,
+   amount number(20,2),
    status VARCHAR2(1)
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
@@ -961,7 +950,7 @@ FOR EACH ROW
   select BLNG.trn_seq.nextval into :new.id from dual; 
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
-
+/
 ALTER TRIGGER BLNG.trn_TRGR ENABLE;
 
 end;
@@ -986,7 +975,7 @@ begin
    transaction_oid NUMBER(18,0),
    date_to date,
    contract_oid number(18,0),
-   amount number,
+   amount number(20,2),
    status VARCHAR2(1),
    priority number
    ) SEGMENT CREATION IMMEDIATE 
@@ -1049,7 +1038,7 @@ FOR EACH ROW
   select BLNG.evnt_seq.nextval into :new.id from dual; 
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
-
+/
 ALTER TRIGGER BLNG.evnt_TRGR ENABLE;
 
 end;
@@ -1069,7 +1058,6 @@ begin
    amnd_user VARCHAR2(50),
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
-	 --contract_oid NUMBER(18,0),
    name varchar2(50),
    code varchar2(10),
    details varchar2(255)
@@ -1123,7 +1111,7 @@ FOR EACH ROW
   select BLNG.ett_seq.nextval into :new.id from dual; 
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
-
+/
 
 ALTER TRIGGER BLNG.ett_TRGR ENABLE;
 
@@ -1146,7 +1134,6 @@ begin
    amnd_user VARCHAR2(50),
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
-	 --contract_oid NUMBER(18,0),
    name varchar2(50),
    code varchar2(1),
    details varchar2(255)
@@ -1201,7 +1188,7 @@ FOR EACH ROW
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
 
-
+/
 ALTER TRIGGER BLNG.stt_TRGR ENABLE;
 
 
@@ -1227,9 +1214,11 @@ begin
    transaction_oid NUMBER(18,0),
    date_to date,
    contract_oid number(18,0),
-   amount number,
+   amount number(20,2),
    status VARCHAR2(1),
-   priority number
+   priority number,
+   amnd_amount number(20,2),
+   parent_id number(18,0)
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
@@ -1290,7 +1279,7 @@ FOR EACH ROW
   select BLNG.DLY_seq.nextval into :new.id from dual; 
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
-
+/
 ALTER TRIGGER BLNG.DLY_TRGR ENABLE;
 
 end;
