@@ -13,7 +13,8 @@ begin
    amnd_prev NUMBER(18,0), 
    order_date date,
    order_number varchar2(50),
-   status VARCHAR2(1)
+   status VARCHAR2(1),
+   client_oid number(18,0)
    ) SEGMENT CREATION IMMEDIATE
   TABLESPACE "USERS" ;
 --------------------------------------------------------
@@ -36,6 +37,10 @@ ALTER TABLE ord.ord  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   ALTER TABLE ord.ord ADD CONSTRAINT ord_ID_PK PRIMARY KEY (ID)
   USING INDEX ord.ord_ID_IDX ENABLE;
   
+
+  
+  ALTER TABLE ord.ord ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
+  REFERENCES blng.client ("ID") ENABLE;
    
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
@@ -83,9 +88,10 @@ begin
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
    order_oid NUMBER(18,0), 
-   amount NUMBER(23,2), 
-   bill_date NUMBER(18,0), 
-   status VARCHAR2(1)
+   amount NUMBER(20,2),
+   bill_date date,
+   status VARCHAR2(1),
+   contract_oid NUMBER(18,0) 
    ) SEGMENT CREATION IMMEDIATE
   TABLESPACE "USERS" ;
 --------------------------------------------------------
@@ -109,11 +115,15 @@ ALTER TABLE ord.bill  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   ALTER TABLE ord.bill ADD CONSTRAINT bill_ID_PK PRIMARY KEY (ID)
   USING INDEX ord.bill_ID_IDX ENABLE;
  
+  grant references on  ord.bill TO blng;
  
   
   ALTER TABLE ord.bill ADD CONSTRAINT bill_ord_OID_FK FOREIGN KEY (order_oid)
   REFERENCES ord.ord ("ID") ENABLE;
- 
+
+  ALTER TABLE ord.bill ADD CONSTRAINT bill_cntr_OID_FK FOREIGN KEY (contract_oid)
+  REFERENCES blng.contract ("ID") ENABLE;
+  
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
 --------------------------------------------------------
@@ -143,13 +153,7 @@ end;
 
 ALTER TRIGGER ord.bill_TRGR ENABLE;
 
-alter table blng.document 
-add bill_oid number(18,0);
 
-grant references on  ord.bill TO blng;
-
-  ALTER TABLE blng.document ADD CONSTRAINT doc_bill_OID_FK FOREIGN KEY (bill_oid)
-  REFERENCES ord.bill ("ID") ENABLE;
 end;
 
 
@@ -167,8 +171,17 @@ begin
    amnd_user VARCHAR2(50),
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
-   order_oid NUMBER(18,0), 
-   status VARCHAR2(1)
+	ORDER_OID NUMBER(18,0), 
+	STATUS VARCHAR2(1 BYTE), 
+	PNR_ID VARCHAR2(50 BYTE), 
+	TIME_LIMIT DATE, 
+	TOTAL_AMOUNT NUMBER(20,2), 
+	TOTAL_MARKUP NUMBER(20,2), 
+	PNR_OBJECT CLOB, 
+	NQT_ID VARCHAR2(50 BYTE), 
+	NQT_STATUS VARCHAR2(50 BYTE), 
+	PO_STATUS VARCHAR2(50 BYTE), 
+	NQT_STATUS_CUR VARCHAR2(50 BYTE)
    ) SEGMENT CREATION IMMEDIATE
   TABLESPACE "USERS" ;
 --------------------------------------------------------
@@ -233,7 +246,7 @@ end;
 
 /* item_hotel */
 begin
-
+/*
 --------------------------------------------------------
 --  DDL for Table MARKUP
 --------------------------------------------------------
@@ -282,7 +295,7 @@ ALTER TABLE ord.item_hotel  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   increment by 1
   start with 1
   nomaxvalue
-  nocache /*!!!*/
+  nocache 
   nocycle
   order;
 --------------------------------------------------------
@@ -302,7 +315,7 @@ end;
 /
 
 ALTER TRIGGER ord.ihtl_TRGR ENABLE;
-
+*/
 end; 
 
 
@@ -312,7 +325,7 @@ begin
 --------------------------------------------------------
 --  DDL for Table MARKUP
 --------------------------------------------------------
-
+/*
   CREATE TABLE ord.item_insurance
    (	ID NUMBER(18,0), 
    amnd_date date,
@@ -357,7 +370,7 @@ ALTER TABLE ord.item_insurance  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   increment by 1
   start with 1
   nomaxvalue
-  nocache /*!!!*/
+  nocache 
   nocycle
   order;
 --------------------------------------------------------
@@ -377,7 +390,7 @@ end;
 /
 
 ALTER TRIGGER ord.iins_TRGR ENABLE;
-
+*/
 end; 
 
 
@@ -388,7 +401,7 @@ begin
 --------------------------------------------------------
 --  DDL for Table MARKUP
 --------------------------------------------------------
-
+/*
   CREATE TABLE ord.pnr
    (	ID NUMBER(18,0), 
    amnd_date date,
@@ -433,7 +446,7 @@ ALTER TABLE ord.pnr  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   increment by 1
   start with 1
   nomaxvalue
-  nocache /*!!!*/
+  nocache 
   nocycle
   order;
 --------------------------------------------------------
@@ -453,7 +466,7 @@ end;
 /
 
 ALTER TRIGGER ord.pnr_TRGR ENABLE;
-
+*/
 end; 
 
 
@@ -464,7 +477,7 @@ begin
 --------------------------------------------------------
 --  DDL for Table MARKUP
 --------------------------------------------------------
-
+/*
   CREATE TABLE ord.ticket
    (	ID NUMBER(18,0), 
    amnd_date date,
@@ -509,7 +522,7 @@ ALTER TABLE ord.ticket  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   increment by 1
   start with 1
   nomaxvalue
-  nocache /*!!!*/
+  nocache 
   nocycle
   order;
 --------------------------------------------------------
@@ -529,7 +542,7 @@ end;
 /
 
 ALTER TRIGGER ord.tkt_TRGR ENABLE;
-
+*/
 end; 
 
 /* price_quote */
@@ -538,7 +551,7 @@ begin
 --------------------------------------------------------
 --  DDL for Table MARKUP
 --------------------------------------------------------
-
+/*
   CREATE TABLE ord.price_quote
    (	ID NUMBER(18,0), 
    amnd_date date,
@@ -583,7 +596,7 @@ ALTER TABLE ord.price_quote  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   increment by 1
   start with 1
   nomaxvalue
-  nocache /*!!!*/
+  nocache 
   nocycle
   order;
 --------------------------------------------------------
@@ -603,7 +616,7 @@ end;
 /
 
 ALTER TRIGGER ord.pq_TRGR ENABLE;
-
+*/
 end; 
 
 
@@ -614,7 +627,7 @@ begin
 --------------------------------------------------------
 --  DDL for Table MARKUP
 --------------------------------------------------------
-
+/*
   CREATE TABLE ord.passenger
    (	ID NUMBER(18,0), 
    amnd_date date,
@@ -659,7 +672,7 @@ ALTER TABLE ord.passenger  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   increment by 1
   start with 1
   nomaxvalue
-  nocache /*!!!*/
+  nocache 
   nocycle
   order;
 --------------------------------------------------------
@@ -679,7 +692,7 @@ end;
 /
 
 ALTER TRIGGER ord.pax_TRGR ENABLE;
-
+*/
 end; 
 
 
@@ -690,7 +703,7 @@ begin
 --------------------------------------------------------
 --  DDL for Table MARKUP
 --------------------------------------------------------
-
+/*
   CREATE TABLE ord.itinerary
    (	ID NUMBER(18,0), 
    amnd_date date,
@@ -735,7 +748,7 @@ ALTER TABLE ord.itinerary  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   increment by 1
   start with 1
   nomaxvalue
-  nocache /*!!!*/
+  nocache 
   nocycle
   order;
 --------------------------------------------------------
@@ -755,7 +768,7 @@ end;
 /
 
 ALTER TRIGGER ord.itin_TRGR ENABLE;
-
+*/
 end; 
 
 
@@ -768,7 +781,7 @@ begin
 --------------------------------------------------------
 --  DDL for Table MARKUP
 --------------------------------------------------------
-
+/*
   CREATE TABLE ord.leg
    (	ID NUMBER(18,0), 
    amnd_date date,
@@ -813,7 +826,7 @@ ALTER TABLE ord.leg  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   increment by 1
   start with 1
   nomaxvalue
-  nocache /*!!!*/
+  nocache 
   nocycle
   order;
 --------------------------------------------------------
@@ -833,7 +846,7 @@ end;
 /
 
 ALTER TRIGGER ord.leg_TRGR ENABLE;
-
+*/
 end; 
 
 
@@ -844,7 +857,7 @@ begin
 --------------------------------------------------------
 --  DDL for Table MARKUP
 --------------------------------------------------------
-
+/*
   CREATE TABLE ord.segment
    (	ID NUMBER(18,0), 
    amnd_date date,
@@ -889,7 +902,7 @@ ALTER TABLE ord.segment  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   increment by 1
   start with 1
   nomaxvalue
-  nocache /*!!!*/
+  nocache 
   nocycle
   order;
 --------------------------------------------------------
@@ -909,7 +922,7 @@ end;
 /
 
 ALTER TRIGGER ord.sgm_TRGR ENABLE;
-
+*/
 end; 
 
 
@@ -920,7 +933,7 @@ begin
 --------------------------------------------------------
 --  DDL for Table MARKUP
 --------------------------------------------------------
-
+/*
   CREATE TABLE ord.flight_stop
    (	ID NUMBER(18,0), 
    amnd_date date,
@@ -965,7 +978,7 @@ ALTER TABLE ord.flight_stop  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   increment by 1
   start with 1
   nomaxvalue
-  nocache /*!!!*/
+  nocache
   nocycle
   order;
 --------------------------------------------------------
@@ -985,6 +998,282 @@ end;
 /
 
 ALTER TRIGGER ord.stop_TRGR ENABLE;
-
+*/
 end; 
+
+
+
+
+/* commission */
+begin
+
+--------------------------------------------------------
+--  DDL for Table MARKUP
+--------------------------------------------------------
+
+  CREATE TABLE ord.commission
+   (	   ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+    AIRLINE NUMBER(18,0), 
+    DETAILS VARCHAR2(255 BYTE), 
+    FIX NUMBER(20,2), 
+    PERCENT NUMBER(20,2), 
+    DATE_FROM DATE, 
+    DATE_TO DATE, 
+    PRIORITY NUMBER 
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+  
+  --drop table  blng.account 
+--------------------------------------------------------
+--  DDL for Index MKP_ID_IDX
+--------------------------------------------------------
+
+  CREATE INDEX ord.CMN_ID_IDX ON ord.commission ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table MARKUP
+--------------------------------------------------------
+
+  ALTER TABLE ord.commission MODIFY ("ID" CONSTRAINT CMN_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.commission MODIFY (AMND_DATE CONSTRAINT "CMN_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.commission MODIFY (AMND_USER CONSTRAINT "CMN_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.commission MODIFY (AMND_STATE CONSTRAINT "CMN_AST_NN" NOT NULL ENABLE);
+ALTER TABLE ord.commission  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE ord.commission  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE ord.commission  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE ord.commission ADD CONSTRAINT CMN_ID_PK PRIMARY KEY (ID)
+  USING INDEX ord.CMN_ID_IDX ENABLE;
+
+
+/*
+ALTER TABLE ord.commission ADD CONSTRAINT CMN_ETT_OID_FK FOREIGN KEY (event_type_oid)
+  REFERENCES BLNG.event_type ("ID") ENABLE;
+ALTER TABLE ord.commission ADD CONSTRAINT CMN_TRN_OID_FK FOREIGN KEY (transaction_oid)
+  REFERENCES BLNG.transaction ("ID") ENABLE;
+ALTER TABLE ord.commission ADD CONSTRAINT CMN_CNTR_OID_FK FOREIGN KEY (contraCMN_oid)
+  REFERENCES BLNG.contract ("ID") ENABLE;
+*/
+
+--------------------------------------------------------
+--  DDL for Secuence MKP_SEQ
+--------------------------------------------------------
+ 
+  create sequence  ord.CMN_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+  
+--------------------------------------------------------
+--  DDL for Trigger MKP_TRGR
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER ord.CMN_TRGR 
+BEFORE
+INSERT
+ON ord.commission
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select CMN_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
+end;
+/
+ALTER TRIGGER ord.CMN_TRGR ENABLE;
+
+end;
+
+
+
+
+
+/* commission_template */
+begin
+
+--------------------------------------------------------
+--  DDL for Table MARKUP
+--------------------------------------------------------
+
+  CREATE TABLE ord.commission_template
+   (	   ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+	TEMPLATE_TYPE VARCHAR2(50 BYTE), 
+	CLASS VARCHAR2(10 BYTE), 
+	FLIGHT_AC VARCHAR2(10 BYTE), 
+	FLIGHT_NOT_AC VARCHAR2(10 BYTE), 
+	FLIGHT_MC VARCHAR2(10 BYTE), 
+	FLIGHT_OC VARCHAR2(10 BYTE), 
+	FLIGHT_VC VARCHAR2(10 BYTE), 
+	FLIGHT_SEGMENT VARCHAR2(10 BYTE), 
+	COUNTRY_FROM VARCHAR2(10 BYTE), 
+	COUNTRY_TO VARCHAR2(10 BYTE), 
+	COUNTRY_INSIDE VARCHAR2(10 BYTE), 
+	COUNTRY_OUTSIDE VARCHAR2(10 BYTE), 
+	TARIFF VARCHAR2(10 BYTE), 
+	PRIORITY NUMBER, 
+	DETAILS VARCHAR2(255 BYTE)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+  
+  --drop table  blng.account 
+--------------------------------------------------------
+--  DDL for Index MKP_ID_IDX
+--------------------------------------------------------
+
+  CREATE INDEX ord.CT_ID_IDX ON ord.commission_template ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table MARKUP
+--------------------------------------------------------
+
+  ALTER TABLE ord.commission_template MODIFY ("ID" CONSTRAINT CT_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.commission_template MODIFY (AMND_DATE CONSTRAINT "CT_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.commission_template MODIFY (AMND_USER CONSTRAINT "CT_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.commission_template MODIFY (AMND_STATE CONSTRAINT "CT_AST_NN" NOT NULL ENABLE);
+ALTER TABLE ord.commission_template  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE ord.commission_template  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE ord.commission_template  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE ord.commission_template ADD CONSTRAINT CT_ID_PK PRIMARY KEY (ID)
+  USING INDEX ord.CT_ID_IDX ENABLE;
+
+
+/*
+ALTER TABLE ord.commission_template ADD CONSTRAINT CT_ETT_OID_FK FOREIGN KEY (event_type_oid)
+  REFERENCES BLNG.event_type ("ID") ENABLE;
+ALTER TABLE ord.commission_template ADD CONSTRAINT CT_TRN_OID_FK FOREIGN KEY (transaction_oid)
+  REFERENCES BLNG.transaction ("ID") ENABLE;
+ALTER TABLE ord.commission_template ADD CONSTRAINT CT_CNTR_OID_FK FOREIGN KEY (contract_oid)
+  REFERENCES BLNG.contract ("ID") ENABLE;
+*/
+
+--------------------------------------------------------
+--  DDL for Secuence MKP_SEQ
+--------------------------------------------------------
+ 
+  create sequence  ord.CT_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+  
+--------------------------------------------------------
+--  DDL for Trigger MKP_TRGR
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER ord.CT_TRGR 
+BEFORE
+INSERT
+ON ord.commission_template
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select CT_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
+end;
+/
+ALTER TRIGGER ord.CT_TRGR ENABLE;
+
+end;
+
+
+
+
+
+
+/* commission_details */
+begin
+
+--------------------------------------------------------
+--  DDL for Table MARKUP
+--------------------------------------------------------
+
+  CREATE TABLE ord.commission_details
+   (	   ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+   commission_oid NUMBER(18,0),
+   commission_template_oid NUMBER(18,0),
+   value varchar(255)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+  
+  --drop table  blng.account 
+--------------------------------------------------------
+--  DDL for Index MKP_ID_IDX
+--------------------------------------------------------
+
+  CREATE INDEX ord.CD_ID_IDX ON ord.commission_details ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table MARKUP
+--------------------------------------------------------
+
+  ALTER TABLE ord.commission_details MODIFY ("ID" CONSTRAINT CD_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.commission_details MODIFY (AMND_DATE CONSTRAINT "CD_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.commission_details MODIFY (AMND_USER CONSTRAINT "CD_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.commission_details MODIFY (AMND_STATE CONSTRAINT "CD_AST_NN" NOT NULL ENABLE);
+ALTER TABLE ord.commission_details  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE ord.commission_details  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE ord.commission_details  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE ord.commission_details ADD CONSTRAINT CD_ID_PK PRIMARY KEY (ID)
+  USING INDEX ord.CD_ID_IDX ENABLE;
+
+
+
+ALTER TABLE ord.commission_details ADD CONSTRAINT CD_CMN_OID_FK FOREIGN KEY (commission_oid)
+  REFERENCES ord.commission ("ID") ENABLE;
+ALTER TABLE ord.commission_details ADD CONSTRAINT CD_CT_OID_FK FOREIGN KEY (commission_template_oid)
+  REFERENCES ord.commission_template ("ID") ENABLE;
+
+--------------------------------------------------------
+--  DDL for Secuence MKP_SEQ
+--------------------------------------------------------
+ 
+  create sequence  ord.CD_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+  
+--------------------------------------------------------
+--  DDL for Trigger MKP_TRGR
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER ord.CD_TRGR 
+BEFORE
+INSERT
+ON ord.commission_details
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select CD_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
+end;
+/
+ALTER TRIGGER ord.CD_TRGR ENABLE;
+
+end;
+
+
 
