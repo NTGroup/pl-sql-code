@@ -1277,3 +1277,81 @@ end;
 
 
 
+
+
+/* item_avia_status */
+begin
+
+--------------------------------------------------------
+--  DDL for Table MARKUP
+--------------------------------------------------------
+
+  CREATE TABLE ord.item_avia_status 
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+	item_avia_OID NUMBER(18,0), 
+	PO_STATUS VARCHAR2(50 BYTE), 
+	NQT_STATUS_CUR VARCHAR2(50 BYTE)
+   ) SEGMENT CREATION IMMEDIATE
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index MKP_ID_IDX
+--------------------------------------------------------
+
+  CREATE INDEX ord.iavs_ID_IDX ON ord.item_avia_status ("ID") 
+  TABLESPACE "USERS" ;
+  
+--------------------------------------------------------
+--  Constraints for Table MARKUP
+--------------------------------------------------------
+
+  ALTER TABLE ord.item_avia_status MODIFY ("ID" CONSTRAINT iavs_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.item_avia_status MODIFY (AMND_DATE CONSTRAINT "iavs_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.item_avia_status MODIFY (AMND_USER CONSTRAINT "iavs_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.item_avia_status MODIFY (AMND_STATE CONSTRAINT "iavs_AST_NN" NOT NULL ENABLE);
+ALTER TABLE ord.item_avia_status  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE ord.item_avia_status  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE ord.item_avia_status  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE ord.item_avia_status ADD CONSTRAINT iavs_ID_PK PRIMARY KEY (ID)
+  USING INDEX ord.iavs_ID_IDX ENABLE;
+ 
+ 
+  
+  ALTER TABLE ord.item_avia_status ADD CONSTRAINT iavs_iav_OID_FK FOREIGN KEY (item_avia_oid)
+  REFERENCES ord.item_avia ("ID") ENABLE;
+
+
+--------------------------------------------------------
+--  DDL for Secuence MKP_SEQ
+--------------------------------------------------------
+ 
+  create sequence  ORD.iavs_SEQ
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+--------------------------------------------------------
+--  DDL for Trigger MKP_TRGR
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER ord.iavs_TRGR 
+BEFORE
+INSERT
+ON ord.item_avia_status
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select iavs_SEQ.NEXTVAL into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
+end;
+/
+
+ALTER TRIGGER ord.iavs_TRGR ENABLE;
+
+end; 
+
