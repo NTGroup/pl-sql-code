@@ -1272,10 +1272,21 @@ NOCOPY
   TEMPFILE REUSE;
 alter pluggable database my_test1 open read write; 
 
-SELECT name, open_mode
+SELECT --name, open_mode
+*
 FROM   v$pdbs
 ORDER BY name;
 
+create pluggable database pdb3 
+admin user odb3_admin identified by oracle
+roles = (DBA)
+FILE_NAME_CONVERT=('/u01/app/oracle/oradata/cdb1/pdbseed','/u01/app/oracle/oradata/cdb1/pdb3');
+
+
+create pluggable database pdb3 
+admin user odb3_admin identified by oracle
+roles = (DBA)
+FILE_NAME_CONVERT=('/u01/app/oracle/oradata/cdb1/pdbseed','/u01/app/oracle/oradata/cdb1/pdb3');
 
 
 SELECT TABLE_NAME, PRIVILEGE, GRANTABLE FROM DBA_TAB_PRIVS
@@ -1285,6 +1296,7 @@ SELECT * FROM SESSION_PRIVS;
 
 SELECT * FROM DBA_ROLE_PRIVS   WHERE GRANTEE = 'NTG';
 
+select name from v$datafile where con_id=2;
 
 
 select
@@ -2200,9 +2212,13 @@ select * from ord.bill order by id desc
 
 select * from blng.document order by id desc
 
-select * from ord.item_avia order by id desc
+select * from ord.item_avia 
+where amnd_state = 'A'
+and nqt_status = 'INMANUAL'
+and id = 606
+order by id desc
 
-select * from ord.item_avia_status order by id desc
+select * from ord.item_avia_status where item_avia_oid = 606  order by id desc
 
 select * from blng.v_account
 
@@ -2238,3 +2254,41 @@ alter database \
 
 
 update ntg.geo set amnd_PREV = ID, AMND_STATE = DECODE(IS_ACTIVE,'Y','A','C'), amnd_date = sysdate, amnd_user = 'NTG'; commit;
+
+update ntg.markup set  amnd_user = 'NTG' where amnd_user is null; commit;
+
+select distinct type from dba_source
+where type
+
+
+
+      SELECT al.id, al.iata, al.name, al.nls_name 
+      FROM markup mkp, airline al
+      where mkp.validating_carrier = al.id
+   --   and mkp.gds = nvl(p_gds,mkp.gds)
+   --   and mkp.pos = nvl(p_pos,mkp.pos)
+      and mkp.amnd_state = 'A'
+      and al.amnd_state = 'A'
+      group by al.id, al.nls_name , al.name, al.iata;
+      
+      
+      
+        SELECT *
+        FROM v_markup;
+        
+        update ord.commission set amnd_state = 'C'; commit;
+        
+        select * from dba_objects where owner = 'NTG' and object_type = 'SEQUENCE';
+        select * from all_objects where owner = 'NTG' and object_type = 'SEQUENCE';
+        
+        
+         select * from session_privs
+         where privilege like '%RESTR%'
+         
+         
+         
+GRANT RESTRICTED SESSION to ord
+GRANT RESTRICTED SESSION to blng
+GRANT RESTRICTED SESSION to po_fwdr
+ORA-01950: нет привилегий на раздел 'USERS'
+alter tablespace users online;

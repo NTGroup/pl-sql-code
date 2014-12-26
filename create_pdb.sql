@@ -199,3 +199,30 @@ GRANT create session TO po_fwdr;
 
 ALTER USER po_fwdr
     QUOTA 0 ON users
+
+
+--create pdb from seed
+alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/orcl/ntg1';
+
+
+create pluggable database ntg1 
+admin user ntg identified by cccCCC111 --default tablespace USERS
+roles = (DBA)
+--FILE_NAME_CONVERT=('/home/oracle/app/oracle/oradata/ORCL/datafile','/home/oracle/app/oracle/oradata/orcl/ntg1');
+  DEFAULT TABLESPACE USERS 
+    DATAFILE '/home/oracle/app/oracle/oradata/orcl/ntg1/ntg1.dbf' SIZE 25M AUTOEXTEND ON
+
+
+
+alter pluggable database ntg1 open read write; 
+
+--alter user ntg default tablespace USERS;
+
+create user BLNG IDENTIFIED BY wppM26h8WP9nLBnS DEFAULT TABLESPACE users ;
+create user ORD IDENTIFIED BY wppM26h8WP9nLBnS DEFAULT TABLESPACE users ;
+create user po_fwdr IDENTIFIED BY wppM26h8WP9nLBnS DEFAULT TABLESPACE users ;
+
+GRANT RESTRICTED SESSION to ord
+GRANT RESTRICTED SESSION to blng
+GRANT RESTRICTED SESSION to po_fwdr
+ORA-01950: нет привилегий на раздел 'USERS'
