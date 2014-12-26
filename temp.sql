@@ -922,7 +922,7 @@ select * from
 declare
   c number;
 begin
-  c:= ord.fwdr.commission_get(121);
+  c:= ord.fwdr.commission_get('123');
 end;
 
 select * from ord.v_json where id = 121
@@ -951,7 +951,7 @@ group by validatingcarrier
 
 
 declare
-  avia_code varchar2(3):='CZ';
+  avia_code varchar2(3):='S7';
   avia_id number;
   com number;
   tem1 number;
@@ -1044,13 +1044,17 @@ declare
 begin
   for i in (
     select
-    distinct id
-    from ord.v_json 
-    where id = 123 --> 33
-    order by id desc
+    distinct nqt_id nqt_id
+   -- *
+    from ord.item_avia 
+    where amnd_date >= sysdate - 2
+    and nqt_id = '9f61eda93fa6445c834433f374345ba9'
+    --where id = 123 --> 33
+    --order by id desc
   )
   loop
-    ord.fwdr.commission_get(i.id,v_fix,v_percent);
+          dbms_output.put_line('='||i.nqt_id);      
+    ord.fwdr.commission_get(i.nqt_id,v_fix,v_percent);
   end loop;
 end;
 
@@ -1370,7 +1374,7 @@ BEGIN
   P_TIME_LIMIT := sysdate;
   P_TOTAL_AMOUNT := 555;
   P_TOTAL_MARKUP := 55;
-  P_PNR_OBJECT := '{"id": "KGIDRD"}';
+  P_PNR_OBJECT := '{"id": "KGIDRD"}21';
   P_STATUS := 'W';
   P_CLIENT := NULL;
 
@@ -1582,7 +1586,7 @@ END;
     DECLARE
   P_NQT_ID VARCHAR2(50);    
 BEGIN
-  P_NQT_ID := '45ba55eff8e94a8fbae29973e2366ba3';
+  P_NQT_ID := '085b230ac8084cb08f89d0bb25d8d020';
 
   ORD.FWDR.avia_pay (  P_NQT_ID => P_NQT_ID) ;  
 END;
@@ -1607,3 +1611,630 @@ set spool off
 spool on to '../../../output.txt';
 
 spool off;
+
+
+
+grant select on ntg.geo to po_fwdr
+
+
+select * from ntg.geo
+
+
+keyswitch(name,'en'),keyswitch(nls_name,'ru')
+select id,parent_id,name,nls_name, iata code,object_type, nls_name as res_name, iata as res_code from ntg.geo where is_active in ('Y', 'W') and iata is not null  union all select id,parent_id,,iata code,object_type, nls_name as res_name, iata as res_code from ntg.geo  where is_active in ('Y', 'W') and iata is not null
+
+
+select 
+
+
+connect system
+
+ALTER SESSION SET CONTAINER = PDB$SEED
+
+select * from ntg.geo g,
+T_DOC_SEARCH_RATING_DISTINCT@ctagan sr
+where g.nls_name = sr.name
+
+
+
+
+CREATE PUBLIC DATABASE LINK CTAGAN 
+CONNECT TO c##tagan IDENTIFIED BY cccCCC111
+   USING 'orcl';
+   
+   
+   ALTER USER C##TAGAN IDENTIFIED BY cccCCC111
+   
+   
+   
+ACCOUNT UNLOCK ;
+
+
+
+
+
+
+select * from ntg.geo g,
+T_DOC_SEARCH_RATING_DISTINCT@ctagan sr
+where g.nls_name = sr.name
+and is_active = 'Y'
+and object_type in 
+('country') 
+
+
+select distinct  object_type from ntg.geo g,
+T_DOC_SEARCH_RATING_DISTINCT@ctagan sr
+where g.nls_name = sr.name
+and is_active = 'Y'
+and object_type in (
+) 
+
+
+
+update ntg.geo g set search_rating = (
+select cnt from T_DOC_SEARCH_RATING_DISTINCT@ctagan sr where sr.name = g.nls_name
+)
+where is_active = 'Y';
+commit;
+
+
+airport
+airport real
+city
+country
+city-airport
+region
+
+
+
+
+select distinct iata from ntg.geo iata,
+(
+  select * from ntg.geo where 
+  is_active = 'Y'
+  and iata in (  
+    select distinct iata from ntg.geo
+    where object_type in (
+    'airport',
+    'airport real',
+    'city',
+    'city-airport'
+    )
+    and iata is not null
+    and length(iata) = 3
+    and is_active = 'Y'
+  )
+  and object_type in (
+  'airport real'
+  )
+) airport,
+(
+  select * from ntg.geo where 
+  is_active = 'Y'
+  and iata in (  
+    select distinct iata from ntg.geo
+    where object_type in (
+    'airport',
+    'airport real',
+    'city',
+    'city-airport'
+    )
+    and iata is not null
+    and length(iata) = 3
+    and is_active = 'Y'
+  )
+  and object_type in (
+    'airport',
+    'city',
+    'city-airport'
+    )
+) city
+where object_type in (
+'airport',
+'airport real',
+'city',
+'city-airport'
+)
+and iata is not null
+and length(iata) = 3
+and is_active = 'Y'
+
+ 
+select * from ntg.geo where 
+is_active = 'Y'
+and iata in (  
+  select distinct iata from ntg.geo
+  where object_type in (
+  'airport',
+  'airport real',
+  'city',
+  'city-airport'
+  )
+  and iata is not null
+  and length(iata) = 3
+  and is_active = 'Y'
+)
+
+
+
+CREATE TABLE j_purchaseorder
+(id RAW (16) NOT NULL,
+date_loaded TIMESTAMP (6) WITH TIME ZONE,
+po_document CLOB
+CONSTRAINT ensure_json CHECK (po_document IS JSON));
+
+
+INSERT INTO ORD.ITEM_AVIA (PNR_OBJECT)
+SELECT '{"id": "KGIDRD"} SELECT' A FROM DUAL;
+COMMIT;
+
+
+
+INSERT INTO ORD.ITEM_AVIA (PNR_OBJECT)
+SELECT A FROM (SELECT 'ASD {"id": "KGIDRD"} 21' A FROM DUAL) WHERE A IS JSON;
+COMMIT;
+
+
+SELECT * FROM ORD.ITEM_AVIA ORDER BY ID DESC
+
+
+SELECT * FROM ORD.ITEM_AVIA_status ORDER BY ID DESC
+
+
+SELECT * FROM log ORDER BY ID DESC
+
+
+grant select on ord.item_avia_status to blng;
+
+        
+  
+    DECLARE
+  P_NQT_ID VARCHAR2(50);    
+BEGIN
+  P_NQT_ID := '06ca5dccdf3d4fe8bfc3e6e02e5acd7f';
+
+  ORD.FWDR.avia_pay (  P_NQT_ID => P_NQT_ID) ;  
+END;
+
+
+select * from ord.item_avia where amnd_state = 'A'
+and nqt_status = 'NEW'
+
+
+
+        SELECT
+        ia.nqt_id, ia.nqt_status, ias.po_status, ias.nqt_status_cur, null po_msg, 'avia' item_type
+        from ord.item_avia ia, ord.item_avia_status ias,
+        json_table  
+          ( '[{"id": "085b230ac8084cb08f89d0bb25d8d020"}]','$[*]' 
+          columns (id VARCHAR2(250) path '$.id')
+          ) as j
+        where ia.nqt_id = upper(j.id) 
+        and ia.amnd_state = 'A'
+        and ias.amnd_state = 'A'
+        and ia.id = ias.item_avia_oid
+        order by ia.id;
+        
+       
+       
+       
+        SELECT
+       *
+        from
+        json_table  
+          ( '[{"id": "085b230ac8084cb08f89d0bb25d8d020"}]','$[*]' 
+          columns (id VARCHAR2(250) path '$.id')
+          ) as j
+          
+          
+          select * from ord.item_avia where nqt_id = '085b230ac8084cb08f89d0bb25d8d020'
+          
+          
+          select * from blng.client
+          
+          delete from ord.item_hotel; commit;
+          delete from ord.ticket; commit;
+          
+          
+          select * from blng.company
+          
+          truncate table blng.event;
+          
+          
+          
+          
+          delete from blng.transaction; commit;
+delete from blng.document where contract_oid !=21; commit;
+delete from blng.account where contract_oid != 21; commit;
+delete from blng.client2contract where client_oid !=31; commit;
+delete from blng.contract where id != 21; commit;
+delete from blng.client where id != 31; commit;
+delete from blng.company where id != 4; commit;
+
+
+select * from  blng.client2contract
+
+
+select * from blng.transaction
+select * from blng.document order by id desc
+
+select id from blng.document where contract_oid !=21;
+
+
+delete from blng.document where contract_oid !=21;
+
+
+delete from blng.transaction where doc_oid in (select id from blng.document where contract_oid !=21) ;commit;
+
+delete from blng.transaction where doc_oid is null; commit;
+
+select * from blng.delay order by id desc
+
+delete from blng.delay where  contract_oid !=21;commit;
+delete from blng.delay where  contract_oid is null ;commit;
+
+
+select * from blng.account
+
+
+select * from blng.document order by id desc
+
+select * from ord.bill order by id desc
+
+select * from ord.item_avia order by id desc
+
+select * from ord.item_avia_status order by id desc
+
+delete from ord.item_avia_status; commit;
+
+select * from ord.item_avia order by id
+select * from ord.ord order by id desc
+
+
+
+select * from ord.item_avia order by id desc
+select * from ord.item_avia_status order by id desc
+
+select * from ord.bill order by id desc
+
+select * from ntg.log order by id desc
+
+
+select * from 
+
+select * from blng.v_account
+
+
+select * from blng.document order by id desc
+
+select * from blng.document order by id desc
+
+select * from containers(ntg.log)
+
+SELECT *
+FROM   CONTAINERS(common_user_tab);
+
+
+ALTER SESSION SET CONTAINER = NTG;
+
+SELECT * FROM CONTAINERS(ntg.log) WHERE CON_ID IN(9);
+SELECT * FROM ntg.log WHERE CON_ID IN(9);
+
+
+select * from v$pdbs
+
+
+alter session set PLSQL_WARNINGS='ENABLE:ALL'
+
+
+select * from log order by id desc
+
+
+select * 
+from ord.item_avia where nqt_id in (
+'2840438e263f4947a5c161fc4d531ff7',
+'8db8b71c7dad4273bbb1de711c7d561d',
+'ad6c826b70c4418bb1abe8ff336f5d67',
+'d494ad8469874e7da6aa629804c83b48',
+'2cff44db54d144288b5e3e7ad020277a',
+'a15a8e6d78494cd4b2c29c1d1f5abb5d'
+) 
+and amnd_state = 'A'
+order by id desc
+
+
+select nqt_id,count(*)
+from ord.item_avia 
+where amnd_date >= sysdate - 1/2
+group by nqt_id
+
+order by id desc
+
+
+select amnd_prev, count(*) from ord.item_avia --where nqt_id in ('d494ad8469874e7da6aa629804c83b48') 
+where --amnd_date > sysdate -1
+amnd_prev = 2976
+
+group by amnd_prev
+
+--order by id desc
+
+
+
+select * from ord.item_avia_status where item_avia_oid in (21434)
+order by id desc
+
+update ord.item_avia_status set po_status = 'ERROR' where id = 22; commit
+
+select * from ord.item_avia where nqt_id = '11'
+
+select * from ord.bill where order_oid = 323
+
+begin
+ord.fwdr.avia_manual('11','SUCCESS');
+end;
+
+s
+        
+select * from ord.item        
+
+        SELECT
+        ia.nqt_id, ia.nqt_status, ias.po_status, ias.nqt_status_cur, null po_msg, 'avia' item_type, ia.pnr_id
+        from ord.item_avia ia, ord.item_avia_status ias,
+        json_table  
+          ( '[{"status": "INMANUAL"}]','$[*]' 
+          columns (status VARCHAR2(250) path '$.status')
+          ) as j
+        where ia.nqt_status = upper(j.status) 
+        and ia.amnd_state = 'A'
+        and ias.amnd_state = 'A'
+        and ia.id = ias.item_avia_oid
+        order by ia.id;
+        
+
+
+select * 
+from ord.item_avia /*where nqt_status = 'INMANUAL'
+and amnd_state = 'A'*/
+order by id desc
+
+select distinct nqt_status --,count(*)
+from ord.item_avia 
+where amnd_date >= sysdate - 1
+group by nqt_id
+
+
+
+select distinct to_char(pnr_object)
+from ord.item_avia 
+where amnd_date >= sysdate - 1/2
+
+
+
+group by nqt_id
+
+
+
+select * from 
+
+
+declare
+  v_id number;
+  v_percent number;
+  v_fix number;
+  
+begin
+  for i in (
+    select
+    distinct nqt_id nqt_id
+   -- *
+    from ord.item_avia 
+    where amnd_date >= sysdate - 2
+    and nqt_id='d494ad8469874e7da6aa629804c83b48'
+  )
+  loop
+          dbms_output.put_line('='||i.nqt_id);      
+    ord.fwdr.commission_get(i.nqt_id,v_fix,v_percent);
+  end loop;
+end;
+
+
+
+
+    select distinct al.id, al.iata   from ord.v_json j, ntg.airline al where j.id = 21434
+    and al.AMND_STATE = 'A'
+    and j.validatingcarrier = al.iata
+    ;
+
+select * from ord.v_json where id = 21434
+
+
+
+
+
+
+
+select * from ord.item_avia 
+where nqt_status = 'INMANUAL'
+order by id desc
+
+
+select * from ord.item_avia 
+where id = 21434
+order by id desc
+
+    select distinct al.id, al.iata  from ord.v_json j, ntg.airline al where j.id = 21434
+    and al.AMND_STATE = 'A'
+    and j.validatingcarrier = al.iata
+    ;
+    
+    
+    
+
+
+
+--test set/update increase/decrease limit
+DECLARE
+  starting_time  TIMESTAMP WITH TIME ZONE;
+  ending_time    TIMESTAMP WITH TIME ZONE;
+  v_contract  ntg.dtype.t_id:=21;
+  P_number VARCHAR2(255);
+  v_DOC ntg.dtype.t_id;
+  r_contract_info blng.v_account%rowtype;
+
+BEGIN
+
+  /* ins doc limit 1000 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 1000000,P_TRANS_TYPE =>7);
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
+  
+
+end;
+
+
+
+
+select ord.ord_api.commission_template_get_id('default')
+from dual
+
+
+          select value from ord.commission_details 
+          where /*commission_oid = i_rule.id 
+          and commission_template_oid = i_template_type.commission_template_oid*/
+      amnd_state = 'A'
+          group by value
+
+
+
+DECLARE
+  P_NQT_ID VARCHAR2(50);
+  O_FIX NUMBER;
+  O_PERCENT NUMBER;
+BEGIN
+  P_NQT_ID := 'd494ad8469874e7da6aa629804c83b48';
+
+  ORD.FWDR.COMMISSION_GET(
+    P_NQT_ID => P_NQT_ID,
+    O_FIX => O_FIX,
+    O_PERCENT => O_PERCENT
+  );
+  /* Legacy output: 
+DBMS_OUTPUT.PUT_LINE('O_FIX = ' || O_FIX);
+*/ 
+  :O_FIX := O_FIX;
+  /* Legacy output: 
+DBMS_OUTPUT.PUT_LINE('O_PERCENT = ' || O_PERCENT);
+*/ 
+  :O_PERCENT := O_PERCENT;
+--rollback; 
+END;
+
+
+
+select * from ord.v_commission
+
+@C:/Users/SQLDeveloper/Documents/GitHub/pl-sql-code/spool.sql
+
+
+
+select  
+iata,
+name,
+nvl(nls_name,name) NLS_NAME,
+nvl(city_iata,iata) city_iata,
+city_name,
+nvl(city_nls_name,city_name) city_nls_name
+from (
+      SELECT
+      g.iata,
+      trim(g.name) name,
+      trim(g.nls_name) nls_name,
+      case
+      when parents.object_type in ('region','country') then g.iata
+      when parents.object_type is null then g.iata
+      else parents.iata
+      end city_iata,
+      case
+      when parents.object_type in ('region','country') then trim(g.name)
+      when parents.object_type is null then trim(g.name)
+      else trim(parents.name)
+      end city_name,
+      case
+      when parents.object_type in ('region','country') then trim(g.nls_name)
+      when parents.object_type is null then trim(g.nls_name)
+      else trim(parents.nls_name)
+      end city_nls_name
+      FROM GEO g, geo parents --, table(v_iata_tab) iata_list
+      WHERE g.IS_ACTIVE IN ('Y')
+      and g.iata is not null
+      and g.iata not like '%@%'
+      and g.object_type in ('airport real')
+      and parents.IS_ACTIVE(+) IN ('Y')
+      and g.parent_id = parents.id(+)
+     -- and g.iata = 'KGF'
+      order by 1
+)
+where city_iata = 'MOW'
+
+
+      SELECT
+      *
+      --id, trans_type_oid, amount, doc_date
+      from blng.document
+      where id = nvl(null,id)
+      and contract_oid = nvl(null,contract_oid)
+      and trans_type_oid = nvl(null,trans_type_oid)
+      and status = nvl(null,status)
+      and ((bill_oid = p_bill and p_bill is not null) or (bill_oid is null and p_bill is null))
+      and amnd_state = 'A'
+      order by p_contract, id asc;
+      
+      
+      select * from blng.document where bill_oid is not null and amnd_state = 'A'
+
+
+select * from log order by id desc
+
+select * from ord.bill order by id desc
+
+select * from blng.document order by id desc
+
+select * from ord.item_avia order by id desc
+
+select * from ord.item_avia_status order by id desc
+
+select * from blng.v_account
+
+  ALTER TABLE ord.item_avia ADD CONSTRAINT iav_ensure_json CHECK (pnr_object IS JSON (STRICT));
+  
+  
+CREATE TABLESPACE TEMPDICT DATAFILE '/home/oracle/app/oracle/oradata/orcl/ORCL/032A6356A8B256D7E055000000000002/datafile/TEMPDICT01.dbf' SIZE 250M EXTENT MANAGEMENT LOCAL AUTOALLOCATE;
+CREATE TABLESPACE DICT DATAFILE '/home/oracle/app/oracle/oradata/orcl/ORCL/032A6356A8B256D7E055000000000002/datafile/DICT01.dbf' SIZE 250M EXTENT MANAGEMENT LOCAL AUTOALLOCATE;
+--create tablespace TEMPDICT datafile '/home/oracle/app/oracle/oradata/orcl/my_test2/ORCL/0A67DE5661406850E055000000000002/datafile/TEMPDICT.dbf' SIZE 25M EXTENT MANAGEMENT LOCAL AUTOALLOCATE;
+ALTER USER ntg quota unlimited on TEMPDICT;
+ALTER USER po_fwdr quota unlimited on TEMPDICT;
+ALTER USER ntg quota unlimited on DICT;
+ALTER USER po_fwdr quota unlimited on DICT;
+alter tablespace TEMPDICT ONLINE;
+alter tablespace DICT ONLINE;
+alter table EXP.AIRPORT move tablespace TEMPDICT;
+alter table EXP.city move tablespace TEMPDICT;
+alter table EXP.country move tablespace TEMPDICT;
+alter table EXP.parentregion move tablespace TEMPDICT;
+ALTER INDEX "EXP"."SYS_IL0000093080C00003$$" REBUILD 
+TABLESPACE TEMPDICT;
+
+
+-- get tablespaces
+SELECT dd.tablespace_name tablespace_name, dd.file_name file_name, dd.bytes/1024 TABLESPACE_KB, SUM(fs.bytes)/1024 KBYTES_FREE, MAX(fs.bytes)/1024 NEXT_FREE
+FROM sys.dba_free_space fs, sys.dba_data_files dd
+WHERE dd.tablespace_name = fs.tablespace_name
+AND dd.file_id = fs.file_id
+GROUP BY dd.tablespace_name, dd.file_name, dd.bytes/1024
+ORDER BY dd.tablespace_name, dd.file_name;
+
+alter database \
+
+
+update ntg.geo set amnd_PREV = ID, AMND_STATE = DECODE(IS_ACTIVE,'Y','A','C'), amnd_date = sysdate, amnd_user = 'NTG'; commit;

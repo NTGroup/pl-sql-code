@@ -205,7 +205,7 @@ ALTER TABLE ord.item_avia  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   ALTER TABLE ord.item_avia ADD CONSTRAINT iav_ID_PK PRIMARY KEY (ID)
   USING INDEX ord.iav_ID_IDX ENABLE;
  
- 
+   ALTER TABLE ord.item_avia ADD CONSTRAINT iav_ensure_json CHECK (pnr_object IS JSON (STRICT));
   
   ALTER TABLE ord.item_avia ADD CONSTRAINT iav_ord_OID_FK FOREIGN KEY (order_oid)
   REFERENCES ord.ord ("ID") ENABLE;
