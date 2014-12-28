@@ -1427,6 +1427,13 @@ end loop;
 commit;
 end;
 
+begin
+     NTG.LOG_API.LOG_ADD(p_proc_name=>'get_table', p_msg_type=>'UNHANDLED_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select&p_table=markup&p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+end;
+
+
 SELECT 
 ia.id,
 jt.*
@@ -2097,11 +2104,9 @@ DECLARE
 BEGIN
 
   /* ins doc limit 1000 */
-  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 1000000,P_TRANS_TYPE =>7);
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 1200000,P_TRANS_TYPE =>7);
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
   commit;
-  
-
 end;
 
 
@@ -2292,3 +2297,152 @@ GRANT RESTRICTED SESSION to blng
 GRANT RESTRICTED SESSION to po_fwdr
 ORA-01950: нет привилегий на раздел 'USERS'
 alter tablespace users online;
+
+
+---start
+ 
+alter pluggable database ntg1 close immediate;
+ drop pluggable database ntg1 including datafiles;
+
+--alter system set db_create_file_dest='/home/oracle/app/oracle/oradata';
+--alter session set DB_UNIQUE_NAME = 'ntg3';
+
+create pluggable database ntg_dbf
+admin user ntg identified by cccCCC111 --default tablespace USERS
+roles = (DBA)
+STORAGE (MAXSIZE UNLIMITED)
+--CREATE_FILE_DEST = '/home/oracle/app/oracle/oradata/ORCL/ntg4/'
+--FILE_NAME_CONVERT=('/ORCL/datafile/','/orcl/ntg3/')
+
+  DEFAULT TABLESPACE USERS 
+    DATAFILE /*'/home/oracle/app/oracle/oradata/orcl/ntg1/ntg1.dbf'*/ 
+    SIZE 10M AUTOEXTEND ON;
+
+
+
+
+ 
+--alter pluggable database ntg_dbf close immediate;
+-- drop pluggable database ntg_dbf including datafiles;
+
+alter pluggable database ntg_dbf open read write; 
+alter pluggable database ntg1 open read only; 
+
+--alter user ntg default tablespace USERS;
+-- WITH DBA USER NTG
+alter user ntg DEFAULT TABLESPACE users QUOTA unlimited ON users;
+create user BLNG IDENTIFIED BY cccCCC111 DEFAULT TABLESPACE users QUOTA unlimited ON users;
+create user ORD IDENTIFIED BY cccCCC111 DEFAULT TABLESPACE users QUOTA unlimited ON users;
+create user EXP IDENTIFIED BY cccCCC111 DEFAULT TABLESPACE users QUOTA unlimited ON users;
+create user po_fwdr IDENTIFIED BY www DEFAULT TABLESPACE users QUOTA unlimited ON users;
+
+GRANT RESTRICTED SESSION to ord;
+GRANT RESTRICTED SESSION to blng;
+GRANT RESTRICTED SESSION to po_fwdr;
+GRANT RESTRICTED SESSION to EXP;
+
+--ORA-01950: нет привилегий на раздел 'USERS' 
+SELECT * FROM V$DIAG_INFO --oracle logs 
+select * from PDB_PLUG_IN_VIOLATIONS --check pdb warnings 
+--public synonym ntg.dtype
+-----end
+
+
+begin
+ord.core.bill_pay;
+end;
+
+
+  CREATE OR REPLACE PUBLIC SYNONYM "DTYPE" FOR "NTG"."DTYPE";
+
+select * from ntg.airport@ntg1
+
+
+DROP TABLESPACE airline INCLUDING CONTENTS AND DATAFILES;
+
+
+create tablespace airline datafile '/home/oracle/app/oracle/oradata/orcl/ntg1/ORCL/0B27427958986611E055000000000002/datafile/airline01.dbf' SIZE 25M;
+ALTER USER ntg quota unlimited on airline;
+alter tablespace airline ONLINE;
+
+
+/home/oracle/app/oracle/oradata/orcl/ntg1/ORCL/0B27427958986611E055000000000002/datafile/o1_mf_system_b9vv48w3_.dbf
+
+
+ALTER DATABASE
+    RENAME FILE '/home/oracle/app/oracle/oradata/orcl/ntg1/ntg1.dbf'              
+             TO '/home/oracle/app/oracle/oradata/orcl/ntg1/ORCL/0B27427958986611E055000000000002/datafile/ntg1.dbf'
+                
+ALTER DATABASE
+    RENAME FILE '/home/oracle/app/oracle/oradata/orcl/ntg1/ORCL/0B27427958986611E055000000000002/datafile/ntg1.dbf'              
+             TO '/home/oracle/app/oracle/oradata/orcl/ntg1/ntg1.dbf'
+
+
+/home/oracle/app/oracle/oradata/orcl/ntg1/ORCL/0B27427958986611E055000000000002/datafile/o1_mf_sysaux_b9vv48w4_.dbf
+/home/oracle/app/oracle/oradata/orcl/ntg1/ORCL/0B27427958986611E055000000000002/datafile/o1_mf_system_b9vv48w3_.dbf
+/home/oracle/app/oracle/oradata/orcl/ntg1/ntg1.dbf
+/home/oracle/app/oracle/oradata/orcl/ntg1/ORCL/0B38B973B8BE2567E055000000000002/datafile/o1_mf_temp_b9y2fhsl_.dbf 
+alter pluggable database ntg1 close immediate;
+ drop pluggable database ntg1 including datafiles;
+
+alter pluggable database ntg1 open read write; 
+alter pluggable database ntg1 open read only; 
+
+select * from v$database
+
+select * from v$data_files
+
+ALTER SESSION SET CONTAINER = CDB$ROOT;
+
+alter pluggable database test close immediate;
+drop pluggable database ntg2 including datafiles;
+drop pluggable database ntg3 including datafiles;
+drop pluggable database ntg4 including datafiles;
+drop pluggable database ntg5 including datafiles;
+drop pluggable database test including datafiles;
+drop pluggable database my_test including datafiles;
+drop pluggable database my_test1 including datafiles;
+drop pluggable database my_test2 including datafiles;
+
+
+select * from V$PDBS
+
+
+
+
+select * from ntg.log order by id desc
+
+select * from ord.ord order by id desc
+
+select * from ord.item_avia order by id desc
+
+
+select * from ord.bill order by id desc
+
+select * from blng.document order by id desc
+
+select * from blng.v_account 
+
+DECLARE
+  starting_time  TIMESTAMP WITH TIME ZONE;
+  ending_time    TIMESTAMP WITH TIME ZONE;
+  v_contract  ntg.dtype.t_id:=21;
+  P_number VARCHAR2(255);
+  v_DOC ntg.dtype.t_id;
+  r_contract_info blng.v_account%rowtype;
+
+BEGIN
+
+  /* ins doc limit 1000 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 1300000,P_TRANS_TYPE =>7);
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
+end;
+
+--- all that I NEED
+alter pluggable database ntg close immediate;  
+alter pluggable database ntg open read only; 
+CREATE PLUGGABLE DATABASE ntg_cln FROM ntg 
+--no data
+NOLOGGING;
+alter pluggable database ntg open read write; 

@@ -102,7 +102,7 @@ alter pluggable database ntg open read only;
 /* sys as sysdba */
 alter pluggable database ntg close immediate;  
 alter pluggable database ntg open read only; 
-alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/ntg4';
+--alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/ntg4';
 CREATE PLUGGABLE DATABASE ntg4 FROM ntg 
 NOLOGGING;
 alter pluggable database ntg4 open read write; 
@@ -117,7 +117,7 @@ drop pluggable database ntg4 including datafiles;
 /* sys as sysdba */
 alter pluggable database ntg close immediate;  
 alter pluggable database ntg open read only; 
-alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/test';
+--alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/test';
 
 CREATE PLUGGABLE DATABASE test FROM ntg 
 --no data
@@ -166,8 +166,8 @@ delete from ord.ticket; commit;
 /* sys as sysdba */
 alter pluggable database ntg close immediate;  
 alter pluggable database ntg open read only; 
-alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/orcl/my_test';
-ALTER SESSION SET PDB_FILE_NAME_CONVERT='/home/oracle/app/oracle/oradata/orcl/ORCL/032A6356A8B256D7E055000000000002/datafile/', '/home/oracle/app/oracle/oradata/orcl/my_test/',
+--alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/orcl/my_test';
+--ALTER SESSION SET PDB_FILE_NAME_CONVERT='/home/oracle/app/oracle/oradata/orcl/ORCL/032A6356A8B256D7E055000000000002/datafile/', '/home/oracle/app/oracle/oradata/orcl/my_test/',
 '/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/', '/home/oracle/app/oracle/oradata/orcl/my_test/'
 CREATE PLUGGABLE DATABASE my_test FROM ntg 
 NOLOGGING;
@@ -179,7 +179,7 @@ alter pluggable database my_test open read write;
 
 alter pluggable database my_test close immediate;  
 alter pluggable database my_test open read only; 
-alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/orcl/my_test1';
+--alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/orcl/my_test1';
 CREATE PLUGGABLE DATABASE my_test1 FROM my_test 
 --USER_TABLESPACES=ALL EXCEPT('users')
 NOLOGGING;
@@ -192,7 +192,7 @@ alter pluggable database my_test1 open read write;
 
 
 create user po_fwdr
-    IDENTIFIED BY wppM26h8WP9nLBnS
+    IDENTIFIED BY xxx
     DEFAULT TABLESPACE users
     QUOTA 0 ON users;
 GRANT create session TO po_fwdr;
@@ -202,7 +202,7 @@ ALTER USER po_fwdr
 
 
 --create pdb from seed
-alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/orcl/ntg1';
+--alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/orcl/ntg1';
 
 
 create pluggable database ntg1 
@@ -210,7 +210,7 @@ admin user ntg identified by cccCCC111 --default tablespace USERS
 roles = (DBA)
 --FILE_NAME_CONVERT=('/home/oracle/app/oracle/oradata/ORCL/datafile','/home/oracle/app/oracle/oradata/orcl/ntg1');
   DEFAULT TABLESPACE USERS 
-    DATAFILE '/home/oracle/app/oracle/oradata/orcl/ntg1/ntg1.dbf' SIZE 25M AUTOEXTEND ON
+    DATAFILE SIZE 25M AUTOEXTEND ON
 
 
 
@@ -218,9 +218,9 @@ alter pluggable database ntg1 open read write;
 
 --alter user ntg default tablespace USERS;
 
-create user BLNG IDENTIFIED BY wppM26h8WP9nLBnS DEFAULT TABLESPACE users ;
-create user ORD IDENTIFIED BY wppM26h8WP9nLBnS DEFAULT TABLESPACE users ;
-create user po_fwdr IDENTIFIED BY wppM26h8WP9nLBnS DEFAULT TABLESPACE users ;
+create user BLNG IDENTIFIED BY ccc DEFAULT TABLESPACE users ;
+create user ORD IDENTIFIED BY ccc DEFAULT TABLESPACE users ;
+create user po_fwdr IDENTIFIED BY ccc DEFAULT TABLESPACE users ;
 
 GRANT RESTRICTED SESSION to ord
 GRANT RESTRICTED SESSION to blng
