@@ -2748,3 +2748,14 @@ where id in (25,260,4,2116,
 2943
 )
 
+
+alter table blng.client add email varchar2(255);
+alter table blng.company add domen varchar2(255);
+
+
+
+select 
+blng.fwdr.get_tenant(p_email=>'ceo@ntg-one.com')
+from dual
+
+grant execute on blng.fwdr to po_fwdr;
