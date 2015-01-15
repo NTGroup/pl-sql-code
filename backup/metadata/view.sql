@@ -229,8 +229,7 @@ and iata is not null
 and iata not like '%@%'
 group by iata;
 /
-
-  CREATE OR REPLACE  VIEW "NTG"."V_GEO_SUGGEST" 
+  CREATE OR REPLACE VIEW "NTG"."V_GEO_SUGGEST" 
   AS 
   select
 id,
@@ -252,13 +251,17 @@ name,
   (
     select nvl(search_rating,0) from ntg.geo where id=d_i_n.id
   ) 
- search_rating
+ search_rating,
+ name_from,
+ name_to
 from 
   (
   select 
   max(id) id,
   iata,
-  nls_name name
+  nls_name name,
+  nls_name_rp name_from,
+  nls_name_vp name_to
   from 
   ntg.geo
   where object_type in (
@@ -270,11 +273,10 @@ from
   and iata is not null
   and length(iata) = 3
   and is_active = 'Y'
-  group by iata, nls_name
+  group by iata, nls_name,nls_name_rp,nls_name_vp
   ) d_i_n
 --where iata in ('MOW','SVO','QPP','DAC','EBU','LED','PIE')
 order by 2;
-
 /
 
   CREATE OR REPLACE  VIEW "NTG"."V_MARKUP" 

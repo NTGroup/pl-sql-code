@@ -651,9 +651,15 @@ select count(*) from geo where is_active = 'W'
 
 select * from ord.item_avia order by id desc
 
+select * from ord.item_avia where amnd_state = 'A' order by id desc
+
+select * from ord.bill where amnd_state = 'A' order by id desc
+
 select * from ord.ord order by id desc
 
 select * from log order by id desc
+
+select * from blng.document where amnd_state = 'A' order by id desc
 
 
 
@@ -922,7 +928,7 @@ select * from
 declare
   c number;
 begin
-  c:= ord.fwdr.commission_get('123');
+  ord.fwdr.commission_get('0a54d0088054433b8af000cfbf889d3e');
 end;
 
 select * from ord.v_json where id = 121
@@ -2307,16 +2313,13 @@ alter pluggable database ntg1 close immediate;
 --alter system set db_create_file_dest='/home/oracle/app/oracle/oradata';
 --alter session set DB_UNIQUE_NAME = 'ntg3';
 
-create pluggable database ntg_dbf
+create pluggable database TEMPDICT
 admin user ntg identified by cccCCC111 --default tablespace USERS
 roles = (DBA)
 STORAGE (MAXSIZE UNLIMITED)
---CREATE_FILE_DEST = '/home/oracle/app/oracle/oradata/ORCL/ntg4/'
---FILE_NAME_CONVERT=('/ORCL/datafile/','/orcl/ntg3/')
-
   DEFAULT TABLESPACE USERS 
     DATAFILE /*'/home/oracle/app/oracle/oradata/orcl/ntg1/ntg1.dbf'*/ 
-    SIZE 10M AUTOEXTEND ON;
+    SIZE 100M AUTOEXTEND ON;
 
 
 
@@ -2325,7 +2328,7 @@ STORAGE (MAXSIZE UNLIMITED)
 --alter pluggable database ntg_dbf close immediate;
 -- drop pluggable database ntg_dbf including datafiles;
 
-alter pluggable database ntg_dbf open read write; 
+alter pluggable database TEMPDICT open read write; 
 alter pluggable database ntg1 open read only; 
 
 --alter user ntg default tablespace USERS;
@@ -2334,7 +2337,7 @@ alter user ntg DEFAULT TABLESPACE users QUOTA unlimited ON users;
 create user BLNG IDENTIFIED BY cccCCC111 DEFAULT TABLESPACE users QUOTA unlimited ON users;
 create user ORD IDENTIFIED BY cccCCC111 DEFAULT TABLESPACE users QUOTA unlimited ON users;
 create user EXP IDENTIFIED BY cccCCC111 DEFAULT TABLESPACE users QUOTA unlimited ON users;
-create user po_fwdr IDENTIFIED BY www DEFAULT TABLESPACE users QUOTA unlimited ON users;
+create user po_fwdr IDENTIFIED BY cccCCC111 DEFAULT TABLESPACE users QUOTA unlimited ON users;
 
 GRANT RESTRICTED SESSION to ord;
 GRANT RESTRICTED SESSION to blng;
@@ -2412,16 +2415,52 @@ select * from V$PDBS
 
 select * from ntg.log order by id desc
 
+select * from ord.bill order by id desc
+
+
 select * from ord.ord order by id desc
+
+select * from ord.item_avia_status order by id desc
 
 select * from ord.item_avia order by id desc
 
+7ad2ddc8926643e8bd2d33c78222deb7
 
-select * from ord.bill order by id desc
+select * from blng.document order by id desc
+
+declare
+  v_id number;
+  v_percent number;
+  v_fix number;
+  
+begin
+  for i in (
+    select
+    distinct nqt_id nqt_id
+   -- *
+    from ord.item_avia 
+    where amnd_date >= sysdate - 2
+    and nqt_id = '2d11bcec395e4778919ca3b665d7b1d3'
+    --where id = 123 --> 33
+    --order by id desc
+  )
+  loop
+          dbms_output.put_line('='||i.nqt_id);      
+    ord.fwdr.commission_get(i.nqt_id,v_fix,v_percent);
+  end loop;
+end;
+
+2d11bcec395e4778919ca3b665d7b1d3
+MDQTZI
+
+
+select * from ord.item_avia order by id desc
 
 select * from blng.document order by id desc
 
 select * from blng.v_account 
+select * from ord.commission
+select * from airline where iata like '%R2%'
 
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
@@ -2442,7 +2481,270 @@ end;
 --- all that I NEED
 alter pluggable database ntg close immediate;  
 alter pluggable database ntg open read only; 
-CREATE PLUGGABLE DATABASE ntg_cln FROM ntg 
---no data
+
+CREATE PLUGGABLE DATABASE prod FROM ntg 
+no data
 NOLOGGING;
-alter pluggable database ntg open read write; 
+alter pluggable database prod open read write; 
+
+
+
+
+select  
+iata,
+name,
+nvl(nls_name,name) NLS_NAME,
+nvl(city_iata,iata) city_iata,
+city_name,
+nvl(city_nls_name,city_name) city_nls_name
+from (
+      SELECT
+      g.iata,
+      trim(g.name) name,
+      trim(g.nls_name) nls_name,
+      case
+      when parents.object_type in ('region','country') then g.iata
+      when parents.object_type is null then g.iata
+      else parents.iata
+      end city_iata,
+      case
+      when parents.object_type in ('region','country') then trim(g.name)
+      when parents.object_type is null then trim(g.name)
+      else trim(parents.name)
+      end city_name,
+      case
+      when parents.object_type in ('region','country') then trim(g.nls_name)
+      when parents.object_type is null then trim(g.nls_name)
+      else trim(parents.nls_name)
+      end city_nls_name
+      FROM GEO g, geo parents --, table(v_iata_tab) iata_list
+      WHERE g.IS_ACTIVE IN ('Y')
+      and g.iata is not null
+      and g.iata not like '%@%'
+      and g.object_type in ('airport real')
+      and parents.IS_ACTIVE(+) IN ('Y')
+      and g.parent_id = parents.id(+)
+--      and g.iata = 'OHH'
+      order by 1
+)
+where iata = 'OPO'
+
+select * from geo where iata = 'OPO'
+
+
+select * from ord.v_commission
+where iata = 'OPO'
+
+
+NTG.AIRLINE,NTG.AIRPORT,NTG.GEO,NTG.MARKUP,BLNG.ACCOUNT_TYPE,BLNG.EVENT_TYPE,BLNG.STATUS_TYPE,BLNG.TRANS_TYPE,ORD.COMMISSION,ORD.COMMISSION_DETAILS,ORD.COMMISSION_TEMPLATE
+BLNG.CLIENT,BLNG.CLIENT2CONTRACT,BLNG.COMPANY,BLNG.CONTRACT
+NTG.LOG
+BLNG.ACCOUNT,BLNG.DELAY,BLNG.DOCUMENT,BLNG.TRANSACTION,ORD.BILL,ORD.ITEM_AVIA,ORD.ITEM_AVIA_STATUS,ORD.ORD
+BLNG.EVENT,ORD.FLIGHT_STOP,ORD.ITEM_HOTEL,ORD.ITEM_INSURANCE,ORD.ITINERARY,ORD.LEG,ORD.PASSENGER,ORD.PNR,ORD.PRICE_QUOTE,ORD.SEGMENT,ORD.TICKET
+ORD.AIRPORT,ORD.CITY,ORD.COUNTRY,ORD.PARENTREGION
+
+
+select * from blng.contract
+
+begin
+
+end;
+
+--
+--initialize 
+BEGIN
+  BLNG.BLNG_API.account_init ( 21) ;  
+  commit;
+END;
+--test set/update increase/decrease limit
+DECLARE
+  v_contract  ntg.dtype.t_id:=21;
+  v_DOC ntg.dtype.t_id;
+BEGIN
+  /* ins doc limit 1000 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 200000,P_TRANS_TYPE =>7);
+  commit;
+  /* set delay days 50 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 30,P_TRANS_TYPE =>11);
+  commit;
+  /* set max loan trans amount 200 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 0,P_TRANS_TYPE =>8);
+  commit; 
+-- CONTRACT_OID    DEPOSIT       LOAN CREDIT_LIMIT CREDIT_LIMIT_BLOCK DEBIT_ONLINE MAX_LOAN_TRANS_AMOUNT CREDIT_ONLINE DELAY_DAYS  AVAILABLE
+-- ------------ ---------- ---------- ------------ ------------------ ------------ --------------------- ------------- ---------- ----------
+--          XXX          0          0          999                  0            0                   200             0         50        999 
+end;
+
+
+
+INSERT INTO "ORD"."COMMISSION" (AIRLINE, DETAILS, PERCENT, PRIORITY) VALUES ('1376', 'собственные рейсы 1.5%', '1.5', '0');
+INSERT INTO "ORD"."COMMISSION_DETAILS" (COMMISSION_OID, COMMISSION_TEMPLATE_OID) VALUES ('64', '20');
+commit;
+
+
+
+
+
+
+
+declare
+  v_id number;
+  v_percent number;
+  v_fix number;
+  
+begin
+  for i in (
+    select
+    distinct nqt_id nqt_id
+   -- *
+    from ord.item_avia 
+    where amnd_date >= sysdate - 2
+    and nqt_id = '0a54d0088054433b8af000cfbf889d3e'
+    --where id = 123 --> 33
+    --order by id desc
+  )
+  loop
+          dbms_output.put_line('='||i.nqt_id);      
+    ord.fwdr.commission_get(i.nqt_id,v_fix,v_percent);
+  end loop;
+end;
+
+
+    select distinct al.id, al.iata   from ord.v_json j, ntg.airline al where j.id = 25107
+    and al.AMND_STATE = 'A'
+    and j.validatingcarrier = al.iata
+    ;
+    
+INSERT INTO "ORD"."COMMISSION" (AIRLINE, DETAILS, PERCENT, PRIORITY) VALUES ('1376', 'interline 0%', '0', '0'); --65 --18
+INSERT INTO "ORD"."COMMISSION" (AIRLINE, DETAILS, PERCENT, PRIORITY) VALUES ('1376', 'code-share 1.5%', '1.5', '0'); --66 --19
+INSERT INTO "ORD"."COMMISSION_DETAILS" (COMMISSION_OID, COMMISSION_TEMPLATE_OID) VALUES ('66', '19');
+INSERT INTO "ORD"."COMMISSION_DETAILS" (COMMISSION_OID, COMMISSION_TEMPLATE_OID) VALUES ('65', '18');
+commit;
+
+
+select *
+from log 
+where ROWNUM <= rownum
+and id > 222
+
+
+
+alter pluggable database prod open read write;
+
+CONNECT TARGET "sbu@prod AS SYSBACKUP"
+
+select * from V$ARCHIVED_LOG
+select * from V$ARCHIVE_PROCESSES
+select * from V$BACKUP_REDOLOG
+select * from V$LOG_HISTORY
+SELECT dest_name, status, destination FROM v$archive_dest;
+
+
+SELECT name, value FROM v$sysstat WHERE name = 'redo wastage';
+
+SELECT * FROM V$LOG;
+
+SELECT * FROM V$LOGFILE
+
+
+select * from airline where iata = 'S7'
+
+67	1073	собственные рейсы 0%
+68	1073	interline 0%
+69	1073	code-share 0%
+
+20	self
+18	interline
+19	code-share
+
+
+
+UPDATE "ORD"."BILL" SET AMND_STATE = 'C' WHERE ROWID = 'AAAWpAAAYAAAAPOAAA' AND ORA_ROWSCN = '41498738'
+UPDATE "ORD"."BILL" SET AMND_STATE = 'C' WHERE ROWID = 'AAAWpAAAYAAAAPOAAB' AND ORA_ROWSCN = '41498738'
+
+Commit Successful
+
+
+UPDATE "ORD"."ITEM_AVIA" SET AMND_STATE = 'C' WHERE ROWID = 'AAAWpZAAYAAAADWAAA' AND ORA_ROWSCN = '41498738'
+UPDATE "ORD"."ITEM_AVIA" SET AMND_STATE = 'C' WHERE ROWID = 'AAAWpZAAYAAAADWAAB' AND ORA_ROWSCN = '41498738'
+
+Commit Successful
+
+
+UPDATE "ORD"."ORD" SET AMND_STATE = 'C' WHERE ROWID = 'AAAWo8AAYAAAADGAAA' AND ORA_ROWSCN = '41498738'
+UPDATE "ORD"."ORD" SET AMND_STATE = 'C' WHERE ROWID = 'AAAWo8AAYAAAADGAAB' AND ORA_ROWSCN = '41498738'
+
+Commit Successful
+
+70	866	собственные рейсы 0%
+71	866	interline 0%
+72	866	code-share 0%
+
+20	self
+18	interline
+19	code-share
+INSERT INTO "ORD"."COMMISSION" (AIRLINE, DETAILS, PERCENT, PRIORITY) VALUES ('866', 'собственные рейсы 0%', '0', '0');
+INSERT INTO "ORD"."COMMISSION" (AIRLINE, DETAILS, PERCENT, PRIORITY) VALUES ('866', 'interline 0%', '0', '0');
+INSERT INTO "ORD"."COMMISSION" (AIRLINE, DETAILS, PERCENT, PRIORITY) VALUES ('866', 'code-share 0%', '0', '0');
+Commit;
+INSERT INTO "ORD"."COMMISSION_DETAILS" (COMMISSION_OID, COMMISSION_TEMPLATE_OID) VALUES ('70', '20');
+INSERT INTO "ORD"."COMMISSION_DETAILS" (COMMISSION_OID, COMMISSION_TEMPLATE_OID) VALUES ('71', '18');
+INSERT INTO "ORD"."COMMISSION_DETAILS" (COMMISSION_OID, COMMISSION_TEMPLATE_OID) VALUES ('72', '19');
+commit;
+
+
+866
+--delete from ord.commission where 
+
+select * from airline where iata = 'UN'
+
+74	562	1% от опубликованных тарифов туристического класса (L,V,X,T,N,I,W)
+75	562	2% от опубликованных тарифов экономического класса (Y,H,Q,B,K)
+76	562	5% от опубликованных тарифов империал/бизнес/премиального классов(F,J,C,D,S,M)
+73	562	interline 3%
+
+
+
+alter pluggable database prod open read write; 
+alter pluggable database test open read write; 
+alter pluggable database dev open read write; 
+
+
+
+
+select * from geo where iata = 'PUW'
+
+select * from V$SQLAREA where parsing_schema_name in ('PO_FWDR'/*,'NTG'*/)
+order by last_load_time desc
+
+
+SELECT GROUP#, BYTES FROM V$LOG;
+SELECT GROUP#, BYTES FROM V$STANDBY_LOG;
+SELECT CLIENT_PROCESS, PROCESS, THREAD#, SEQUENCE#, STATUS FROM 
+V$MANAGED_STANDBY WHERE CLIENT_PROCESS='LGWR' OR PROCESS='MRP0';
+
+select * from V$CONTAINERS
+
+
+select * from geo
+where amnd_state is null
+and is_active != 'Y'
+
+select id, nls_name from geo
+where amnd_state ='A'
+
+
+--and is_active != 'Y'
+
+
+select * from v$parameter
+
+select * from geo
+where id in (25,260,4,2116,
+2889,
+2191,
+2898,
+2942,
+2943
+)
+
