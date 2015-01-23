@@ -59,6 +59,13 @@
   procedure avia_manual( p_nqt_id in ntg.dtype.t_long_code default null, p_result in ntg.dtype.t_long_code default null);
   
     procedure cash_back(p_nqt_id in ntg.dtype.t_long_code);
+    
+  function get_sales_list(p_datetime_from in ntg.dtype.t_long_code default null,p_datetime_to in ntg.dtype.t_long_code default null)
+  return SYS_REFCURSOR;
+
+  function commission_view(p_iata in ntg.dtype.t_code default null)
+  return SYS_REFCURSOR;
+  
 END FWDR;
 
 /
@@ -89,7 +96,7 @@ END FWDR;
   exception when others then
     rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'order_create', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&p_table=ord&p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&\p_table=ord&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into ord error. '||SQLERRM);
     return null;
@@ -119,7 +126,7 @@ END FWDR;
   exception when others then
     rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'item_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&p_table=item_avia&p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&\p_table=item_avia&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into item_avia error. '||SQLERRM);
     return null;
@@ -190,7 +197,7 @@ END FWDR;
   exception when others then
     rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_register', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&p_table=item_avia&p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=item_avia&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'avia_register error. '||SQLERRM);
   end;
@@ -216,7 +223,7 @@ END FWDR;
 --sd
     if v_item_avia_r.id is null then 
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_manual', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&p_table=item_avia&p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=item_avia&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
       raise NO_DATA_FOUND;
     end if;
@@ -242,7 +249,7 @@ END FWDR;
     when others then
     rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_pay', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&p_table=item_avia_status&p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=item_avia_status&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'avia_pay error. '||SQLERRM);
   end;
@@ -262,7 +269,7 @@ END FWDR;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'item_list', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&p_table=item_avia&p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=item_avia&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
     return null;
@@ -291,7 +298,7 @@ END FWDR;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'pnr_list', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&p_table=item_avia&p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=item_avia&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
     return null;    
@@ -319,7 +326,7 @@ END FWDR;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'pnr_list', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&p_table=item_avia&p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=item_avia&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
     return null;
@@ -338,7 +345,7 @@ END FWDR;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'item_list', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&p_table=item_avia&p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=item_avia&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
     return null;    
@@ -357,115 +364,10 @@ END FWDR;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'order_get', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&p_table=ord&p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=ord&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into ord error. '||SQLERRM);
     return null;
-  end;
-
-
-
-  procedure commission_get_old(p_id in ntg.dtype.t_id, o_fix out  ntg.dtype.t_amount, o_percent out  ntg.dtype.t_amount)
-  is
-    v_iata varchar2(255); 
-    v_out number := null;
-    r_json v_json%rowtype;
-    f_chs_VCeqMC number;  
-    f_chs_MCneOC number;  
-    f_rule_r number;  
-    f_template_type number;  
-    f_details_r number;  
-  begin
-    select distinct validatingcarrier into v_iata from ord.v_json where id = p_id;
-    for rule_r in (
-      select cmn_oid, priority, percent, fix from v_commission_bak where iata = v_iata group by cmn_oid, priority, percent, fix order by priority desc --cmn_oid desc
-    )
-    loop
--- several rules can be true. each of them we need to check and get minimum commission value.
--- its mean we need to check all rules.
-      f_rule_r := 1; 
-      for template_type in (
-        select template_type, template_type_oid from v_commission_bak where cmn_oid = rule_r.cmn_oid group by  template_type,template_type_oid order by template_type_oid desc
-      )
-      loop
--- template_type its is a distributes rule by types. for examples geo type and class type.
--- each of types must be true inside rule.
--- thats why order of types is dosnt matter
-        f_template_type := 0; 
-          f_details_r := 0;
-
-        if  template_type.template_type = 'constant' then 
-          if o_fix is null or o_fix > rule_r.fix then 
-            o_fix := rule_r.fix; 
-          end if;
-          if o_percent is null or o_percent > rule_r.percent then 
-            o_percent := rule_r.percent; 
-          end if;
-          exit;  --constant - is the last rule. so if values have not been set before, they must be set
-        end if;
-        for details_r in (
-          select * from ord.v_commission_bak where cmn_oid = rule_r.cmn_oid and template_type_oid = template_type.template_type_oid
-        )
-        loop
--- we go throwgh each commission row. if one of dedails_r is true then current type is true.
--- if one of types is not true then rule is not true.
--- some of template_types could be right at one of segment, 
--- some on full flight.
-          f_chs_VCeqMC := 1;
-          f_chs_MCneOC := 0;
-          for json in (select * from ord.v_json where id = p_id)
-          loop
--- json is just iteration for each segment. some conditions must be true for each segment.
-            if  template_type.template_type = 'class' then 
-              if details_r.value = json.bookingcode then
-                f_details_r:=1;
-                exit;
-              end if;
-            end if;      
-
-            if template_type.template_type = 'interline' then 
-              if v_iata != json.m_airline then
-                f_details_r:=1;
-                exit;
-                
-              end if;
-            end if;      
-
-            if  template_type.template_type = 'code-share' then 
-              if v_iata != json.m_airline then f_chs_VCeqMC := 0; end if;
-              if json.o_airline != json.m_airline then f_chs_MCneOC := 1; end if;
-            end if;      
-          end loop; --json
--- if some epressoin true then details_r is true
--- else nothing
-          if f_chs_VCeqMC = 1 and f_chs_MCneOC = 1 then
-            f_details_r := 1;
-          end if;
--- if f_details_r true then f_template_type true and exit. its mean that one of the clause is true
--- and we can 
-          if f_details_r = 1 then
-            f_template_type:=1;
-            exit; 
-          end if;
-        end loop; --details_r
-        
-        if f_template_type = 0 then 
-          f_rule_r := 0;
-          exit;
-        end if;
-      end loop; --template_type
-      
-      if f_rule_r = 1 then
-        if o_fix is null or o_fix > rule_r.fix then 
-          o_fix := rule_r.fix; 
-        end if;
-        if o_percent is null or o_percent > rule_r.percent then 
-          o_percent := rule_r.percent; 
-        end if;
-      end if;
-    end loop;  --rule_r
-    if o_fix is not null then o_percent := null; end if;
-    dbms_output.put_line(' p_id='||p_id||' v_iata='||v_iata||' o_fix='||o_fix||' o_percent='||o_percent);          
   end;
 
   procedure commission_get(p_nqt_id in ntg.dtype.t_long_code, o_fix out  ntg.dtype.t_amount, o_percent out  ntg.dtype.t_amount)
@@ -492,15 +394,14 @@ END FWDR;
 --o_fix:= 2.3;
 
     NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'STARTED',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&p_table=commission&p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=commission&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
         
     r_item_avia := ord_api.item_avia_get_info_r(p_nqt_id => p_nqt_id);
     if r_item_avia.id is null then
       dbms_output.put_line(' p_id='||p_nqt_id);          
-     
       --raise NO_DATA_FOUND;
-      null;
+      return;
     end if;
     dbms_output.put_line('NN p_id='||r_item_avia.id);          
     v_id:= r_item_avia.id;
@@ -522,7 +423,7 @@ END FWDR;
       end loop; --json
     exception when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&p_table=commission&p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=commission&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
   --    RAISE_APPLICATION_ERROR(-20002,'commission_get error. '||SQLERRM);
       o_fix := null; o_percent:=5;
@@ -541,84 +442,62 @@ END FWDR;
 
     dbms_output.put_line('2');
 
-    for i_rule in (
-      select com.id id, com.fix, com.percent, priority, details from  ord.commission com
-      where com.amnd_state = 'A'
-      and com.airline = v_airline
-      and trunc(sysdate) between NVL(com.date_from,trunc(sysdate)) and NVL(com.date_to,trunc(sysdate))
-      and exists(
-        select * from ord.commission_details
-        where amnd_state = 'A'
-        and commission_oid = com.id
-        and commission_template_oid = v_contract_type
-      )
-      and not exists(
-        select * from ord.commission_details
-        where amnd_state = 'A'
-        and commission_oid = com.id
-        and commission_template_oid = ord_api.commission_template_get_id('default')
-      )
-      group by com.id, com.fix, com.percent, priority, details
+    for i_rule in ( 
+      select distinct rule_oid id, fix, percent, priority,rule_description 
+      from ord.v_rule 
+      where contract_type_oid = v_contract_type and iata = v_iata
+      and nvl(to_date(rule_life_from,'dd.mm.yyyy'),trunc(sysdate)) <= trunc(sysdate)
+      and nvl(to_date(rule_life_to,'dd.mm.yyyy'),trunc(sysdate)) >= trunc(sysdate)
       order by priority desc
     )
     loop
 -- several rules can be true. each of them we need to check and get minimum commission value.
 -- its mean we need to check all rules.
       f_rule := 1; 
-      for i_template_type in (
-        select commission_template_oid from ord.commission_details 
-        where commission_oid = i_rule.id 
-        and amnd_state = 'A'
-        and commission_template_oid not in ( v_contract_type, ord_api.commission_template_get_id('default'))
-        group by commission_template_oid
+      for i_condition in (
+        select template_type_code,template_value, template_type_oid from ord.v_rule where contract_type_oid = v_contract_type and iata = v_iata and rule_oid = i_rule.id
       )
       loop
--- template_type its is a distributes rule by types. for examples geo type and class type.
+        f_template_type := 0; 
+        
+-- template_type distribute rule by types. for examples geo type and class type.
 -- each of types must be true inside rule.
 -- thats why order of types is dosnt matter
-        f_template_type := 0; 
-        select template_type into v_template_type from ord.commission_template where id = i_template_type.commission_template_oid; 
-        f_list := 0;
 
-        for i_list in (
-          select value from ord.commission_details 
-          where commission_oid = i_rule.id 
-          and commission_template_oid = i_template_type.commission_template_oid
-          and amnd_state = 'A'
-          group by value
-        )
-        loop
--- we go throwgh each commission row. if one of dedails_r is true then current type is true.
--- if one of types is not true then rule is not true.
--- some of template_types could be right at one of segment, 
--- some on full flight.
-
-            for i_json in (select bookingcode from ord.v_json where id = v_id)
-  --          for i_json in (select * from ord.v_json where book_id = p_nqt_id)
-            loop
-  -- json is just iteration for each segment. some conditions must be true for each segment.
-              if  v_template_type = 'class' then 
-                if i_list.value = i_json.bookingcode then
-                  f_list:=1;
-                  exit;
-                end if;
-              end if;      
-            end loop; --json
-
--- if some epressoin true then details_r is true
--- else nothing
--- if f_details_r true then f_template_type true and exit. its mean that one of the clause is true
--- and we can 
-          if f_list = 1 then
-            f_template_type:=1;
-            exit; 
-          end if;
-        end loop; --details_r
+-- for each template_type we make different logic. 
+-- json is just iteration for each segment. some conditions must be true for each segment,
+-- others only for one of them
         
+        if i_condition.template_type_oid is null then
+          f_template_type:=1;
+          continue;
+          --exit;
+        end if;
+        
+        
+        if i_condition.template_type_code = 'class' then
+          for i_json in (select bookingcode from ord.v_json where id = v_id)
+          loop
+            if i_condition.template_value like '%'||i_json.bookingcode||'%' then
+              f_template_type:=1;
+              exit;
+            end if;
+          end loop; --json
+        end if;
+
+        if i_condition.template_type_code = 'airport_from_to' then
+          for i_json in (select bookingcode from ord.v_json where id = v_id)
+          loop
+            null;  --example
+            f_template_type := 1;
+          end loop; 
+        end if;        
+
         if f_template_type = 0 then 
           f_rule := 0;
           exit;
         end if;
+        
       end loop; --template_type
       
       if f_rule = 1 then
@@ -629,52 +508,9 @@ END FWDR;
           o_percent := i_rule.percent; 
         end if;
       end if;
-    dbms_output.put_line(' p_id='||i_rule.details||' v_iata='||v_iata||' o_fix='||o_fix||' o_percent='||o_percent);          
+    dbms_output.put_line(' p_id='||i_rule.rule_description||' v_iata='||v_iata||' o_fix='||o_fix||' o_percent='||o_percent);          
     end loop; --i_rule
     dbms_output.put_line('3');          
-
--- get airline default commission by contract_type
-    if o_fix is null and o_percent is null then 
-      begin       
-        select fix, percent into o_fix, o_percent 
-        from  ord.commission com where id = (
-          select distinct commission_oid
-          from ord.commission_details
-          where amnd_state = 'A'
-          and commission_template_oid = ord_api.commission_template_get_id('default')
-          and commission_oid in (
-            select commission_oid from ord.commission_details cd,  ord.commission cmn
-            where cmn.amnd_state = 'A'
-            and cd.amnd_state = 'A'
-            and cmn.airline = v_airline 
-            and cd.commission_oid = cmn.id
-            and cd.commission_template_oid = v_contract_type
-          )
-        )
-        group by fix, percent ;
-      exception when NO_DATA_FOUND then null;
-      end;
-    end if;
-    
--- get airline default commission
-    if o_fix is null and o_percent is null then 
-      begin
-        select fix, percent into o_fix, o_percent 
-        from  ord.commission com where 
-        amnd_state = 'A'
-        and airline = v_airline
-        and (select count(*) from ord.commission_details where amnd_state = 'A'
-          and commission_oid = com.id
-          ) = 1
-        and exists 
-          (select commission_template_oid from ord.commission_details where amnd_state = 'A'
-          and commission_oid = com.id
-          and commission_template_oid = ord_api.commission_template_get_id('default')
-          )
-        group by fix, percent ;
-      exception when NO_DATA_FOUND then null;
-      end;
-    end if;
  
     if o_fix is not null then o_percent := null; end if;
     --c_fix := to_char(o);
@@ -683,14 +519,14 @@ END FWDR;
     WHEN NO_DATA_FOUND then 
       dbms_output.put_line(' p_id='||v_id||' v_iata='||v_iata||' o_fix='||o_fix||' o_percent='||o_percent);        
       NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&p_table=commission&p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=commission&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       return;
     when others then
     
 --    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&p_table=commission&p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=commission&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
 --    RAISE_APPLICATION_ERROR(-20002,'commission_get error. '||SQLERRM);
     o_fix := null; o_percent:=5;
@@ -728,7 +564,7 @@ END FWDR;
 
     if r_item_avia.id is null then 
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_manual', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&p_table=item_avia&p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=item_avia&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
       raise NO_DATA_FOUND;
     end if;
@@ -759,7 +595,7 @@ END FWDR;
     when others then
     rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_manual', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&p_table=item_avia_status&p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=item_avia_status&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'avia_manual error. '||SQLERRM);
   end;
@@ -783,7 +619,7 @@ END FWDR;
         exception when others then
           rollback;
           NTG.LOG_API.LOG_ADD(p_proc_name=>'cash_back', p_msg_type=>'UNHANDLED_ERROR', 
-            P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&p_table=bill&p_date=' 
+            P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=bill&\p_date=' 
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
           CLOSE c_bill;
           raise;
@@ -794,12 +630,52 @@ END FWDR;
   exception when others then 
     rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'cash_back', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&p_table=bill&p_date=' 
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=bill&\p_date=' 
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
     RAISE_APPLICATION_ERROR(-20002,'cash_back error. '||SQLERRM);
   end;
 
 
-END FWDR;
+  function get_sales_list(p_datetime_from in ntg.dtype.t_long_code default null,p_datetime_to in ntg.dtype.t_long_code default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+  begin
+  
+      OPEN v_results FOR  
+      SELECT
+        ID,
+        NQT_ID,
+        PNR_ID,
+        to_char(ISSUED_DATE,'dd.mm.yyyy HH24') ISSUED_DATE,
+        PAXTYPE,
+        QUANTITY,
+        SEATS,
+        FAREAMOUNT,
+        TAXESAMOUNT,
+        TOTALAMOUNT,
+        MARKUPVALUE
+      FROM
+        ORD.V_SALES_JSON 
+        where ISSUED_DATE >= to_date(p_datetime_from,'DD.MM.YYYY HH24') 
+        and ISSUED_DATE < to_date(p_datetime_to ,'DD.MM.YYYY HH24') ;
+    return v_results;
+  end;
 
+
+
+  function commission_view(p_iata in ntg.dtype.t_code default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+  begin
+    OPEN v_results FOR  
+      select * from ord.v_rule where IATA = p_iata;         
+    return v_results;
+  end;
+
+
+
+END FWDR;
 /
+

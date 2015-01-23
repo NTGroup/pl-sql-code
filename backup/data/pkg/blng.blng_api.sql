@@ -458,7 +458,7 @@ end blng_api;
   exception when others then
 --    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'company_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&\p_table=company&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=company&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into company error. '||SQLERRM);
     return null;
@@ -488,7 +488,7 @@ end blng_api;
   exception when others then
 --    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'company_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update&\p_table=company&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=company&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'update row into company error. '||SQLERRM);
   end;
@@ -508,7 +508,7 @@ end blng_api;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'company_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select&\p_table=company&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=company&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into company error. '||SQLERRM);
     return null;
@@ -528,7 +528,7 @@ end blng_api;
   exception when others then
 --    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'client_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&\p_table=client&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=client&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into client error. '||SQLERRM);
     return null;
@@ -558,7 +558,7 @@ end blng_api;
   exception when others then
 --    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'client_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update&\p_table=client&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=client&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'update row into client error. '||SQLERRM);
   end;
@@ -580,7 +580,7 @@ end blng_api;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'client_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select&\p_table=client&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
     return null;
@@ -616,20 +616,20 @@ end blng_api;
     when NO_DATA_FOUND then
       --CLOSE c_obj;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'client_get_info_r', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE;
       return null;
     when TOO_MANY_ROWS then
       --CLOSE c_obj;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'client_get_info_r', p_msg_type=>'TOO_MANY_ROWS',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       --RAISE;
       return null;
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'client_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
       return null;
@@ -656,7 +656,7 @@ end blng_api;
   exception when others then
 --    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'client2contract_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&\p_table=client2contract&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=client2contract&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into client2contract error. '||SQLERRM);
 --    return null;
@@ -693,13 +693,13 @@ end blng_api;
   exception
     when ntg.dtype.value_error then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'client2contract_edit', p_msg_type=>'ntg.dtype.value_error',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&\p_table=client2contract&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=client2contract&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       raise;
     when others then
 --      rollback;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'client2contract_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update&\p_table=client2contract&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=client2contract&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'update row into client2contract error. '||SQLERRM);
   end;
@@ -726,7 +726,7 @@ end blng_api;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'client2contract_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select&\p_table=client2contract&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client2contract&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into client2contract error. '||SQLERRM);
     return null;
@@ -748,7 +748,7 @@ end blng_api;
   exception when others then
 --    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'contract_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&\p_table=contract&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=contract&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into contract error. '||SQLERRM);
     return null;
@@ -779,7 +779,7 @@ end blng_api;
   exception when others then
 --    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'contract_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update&\p_table=contract&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=contract&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'update row into contract error. '||SQLERRM);
   end;
@@ -798,7 +798,7 @@ end blng_api;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'contract_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select&\p_table=contract&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=contract&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into contract error. '||SQLERRM);
     return null;
@@ -819,7 +819,7 @@ end blng_api;
   exception when others then
 --    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'account_init', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&\p_table=account&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=account&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into account error. '||SQLERRM);
   end;
@@ -863,7 +863,7 @@ end blng_api;
     update blng.account set row = v_account_row_new where id = v_id;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'account_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update&\p_table=account&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=account&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'update row into account error. '||SQLERRM);
   end;
@@ -894,7 +894,7 @@ end blng_api;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'account_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select&\p_table=account&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=account&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into account error. '||SQLERRM);
     return null;
@@ -924,13 +924,13 @@ end blng_api;
     when NO_DATA_FOUND then
       CLOSE c_account;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'account_get_info_r', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=account&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=account&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE;
       return null;
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'account_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=account&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=account&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into account error. '||SQLERRM);
       return null;
@@ -957,7 +957,7 @@ end blng_api;
   exception when others then
 --    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'document_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&\p_table=document&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=document&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into document error. '||SQLERRM);
     return null;
@@ -985,7 +985,7 @@ end blng_api;
     update blng.document set row = v_document_row_new where id = v_document_row_new.id;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'document_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update&\p_table=document&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=document&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'update row into document error. '||SQLERRM);
   end;
@@ -1031,7 +1031,7 @@ end blng_api;
     when NO_DATA_FOUND then return null;
     when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'document_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select&\p_table=document&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=document&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into document error. '||SQLERRM);
     return null;
@@ -1063,13 +1063,13 @@ end blng_api;
     when NO_DATA_FOUND then --this function by ID. so, if it called, its mean result MUST be returned
       CLOSE c_document;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'document_get_info_r', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=document&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=document&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE;
       return null;
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'document_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=document&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=document&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into document error. '||SQLERRM);
       return null;
@@ -1109,21 +1109,21 @@ end blng_api;
   exception
     when ntg.dtype.exit_alert then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'transaction_add', p_msg_type=>'ntg.dtype.exit_alert',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&\p_table=transaction&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=transaction&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       raise;
       return null;
 
     when ntg.dtype.value_error then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'transaction_add', p_msg_type=>'ntg.dtype.value_error',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&\p_table=transaction&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=transaction&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       raise;
       return null;
 
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'transaction_add', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&\p_table=transaction&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=transaction&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'insert row into transaction error. '||SQLERRM);
       return null;
@@ -1157,21 +1157,21 @@ end blng_api;
   exception
     when ntg.dtype.exit_alert then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'transaction_add_with_acc', p_msg_type=>'ntg.dtype.exit_alert',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       raise;
       return null;
 
     when ntg.dtype.value_error then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'transaction_add_with_acc', p_msg_type=>'ntg.dtype.value_error',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       raise;
       return null;
 
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'transaction_add_with_acc', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'insert row into transaction error. '||SQLERRM);
       return null;
@@ -1199,7 +1199,7 @@ end blng_api;
     update blng.transaction set row = v_transaction_row_new where id = v_transaction_row_new.id;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'transaction_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update&\p_table=transaction&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=transaction&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'update row into transaction error. '||SQLERRM);
   end;
@@ -1228,7 +1228,7 @@ end blng_api;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'transaction_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select&\p_table=transaction&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=transaction&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into transaction error. '||SQLERRM);
     return null;
@@ -1261,7 +1261,7 @@ end blng_api;
     return v_id;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'event_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&\p_table=event&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=event&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into event error. '||SQLERRM);
     return null;
@@ -1291,7 +1291,7 @@ end blng_api;
     update blng.event set row = v_event_row_new where id = p_id;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'eventn_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update&\p_table=event&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=event&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'update row into event error. '||SQLERRM);
   end;
@@ -1321,7 +1321,7 @@ end blng_api;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'event_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select&\p_table=event&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=event&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into event error. '||SQLERRM);
     return null;
@@ -1344,7 +1344,7 @@ end blng_api;
     return v_id;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'status_type_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&\p_table=status_type&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=status_type&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into status_type error. '||SQLERRM);
     return null;
@@ -1366,7 +1366,7 @@ end blng_api;
     return v_id;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'event_type_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&\p_table=event_type&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=event_type&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into event_type error. '||SQLERRM);
     return null;
@@ -1390,7 +1390,7 @@ end blng_api;
     return v_id;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'account_type_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&\p_table=account_type&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=account_type&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into account_type error. '||SQLERRM);
     return null;
@@ -1412,7 +1412,7 @@ end blng_api;
     return v_id;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'trans_type_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&\p_table=trans_type&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=trans_type&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into trans_type error. '||SQLERRM);
     return null;
@@ -1453,7 +1453,7 @@ end blng_api;
 
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'status_type_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update&\p_table=status_type&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=status_type&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'update row into status_type error. '||SQLERRM);
   end;
@@ -1492,7 +1492,7 @@ end blng_api;
 
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'trans_type_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update&\p_table=trans_type&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=trans_type&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'update row into trans_type error. '||SQLERRM);
   end;
@@ -1531,7 +1531,7 @@ end blng_api;
 
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'event_type_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update&\p_table=event_type&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=event_type&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'update row into event_type error. '||SQLERRM);
   end;
@@ -1574,7 +1574,7 @@ end blng_api;
 
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'account_type_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update&\p_table=account_type&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=account_type&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'update row into account_type error. '||SQLERRM);
   end;
@@ -1602,7 +1602,7 @@ end blng_api;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'account_type_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select&\p_table=account_type&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=account_type&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into account_type error. '||SQLERRM);
     return null;
@@ -1628,7 +1628,7 @@ end blng_api;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'trans_type_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select&\p_table=trans_type&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=trans_type&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into trans_type error. '||SQLERRM);
     return null;
@@ -1651,7 +1651,7 @@ end blng_api;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'trans_type_get_id', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select&\p_table=trans_type&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=trans_type&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into trans_type error. '||SQLERRM);
     return null;
@@ -1677,7 +1677,7 @@ end blng_api;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'event_type_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select&\p_table=event_type&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=event_type&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into event_type error. '||SQLERRM);
     return null;
@@ -1701,7 +1701,7 @@ end blng_api;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'event_type_get_id', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select&\p_table=event_type&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=event_type&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into event_type error. '||SQLERRM);
     return null;
@@ -1729,7 +1729,7 @@ end blng_api;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'status_type_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select&\p_table=status_type&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=status_type&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into status_type error. '||SQLERRM);
     return null;
@@ -1763,7 +1763,7 @@ end blng_api;
     insert into blng.delay values v_delay_row;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert&\p_table=delay&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=delay&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into delay error. '||SQLERRM);
   end;
@@ -1809,7 +1809,7 @@ end blng_api;
     update blng.delay set row = v_delay_row_new where id = v_delay_row_new.id;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update&\p_table=delay&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=delay&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'update row into delay error. '||SQLERRM);
   end;
@@ -1842,12 +1842,18 @@ end blng_api;
 --      and nvl(p_parent_id,)
       order by contract_oid asc, date_to asc, id asc;
     return v_results;
-  exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select&\p_table=delay&\p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into delay error. '||SQLERRM);
-    return null;
+  exception 
+    when NO_DATA_FOUND then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_get_info', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=delay&\p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      return null;    
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_get_info', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=delay&\p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into delay error. '||SQLERRM);
+      return null;
   end;
 
 
@@ -1864,28 +1870,32 @@ end blng_api;
     c_delay  SYS_REFCURSOR;
     r_delay blng.delay%rowtype;
   begin
-    c_delay := blng.blng_api.delay_get_info(p_id, p_contract, p_date_to, p_event_type, p_transaction, p_priority);
-    --DBMS_OUTPUT.put_line (1);
-    LOOP
-      FETCH c_delay INTO r_delay;
-      IF c_delay%ROWCOUNT = 0 THEN raise NO_DATA_FOUND; END IF;      
-      EXIT WHEN c_delay%NOTFOUND;
-      --DBMS_OUTPUT.put_line (r_account.name);
-    END LOOP;
-    CLOSE c_delay;
+      SELECT --id, event_type_oid, transaction_oid, date_to, contract_oid, amount, status, priority
+      * into r_delay
+      from blng.delay
+      where id = nvl(p_id,id)
+      and contract_oid = nvl(p_contract,contract_oid)
+      and transaction_oid = nvl(p_transaction,transaction_oid)
+      and trunc(date_to) = trunc(nvl(p_date_to,date_to))
+      and event_type_oid = nvl(p_event_type,event_type_oid)
+   --   and status = 'A'
+      and priority = nvl(p_priority,priority)
+      and amnd_state != 'I'
+--      and nvl(p_parent_id,)
+      order by contract_oid asc, date_to asc, id asc;
+--    return v_results;
     return r_delay;
   exception 
     when NO_DATA_FOUND then
-      CLOSE c_delay;
+--      CLOSE c_delay;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_get_info_r', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=delay&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=delay&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'select row into delay error. '||SQLERRM);
       return null;
     when others then
-      CLOSE c_delay;
+--      CLOSE c_delay;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=delay&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=delay&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into delay error. '||SQLERRM);
       return null;

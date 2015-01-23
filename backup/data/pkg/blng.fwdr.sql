@@ -12,7 +12,7 @@ create  or replace package BODY blng.fwdr as
     r_client blng.client%rowtype;
   begin
     r_client:=blng.blng_api.client_get_info_r(p_email=>p_email);
-    return r_client.id;
+    return r_client.company_oid;
   exception 
     when NO_DATA_FOUND then
      -- CLOSE c_delay;

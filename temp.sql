@@ -1040,7 +1040,8 @@ commit;
 select * from ord.commission_template order by priority desc nulls last
 
 
-select * from ord.v_commission where al_oid = 444 
+select * from ord.v_commission where al_oid = 444 ;
+/
 
 declare
   v_id number;
@@ -1049,14 +1050,23 @@ declare
   
 begin
   for i in (
-    select
-    distinct nqt_id nqt_id
-   -- *
-    from ord.item_avia 
-    where amnd_date >= sysdate - 2
-    and nqt_id = '9f61eda93fa6445c834433f374345ba9'
-    --where id = 123 --> 33
-    --order by id desc
+ select 
+  
+  distinct j.book_id nqt_id
+  
+  
+  from ORD.v_json j
+  where j.pnrrecordlocator is not null
+  and j.validatingcarrier not in ('UN',
+'S7',
+'SU',
+'HY',
+'R2')
+  and id >600
+   and book_id in (
+  'd494ad8469874e7da6aa629804c83b48','dfdbe320e8ad47f98c12f74460ea07d5','557a72da77fc4450851f23b2dbb01b6d','23500d51668347d786beb6d63f45ba09'
+  
+  )
   )
   loop
           dbms_output.put_line('='||i.nqt_id);      
@@ -1064,6 +1074,7 @@ begin
   end loop;
 end;
 
+/
 select * from ord.item_avia where id = 121 order by id desc
 
 292 - code-share
@@ -2328,8 +2339,8 @@ STORAGE (MAXSIZE UNLIMITED)
 --alter pluggable database ntg_dbf close immediate;
 -- drop pluggable database ntg_dbf including datafiles;
 
+alter pluggable database TEMPDICT close immediate; 
 alter pluggable database TEMPDICT open read write; 
-alter pluggable database ntg1 open read only; 
 
 --alter user ntg default tablespace USERS;
 -- WITH DBA USER NTG
@@ -2759,3 +2770,86 @@ blng.fwdr.get_tenant(p_email=>'ceo@ntg-one.com')
 from dual
 
 grant execute on blng.fwdr to po_fwdr;
+
+
+--test set/update increase/decrease limit
+DECLARE
+  starting_time  TIMESTAMP WITH TIME ZONE;
+  ending_time    TIMESTAMP WITH TIME ZONE;
+  v_contract  ntg.dtype.t_id:=21;
+  P_number VARCHAR2(255);
+  v_DOC ntg.dtype.t_id;
+  r_contract_info blng.v_account%rowtype;
+
+BEGIN
+
+  /* ins doc cash in 500 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 3000000,P_TRANS_TYPE =>2);
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
+
+
+  /* ins doc limit 1000 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 0,P_TRANS_TYPE =>7);
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
+
+
+end;
+
+
+  create sequence  zcts_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+--------------------------------------------------------
+--  DDL for Trigger MKP_TRGR
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER zcts_TRGR 
+BEFORE
+INSERT
+ON zcts_orders
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select zcts_SEQ.nextval into :new.id from dual; 
+ -- select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
+end;
+/
+ALTER TRIGGER zcts_TRGR ENABLE;
+
+
+
+
+
+
+
+
+declare
+  v_geo_id number;
+begin
+  for i in (
+    select  rowid from zcts_orders
+  )
+  loop
+    select zcts_seq.nextval into v_geo_id from dual;
+    update zcts_orders a set id = v_geo_id
+    where rowid = i.rowid;
+  end loop;
+  commit;
+end;
+
+
+
+select 
+rowid,
+a.* from zcts_orders a
+where rowid = 'AAAWajACGAAAADrAAM'
+
+
+
+selec

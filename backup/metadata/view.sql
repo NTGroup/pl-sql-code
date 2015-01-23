@@ -306,3 +306,65 @@ order by 2;
   from markup
   where amnd_state = 'A';
 
+/
+
+ create or replace view ord.v_rule as      
+  select 
+        al.id airline_oid,
+        al.IATA,
+        al.nls_name nls_airline,
+        cmn.contract_type contract_type_oid,
+        (select name from 
+        ORD.commission_template 
+        where id = cmn.contract_type) contract_type,
+        cmn.id rule_oid,
+        --max(ct.priority) over (partition by cmn.id) priority,
+        cmn.details rule_description,
+        nvl(cmn.percent,cmn.fix) rule_amount,
+        case 
+        when cmn.percent is not null then 'PERCENT'
+        when cmn.fix is not null then 'RUB'
+        else ''
+        end rule_amount_measure,
+        cmn.priority,
+        to_char(cmn.date_from,'dd.mm.yyyy') rule_life_from,
+        to_char(cmn.date_to,'dd.mm.yyyy') rule_life_to,
+        dtl.condition_oid,
+        dtl.template_type_oid,
+        nvl(dtl.template_type,'default') template_type,
+        dtl.template_type_code,
+        dtl.template_value,
+        dtl.is_value,
+        cmn.percent,
+        cmn.fix
+        from 
+        ord.commission cmn ,
+        ntg.airline al,
+        (
+          select 
+          cd.commission_oid ,
+          ct.id template_type_oid, 
+          ct.nls_name template_type,
+          ct.name template_type_code,
+          ct.is_value,
+          cd.id condition_oid,
+          cd.value template_value
+          from 
+          ord.commission_details  cd,
+          ORD.commission_template ct
+          where cd.amnd_state = 'A'
+          and ct.amnd_state = 'A'
+          and cd.commission_template_oid = ct.id        
+        ) dtl        
+        where
+        al.amnd_state = 'A'
+        and cmn.amnd_state = 'A'
+        and cmn.airline = al.id
+    --    and al.IATA = p_iata
+        and cmn.id = dtl.commission_oid(+)
+        order by al.id,cmn.contract_type,cmn.priority desc, cmn.id
+        ;      
+        
+ /
+ 
+ 
