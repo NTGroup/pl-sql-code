@@ -16,7 +16,7 @@
  subtype t_date is date;
  subtype t_clob is clob;
 
- p_client dtype.t_id := 31;
+ --p_client dtype.t_id := 31;
 
 
 

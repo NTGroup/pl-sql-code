@@ -31,7 +31,9 @@
                           p_total_markup in ntg.dtype.t_amount default null,
                           p_pnr_object in ntg.dtype.t_clob default null,
                           p_nqt_status in  ntg.dtype.t_status default null,
-                          p_client  in  ntg.dtype.t_id default null
+                          p_client  in  ntg.dtype.t_id default null,
+                          p_tenant_id  in  ntg.dtype.t_long_code default null
+                          
                           );
 
   procedure avia_pay( p_nqt_id in ntg.dtype.t_long_code default null);
@@ -65,6 +67,7 @@
 
   function commission_view(p_iata in ntg.dtype.t_code default null)
   return SYS_REFCURSOR;
+
   
 END FWDR;
 
@@ -139,7 +142,8 @@ END FWDR;
                           p_total_markup in ntg.dtype.t_amount default null,
                           p_pnr_object in ntg.dtype.t_clob default null,
                           p_nqt_status in  ntg.dtype.t_status default null,
-                          p_client in ntg.dtype.t_id default null
+                          p_client in ntg.dtype.t_id default null,
+                          p_tenant_id  in  ntg.dtype.t_long_code default null
                           )
   is
 --    v_order_r ord%rowtype;
@@ -152,7 +156,17 @@ END FWDR;
     v_contract ntg.dtype.t_id;
     r_item_avia item_avia%rowtype;
   begin
-    v_client := nvl(p_client,ntg.dtype.p_client);
+    
+    if p_tenant_id is null then
+      raise VALUE_ERROR;
+    end if;
+    
+    --v_client := nvl(p_client,ntg.dtype.p_client);
+    v_client := blng.fwdr.company_insteadof_client(to_number(p_tenant_id));
+    if v_client is null then
+      raise VALUE_ERROR;
+    end if;
+    
     r_item_avia := ord_api.item_avia_get_info_r(p_nqt_id => p_nqt_id);
         
     if r_item_avia.id is not null then
@@ -194,12 +208,19 @@ END FWDR;
     end if;
     
       commit;          
-  exception when others then
-    rollback;
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_register', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=item_avia&\p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'avia_register error. '||SQLERRM);
+  exception 
+    when VALUE_ERROR then
+      rollback;
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_register', p_msg_type=>'VALUE_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=item_avia&\p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'avia_register error. put wrong value. '||SQLERRM);
+    when others then    
+      rollback;
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_register', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=item_avia&\p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'avia_register error. '||SQLERRM);
   end;
 
 

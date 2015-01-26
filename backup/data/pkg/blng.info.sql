@@ -12,10 +12,6 @@
                             )
   return blng.v_account%rowtype;
 
-  function contract_info ( p_contract in ntg.dtype.t_id default null
-                            )
-  return SYS_REFCURSOR;
-
   function statemant( p_contract in ntg.dtype.t_id,
                             p_trans_type_oid in ntg.dtype.t_id default null,
                             p_trans_type in ntg.dtype.t_name default null,
@@ -54,36 +50,17 @@ end info;
     r_account blng.v_account%rowtype;
     v_contract ntg.dtype.t_id;
   begin
-    v_contract:=nvl(p_contract, blng.core.pay_contract_by_client(ntg.dtype.p_client) );
+--    v_contract:=nvl(p_contract, blng.core.pay_contract_by_client(ntg.dtype.p_client) );
+    v_contract:=p_contract;
     select * into r_account from blng.v_account where contract_oid = v_contract;
     return r_account;
   exception when others then 
     NTG.LOG_API.LOG_ADD(p_proc_name=>'contract_info', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&p_table=client&p_date=' 
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=client&\p_date=' 
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
     RAISE_APPLICATION_ERROR(-20002,'insert row into client error. '||SQLERRM);
     return null;
   end contract_info_r;
-
-  function contract_info( p_contract in ntg.dtype.t_id  default null
-                          )
-  return SYS_REFCURSOR
-  is
-    v_results SYS_REFCURSOR; 
-    v_contract ntg.dtype.t_id;
-  begin
-    v_contract:=nvl(p_contract, blng.core.pay_contract_by_client(ntg.dtype.p_client) );
-      OPEN v_results FOR
-    select * from blng.v_account where contract_oid = v_contract;
-    return v_results;
-  exception when others then 
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'contract_info', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&p_table=v_account&p_date=' 
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
-    RAISE_APPLICATION_ERROR(-20002,'select row into v_account error. '||SQLERRM);
-    return null;
-  end;
-
  
   function statemant( p_contract in ntg.dtype.t_id,
                             p_trans_type_oid in ntg.dtype.t_id default null,
@@ -109,7 +86,7 @@ end info;
     return v_results;
   exception when others then 
     NTG.LOG_API.LOG_ADD(p_proc_name=>'statemant', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&p_table=client&p_date=' 
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\\p_table=client&\\p_date=' 
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
     RAISE_APPLICATION_ERROR(-20002,'insert row into client error. '||SQLERRM);
     return null;

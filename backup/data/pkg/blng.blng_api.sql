@@ -10,7 +10,7 @@
 -- T_MESSAGE: type for returning errors
 
 -- CLIENT_RT: table/list of blng.client rows
-  type client_rt is table of blng.client%rowtype;
+--  type client_rt is table of blng.client%rowtype;
 
 
 ---------------------------
@@ -74,8 +74,11 @@
 --
 -- RETURNS:
 --      client data
-  function company_get_info(p_id in ntg.dtype.t_id)
+  function company_get_info(p_id in ntg.dtype.t_id default null,P_DOMAIN IN ntg.dtype.t_long_code default null)
   return SYS_REFCURSOR;
+
+  function company_get_info_r(p_id in ntg.dtype.t_id default null,P_DOMAIN IN ntg.dtype.t_long_code default null)
+  return blng.company%rowtype;
 
 
 --------------------------------------------------------------------------------
@@ -83,7 +86,7 @@
 -- CLIENT_ADD: Insert empty client row
 -- RETURNS: id of client
 
-  function client_add(p_company in ntg.dtype.t_id, p_name in ntg.dtype.t_name)
+  function client_add(p_company in ntg.dtype.t_id default null, p_name in ntg.dtype.t_name default null, p_email in ntg.dtype.t_name default null)
   return ntg.dtype.t_id;
 
 -- CLIENT_SET_NAME: update client with data
@@ -149,7 +152,7 @@
 --
 -- RETURNS: id of contract
 
-  function contract_add(/*p_client in ntg.dtype.t_id,*/ p_number in blng.contract.contract_number%type)
+  function contract_add( p_company in ntg.dtype.t_id, p_number in ntg.dtype.t_long_code)
   return ntg.dtype.t_id;
 
 -- CONTRACT_SET_NUMBER: update contract with data
@@ -160,7 +163,7 @@
 -- RETURNS:
 --      Message. Ok, Error.
 
-  procedure contract_edit(p_id in ntg.dtype.t_id, p_number in blng.contract.contract_number%type);
+  procedure contract_edit(p_id in ntg.dtype.t_id, p_number in ntg.dtype.t_long_code);
 --  return ntg.dtype.t_msg;
 
 
@@ -170,8 +173,11 @@
 --
 -- RETURNS:
 --      contract data
-  function contract_get_info(p_id in ntg.dtype.t_id)
+  function contract_get_info(p_id in ntg.dtype.t_id default null,p_company  in ntg.dtype.t_id default null)
   return SYS_REFCURSOR;
+
+  function contract_get_info_r(p_id in ntg.dtype.t_id default null,p_company  in ntg.dtype.t_id default null)
+  return blng.contract%rowtype;
 
 --------------------------------------------------------------------------------
 -------------------------------------------------------------------------ACCOUNT
@@ -494,7 +500,7 @@ end blng_api;
   end;
 
 
-  function company_get_info(p_id in ntg.dtype.t_id)
+  function company_get_info(p_id in ntg.dtype.t_id default null,P_DOMAIN IN ntg.dtype.t_long_code default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
@@ -503,7 +509,9 @@ end blng_api;
         SELECT
         *
         --id, name
-        from blng.company where id = p_id
+        from blng.company 
+        where  id = nvl(p_id,id)
+        and DOMAIN=nvl(P_DOMAIN,DOMAIN)
         order by id;
     return v_results;
   exception when others then
@@ -514,7 +522,29 @@ end blng_api;
     return null;
   end;
 
-  function client_add(p_company in ntg.dtype.t_id, p_name in ntg.dtype.t_name)
+
+  function company_get_info_r(p_id in ntg.dtype.t_id default null,P_DOMAIN IN ntg.dtype.t_long_code default null)
+  return blng.company%rowtype
+  is
+    v_results  blng.company%rowtype;
+  begin
+        SELECT
+        *
+        into v_results
+        from blng.company 
+        where id = nvl(p_id,id)
+        and DOMAIN=nvl(P_DOMAIN,DOMAIN)
+        order by id;
+    return v_results;
+  exception when others then
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'company_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=company&\p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'select row into company error. '||SQLERRM);
+    return null;
+  end;
+  
+  function client_add(p_company in ntg.dtype.t_id default null, p_name in ntg.dtype.t_name default null, p_email in ntg.dtype.t_name default null)
   return ntg.dtype.t_id
   is
     v_client_row blng.client%rowtype;
@@ -522,6 +552,7 @@ end blng_api;
   begin
     v_client_row.name := p_name;
     v_client_row.company_oid := p_company;
+    v_client_row.email := lower(p_email);
     insert into blng.client values v_client_row returning id into v_id;
 --    commit;
     return v_id;
@@ -575,7 +606,7 @@ end blng_api;
         *
         from blng.client 
         where id = nvl(p_id,id)
-        and email = nvl(p_email,email)
+        and email = nvl(lower(p_email),email)
         order by id;
     return v_results;
   exception when others then
@@ -600,7 +631,7 @@ end blng_api;
     * into r_obj
     from blng.client 
     where id = nvl(p_id,id)
-    and email = nvl(p_email,email);
+    and email = nvl(lower(p_email),email);
    -- order by id;    
 
 /*    c_obj := blng.blng_api.client_get_info(p_id, p_email);
@@ -734,13 +765,20 @@ end blng_api;
 
 
 
-  function contract_add(/*p_client in ntg.dtype.t_id,*/ p_number in blng.contract.contract_number%type)
+  function contract_add(p_company in ntg.dtype.t_id, p_number in ntg.dtype.t_long_code)
   return ntg.dtype.t_id
   is
     v_contract_row blng.contract%rowtype;
-    v_id blng.contract.id%type;
+    v_id ntg.dtype.t_id;
+    v_number ntg.dtype.t_long_code;
   begin
 --    v_contract_row.client_oid := p_client;
+    select to_char(sysdate,'yyyymmdd')||'-'||p_company||'-'||(count(*) + 1) into v_number from blng.contract where
+    id in (select contract_oid from blng.client2contract where client_oid in 
+              (select id from blng.client where company_oid = p_company and amnd_state = 'A')
+               and amnd_state = 'A'
+          ) 
+          and amnd_state = 'A';
     v_contract_row.contract_number := p_number;
     insert into blng.contract values v_contract_row returning id into v_id;
 --    commit;
@@ -754,7 +792,7 @@ end blng_api;
     return null;
   end;
 
-  procedure contract_edit(p_id in ntg.dtype.t_id, p_number in blng.contract.contract_number%type)
+  procedure contract_edit(p_id in ntg.dtype.t_id, p_number in ntg.dtype.t_long_code)
 --  return ntg.dtype.t_msg
   is
     v_mess ntg.dtype.t_msg;
@@ -785,7 +823,7 @@ end blng_api;
   end;
 
 
-  function contract_get_info(p_id in ntg.dtype.t_id)
+  function contract_get_info(p_id in ntg.dtype.t_id default null,p_company  in ntg.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
@@ -793,7 +831,9 @@ end blng_api;
       OPEN v_results FOR
         SELECT *
         --id, contract_number
-        from blng.contract where id = p_id
+        from blng.contract 
+        where id = nvl(p_id,id)
+        and company_oid = nvl(p_company,company_oid)
         order by id;
     return v_results;
   exception when others then
@@ -803,6 +843,28 @@ end blng_api;
     RAISE_APPLICATION_ERROR(-20002,'select row into contract error. '||SQLERRM);
     return null;
   end;
+
+  function contract_get_info_r(p_id in ntg.dtype.t_id default null,p_company  in ntg.dtype.t_id default null)
+  return blng.contract%rowtype
+  is
+    v_results blng.contract%rowtype;
+  begin
+ --     OPEN v_results FOR
+        SELECT *
+        into v_results
+        from blng.contract 
+        where id = nvl(p_id,id)
+        and company_oid = nvl(p_company,company_oid)
+        order by id;
+    return v_results;
+  exception when others then
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'contract_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=contract&\p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'select row into contract error. '||SQLERRM);
+    return null;
+  end;
+
 
   procedure account_init(p_contract in ntg.dtype.t_id)
   is

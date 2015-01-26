@@ -915,9 +915,9 @@ end core;
   is
     v_contract ntg.dtype.t_id;
   begin
-    select contract_oid into v_contract from blng.client2contract 
+    select max(contract_oid) into v_contract from blng.client2contract 
     where client_oid = p_client 
-    and permission = 'I'
+    --and permission = 'I'
     and amnd_state = 'A';
     
     return v_contract;

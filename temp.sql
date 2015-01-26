@@ -2,7 +2,7 @@
 select * from dba_objects
 where /*object_name like '%DOCUMENT%'
 and*/ owner = 'BLNG'
-
+;
 
 
  
@@ -19,6 +19,9 @@ select * from v$parameter where name = 'nls_date_format';
 select * from nls_database_parameters
 select * from nls_session_parameters
 select * from nls_instance_parameters
+
+
+
 
 
 
@@ -1057,16 +1060,16 @@ begin
   
   from ORD.v_json j
   where j.pnrrecordlocator is not null
-  and j.validatingcarrier not in ('UN',
+  and j.validatingcarrier in ('UN',
 'S7',
 'SU',
 'HY',
 'R2')
   and id >600
-   and book_id in (
+/*   and book_id in (
   'd494ad8469874e7da6aa629804c83b48','dfdbe320e8ad47f98c12f74460ea07d5','557a72da77fc4450851f23b2dbb01b6d','23500d51668347d786beb6d63f45ba09'
   
-  )
+  )*/
   )
   loop
           dbms_output.put_line('='||i.nqt_id);      
@@ -1076,6 +1079,28 @@ end;
 
 /
 select * from ord.item_avia where id = 121 order by id desc
+;
+
+
+ select 
+  
+ *
+  
+  
+  from ORD.v_json j
+  where j.pnrrecordlocator is not null
+  and j.validatingcarrier in ('UN',
+'S7',
+'SU',
+'HY',
+'R2')
+ -- and id >600
+   and book_id in (
+  '9c743e143c12410187901191674fbe2e'
+  
+  );
+
+select * from ord.item_avia where id = 25095
 
 292 - code-share
 121 - interline
@@ -2853,3 +2878,175 @@ where rowid = 'AAAWajACGAAAADrAAM'
 
 
 selec
+
+select * from log order by id desc;
+/
+
+    select to_char(sysdate,'yyyymmdd')||'-'||(count(*) + 1)  from blng.contract where
+    id in (select contract_oid from blng.client2contract where client_oid in 
+              (select id from blng.client where company_oid =7 and amnd_state = 'A')
+               and amnd_state = 'A'
+          ) 
+          and amnd_state = 'A';
+          
+          
+          p_tenant_id
+          
+          ord.fwdr.avia_register
+          --ord.fwdr.avia_pay
+          --ord.fwdr.avia_manual
+          --ord.fwdr.pnr_list(nqt_id,tenant_id) дополнить ответ tenant_id
+          --ord.fwdr.commission_get           
+
+
+/
+
+
+/* first edition with check account value only*/
+DECLARE
+  starting_time  TIMESTAMP WITH TIME ZONE;
+  ending_time    TIMESTAMP WITH TIME ZONE;
+  P_company VARCHAR2(255):='pasha_company';
+  v_company ntg.dtype.t_id;
+
+--  P_NAME VARCHAR2(255):='pasha';
+  v_client1  ntg.dtype.t_id;
+  v_client2  ntg.dtype.t_id;
+  v_client3  ntg.dtype.t_id;
+  v_client4  ntg.dtype.t_id;
+  v_client5  ntg.dtype.t_id;
+  v_client6  ntg.dtype.t_id;
+  v_contract1  ntg.dtype.t_id;
+  v_contract5  ntg.dtype.t_id;
+  P_number VARCHAR2(255);
+BEGIN
+
+
+  BLNG.BLNG_API.account_init(23);
+
+
+commit;
+end;
+
+         
+         
+ /        
+         
+         
+--test set/update increase/decrease limit
+DECLARE
+  starting_time  TIMESTAMP WITH TIME ZONE;
+  ending_time    TIMESTAMP WITH TIME ZONE;
+  v_contract  ntg.dtype.t_id:=23;
+  P_number VARCHAR2(255);
+  v_DOC ntg.dtype.t_id;
+  r_contract_info blng.v_account%rowtype;
+
+BEGIN
+
+
+
+  /* increase doc limit 1002 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 308009,P_TRANS_TYPE =>7);
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
+  
+
+  
+  
+-- CONTRACT_OID    DEPOSIT       LOAN CREDIT_LIMIT CREDIT_LIMIT_BLOCK DEBIT_ONLINE MAX_LOAN_TRANS_AMOUNT CREDIT_ONLINE DELAY_DAYS  AVAILABLE
+-- ------------ ---------- ---------- ------------ ------------------ ------------ --------------------- ------------- ---------- ----------
+--          XXX          0          0          999                  0            0                     0             0          0        999 
+
+  /* set delay days 50 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 50,P_TRANS_TYPE =>11);
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
+  /* set max loan trans amount 200 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 70000,P_TRANS_TYPE =>8);
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
+  
+  
+-- CONTRACT_OID    DEPOSIT       LOAN CREDIT_LIMIT CREDIT_LIMIT_BLOCK DEBIT_ONLINE MAX_LOAN_TRANS_AMOUNT CREDIT_ONLINE DELAY_DAYS  AVAILABLE
+-- ------------ ---------- ---------- ------------ ------------------ ------------ --------------------- ------------- ---------- ----------
+--          XXX          0          0          999                  0            0                   200             0         50        999 
+
+
+end;
+ 
+select * from blng.v_account   
+
+select * from ord.
+
+select * from log order by id desc
+
+
+
+
+select * from ord.item_avia order by id desc
+
+
+
+select 
+ blng.fwdr.company_insteadof_client(4),
+ blng.core.pay_contract_by_client(33)
+ from dual;
+ 
+ 
+ select * from geo where nls_name = 'Волгоград'
+ 
+ select * from geo where parent_id in (12895,
+21062)
+
+ select * from geo where iata = 'VOG'
+
+
+select * from blng.v_account
+
+
+select blng.fwdr.balance(5)
+from dual
+
+
+    select * from blng.v_account where contract_oid = v_contract;
+
+
+select 
+SUBSTR(A,INSTR(A,'@')+1)
+from 
+(select 'asd@ntg-one.com' a from dual)
+
+
+!!!!!!   alter table blng.contract add company_oid number(18,0);
+!!!! alter table "BLNG"."COMPANY" rename column "DOMEN" to DOMAIN;
+
+
+
+
+select
+blng.fwdr.get_tenant('ceo1@ntg-one.com')
+from dual;
+
+
+
+
+
+
+declare
+ a number;
+begin
+  a:=blng.fwdr.get_tenant('ceo2@ntg-one.com');
+  dbms_output.put_line(''||a);
+end;
+
+
+
+select * from blng.client;
+
+select * from blng.client2contract;
+
+select * from log order by id desc
+
+
+select 

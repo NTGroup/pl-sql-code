@@ -108,26 +108,31 @@ NOLOGGING;
 alter pluggable database ntg4 open read write; 
 
 
-alter pluggable database ntg4 close immediate;
-drop pluggable database ntg4 including datafiles;
+alter pluggable database test close immediate;
+drop pluggable database test including datafiles;
 
  
 
 -- create with no data base in specified dir but temp datafiles names +++++++
 /* sys as sysdba */
-alter pluggable database ntg close immediate;  
-alter pluggable database ntg open read only; 
+alter pluggable database dev close immediate;  
+alter pluggable database dev open read only; 
+alter pluggable database dev close immediate;  
+alter pluggable database dev open read write; 
 --alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/test';
 
-CREATE PLUGGABLE DATABASE test FROM ntg 
---no data
+CREATE PLUGGABLE DATABASE test FROM dev 
+no data
 NOLOGGING;
 alter pluggable database test open read write; 
 
 
+
 --TODO implement tablespase
--- alter pluggable database test close immediate;
--- drop pluggable database test including datafiles;
+alter pluggable database test close immediate;
+alter pluggable database test open read write; 
+
+--drop pluggable database test including datafiles;
 
 
 

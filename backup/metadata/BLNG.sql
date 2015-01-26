@@ -14,7 +14,7 @@ begin
    amnd_prev NUMBER(18,0), 
    name varchar2(255),
    status VARCHAR2(1),
-   domen varchar2(255)
+   domain varchar2(255)
    
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
@@ -478,7 +478,8 @@ begin
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
    contract_number VARCHAR2(50),
-   status VARCHAR2(1)
+   status VARCHAR2(1),
+   company_oid NUMBER(18,0)
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING

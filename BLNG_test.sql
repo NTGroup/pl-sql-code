@@ -52,13 +52,14 @@ BEGIN
   SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
 
   /*company*/
-  v_company := blng.BLNG_API.company_add(P_name => P_company);
+ -- v_company := blng.BLNG_API.company_add(P_name => P_company);
+  v_company := 5;
   DBMS_OUTPUT.PUT_LINE('v_company = ' || v_company);
 
 
   /*client*/
 --с1
-  v_client1 := blng.BLNG_API.client_add(P_NAME => 'HR Ася', p_company => v_company);
+/*  v_client1 := blng.BLNG_API.client_add(P_NAME => 'HR Ася', p_company => v_company);
   DBMS_OUTPUT.PUT_LINE('v_client1 = ' || v_client1);
   v_client3 := blng.BLNG_API.client_add(P_NAME => 'Маша', p_company => v_company);
   DBMS_OUTPUT.PUT_LINE('v_client3 = ' || v_client3);
@@ -71,21 +72,24 @@ BEGIN
   DBMS_OUTPUT.PUT_LINE('v_client5 = ' || v_client5);
   v_client6 := blng.BLNG_API.client_add(P_NAME => 'HR Head Александра', p_company => v_company);
   DBMS_OUTPUT.PUT_LINE('v_client6 = ' || v_client6);
-
+*/
+  v_client1 := 32;
+  DBMS_OUTPUT.PUT_LINE('v_client1 = ' || v_client1);
 
 
 /*contract*/
-  v_contract1 := blng.BLNG_API.contract_add(P_NUMBER => 'c1-4');
+  v_contract1 := blng.BLNG_API.contract_add(P_company => v_company);
   DBMS_OUTPUT.PUT_LINE('v_contract1 = ' || v_contract1); 
   BLNG.BLNG_API.account_init(v_contract1);
 
-  v_contract5 := blng.BLNG_API.contract_add(P_NUMBER => 'c5-6');
+/*  v_contract5 := blng.BLNG_API.contract_add(P_company => v_company);
   DBMS_OUTPUT.PUT_LINE('v_contract5 = ' || v_contract5); 
-  BLNG.BLNG_API.account_init(v_contract5);
+  BLNG.BLNG_API.account_init(v_contract5);*/
 
 /* client2contract */
   blng.BLNG_API.client2contract_add(P_client => v_client1, p_permission=> 'B', p_contract => v_contract1);
-  blng.BLNG_API.client2contract_add(P_client => v_client2, p_permission=> 'B', p_contract => v_contract1);
+  blng.BLNG_API.client2contract_add(P_client => v_client1, p_permission=> 'I', p_contract => v_contract1);
+/*  blng.BLNG_API.client2contract_add(P_client => v_client2, p_permission=> 'B', p_contract => v_contract1);
   blng.BLNG_API.client2contract_add(P_client => v_client3, p_permission=> 'B', p_contract => v_contract1);
   blng.BLNG_API.client2contract_add(P_client => v_client4, p_permission=> 'B', p_contract => v_contract1);
   blng.BLNG_API.client2contract_add(P_client => v_client1, p_permission=> 'I', p_contract => v_contract1);
@@ -93,7 +97,7 @@ BEGIN
   blng.BLNG_API.client2contract_add(P_client => v_client6, p_permission=> 'B', p_contract => v_contract5);
   blng.BLNG_API.client2contract_add(P_client => v_client6, p_permission=> 'I', p_contract => v_contract1);
   blng.BLNG_API.client2contract_add(P_client => v_client6, p_permission=> 'I', p_contract => v_contract5);
-
+*/
 
 
 
