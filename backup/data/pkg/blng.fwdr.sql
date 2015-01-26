@@ -22,7 +22,7 @@ create  or replace package BODY blng.fwdr as
     v_client ntg.dtype.t_id;
     v_company ntg.dtype.t_id;
     r_contract blng.contract%rowtype;
-    
+    v_client_count ntg.dtype.t_id;
   begin
   --all emails must be in lower case
     begin
@@ -35,6 +35,9 @@ create  or replace package BODY blng.fwdr as
         begin
           r_company:=blng.blng_api.COMPANY_get_info_r(p_domain=>SUBSTR(lower(p_email),INSTR(lower(p_email),'@')+1));
           r_contract:=blng.blng_api.contract_get_info_r(p_company=>r_company.id);
+          select count(*) into v_client_count from blng.client where amnd_state = 'A' and company_oid = r_company.id and amnd_date > sysdate-1/24/60;
+          -- auto user registration stoper 10 user per minute
+          if v_client_count>=10 then return null; end if;
           v_client := blng.BLNG_API.client_add(P_NAME => '', p_company => r_company.id,p_email=>p_email);
           blng.BLNG_API.client2contract_add(P_client => v_client, p_permission=> 'B', p_contract => r_contract.id);
           commit;

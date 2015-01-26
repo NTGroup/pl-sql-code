@@ -3018,11 +3018,6 @@ from
 (select 'asd@ntg-one.com' a from dual)
 
 
-!!!!!!   alter table blng.contract add company_oid number(18,0);
-!!!! alter table "BLNG"."COMPANY" rename column "DOMEN" to DOMAIN;
-
-
-
 
 select
 blng.fwdr.get_tenant('ceo1@ntg-one.com')
@@ -3050,3 +3045,17 @@ select * from log order by id desc
 
 
 select 
+
+
+
+declare
+ a number;
+begin
+  for i in 1..100 loop
+  a:=blng.fwdr.get_tenant('ntv'||i||'@ntg-one.com');
+  dbms_output.put_line('i='||i||', a='||a);        
+  end loop;
+end;
+
+
+select * from blng.client
