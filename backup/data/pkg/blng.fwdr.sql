@@ -18,10 +18,11 @@ create  or replace package BODY blng.fwdr as
   return ntg.dtype.t_id
   is
     r_client blng.client%rowtype;
-    r_company blng.company%rowtype;
+--    r_company blng.company%rowtype;
     v_client ntg.dtype.t_id;
     v_company ntg.dtype.t_id;
     r_contract blng.contract%rowtype;
+    r_domain blng.domain%rowtype;
     v_client_count ntg.dtype.t_id;
   begin
   --all emails must be in lower case
@@ -33,18 +34,30 @@ create  or replace package BODY blng.fwdr as
     exception 
       when NO_DATA_FOUND then
         begin
-          r_company:=blng.blng_api.COMPANY_get_info_r(p_domain=>SUBSTR(lower(p_email),INSTR(lower(p_email),'@')+1));
-          r_contract:=blng.blng_api.contract_get_info_r(p_company=>r_company.id);
-          select count(*) into v_client_count from blng.client where amnd_state = 'A' and company_oid = r_company.id and amnd_date > sysdate-1/24/60;
+          r_domain:=blng.blng_api.domain_get_info_r(p_name => REGEXP_SUBSTR ( lower(p_email), '[^@]*$' ));
+          if r_domain.id is null then
+            r_domain:=blng.blng_api.domain_get_info_r(p_name => lower(p_email) );
+            if r_domain.id is null then
+              raise no_data_found;
+            else
+              blng.blng_api.domain_edit(p_id=>r_domain.id, p_status=>'C' );                
+            end if;
+          end if;
+          v_company:=r_domain.company_oid;
+--          r_company:=blng.blng_api.COMPANY_get_info_r(p_company => REGEXP_SUBSTR ( lower(p_email), '[^.]*$' ));
+          r_contract:=blng.blng_api.contract_get_info_r(p_company=>v_company);
+          select count(*) into v_client_count from blng.client where amnd_state = 'A' and company_oid = v_company and amnd_date > sysdate-1/24/60;
           -- auto user registration stoper 10 user per minute
           if v_client_count>=10 then return null; end if;
-          v_client := blng.BLNG_API.client_add(P_NAME => '', p_company => r_company.id,p_email=>p_email);
+          v_client := blng.BLNG_API.client_add(P_NAME => REGEXP_SUBSTR ( lower(p_email), '^[^@]*' ), p_company => v_company,p_email=>p_email);
           blng.BLNG_API.client2contract_add(P_client => v_client, p_permission=> 'B', p_contract => r_contract.id);
           commit;
-          v_company:=r_company.id;
-        exception when others then
-          rollback;
-          raise;
+        exception 
+          when NO_DATA_FOUND then
+            raise NO_DATA_FOUND;
+          when others then
+            rollback;
+            raise;
         end;
     end;
     return v_company;
@@ -52,7 +65,7 @@ create  or replace package BODY blng.fwdr as
     when NO_DATA_FOUND then
      -- CLOSE c_delay;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'get_tenant', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=delay&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
 --      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
       return null;
@@ -73,7 +86,7 @@ create  or replace package BODY blng.fwdr as
     return v_result;
   exception when others then 
     NTG.LOG_API.LOG_ADD(p_proc_name=>'company_insteadof_client', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=bill&\p_date=' 
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=client&\p_date=' 
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
     --RAISE_APPLICATION_ERROR(-20002,'cash_back error. '||SQLERRM);  
     return null;

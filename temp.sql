@@ -3012,15 +3012,19 @@ from dual
     select * from blng.v_account where contract_oid = v_contract;
 
 
+
 select 
-SUBSTR(A,INSTR(A,'@')+1)
+REGEXP_SUBSTR ( a, '^[^@]*' ),
+REGEXP_SUBSTR ( a, '[^@]*$' ),
+REGEXP_SUBSTR ( a, '[^.]*$' )
+
 from 
-(select 'asd@ntg-one.com' a from dual)
+(select 'ceo1@ntg-one.com' a from dual)
 
 
 
 select
-blng.fwdr.get_tenant('ceo1@ntg-one.com')
+blng.fwdr.get_tenant('nunu@ntg-one.com')
 from dual;
 
 
@@ -3031,21 +3035,30 @@ from dual;
 declare
  a number;
 begin
-  a:=blng.fwdr.get_tenant('ceo2@ntg-one.com');
-  dbms_output.put_line(''||a);
+  a:=blng.fwdr.get_tenant('ya@hoo.com');
+  dbms_output.put_line(' 12 ='||a);
 end;
+
+
+
+select blng.fwdr.get_tenant('bubu@ntg-one.com')
+from dual;
 
 
 
 select * from blng.client;
 
+
+
 select * from blng.client2contract;
 
 select * from log order by id desc
 
+select * from ord.item_avia order by id desc
 
-select 
 
+select blng.company_get_info
+from dual;
 
 
 declare
@@ -3058,4 +3071,37 @@ begin
 end;
 
 
-select * from blng.client
+select * from blng.delay
+
+
+select * from blng.v_account
+
+
+
+      SELECT 
+      * 
+      from blng.domain
+      where id = nvl(null,id)
+      and company_oid = nvl(null,company_oid)
+      and name = nvl('ntg-one.com',name)
+      and status = nvl(null,'A')
+      and is_domain = nvl(null,is_domain)
+      and amnd_state = 'A';
+
+
+
+select /* text */
+substr(pnr_id,1,8) pnr_id,
+amnd_date issue_utc_time,
+to_char(trunc(amnd_date),'dd.mm.yyyy') issue_utc_day
+from ord.item_avia 
+where amnd_state = 'A'
+and nqt_status = 'ISSUED'
+
+
+
+ALTER TABLE BLNG.COMPANY DROP COLUMN DOMAIN;
+
+
+ALTER TABLE BLNG.contract ADD CONSTRAINT cntr_cmp_OID_FK FOREIGN KEY (company_oid)
+  REFERENCES BLNG.company ("ID") ENABLE;

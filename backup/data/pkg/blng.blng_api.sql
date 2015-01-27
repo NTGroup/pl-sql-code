@@ -74,10 +74,10 @@
 --
 -- RETURNS:
 --      client data
-  function company_get_info(p_id in ntg.dtype.t_id default null,P_DOMAIN IN ntg.dtype.t_long_code default null)
+  function company_get_info(p_id in ntg.dtype.t_id default null)
   return SYS_REFCURSOR;
 
-  function company_get_info_r(p_id in ntg.dtype.t_id default null,P_DOMAIN IN ntg.dtype.t_long_code default null)
+  function company_get_info_r(p_id in ntg.dtype.t_id default null)
   return blng.company%rowtype;
 
 
@@ -440,6 +440,38 @@
                             p_priority in blng.delay.priority%type default null
                           )
   return blng.delay%rowtype;
+  
+  procedure domain_add( p_name in ntg.dtype.t_name default null,
+                      p_company in ntg.dtype.t_id default null,
+--                      p_status in ntg.dtype.t_id default null,
+                      p_is_domain in ntg.dtype.t_status default null
+                    );
+
+  procedure domain_edit ( p_id in ntg.dtype.t_id default null,
+                        p_name in ntg.dtype.t_name default null,
+                      p_company in ntg.dtype.t_id default null,
+                      p_status in ntg.dtype.t_status default null,
+                      p_is_domain in ntg.dtype.t_status default null
+                      );
+
+  function domain_get_info (p_id in ntg.dtype.t_id default null,
+                            p_name in ntg.dtype.t_name default null,
+                          p_company in ntg.dtype.t_id default null,
+                          p_status in ntg.dtype.t_status default null,
+                          p_is_domain in ntg.dtype.t_status default null
+                            
+                          )
+  return SYS_REFCURSOR;
+
+  function domain_get_info_r (p_id in ntg.dtype.t_id default null,
+                            p_name in ntg.dtype.t_name default null,
+                          p_company in ntg.dtype.t_id default null,
+                          p_status in ntg.dtype.t_status default null,
+                          p_is_domain in ntg.dtype.t_status default null
+                            
+                          )
+  return blng.domain%rowtype;
+
 
 end blng_api;
 
@@ -500,7 +532,7 @@ end blng_api;
   end;
 
 
-  function company_get_info(p_id in ntg.dtype.t_id default null,P_DOMAIN IN ntg.dtype.t_long_code default null)
+  function company_get_info(p_id in ntg.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
@@ -511,7 +543,6 @@ end blng_api;
         --id, name
         from blng.company 
         where  id = nvl(p_id,id)
-        and DOMAIN=nvl(P_DOMAIN,DOMAIN)
         order by id;
     return v_results;
   exception when others then
@@ -523,7 +554,7 @@ end blng_api;
   end;
 
 
-  function company_get_info_r(p_id in ntg.dtype.t_id default null,P_DOMAIN IN ntg.dtype.t_long_code default null)
+  function company_get_info_r(p_id in ntg.dtype.t_id default null)
   return blng.company%rowtype
   is
     v_results  blng.company%rowtype;
@@ -533,7 +564,6 @@ end blng_api;
         into v_results
         from blng.company 
         where id = nvl(p_id,id)
-        and DOMAIN=nvl(P_DOMAIN,DOMAIN)
         order by id;
     return v_results;
   exception when others then
@@ -544,7 +574,9 @@ end blng_api;
     return null;
   end;
   
-  function client_add(p_company in ntg.dtype.t_id default null, p_name in ntg.dtype.t_name default null, p_email in ntg.dtype.t_name default null)
+  function client_add(p_company in ntg.dtype.t_id default null, 
+                      p_name in ntg.dtype.t_name default null, 
+                      p_email in ntg.dtype.t_name default null)
   return ntg.dtype.t_id
   is
     v_client_row blng.client%rowtype;
@@ -553,6 +585,7 @@ end blng_api;
     v_client_row.name := p_name;
     v_client_row.company_oid := p_company;
     v_client_row.email := lower(p_email);
+    v_client_row.status := 'A';
     insert into blng.client values v_client_row returning id into v_id;
 --    commit;
     return v_id;
@@ -1962,6 +1995,147 @@ end blng_api;
       RAISE_APPLICATION_ERROR(-20002,'select row into delay error. '||SQLERRM);
       return null;
   end delay_get_info_r;
+
+
+  procedure domain_add( p_name in ntg.dtype.t_name default null,
+                      p_company in ntg.dtype.t_id default null,
+--                      p_status in ntg.dtype.t_id default null,
+                      p_is_domain in ntg.dtype.t_status default null
+                    )
+  is
+    v_obj_row blng.domain%rowtype;
+    v_id ntg.dtype.t_id;
+  begin
+    v_obj_row.name := p_name;
+    v_obj_row.company_oid := p_company;
+    v_obj_row.is_domain := p_is_domain;
+    v_obj_row.status := 'A';
+--    insert into blng.delay values v_delay_row returning id into v_id;
+    insert into blng.domain values v_obj_row;
+  exception when others then
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'domain_add', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=domain&\p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'insert row into domain error. '||SQLERRM);
+  end;
+
+
+  procedure domain_edit ( p_id in ntg.dtype.t_id default null,
+                        p_name in ntg.dtype.t_name default null,
+                      p_company in ntg.dtype.t_id default null,
+                      p_status in ntg.dtype.t_status default null,
+                      p_is_domain in ntg.dtype.t_status default null
+                      )
+  is
+    v_mess ntg.dtype.t_msg;
+    v_obj_row_new blng.domain%rowtype;
+    v_obj_row_old blng.domain%rowtype;
+  begin
+
+    select * into v_obj_row_old from blng.domain
+    where id = p_id
+    ;
+
+    v_obj_row_new := v_obj_row_old;
+
+    v_obj_row_old.id:=null;
+    v_obj_row_old.amnd_state :='I';
+    insert into blng.domain values v_obj_row_old;
+
+    v_obj_row_new.amnd_date:=sysdate;
+    v_obj_row_new.amnd_user:=user;
+    v_obj_row_new.name:=nvl(p_name, v_obj_row_new.name);
+    v_obj_row_new.company_oid := nvl(p_company, v_obj_row_new.company_oid);
+    v_obj_row_new.is_domain := nvl(p_is_domain, v_obj_row_new.is_domain);
+--    v_obj_row_new.status:=p_status;
+    if p_status in ('C') then v_obj_row_new.amnd_state :='C'; v_obj_row_new.status :='C'; end if;
+    if p_status in ('I') then v_obj_row_new.status :='I'; end if;
+    if p_status in ('A') then v_obj_row_new.status :='A'; end if;
+
+
+    update blng.domain set row = v_obj_row_new where id = v_obj_row_new.id;
+  exception when others then
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_edit', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=domain&\p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'update row into domain error. '||SQLERRM);
+  end;
+
+
+
+  function domain_get_info (p_id in ntg.dtype.t_id default null,
+                            p_name in ntg.dtype.t_name default null,
+                          p_company in ntg.dtype.t_id default null,
+                          p_status in ntg.dtype.t_status default null,
+                          p_is_domain in ntg.dtype.t_status default null
+                            
+                          )
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR;
+  begin
+    OPEN v_results FOR
+      SELECT --id, event_type_oid, transaction_oid, date_to, contract_oid, amount, status, priority
+      *
+      from blng.domain
+      where id = nvl(p_id,id)
+      and company_oid = nvl(p_company,company_oid)
+      and name = nvl(p_name,name)
+      and status = nvl(p_status,'A')
+      and is_domain = nvl(p_is_domain,is_domain)
+      and amnd_state = 'A';
+    return v_results;
+  exception 
+    when NO_DATA_FOUND then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'domain_get_info', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=domain&\p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      return null;    
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'domain_get_info', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=domain&\p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into domain error. '||SQLERRM);
+      return null;
+  end;
+
+  function domain_get_info_r (p_id in ntg.dtype.t_id default null,
+                            p_name in ntg.dtype.t_name default null,
+                          p_company in ntg.dtype.t_id default null,
+                          p_status in ntg.dtype.t_status default null,
+                          p_is_domain in ntg.dtype.t_status default null
+                            
+                          )
+  return blng.domain%rowtype
+  is
+    v_results blng.domain%rowtype;
+  begin
+--    OPEN v_results FOR
+      SELECT --id, event_type_oid, transaction_oid, date_to, contract_oid, amount, status, priority
+      * into v_results
+      from blng.domain
+      where id = nvl(p_id,id)
+      and company_oid = nvl(p_company,company_oid)
+      and name = nvl(p_name,name)
+      and status = nvl(p_status,'A')
+      and is_domain = nvl(p_is_domain,is_domain)
+      and amnd_state = 'A';
+    return v_results;
+  exception 
+    when NO_DATA_FOUND then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'domain_get_info', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=domain&\p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      return null;    
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'domain_get_info', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=domain&\p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into domain error. '||SQLERRM);
+      return null;
+  end;
+
+
 
 end blng_api;
 

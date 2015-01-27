@@ -13,8 +13,7 @@ begin
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
    name varchar2(255),
-   status VARCHAR2(1),
-   domain varchar2(255)
+   status VARCHAR2(1)
    
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
@@ -508,6 +507,10 @@ ALTER TABLE BLNG.CONTRACT  MODIFY (AMND_STATE DEFAULT on null 'A' );
 
   ALTER TABLE blng.contract ADD CONSTRAINT CNTR_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.CNTR_ID_IDX ENABLE;
+
+
+ALTER TABLE BLNG.contract ADD CONSTRAINT cntr_cmp_OID_FK FOREIGN KEY (company_oid)
+  REFERENCES BLNG.company ("ID") ENABLE;
 
 --ALTER TABLE BLNG.contract ADD CONSTRAINT CNTR_CLT_OID_FK FOREIGN KEY (client_oid)
 --  REFERENCES BLNG.client ("ID") ENABLE;
@@ -1288,4 +1291,83 @@ end;
 
 
 
+
+/* domain */
+begin
+
+--------------------------------------------------------
+--  DDL for Table MARKUP
+--------------------------------------------------------
+
+  CREATE TABLE blng.domain
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+   name VARCHAR2(255),
+   company_oid NUMBER(18,0),
+   status VARCHAR2(1),
+   is_domain VARCHAR2(1)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+  
+  --drop table  blng.account 
+--------------------------------------------------------
+--  DDL for Index MKP_ID_IDX
+--------------------------------------------------------
+
+  CREATE INDEX blng.dmn_ID_IDX ON blng.domain ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table MARKUP
+--------------------------------------------------------
+
+  ALTER TABLE blng.domain MODIFY ("ID" CONSTRAINT dmn_ID_NN NOT NULL ENABLE);
+  ALTER TABLE blng.domain MODIFY (AMND_DATE CONSTRAINT "dmn_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.domain MODIFY (AMND_USER CONSTRAINT "dmn_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.domain MODIFY (AMND_STATE CONSTRAINT "dmn_AST_NN" NOT NULL ENABLE);
+ALTER TABLE BLNG.domain  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE BLNG.domain  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE BLNG.domain  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE blng.domain ADD CONSTRAINT dmn_ID_PK PRIMARY KEY (ID)
+  USING INDEX BLNG.dmn_ID_IDX ENABLE;
+
+
+ALTER TABLE BLNG.domain ADD CONSTRAINT dmn_cmp_OID_FK FOREIGN KEY (company_oid)
+  REFERENCES BLNG.company ("ID") ENABLE;
+
+
+--------------------------------------------------------
+--  DDL for Secuence MKP_SEQ
+--------------------------------------------------------
+ 
+  create sequence  BLNG.dmn_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+  
+--------------------------------------------------------
+--  DDL for Trigger MKP_TRGR
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.dmn_TRGR 
+BEFORE
+INSERT
+ON BLNG.domain
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select BLNG.dmn_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
+end;
+/
+ALTER TRIGGER BLNG.dmn_TRGR ENABLE;
+
+end;
 
