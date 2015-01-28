@@ -152,7 +152,7 @@
 --
 -- RETURNS: id of contract
 
-  function contract_add( p_company in ntg.dtype.t_id, p_number in ntg.dtype.t_long_code)
+  function contract_add( p_company in ntg.dtype.t_id default null)
   return ntg.dtype.t_id;
 
 -- CONTRACT_SET_NUMBER: update contract with data
@@ -163,7 +163,7 @@
 -- RETURNS:
 --      Message. Ok, Error.
 
-  procedure contract_edit(p_id in ntg.dtype.t_id, p_number in ntg.dtype.t_long_code);
+  procedure contract_edit(p_id in ntg.dtype.t_id default null, p_number in ntg.dtype.t_long_code default null);
 --  return ntg.dtype.t_msg;
 
 
@@ -490,6 +490,7 @@ end blng_api;
     v_id ntg.dtype.t_id;
   begin
     v_company_row.name := p_name;
+    v_company_row.status := 'A';
     insert into blng.company values v_company_row returning id into v_id;
 ---    commit;
     return v_id;
@@ -798,7 +799,7 @@ end blng_api;
 
 
 
-  function contract_add(p_company in ntg.dtype.t_id, p_number in ntg.dtype.t_long_code)
+  function contract_add(p_company in ntg.dtype.t_id default null)
   return ntg.dtype.t_id
   is
     v_contract_row blng.contract%rowtype;
@@ -812,7 +813,9 @@ end blng_api;
                and amnd_state = 'A'
           ) 
           and amnd_state = 'A';
-    v_contract_row.contract_number := p_number;
+    v_contract_row.contract_number := v_number;
+    v_contract_row.company_oid := p_company;
+    v_contract_row.status := 'A';
     insert into blng.contract values v_contract_row returning id into v_id;
 --    commit;
     return v_id;
@@ -825,7 +828,7 @@ end blng_api;
     return null;
   end;
 
-  procedure contract_edit(p_id in ntg.dtype.t_id, p_number in ntg.dtype.t_long_code)
+  procedure contract_edit(p_id in ntg.dtype.t_id default null, p_number in ntg.dtype.t_long_code default null)
 --  return ntg.dtype.t_msg
   is
     v_mess ntg.dtype.t_msg;

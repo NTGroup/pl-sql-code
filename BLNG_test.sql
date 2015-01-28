@@ -14,7 +14,7 @@ END;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  P_company VARCHAR2(255):='pasha_company';
+  P_company VARCHAR2(255):='Shrew Crew';
   v_company ntg.dtype.t_id;
 
 --  P_NAME VARCHAR2(255):='pasha';
@@ -52,8 +52,8 @@ BEGIN
   SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
 
   /*company*/
- -- v_company := blng.BLNG_API.company_add(P_name => P_company);
-  v_company := 5;
+  v_company := blng.BLNG_API.company_add(P_name => P_company);
+ -- v_company := 5;
   DBMS_OUTPUT.PUT_LINE('v_company = ' || v_company);
 
 
@@ -73,8 +73,8 @@ BEGIN
   v_client6 := blng.BLNG_API.client_add(P_NAME => 'HR Head Александра', p_company => v_company);
   DBMS_OUTPUT.PUT_LINE('v_client6 = ' || v_client6);
 */
-  v_client1 := 32;
-  DBMS_OUTPUT.PUT_LINE('v_client1 = ' || v_client1);
+ -- v_client1 := 32;
+--  DBMS_OUTPUT.PUT_LINE('v_client1 = ' || v_client1);
 
 
 /*contract*/
@@ -87,8 +87,8 @@ BEGIN
   BLNG.BLNG_API.account_init(v_contract5);*/
 
 /* client2contract */
-  blng.BLNG_API.client2contract_add(P_client => v_client1, p_permission=> 'B', p_contract => v_contract1);
-  blng.BLNG_API.client2contract_add(P_client => v_client1, p_permission=> 'I', p_contract => v_contract1);
+--  blng.BLNG_API.client2contract_add(P_client => v_client1, p_permission=> 'B', p_contract => v_contract1);
+--  blng.BLNG_API.client2contract_add(P_client => v_client1, p_permission=> 'I', p_contract => v_contract1);
 /*  blng.BLNG_API.client2contract_add(P_client => v_client2, p_permission=> 'B', p_contract => v_contract1);
   blng.BLNG_API.client2contract_add(P_client => v_client3, p_permission=> 'B', p_contract => v_contract1);
   blng.BLNG_API.client2contract_add(P_client => v_client4, p_permission=> 'B', p_contract => v_contract1);
@@ -106,6 +106,7 @@ BEGIN
 commit;
 end;
 
+/
 select * from blng.client2contract;
 
 select * from blng.account where contract_oid in (20);
