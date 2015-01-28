@@ -3035,7 +3035,7 @@ from dual;
 declare
  a number;
 begin
-  a:=blng.fwdr.get_tenant('ya@hoo.com');
+  a:=blng.fwdr.get_tenant('ceo@ntg-one.com');
   dbms_output.put_line(' 12 ='||a);
 end;
 

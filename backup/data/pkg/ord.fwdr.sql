@@ -36,6 +36,12 @@
                           
                           );
 
+  procedure avia_reg_ticket(  p_nqt_id in ntg.dtype.t_long_code default null,
+                            p_tenant_id  in  ntg.dtype.t_long_code default null,
+                            p_ticket in ntg.dtype.t_clob default null
+                          );
+
+
   procedure avia_pay( p_nqt_id in ntg.dtype.t_long_code default null);
   
   function order_get(p_id in ntg.dtype.t_id)
@@ -200,7 +206,7 @@ END FWDR;
 --        v_order_r:=ord_api.ord_get_info_r(v_order);
         v_contract := blng.core.pay_contract_by_client(v_client);
         v_bill := ORD_API.bill_add( P_ORDER => v_order,
-                                    P_AMOUNT => P_TOTAL_AMOUNT + p_total_markup,
+                                    P_AMOUNT => P_TOTAL_AMOUNT,
                                     P_DATE => sysdate,
                                     P_STATUS => 'M', --managing
                                     P_CONTRACT => v_contract);
@@ -221,6 +227,42 @@ END FWDR;
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=item_avia&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'avia_register error. '||SQLERRM);
+  end;
+
+  procedure avia_reg_ticket(  p_nqt_id in ntg.dtype.t_long_code default null,
+                            p_tenant_id  in  ntg.dtype.t_long_code default null,
+                            p_ticket in ntg.dtype.t_clob default null
+                          )
+  is
+--    v_order_r ord%rowtype;
+--    v_item_avia_r item_avia%rowtype;
+    v_id ntg.dtype.t_id;
+    v_order ntg.dtype.t_id;
+    v_avia ntg.dtype.t_id;
+    v_bill ntg.dtype.t_id;
+    v_client ntg.dtype.t_id;
+    v_contract ntg.dtype.t_id;
+    r_item_avia item_avia%rowtype;
+  begin
+    
+    if p_tenant_id is null then
+      raise VALUE_ERROR;
+    end if;
+    
+      commit;          
+  exception 
+    when VALUE_ERROR then
+      rollback;
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'VALUE_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=ticket&\p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'avia_reg_ticket error. put wrong value. '||SQLERRM);
+    when others then    
+      rollback;
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=ticket&\p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'avia_reg_ticket error. '||SQLERRM);
   end;
 
 
