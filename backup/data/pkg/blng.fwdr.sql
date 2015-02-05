@@ -35,40 +35,27 @@ create  or replace package BODY blng.fwdr as
   --all emails must be in lower case
     begin
       r_client:=blng.blng_api.client_get_info_r(p_email=>lower(p_email));
-      
---      if r_client.id is null then raise no_data_found; end if;
---      if r_client.id is null then raise TOO_MANY_ROWS; end if;
       v_company := r_client.company_oid;
-    exception     
-      when TOO_MANY_ROWS then return null;
+    exception 
       when NO_DATA_FOUND then
         begin
           r_domain:=blng.blng_api.domain_get_info_r(p_name => REGEXP_SUBSTR ( lower(p_email), '[^@]*$' ));
-          if r_domain.id is null then
-            r_domain:=blng.blng_api.domain_get_info_r(p_name => lower(p_email) );
-            if r_domain.id is null then
-              raise no_data_found;
-            else
-              blng.blng_api.domain_edit(p_id=>r_domain.id, p_status=>'C' );                
-            end if;
-          end if;
-          v_company:=r_domain.company_oid;
---          r_company:=blng.blng_api.COMPANY_get_info_r(p_company => REGEXP_SUBSTR ( lower(p_email), '[^.]*$' ));
-          r_contract:=blng.blng_api.contract_get_info_r(p_company=>v_company);
-          select count(*) into v_client_count from blng.client where amnd_state = 'A' and company_oid = v_company and amnd_date > sysdate-1/24/60;
-          -- auto user registration stoper 10 user per minute
-          if v_client_count>=10 then return null; end if;
-          v_client := blng.BLNG_API.client_add(P_last_NAME => REGEXP_SUBSTR ( lower(p_email), '^[^@]*' ), p_company => v_company,p_email=>p_email);
-          blng.BLNG_API.client2contract_add(P_client => v_client, p_permission=> 'B', p_contract => r_contract.id);
-          commit;
         exception 
           when NO_DATA_FOUND then
-            raise NO_DATA_FOUND;
-          when others then
-            rollback;
-            raise;
+            begin
+              r_domain:=blng.blng_api.domain_get_info_r(p_name => lower(p_email) );
+              blng.blng_api.domain_edit(p_id=>r_domain.id, p_status=>'C' );                
+            exception when NO_DATA_FOUND then raise;
+            end;
         end;
-      when others then return null;
+        v_company:=r_domain.company_oid;
+        r_contract:=blng.blng_api.contract_get_info_r(p_company=>v_company);
+        select count(*) into v_client_count from blng.client where amnd_state = 'A' and company_oid = v_company and amnd_date > sysdate-1/24/60;
+        -- auto user registration stoper 10 user per minute
+        if v_client_count>=10 then return null; end if;
+        v_client := blng.BLNG_API.client_add(P_last_NAME => REGEXP_SUBSTR ( lower(p_email), '^[^@]*' ), p_company => v_company,p_email=>p_email);
+        blng.BLNG_API.client2contract_add(P_client => v_client, p_permission=> 'B', p_contract => r_contract.id);
+        commit;
     end;
     return v_company;
   exception 
