@@ -6,6 +6,13 @@ and*/ owner = 'BLNG'
 
 
  
+ 
+ 
+ 
+ 
+
+
+ 
 SELECT sysdate FROM DUAL;
 
 
@@ -19,6 +26,8 @@ select * from v$parameter where name = 'nls_date_format';
 select * from nls_database_parameters
 select * from nls_session_parameters
 select * from nls_instance_parameters
+
+
 
 
 
@@ -2635,7 +2644,7 @@ begin
    -- *
     from ord.item_avia 
     where amnd_date >= sysdate - 2
-    and nqt_id = '0a54d0088054433b8af000cfbf889d3e'
+    and nqt_id = 'f7f47746135a4c16ae139df4c6a5aede'
     --where id = 123 --> 33
     --order by id desc
   )
@@ -2646,10 +2655,12 @@ begin
 end;
 
 
-    select distinct al.id, al.iata   from ord.v_json j, ntg.airline al where j.id = 25107
-    and al.AMND_STATE = 'A'
-    and j.validatingcarrier = al.iata
+    select *  from ord.v_json j where j.id > 25423
     ;
+
+
+select * from ord.v_rule
+
     
 INSERT INTO "ORD"."COMMISSION" (AIRLINE, DETAILS, PERCENT, PRIORITY) VALUES ('1376', 'interline 0%', '0', '0'); --65 --18
 INSERT INTO "ORD"."COMMISSION" (AIRLINE, DETAILS, PERCENT, PRIORITY) VALUES ('1376', 'code-share 1.5%', '1.5', '0'); --66 --19
@@ -2801,7 +2812,7 @@ grant execute on blng.fwdr to po_fwdr;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=21;
+  v_contract  ntg.dtype.t_id:=22;
   P_number VARCHAR2(255);
   v_DOC ntg.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
@@ -2809,16 +2820,9 @@ DECLARE
 BEGIN
 
   /* ins doc cash in 500 */
-  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 3000000,P_TRANS_TYPE =>2);
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 13,P_TRANS_TYPE =>2);
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
   commit;
-
-
-  /* ins doc limit 1000 */
-  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 0,P_TRANS_TYPE =>7);
-  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
-  commit;
-
 
 end;
 
@@ -2972,9 +2976,10 @@ BEGIN
 -- ------------ ---------- ---------- ------------ ------------------ ------------ --------------------- ------------- ---------- ----------
 --          XXX          0          0          999                  0            0                   200             0         50        999 
 
-
 end;
- 
+
+
+
 select * from blng.v_account   
 
 select * from ord.
@@ -3028,6 +3033,8 @@ blng.fwdr.get_tenant('nunu@ntg-one.com')
 from dual;
 
 
+select * from log order by id desc
+
 
 
 
@@ -3035,7 +3042,7 @@ from dual;
 declare
  a number;
 begin
-  a:=blng.fwdr.get_tenant('ceo@ntg-one.com');
+  a:=blng.fwdr.get_tenant('s.popinevskiy@ntg-one.com');
   dbms_output.put_line(' 12 ='||a);
 end;
 
@@ -3105,3 +3112,484 @@ ALTER TABLE BLNG.COMPANY DROP COLUMN DOMAIN;
 
 ALTER TABLE BLNG.contract ADD CONSTRAINT cntr_cmp_OID_FK FOREIGN KEY (company_oid)
   REFERENCES BLNG.company ("ID") ENABLE;
+
+
+
+select * from blng.v_account
+
+
+select * from ord.v_rule
+
+
+select * from ord.item_avia 
+--where nqt_id = '149317d851c64dcf829751c5c2d0a6ac'
+order by id desc
+--65c0181557214750a9832927b2fb5e22
+
+
+
+select * from log order by id desc
+
+
+
+alter table ord.item_avia drop  IAV_ENSURE_JSON
+
+
+ALTER TABLE ord.item_avia
+DISABLE CONSTRAINT IAV_ENSURE_JSON;
+
+
+ALTER TABLE ord.item_avia
+ENABLE CONSTRAINT IAV_ENSURE_JSON;
+
+select * from log order by id desc
+
+
+select
+blng.fwdr.whoami('s.popinevskiy@ntg-one.com') datas ,
+blng.fwdr.get_tenant('s.popinevskiy@ntg-one.com') datas1
+
+from dual
+
+
+
+select * from blng.client_data where amnd_state = 'A'
+select * from blng.client where amnd_state = 'A'
+
+
+
+select
+max(length(name))
+--code, count(*)
+
+from 
+(
+select 
+null,
+code,
+name
+
+from tmp1, 
+json_table(a, '$[*]'
+  COLUMNS 
+    (
+     sysname VARCHAR2(256 CHAR) PATH '$.sysname',
+     name VARCHAR2(256 CHAR) PATH '$.name',
+     code VARCHAR2(256 CHAR) PATH '$.code'
+    )
+  )
+where code != 'code'
+
+)
+--having count(*)<>1
+--group by code
+
+
+
+select * from geo where code = 'AQ'
+
+
+select * from geo where object_type = 'country'
+and amnd_state = 'A'
+
+
+
+select * from ord.v_rule 
+
+
+desc blng.client 
+
+select * from log order by id desc
+
+SELECT * FROM blng.CLIENT WHERE AMND_STATE = 'A'
+   
+create table gds_nationality (
+id number(18,0),
+code varchar2(10),
+name varchar2(255)
+) 
+
+
+select max(length(name))
+
+
+
+insert into 
+gds_nationality
+select 
+null,
+code,
+name
+
+from tmp1, 
+json_table(a, '$[*]'
+  COLUMNS 
+    (
+     sysname VARCHAR2(256 CHAR) PATH '$.sysname',
+     name VARCHAR2(256 CHAR) PATH '$.name',
+     code VARCHAR2(256 CHAR) PATH '$.code'
+    )
+  )
+where code != 'code';
+commit;
+
+
+select * from gds_nationality
+
+  
+  
+  
+
+{
+    "first_name": "Сергей",
+    "last_name": "Попиневский",
+    "gender": "M",
+    "client_id": 34,
+    "docs": [
+        {
+            "doc_expiry_date": "25.01.2015",
+            "doc_gender": "M",
+            "doc_first_name": "Сергей",
+            "doc_last_name": "Попиневский",
+            "doc_number": "123321",
+            "doc_owner": "Y",
+            "doc_id": 1,
+            "doc_birth_date": "27.01.2015"
+        },
+        {
+            "doc_expiry_date": "25.01.2015",
+            "doc_gender": "F",
+            "doc_first_name": "Жанна",
+            "doc_last_name": "Попиневская",
+            "doc_number": "35454",
+            "doc_owner": "N",
+            "doc_id": 2,
+            "doc_birth_date": "27.01.2015"
+        }
+    ],
+    "birth_date": "06.01.2015",
+    "nationality": "AS",
+    "email": "s.popinevskiy@ntg-one.com"
+}
+
+
+
+
+select ntg.ntg_api.gds_nationality_get_info_name('AS') from dual
+
+select * from log order by id desc
+
+
+select * from ord.v_rule
+
+
+select * from airline
+where iata = 'TK'
+
+
+grant execute on ntg.ntg_api to blng;
+grant execute on ntg.ntg_api to ord;
+grant execute on ntg.ntg_api to po_fwdr;
+
+
+select 
+case when a=b then 1 else 2 end asd from
+(
+select to_date() , null b  from dual)
+
+
+
+select * from blng.client
+where amnd_state = 'A'
+
+
+
+
+
+declare
+a ntg.dtype.t_bool;
+begin
+a:=blng.fwdr.client_data_edit('{
+    "first_name": "Сергей",
+    "last_name": "Попиневский",
+    "gender": "M",
+    "client_id": 34,
+    "docs": [
+        {
+            "doc_expiry_date": "25.01.2015",
+            "doc_gender": "M",
+            "doc_first_name": "Сергей",
+            "doc_last_name": "Попиневский",
+            "doc_number": "123321",
+            "doc_owner": "Y",
+            "doc_id": 1,
+            "doc_birth_date": "27.01.2015"
+        },
+        {
+            "doc_expiry_date": "25.01.2015",
+            "doc_gender": "F",
+            "doc_first_name": "Жанна",
+            "doc_last_name": "Попиневская",
+            "doc_number": "35454",
+            "doc_owner": "N",
+            "doc_id": 2,
+            "doc_birth_date": "27.01.2015"
+        }
+,
+        {
+            "doc_expiry_date": "25.01.2015",
+            "doc_gender": "F",
+            "doc_first_name": "Маша",
+            "doc_last_name": "Маша",
+            "doc_number": "351454",
+            "doc_owner": "N",
+            "doc_id": null,
+            "doc_birth_date": "27.01.2015"
+        }
+
+    ],
+    "birth_date": "06.01.2015",
+    "nationality": "AS",
+    "email": "s.popinevskiy@ntg-one.com"
+}');
+--dbms_output.put_line('s '||a);
+end;
+
+
+
+select * from airline where iata ='AY'
+
+
+select * from blng.v_account
+
+select blng.fwdr.balance(5) from dual
+
+
+
+select * from markup
+
+
+select * from ord.v_rule
+
+
+ select * from v$log;
+ 
+ 
+select *  from ord.item_avia 
+where amnd_state = 'A'
+and nqt_id = '721c7dae354e47af92a630da3625b501'
+/**where order_oid in (
+select id  from ord.ord where client_oid = 32 )
+and amnd_state = 'A'*/
+order by id desc
+ 
+ 
+
+select * from blng.client where amnd_state = 'A'
+
+  --p.parfenov@ntg-one.com
+
+
+
+
+
+
+SELECT 
+LENGTH(NLS_NAME),
+geo.*
+FROM GEO
+WHERE /*OBJECT_TYPE IN ('city-airport')
+and*/ LENGTH(NLS_NAME)>=30
+and amnd_state='A'
+and iata is not null
+and nls_name not like '%)%'
+and nls_name not like '%(%'
+order by 1 desc
+
+
+--60/37 
+--53
+--42/46
+
+
+
+select * from ord.item_avia 
+order by id desc
+
+
+where nqt_id in ('0a567c583beb4886ba4266b00b9ffe37')
+
+
+
+start deploy 
+
+ ALTER TABLE blng.company MODIFY (AMND_DATE CONSTRAINT "cmp_ADT_NN" NOT NULL ENABLE);
+ ALTER TABLE blng.company MODIFY (AMND_USER CONSTRAINT "cmp_AUR_NN" NOT NULL ENABLE);
+ALTER TABLE blng.company MODIFY (AMND_STATE CONSTRAINT "cmp_AST_NN" NOT NULL ENABLE);
+
+
+ALTER TABLE BLNG.CLIENT RENAME COLUMN NAME TO LAST_NAME;
+ALTER TABLE BLNG.CLIENT add first_name varchar2(255);
+ALTER TABLE BLNG.CLIENT add    birth_date date;
+ALTER TABLE BLNG.CLIENT add gender varchar2(1);
+ALTER TABLE BLNG.CLIENT add nationality VARCHAR2(255);
+
+
+
+
+  
+/*client_data*/
+
+
+--------------------------------------------------------
+--  DDL for Table client_data
+--------------------------------------------------------
+
+  CREATE TABLE blng.client_data 
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+   client_oid NUMBER(18,0),
+   last_name varchar2(255),
+   first_name varchar2(255),
+   birth_date date,
+   gender varchar2(1),
+   nationality varchar2(10),
+   doc_number varchar2(50),
+   expiry_date date,
+   open_date date,
+   owner varchar2(1)
+  
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index MKP_ID_IDX
+--------------------------------------------------------
+
+  CREATE INDEX blng.cld_ID_IDX ON blng.client_data ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table MARKUP
+--------------------------------------------------------
+
+
+  ALTER TABLE blng.client_data MODIFY ("ID" CONSTRAINT cld_ID_NN NOT NULL ENABLE);
+  ALTER TABLE blng.client_data MODIFY (AMND_DATE CONSTRAINT "cld_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.client_data MODIFY (AMND_USER CONSTRAINT "cld_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.client_data MODIFY (AMND_STATE CONSTRAINT "cld_AST_NN" NOT NULL ENABLE);
+ALTER TABLE BLNG.client_data  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE BLNG.client_data  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE BLNG.client_data  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE blng.client_data ADD CONSTRAINT cld_ID_PK PRIMARY KEY (ID)
+  USING INDEX BLNG.cld_ID_IDX ENABLE;
+
+
+
+
+
+
+ALTER TABLE BLNG.client_data ADD CONSTRAINT cld_clt_OID_FK FOREIGN KEY (client_oid)
+  REFERENCES BLNG.client ("ID") ENABLE;
+
+
+--------------------------------------------------------
+--  DDL for Secuence MKP_SEQ
+--------------------------------------------------------
+ 
+  create sequence  BLNG.cld_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+  
+--------------------------------------------------------
+--  DDL for Trigger MKP_TRGR
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.cld_TRGR 
+BEFORE
+INSERT
+ON BLNG.client_data
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select BLNG.cld_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual;
+end;
+/
+ALTER TRIGGER BLNG.cld_TRGR ENABLE;
+
+/
+
+
+/* ntg.gds_nationality  */
+
+--------------------------------------------------------
+--  DDL for Table MARKUP
+--------------------------------------------------------
+
+  CREATE TABLE ntg.gds_nationality 
+   (
+id number(18,0),
+code varchar2(10),
+nls_name varchar2(255)
+   ) SEGMENT CREATION IMMEDIATE
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index MKP_ID_IDX
+--------------------------------------------------------
+
+  CREATE INDEX ntg.gnt_ID_IDX ON ntg.gds_nationality ("ID") 
+  TABLESPACE "USERS" ;
+  CREATE INDEX ntg.gnt_CD_IDX ON ntg.gds_nationality (code) 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table MARKUP
+--------------------------------------------------------
+
+  ALTER TABLE ntg.gds_nationality MODIFY ("ID" CONSTRAINT gnt_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ntg.gds_nationality ADD CONSTRAINT gnt_ID_PK PRIMARY KEY (ID)
+  USING INDEX ntg.gnt_ID_IDX ENABLE;
+
+
+  /*
+  ALTER TABLE ntg.markup ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
+  REFERENCES blng.client ("ID") ENABLE;
+   */
+--------------------------------------------------------
+--  DDL for Secuence MKP_SEQ
+--------------------------------------------------------
+ 
+  create sequence  ntg.gnt_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+--------------------------------------------------------
+--  DDL for Trigger MKP_TRGR
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER ntg.gnt_TRGR 
+BEFORE
+INSERT
+ON ntg.gds_nationality
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select gnt_SEQ.nextval into :new.id from dual; 
+--  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
+end;
+/
+ALTER TRIGGER ntg.gnt_TRGR ENABLE;
+/
+
+
+stop deploy;

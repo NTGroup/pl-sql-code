@@ -549,8 +549,11 @@ end core;
     -- get cursor with event_type credit limit block order by date asc
 --    c_delay := BLNG_API.delay_get_info(P_CONTRACT => P_CONTRACT,P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'clb'));
 
-    --r_contract_info := info.contract_info(p_contract => p_contract);
+
     for i_delay in (
+--     AMOUNT         ID CONTRACT_OID AMOUNT_HAVE AMOUNT_NEED DATE_TO           
+-- ---------- ---------- ------------ ----------- ----------- -------------------
+--       9772       1004           21           0        9772 28.02.2015 00:00:00 
                     select
                     amount,
                     id,

@@ -80,78 +80,80 @@ order by iata,4 desc, cmn.id, ct.priority desc;
 /
 
 
+
   CREATE OR REPLACE VIEW "ORD"."V_JSON" 
   AS 
   SELECT 
 ia.id,
-jt."BOOK_ID",jt."ROW_NUMBER",jt."PAXTYPE",jt."QUANTITY",jt."SEATS",jt."DEP_LOCATION",jt."DEP_DATETIME",jt."ARR_LOCATION",jt."ARR_DATETIME",jt."ELAPSEDTIME",jt."STOP_LOCATION",jt."ARRIVALDATETIME",jt."DEPARTUREDATETIME",jt."STOPS_TIMING_ELAPSEDTIME",jt."O_FLIGHTNUMBER",jt."O_AIRLINE",jt."M_FLIGHTNUMBER",jt."M_AIRLINE",jt."PLANETYPE",jt."MARRIAGEGROUP",jt."BOOKINGCODE",jt."FS_TIMEWASCHANGED",jt."FLIGHTTIME",jt."TOTALOFFLIGHTSEGMENTS",jt."PI_TF_FAREAMOUNT",jt."PI_TF_TAXESAMOUNT",jt."PI_TF_TOTALAMOUNT",jt."PI_PTCF_PK_PAXTYPE",jt."PI_PTCF_PK_QUANTITY",jt."PI_PTCF_PK_SEATS",jt."PI_PTCF_BD_FAREAMOUNT",jt."PI_PTCF_BD_TAXESAMOUNT",jt."PI_PTCF_BD_TOTALAMOUNT",jt."PI_PTCF_FAREBASISCODES",jt."VALIDATINGCARRIER",jt."SEEMSTOBEINVALID",jt."PERSEGMENT",jt."PERPTCBREAKDOWNS",jt."TOTALAMOUNT",jt."TOTALMARKUP",jt."PAX_GIVENNAME",jt."PAX_SURNAME",jt."PAX_DATEOFBIRTH",jt."PAX_PAXTYPE",jt."PHONE",jt."EMAIL",jt."SYSTEMTIMELIMIT",jt."PRICEWASCHANGED",jt."TIMEWASCHANGED",jt."ISFAILED",jt."PNRRECORDLOCATOR"
-
+--jt."BOOK_ID",jt."ROW_NUMBER",jt."PAXTYPE",jt."QUANTITY",jt."SEATS",jt."DEP_LOCATION",jt."DEP_DATETIME",jt."ARR_LOCATION",jt."ARR_DATETIME",jt."ELAPSEDTIME",jt."STOP_LOCATION",jt."ARRIVALDATETIME",jt."DEPARTUREDATETIME",jt."STOPS_TIMING_ELAPSEDTIME",jt."O_FLIGHTNUMBER",jt."O_AIRLINE",jt."M_FLIGHTNUMBER",jt."M_AIRLINE",jt."PLANETYPE",jt."MARRIAGEGROUP",jt."BOOKINGCODE",jt."FS_TIMEWASCHANGED",jt."FLIGHTTIME",jt."TOTALOFFLIGHTSEGMENTS",jt."PI_TF_FAREAMOUNT",jt."PI_TF_TAXESAMOUNT",jt."PI_TF_TOTALAMOUNT",jt."PI_PTCF_PK_PAXTYPE",jt."PI_PTCF_PK_QUANTITY",jt."PI_PTCF_PK_SEATS",jt."PI_PTCF_BD_FAREAMOUNT",jt."PI_PTCF_BD_TAXESAMOUNT",jt."PI_PTCF_BD_TOTALAMOUNT",jt."PI_PTCF_FAREBASISCODES",jt."VALIDATINGCARRIER",jt."SEEMSTOBEINVALID",jt."PERSEGMENT",jt."PERPTCBREAKDOWNS",jt."TOTALAMOUNT",jt."TOTALMARKUP",jt."PAX_GIVENNAME",jt."PAX_SURNAME",jt."PAX_DATEOFBIRTH",jt."PAX_PAXTYPE",jt."PHONE",jt."EMAIL",jt."SYSTEMTIMELIMIT",jt."PRICEWASCHANGED",jt."TIMEWASCHANGED",jt."ISFAILED",jt."PNRRECORDLOCATOR"
+jt.*
 FROM ord.item_avia ia,
 json_table(pnr_object, '$'
   COLUMNS (
-    book_id VARCHAR2(250) PATH '$.id',
+    book_id VARCHAR2(250) PATH '$._id',
     row_number FOR ORDINALITY,
-    paxType VARCHAR2(250) PATH '$.passengersQueried[0].paxType',
-    quantity VARCHAR2(250) PATH '$.passengersQueried[0].quantity',
-    seats VARCHAR2(250) PATH '$.passengersQueried[0].seats',
+  --  paxType VARCHAR2(250) PATH '$.PassengersQueried[0].paxType',
+  --  quantity VARCHAR2(250) PATH '$.PassengersQueried[0].quantity',
+  --  seats VARCHAR2(250) PATH '$.PassengersQueried[0].seats',
     
     
-    NESTED PATH '$.pricedItinerary.airItinerary.legs[*]' COLUMNS (
-      NESTED PATH '$.flightSegments[*]' COLUMNS (
-        dep_location VARCHAR2(256 CHAR) PATH '$.departure.location',
-        dep_dateTime VARCHAR2(256 CHAR) PATH '$.departure.dateTime',
-        arr_location VARCHAR2(256 CHAR) PATH '$.arrival.location',
-        arr_dateTime VARCHAR2(256 CHAR) PATH '$.arrival.dateTime',
-        elapsedTime VARCHAR2(256 CHAR) PATH '$.elapsedTime',
-        stop_location VARCHAR2(256 CHAR) PATH '$.stops[0].location',
-        arrivalDateTime VARCHAR2(256 CHAR) PATH '$.stops[0].timing.arrivalDateTime',
-        departureDateTime VARCHAR2(256 CHAR) PATH '$.stops[0].timing.departureDateTime',
-        stops_timing_elapsedTime VARCHAR2(256 CHAR) PATH '$.stops[0].timing.elapsedTime',
-        o_flightNumber VARCHAR2(256 CHAR) PATH '$.operating.flightNumber',
-        o_airline VARCHAR2(256 CHAR) PATH '$.operating.airline',
-        m_flightNumber VARCHAR2(256 CHAR) PATH '$.marketing.flightNumber',
-        m_airline VARCHAR2(256 CHAR) PATH '$.marketing.airline',
-        planeType VARCHAR2(256 CHAR) PATH '$.planeType',
-        marriageGroup VARCHAR2(256 CHAR) PATH '$.marriageGroup',
-        bookingCode VARCHAR2(256 CHAR) PATH '$.bookingCode',
-        fs_timeWasChanged VARCHAR2(256 CHAR) PATH '$.timeWasChanged'
+    NESTED PATH '$.PricedItinerary.AirItinerary.Legs[*]' COLUMNS (
+      NESTED PATH '$.FlightSegments[*]' COLUMNS (
+        dep_location VARCHAR2(256 CHAR) PATH '$.Departure.Location',
+--        dep_dateTime VARCHAR2(256 CHAR) PATH '$.departure.dateTime',
+        arr_location VARCHAR2(256 CHAR) PATH '$.Arrival.Location',
+--        arr_dateTime VARCHAR2(256 CHAR) PATH '$.arrival.dateTime',
+        --elapsedTime VARCHAR2(256 CHAR) PATH '$.ElapsedTime',
+--        stop_location VARCHAR2(256 CHAR) PATH '$.Stops[0].Location',
+--        arrivalDateTime VARCHAR2(256 CHAR) PATH '$.stops[0].timing.arrivalDateTime',
+--        departureDateTime VARCHAR2(256 CHAR) PATH '$.Stops[0].Timing.DepartureDateTime',
+--        stops_timing_elapsedTime VARCHAR2(256 CHAR) PATH '$.Stops[0].Timing.ElapsedTime',
+        o_flightNumber VARCHAR2(256 CHAR) PATH '$.Operating.FlightNumber',
+        o_airline VARCHAR2(256 CHAR) PATH '$.Operating.Airline',
+        m_flightNumber VARCHAR2(256 CHAR) PATH '$.Marketing.FlightNumber',
+        m_airline VARCHAR2(256 CHAR) PATH '$.Marketing.Airline',
+--        planeType VARCHAR2(256 CHAR) PATH '$.planeType',
+--        marriageGroup VARCHAR2(256 CHAR) PATH '$.marriageGroup',
+        bookingCode VARCHAR2(256 CHAR) PATH '$.BookingCode'
+--        fs_timeWasChanged VARCHAR2(256 CHAR) PATH '$.timeWasChanged'
       ),
-      flightTime VARCHAR2(256 CHAR) PATH '$.flightTime'
+      flightTime VARCHAR2(256 CHAR) PATH '$.FlightTime'
     ),
-    totalOfFlightSegments number(3) PATH '$.airItinerary.totalOfFlightSegments',
-    pi_tf_fareAmount number(20,2) PATH '$.pricedItinerary.pricingInfo.totalFareBreakdown.fareAmount',
-    pi_tf_taxesAmount number(20,2) PATH '$.pricedItinerary.pricingInfo.totalFareBreakdown.taxesAmount',
-    pi_tf_totalAmount number(20,2) PATH '$.pricedItinerary.pricingInfo.totalFareBreakdown.totalAmount',
+    totalOfFlightSegments number(3) PATH '$.PricedItinerary.AirItinerary.TotalOfFlightSegments',
+    pi_tf_fareAmount number(20,2) PATH '$.PricedItinerary.PricingInfo.TotalFareBreakdown.FareAmount',
+    pi_tf_taxesAmount number(20,2) PATH '$.PricedItinerary.PricingInfo.TotalFareBreakdown.TaxesAmount',
+    pi_tf_totalAmount number(20,2) PATH '$.PricedItinerary.PricingInfo.TotalFareBreakdown.TotalAmount',
 
-    pi_ptcf_pk_paxType VARCHAR2(100) PATH '$.pricedItinerary.pricingInfo.ptcFareBreakdowns[0].paxKit.paxType',
-    pi_ptcf_pk_quantity number(18) PATH '$.pricedItinerary.pricingInfo.ptcFareBreakdowns[0].paxKit.quantity',
-    pi_ptcf_pk_seats number(18) PATH '$.pricedItinerary.pricingInfo.ptcFareBreakdowns[0].paxKit.seats',
-    pi_ptcf_bd_fareAmount number(20,2) PATH '$.pricedItinerary.pricingInfo.ptcFareBreakdowns[0].breakdown.fareAmount',
-    pi_ptcf_bd_taxesAmount number(20,2) PATH '$.pricedItinerary.pricingInfo.ptcFareBreakdowns[0].breakdown.taxesAmount',
-    pi_ptcf_bd_totalAmount number(20,2) PATH '$.pricedItinerary.pricingInfo.ptcFareBreakdowns[0].breakdown.totalAmount',
+    pi_ptcf_pk_paxType VARCHAR2(100) PATH '$.PricedItinerary.PricingInfo.PtcFareBreakdowns[0].PaxKit.PaxType',
+    pi_ptcf_pk_quantity number(18) PATH '$.PricedItinerary.PricingInfo.PtcFareBreakdowns[0].PaxKit.Quantity',
+--    pi_ptcf_pk_seats number(18) PATH '$.PricedItinerary.PricingInfo.PtcFareBreakdowns[0].PaxKit.Seats',
+    pi_ptcf_bd_fareAmount number(20,2) PATH '$.PricedItinerary.PricingInfo.PtcFareBreakdowns[0].Breakdown.FareAmount',
+    pi_ptcf_bd_taxesAmount number(20,2) PATH '$.PricedItinerary.PricingInfo.PtcFareBreakdowns[0].Breakdown.TaxesAmount',
+    pi_ptcf_bd_totalAmount number(20,2) PATH '$.PricedItinerary.PricingInfo.PtcFareBreakdowns[0].Breakdown.TotalAmount',
 
-/*!!!*/    pi_ptcf_fareBasisCodes  VARCHAR2(100) FORMAT JSON  PATH '$.pricedItinerary.pricingInfo.ptcFareBreakdowns[0].fareBasisCodes',
-    validatingCarrier VARCHAR2(100) PATH '$.pricedItinerary.pricingInfo.validatingCarrier',
-    seemsToBeInvalid VARCHAR2(100) PATH '$.pricedItinerary.pricingInfo.seemsToBeInvalid',
-    perSegment number(20,2) PATH '$.markupValue.perSegment',
-    perPtcBreakdowns number(20,2) PATH '$.markupValue.perPtcBreakdowns[0]',
+/*!!!*/    pi_ptcf_fareBasisCodes  VARCHAR2(100) FORMAT JSON  PATH '$.PricedItinerary.PricingInfo.PtcFareBreakdowns[0].FareBasisCodes',
+    validatingCarrier VARCHAR2(100) PATH '$.PricedItinerary.PricingInfo.ValidatingCarrier',
+--    seemsToBeInvalid VARCHAR2(100) PATH '$.PricedItinerary.PricingInfo.SeemsToBeInvalid',
+    perSegment number(20,2) PATH '$.MarkupValue.PerSegment',
+    perPtcBreakdowns number(20,2) PATH '$.MarkupValue.PerPtcBreakdowns[0]',
 
-    totalAmount number(20,2) PATH '$.totalAmount',
-    totalMarkup number(20,2) PATH '$.totalMarkup',
-    pax_givenName varchar2(120) PATH '$.paxDetails.paxes[0].givenName',
-    pax_surname varchar2(120) PATH '$.paxDetails.paxes[0].surname',
-    pax_dateOfBirth varchar2(120) PATH '$.paxDetails.paxes[0].dateOfBirth',
-    pax_paxType varchar2(120) PATH '$.paxDetails.paxes[0].paxType',
-    phone varchar2(120) PATH '$.paxDetails.phone',
-    email varchar2(120) PATH '$.paxDetails.email',
-    systemTimeLimit VARCHAR2(250) PATH '$.systemTimeLimit',
-    priceWasChanged VARCHAR2(250) PATH '$.priceWasChanged',
-    timeWasChanged VARCHAR2(250) PATH '$.timeWasChanged',
-    isFailed VARCHAR2(250) PATH '$.isFailed',
-    pnrRecordLocator VARCHAR2(250) PATH '$.pnrRecordLocator'
+--    totalAmount number(20,2) PATH '$.TotalAmount',
+--    totalMarkup number(20,2) PATH '$.TotalMarkup',
+    pax_givenName varchar2(120) PATH '$.PaxGroup._persons[0].GivenName',
+    pax_surname varchar2(120) PATH '$.PaxGroup._persons[0].Surname',
+--    pax_dateOfBirth varchar2(120) PATH '$.PaxGroup._persons[0].DateOfBirth[0]',
+    pax_paxType varchar2(120) PATH '$.PaxGroup._persons[0].PaxType',
+--    phone varchar2(120) PATH '$.PaxGroup.Phone',
+--    email varchar2(120) PATH '$.PaxGroup.Email',
+--    systemTimeLimit VARCHAR2(250) PATH '$.SystemTimeLimit',
+    priceWasChanged VARCHAR2(250) PATH '$.PriceWasChanged',
+--    timeWasChanged VARCHAR2(250) PATH '$.TimeWasChanged',
+--    isFailed VARCHAR2(250) PATH '$.IsFailed',
+    pnrRecordLocator VARCHAR2(250) PATH '$.PnrRecordLocator'
   )
 ) AS "JT"
 where amnd_state = 'A'
+--and  ia.id = 25412
 order by ia.id desc;
 
 /
@@ -181,6 +183,7 @@ acc.contract_oid contract_oid,
 sum(acc.amount*act.deposit) deposit,
 sum(acc.amount*act.loan) loan,
 sum(acc.amount*act.credit_limit) credit_limit,
+sum(acc.amount*act.credit_limit+acc.amount*act.loan) unused_credit_limit,
 sum(acc.amount*act.credit_limit_block) credit_limit_block,
 sum(acc.amount*act.debit_online) debit_online,
 sum(acc.amount*act.max_loan_trans_amount) max_loan_trans_amount,
@@ -367,4 +370,35 @@ order by 2;
         
  /
  
- 
+create or replace view blng.v_total as
+  select 
+  ddd.contract_oid,
+--       sum(ddd.amount),
+--     sum(ddd.amount_need),
+  sum(case when ddd.date_to=date_from  then ddd.amount_need else 0 end) unblock_sum,
+  sum(case when ddd.date_to-date_from <= 2 then ddd.amount_need else 0 end) near_unblock_sum,
+--      sum(case when ddd.date_to-date_from <= 11 then ddd.amount_need else 0 end) sc,
+  ddd.date_from block_date /*,
+  max(ddd.date_to-date_from),
+  min(ddd.date_to-date_from) m  */
+  from 
+  (
+    select 
+    amount,
+    id,
+    d.contract_oid,
+    nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = d.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount_have,
+    amount - nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = d.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount_need,
+    date_to-1 date_to,
+    (MIN(date_to) OVER (PARTITION BY contract_oid))-1 date_from
+    from blng.delay d
+    where d.amnd_state = 'A'
+    and parent_id is null
+    --and contract_oid = 21
+    and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'b')
+    order by contract_oid asc, date_to asc, id asc  
+  ) ddd
+  group by ddd.contract_oid,ddd.date_from;
+
+
+/

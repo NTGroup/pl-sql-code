@@ -705,7 +705,7 @@ END FWDR;
     v_results SYS_REFCURSOR; 
   begin
   
-      OPEN v_results FOR  
+/*      OPEN v_results FOR  
       SELECT
         ID,
         NQT_ID,
@@ -721,7 +721,8 @@ END FWDR;
       FROM
         ORD.V_SALES_JSON 
         where ISSUED_DATE >= to_date(p_datetime_from,'DD.MM.YYYY HH24') 
-        and ISSUED_DATE < to_date(p_datetime_to ,'DD.MM.YYYY HH24') ;
+        and ISSUED_DATE < to_date(p_datetime_to ,'DD.MM.YYYY HH24') ;*/
+
     return v_results;
   end;
 

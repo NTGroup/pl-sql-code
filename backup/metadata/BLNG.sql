@@ -30,6 +30,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.company MODIFY ("ID" CONSTRAINT "cmp_ID_NN" NOT NULL ENABLE);
+ ALTER TABLE blng.company MODIFY (AMND_DATE CONSTRAINT "cmp_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.company MODIFY (AMND_USER CONSTRAINT "cmp_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.company MODIFY (AMND_STATE CONSTRAINT "cmp_AST_NN" NOT NULL ENABLE);
   ALTER TABLE BLNG.company  MODIFY (AMND_DATE DEFAULT on null sysdate);
   ALTER TABLE BLNG.company  MODIFY (AMND_USER DEFAULT  on null user );
   ALTER TABLE BLNG.company  MODIFY (AMND_STATE DEFAULT  on null 'A' );
@@ -87,10 +90,15 @@ begin
    amnd_user VARCHAR2(50),
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
-   name varchar2(255),
-   status VARCHAR2(1)
    company_oid NUMBER(18,0), 
-   email VARCHAR2(255)
+   last_name varchar2(255),
+   first_name varchar2(255),   
+   birth_date date,
+   gender varchar2(1),
+   email VARCHAR2(255),
+   nationality VARCHAR2(255),
+   status VARCHAR2(1)
+   
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
@@ -106,6 +114,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.client MODIFY ("ID" CONSTRAINT "CLT_ID_NN" NOT NULL ENABLE);
+ ALTER TABLE blng.client MODIFY (AMND_DATE CONSTRAINT "CLT_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.client MODIFY (AMND_USER CONSTRAINT "CLT_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.client MODIFY (AMND_STATE CONSTRAINT "CLT_AST_NN" NOT NULL ENABLE);
   ALTER TABLE BLNG.client  MODIFY (AMND_DATE DEFAULT on null sysdate);
   ALTER TABLE BLNG.client  MODIFY (AMND_USER DEFAULT  on null user );
   ALTER TABLE BLNG.client  MODIFY (AMND_STATE DEFAULT  on null 'A' );
@@ -414,6 +425,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.client2contract MODIFY ("ID" CONSTRAINT "cl2cntr_ID_NN" NOT NULL ENABLE);
+ ALTER TABLE blng.client2contract MODIFY (AMND_DATE CONSTRAINT "cl2cntr_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.client2contract MODIFY (AMND_USER CONSTRAINT "cl2cntr_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.client2contract MODIFY (AMND_STATE CONSTRAINT "cl2cntr_AST_NN" NOT NULL ENABLE);
   ALTER TABLE BLNG.client2contract  MODIFY (AMND_DATE DEFAULT on null sysdate);
   ALTER TABLE BLNG.client2contract  MODIFY (AMND_USER DEFAULT  on null user );
   ALTER TABLE BLNG.client2contract  MODIFY (AMND_STATE DEFAULT  on null 'A' );
@@ -582,6 +596,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.account_type MODIFY ("ID" CONSTRAINT "ACCT_ID_NN" NOT NULL ENABLE);
+ ALTER TABLE blng.account_type MODIFY (AMND_DATE CONSTRAINT "ACCT_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.account_type MODIFY (AMND_USER CONSTRAINT "ACCT_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.account_type MODIFY (AMND_STATE CONSTRAINT "ACCT_AST_NN" NOT NULL ENABLE);
 ALTER TABLE BLNG.account_type  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE BLNG.account_type  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE BLNG.account_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -663,6 +680,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.account MODIFY ("ID" CONSTRAINT "ACC_ID_NN" NOT NULL ENABLE);
+ ALTER TABLE blng.account MODIFY (AMND_DATE CONSTRAINT "ACC_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.account MODIFY (AMND_USER CONSTRAINT "ACC_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.account MODIFY (AMND_STATE CONSTRAINT "ACC_AST_NN" NOT NULL ENABLE);
 ALTER TABLE BLNG.account  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE BLNG.account  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE BLNG.account  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -742,6 +762,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.trans_type MODIFY ("ID" CONSTRAINT "TRT_ID_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.trans_type MODIFY (AMND_DATE CONSTRAINT "TRT_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.trans_type MODIFY (AMND_USER CONSTRAINT "TRT_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.trans_type MODIFY (AMND_STATE CONSTRAINT "TRT_AST_NN" NOT NULL ENABLE);
 ALTER TABLE BLNG.trans_type  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE BLNG.trans_type  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE BLNG.trans_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -913,6 +936,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.transaction MODIFY ("ID" CONSTRAINT "TRN_ID_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.transaction MODIFY (AMND_DATE CONSTRAINT "TRN_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.transaction MODIFY (AMND_USER CONSTRAINT "TRN_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.transaction MODIFY (AMND_STATE CONSTRAINT "TRN_AST_NN" NOT NULL ENABLE);
 ALTER TABLE BLNG.transaction  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE BLNG.transaction  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE BLNG.transaction  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -1083,6 +1109,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.event_type MODIFY ("ID" CONSTRAINT "ETT_ID_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.event_type MODIFY (AMND_DATE CONSTRAINT "ETT_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.event_type MODIFY (AMND_USER CONSTRAINT "ETT_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.event_type MODIFY (AMND_STATE CONSTRAINT "ETT_AST_NN" NOT NULL ENABLE);
 ALTER TABLE BLNG.event_type  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE BLNG.event_type  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE BLNG.event_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -1159,6 +1188,9 @@ begin
 --------------------------------------------------------
 
   ALTER TABLE blng.status_type MODIFY ("ID" CONSTRAINT "STT_ID_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.status_type MODIFY (AMND_DATE CONSTRAINT "STT_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.status_type MODIFY (AMND_USER CONSTRAINT "STT_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.status_type MODIFY (AMND_STATE CONSTRAINT "STT_AST_NN" NOT NULL ENABLE);
 ALTER TABLE BLNG.status_type  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE BLNG.status_type  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE BLNG.status_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -1370,4 +1402,97 @@ end;
 ALTER TRIGGER BLNG.dmn_TRGR ENABLE;
 
 end;
+
+
+/
+
+/*client_data*/
+
+
+--------------------------------------------------------
+--  DDL for Table client_data
+--------------------------------------------------------
+
+  CREATE TABLE blng.client_data 
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+   client_oid NUMBER(18,0),
+   last_name varchar2(255),
+   first_name varchar2(255),
+   birth_date date,
+   gender varchar2(1),
+   nationality varchar2(10),
+   doc_number varchar2(50),
+   expiry_date date,
+   open_date date,
+   owner varchar2(1)
+  
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index MKP_ID_IDX
+--------------------------------------------------------
+
+  CREATE INDEX blng.cld_ID_IDX ON blng.client_data ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table MARKUP
+--------------------------------------------------------
+
+
+  ALTER TABLE blng.client_data MODIFY ("ID" CONSTRAINT cld_ID_NN NOT NULL ENABLE);
+  ALTER TABLE blng.client_data MODIFY (AMND_DATE CONSTRAINT "cld_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.client_data MODIFY (AMND_USER CONSTRAINT "cld_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.client_data MODIFY (AMND_STATE CONSTRAINT "cld_AST_NN" NOT NULL ENABLE);
+ALTER TABLE BLNG.client_data  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE BLNG.client_data  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE BLNG.client_data  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE blng.client_data ADD CONSTRAINT cld_ID_PK PRIMARY KEY (ID)
+  USING INDEX BLNG.cld_ID_IDX ENABLE;
+
+
+
+
+
+
+ALTER TABLE BLNG.client_data ADD CONSTRAINT cld_clt_OID_FK FOREIGN KEY (client_oid)
+  REFERENCES BLNG.client ("ID") ENABLE;
+
+
+--------------------------------------------------------
+--  DDL for Secuence MKP_SEQ
+--------------------------------------------------------
+ 
+  create sequence  BLNG.cld_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+  
+--------------------------------------------------------
+--  DDL for Trigger MKP_TRGR
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.cld_TRGR 
+BEFORE
+INSERT
+ON BLNG.client_data
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select BLNG.cld_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual;
+end;
+/
+ALTER TRIGGER BLNG.cld_TRGR ENABLE;
+
+/
+
 

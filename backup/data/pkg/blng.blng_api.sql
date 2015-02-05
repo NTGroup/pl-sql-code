@@ -86,7 +86,13 @@
 -- CLIENT_ADD: Insert empty client row
 -- RETURNS: id of client
 
-  function client_add(p_company in ntg.dtype.t_id default null, p_name in ntg.dtype.t_name default null, p_email in ntg.dtype.t_name default null)
+  function client_add(p_company in ntg.dtype.t_id default null, 
+                  p_last_name in ntg.dtype.t_name default null, 
+                  p_first_name in ntg.dtype.t_name default null, 
+                  p_birth_date in ntg.dtype.t_date default null, 
+                  p_gender in ntg.dtype.t_status default null, 
+                  p_nationality in ntg.dtype.t_code default null, 
+                  p_email in ntg.dtype.t_name default null)
   return ntg.dtype.t_id;
 
 -- CLIENT_SET_NAME: update client with data
@@ -97,7 +103,15 @@
 -- RETURNS:
 --      Message. Ok, Error.
 
-  procedure client_edit(p_id in ntg.dtype.t_id, p_name in ntg.dtype.t_name, p_company in ntg.dtype.t_id);
+  procedure client_edit(p_id in ntg.dtype.t_id, 
+                          p_company in ntg.dtype.t_id default null, 
+                          p_last_name in ntg.dtype.t_name default null, 
+                          p_first_name in ntg.dtype.t_name default null, 
+                          p_birth_date in ntg.dtype.t_date default null, 
+                          p_gender in ntg.dtype.t_status default null, 
+                          p_nationality in ntg.dtype.t_code default null, 
+                          p_email in ntg.dtype.t_name default null
+  );
 --  return ntg.dtype.t_msg;
 
 -- CLIENT_SET_SMTH: update client with data
@@ -116,12 +130,25 @@
 --
 -- RETURNS:
 --      client data
-  function client_get_info(p_id in ntg.dtype.t_id  default null,
-                            p_email in ntg.dtype.t_name default null)
+  function client_get_info( p_id in ntg.dtype.t_id  default null,
+                            p_company in ntg.dtype.t_id default null, 
+                            p_last_name in ntg.dtype.t_name default null, 
+                            p_first_name in ntg.dtype.t_name default null, 
+                            p_birth_date in ntg.dtype.t_date default null, 
+                            p_gender in ntg.dtype.t_status default null, 
+                            p_nationality in ntg.dtype.t_code default null, 
+                            p_email in ntg.dtype.t_name default null
+  )
   return SYS_REFCURSOR;
 
   function client_get_info_r ( p_id in ntg.dtype.t_id default null,
-                              p_email in ntg.dtype.t_name default null
+                              p_company in ntg.dtype.t_id default null, 
+                                p_last_name in ntg.dtype.t_name default null, 
+                                p_first_name in ntg.dtype.t_name default null, 
+                                p_birth_date in ntg.dtype.t_date default null, 
+                                p_gender in ntg.dtype.t_status default null, 
+                                p_nationality in ntg.dtype.t_code default null, 
+                                p_email in ntg.dtype.t_name default null
                             )
   return blng.client%rowtype;
 
@@ -473,6 +500,91 @@
   return blng.domain%rowtype;
 
 
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------CLIENT
+-- CLIENT_ADD: Insert empty client row
+-- RETURNS: id of client
+
+  function client_data_add(p_client in ntg.dtype.t_id default null, 
+                  p_last_name in ntg.dtype.t_name default null, 
+                  p_first_name in ntg.dtype.t_name default null, 
+                  p_birth_date in ntg.dtype.t_date default null, 
+                  p_gender in ntg.dtype.t_status default null, 
+                  p_nationality in ntg.dtype.t_code default null, 
+                  p_doc_number in ntg.dtype.t_long_code default null,
+                  p_open_date in ntg.dtype.t_date default null, 
+                  p_expiry_date in ntg.dtype.t_date default null, 
+                  p_owner in ntg.dtype.t_status default null)
+  return ntg.dtype.t_id;
+
+-- CLIENT_SET_NAME: update client with data
+-- PARAMETERS:
+--      p_id    - client id
+--      p_name  - client name for update
+--
+-- RETURNS:
+--      Message. Ok, Error.
+
+  procedure client_data_edit(p_id in ntg.dtype.t_id, 
+                          p_client in ntg.dtype.t_id default null, 
+                          p_last_name in ntg.dtype.t_name default null, 
+                          p_first_name in ntg.dtype.t_name default null, 
+                          p_birth_date in ntg.dtype.t_date default null, 
+                          p_gender in ntg.dtype.t_status default null, 
+                          p_nationality in ntg.dtype.t_code default null, 
+                  p_doc_number in ntg.dtype.t_long_code default null,
+                  p_open_date in ntg.dtype.t_date default null, 
+                  p_expiry_date in ntg.dtype.t_date default null, 
+                  p_owner in ntg.dtype.t_status default null
+  );
+--  return ntg.dtype.t_msg;
+
+-- CLIENT_SET_SMTH: update client with data
+-- PARAMETERS:
+--      p_id    - client id
+--      p_smth  - client smth for update
+--
+-- RETURNS:
+--      Message. Ok, Error.
+--  function client_set_smth(p_id in blng.client.id%type, p_smth in blng.client.name%type)
+--  return t_message;
+
+-- CLIENT_GET_INFO: update client with data
+-- PARAMETERS:
+--      p_id    - client id
+--
+-- RETURNS:
+--      client data
+  function client_data_get_info( p_id in ntg.dtype.t_id  default null,
+                            p_client in ntg.dtype.t_id default null, 
+                            p_last_name in ntg.dtype.t_name default null, 
+                            p_first_name in ntg.dtype.t_name default null, 
+                            p_birth_date in ntg.dtype.t_date default null, 
+                            p_gender in ntg.dtype.t_status default null, 
+                            p_nationality in ntg.dtype.t_code default null, 
+                  p_doc_number in ntg.dtype.t_long_code default null,
+                  p_open_date in ntg.dtype.t_date default null, 
+                  p_expiry_date in ntg.dtype.t_date default null, 
+                  p_owner in ntg.dtype.t_status default null
+  )
+  return SYS_REFCURSOR;
+
+  function client_data_get_info_r ( p_id in ntg.dtype.t_id default null,
+                                    p_client in ntg.dtype.t_id default null, 
+                                    p_last_name in ntg.dtype.t_name default null, 
+                                    p_first_name in ntg.dtype.t_name default null, 
+                                    p_birth_date in ntg.dtype.t_date default null, 
+                                    p_gender in ntg.dtype.t_status default null, 
+                                    p_nationality in ntg.dtype.t_code default null, 
+                                    p_doc_number in ntg.dtype.t_long_code default null,
+                                    p_open_date in ntg.dtype.t_date default null, 
+                                    p_expiry_date in ntg.dtype.t_date default null, 
+                                    p_owner in ntg.dtype.t_status default null
+                            )
+  return blng.client_data%rowtype;
+
+
+
 end blng_api;
 
 /
@@ -575,19 +687,28 @@ end blng_api;
     return null;
   end;
   
-  function client_add(p_company in ntg.dtype.t_id default null, 
-                      p_name in ntg.dtype.t_name default null, 
-                      p_email in ntg.dtype.t_name default null)
+  function client_add(
+                        p_company in ntg.dtype.t_id default null, 
+                        p_last_name in ntg.dtype.t_name default null, 
+                        p_first_name in ntg.dtype.t_name default null, 
+                        p_birth_date in ntg.dtype.t_date default null, 
+                        p_gender in ntg.dtype.t_status default null, 
+                        p_nationality in ntg.dtype.t_code default null, 
+                        p_email in ntg.dtype.t_name default null)
   return ntg.dtype.t_id
   is
-    v_client_row blng.client%rowtype;
+    v_obj_row blng.client%rowtype;
     v_id ntg.dtype.t_id;
   begin
-    v_client_row.name := p_name;
-    v_client_row.company_oid := p_company;
-    v_client_row.email := lower(p_email);
-    v_client_row.status := 'A';
-    insert into blng.client values v_client_row returning id into v_id;
+    v_obj_row.company_oid := p_company;
+    v_obj_row.last_name := lower(p_last_name);
+    v_obj_row.first_name := lower(p_first_name);
+    v_obj_row.email := lower(p_email);
+    v_obj_row.birth_date := p_birth_date;
+    v_obj_row.nationality := p_nationality;
+    v_obj_row.gender := p_gender;
+    v_obj_row.status := 'A';
+    insert into blng.client values v_obj_row returning id into v_id;
 --    commit;
     return v_id;
   exception when others then
@@ -599,27 +720,51 @@ end blng_api;
     return null;
   end;
 
-  procedure client_edit(p_id in ntg.dtype.t_id, p_name in ntg.dtype.t_name,p_company in ntg.dtype.t_id)
+  procedure client_edit(p_id in ntg.dtype.t_id,
+                        p_company in ntg.dtype.t_id default null, 
+                        p_last_name in ntg.dtype.t_name default null, 
+                        p_first_name in ntg.dtype.t_name default null, 
+                        p_birth_date in ntg.dtype.t_date default null, 
+                        p_gender in ntg.dtype.t_status default null, 
+                        p_nationality in ntg.dtype.t_code default null, 
+                        p_email in ntg.dtype.t_name default null)
   is
-    v_client_row_new blng.client%rowtype;
-    v_client_row_old blng.client%rowtype;
+    v_obj_row_new blng.client%rowtype;
+    v_obj_row_old blng.client%rowtype;
     v_mess ntg.dtype.t_msg;
   begin
     --v_client_row.xxx:='yyy';
-    select * into v_client_row_old from blng.client where id = p_id;
-    v_client_row_new := v_client_row_old;
+    select * into v_obj_row_old from blng.client where id = p_id;
+    v_obj_row_new := v_obj_row_old;
 
-    v_client_row_old.amnd_state:='I';
-    v_client_row_old.id:=null;
-    insert into blng.client values v_client_row_old;
 
-    v_client_row_new.name:=nvl(p_name, v_client_row_new.name);
-    v_client_row_new.company_oid:=nvl(p_company, v_client_row_new.company_oid);
-    v_client_row_new.amnd_date:=sysdate;
-    v_client_row_new.amnd_user:=user;
-    --v_client_row_new.amnd_user:=null;
-    update blng.client set row = v_client_row_new where id = p_id;
---    commit;
+    v_obj_row_new.last_name:=nvl(lower(p_last_name), v_obj_row_new.last_name);
+    v_obj_row_new.first_name:=nvl(lower(p_first_name), v_obj_row_new.first_name);
+    v_obj_row_new.birth_date:=nvl(p_birth_date, v_obj_row_new.birth_date);
+    v_obj_row_new.gender:=nvl(p_gender, v_obj_row_new.gender);
+    v_obj_row_new.company_oid:=nvl(p_company, v_obj_row_new.company_oid);
+    v_obj_row_new.nationality:=nvl(p_nationality, v_obj_row_new.nationality);
+    v_obj_row_new.email:=nvl(lower(p_email), v_obj_row_new.email);
+    --v_obj_row_new.amnd_user:=null;
+    
+    if 
+      nvl(v_obj_row_new.last_name,'X') = nvl(v_obj_row_old.last_name,'X') and
+      nvl(v_obj_row_new.first_name,'X') = nvl(v_obj_row_old.first_name,'X') and 
+      nvl(to_char(v_obj_row_new.birth_date,'ddmmyyyy'),'X') = nvl(to_char(v_obj_row_old.birth_date,'ddmmyyyy'),'X') and
+      nvl(v_obj_row_new.gender,'X') = nvl(v_obj_row_old.gender,'X') and
+      v_obj_row_new.company_oid = v_obj_row_old.company_oid and
+      nvl(v_obj_row_new.nationality,'X') = nvl(v_obj_row_old.nationality,'X') and
+      nvl(v_obj_row_new.email,'X') = nvl(v_obj_row_old.email,'X')
+
+    then return; 
+    else     
+      v_obj_row_new.amnd_date:=sysdate;
+      v_obj_row_new.amnd_user:=user;
+      v_obj_row_old.amnd_state:='I';
+      v_obj_row_old.id:=null;
+      insert into blng.client values v_obj_row_old;  
+      update blng.client set row = v_obj_row_new where id = p_id;
+    end if;
   exception when others then
 --    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'client_edit', p_msg_type=>'UNHANDLED_ERROR',
@@ -629,8 +774,14 @@ end blng_api;
   end;
 
 
-  function client_get_info(p_id in ntg.dtype.t_id default null,
-                           p_email in ntg.dtype.t_name default null)
+  function client_get_info(p_id in ntg.dtype.t_id,
+                        p_company in ntg.dtype.t_id default null, 
+                        p_last_name in ntg.dtype.t_name default null, 
+                        p_first_name in ntg.dtype.t_name default null, 
+                        p_birth_date in ntg.dtype.t_date default null, 
+                        p_gender in ntg.dtype.t_status default null, 
+                        p_nationality in ntg.dtype.t_code default null, 
+                        p_email in ntg.dtype.t_name default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
@@ -640,7 +791,14 @@ end blng_api;
         *
         from blng.client 
         where id = nvl(p_id,id)
-        and email = nvl(lower(p_email),email)
+--        and last_name = nvl(p_last_name, last_name)
+--        and first_name = nvl(p_first_name, first_name)
+--        and birth_date = nvl(p_birth_date, birth_date)
+--        and gender = nvl(p_gender, gender)
+        and company_oid = nvl(p_company, company_oid)
+--        and nationality = nvl(p_nationality, nationality)
+        and amnd_state = 'A'
+        and email = nvl(lower(p_email), email)
         order by id;
     return v_results;
   exception when others then
@@ -651,8 +809,14 @@ end blng_api;
     return null;
   end;
 
-  function client_get_info_r ( p_id in ntg.dtype.t_id default null,
-                              p_email in ntg.dtype.t_name default null
+  function client_get_info_r ( p_id in ntg.dtype.t_id,
+                        p_company in ntg.dtype.t_id default null, 
+                        p_last_name in ntg.dtype.t_name default null, 
+                        p_first_name in ntg.dtype.t_name default null, 
+                        p_birth_date in ntg.dtype.t_date default null, 
+                        p_gender in ntg.dtype.t_status default null, 
+                        p_nationality in ntg.dtype.t_code default null, 
+                        p_email in ntg.dtype.t_name default null
                             )
   return blng.client%rowtype
   is
@@ -661,11 +825,19 @@ end blng_api;
     r_obj blng.client%rowtype;
   begin
   --OPEN v_results FOR
-    SELECT
-    * into r_obj
-    from blng.client 
-    where id = nvl(p_id,id)
-    and email = nvl(lower(p_email),email);
+        SELECT
+        * into r_obj
+        from blng.client 
+        where id = nvl(p_id,id)
+--        and  last_name = nvl(p_last_name, last_name)
+--        and first_name = nvl(p_first_name, first_name)
+--        and birth_date = nvl(p_birth_date, birth_date)
+--        and gender = nvl(p_gender, gender)
+--        and company_oid = nvl(p_company, company_oid)
+--        and nationality = nvl(p_nationality, nationality)
+        and email = nvl(lower(p_email), email)
+        and amnd_state = 'A'
+        order by id;
    -- order by id;    
 
 /*    c_obj := blng.blng_api.client_get_info(p_id, p_email);
@@ -684,14 +856,14 @@ end blng_api;
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE;
-      return null;
+--      return null;
     when TOO_MANY_ROWS then
       --CLOSE c_obj;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'client_get_info_r', p_msg_type=>'TOO_MANY_ROWS',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      --RAISE;
-      return null;
+      RAISE;
+--      return null;
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'client_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client&\p_date='
@@ -2090,7 +2262,7 @@ end blng_api;
     return v_results;
   exception 
     when NO_DATA_FOUND then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'domain_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'domain_get_info', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=domain&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       return null;    
@@ -2126,10 +2298,15 @@ end blng_api;
     return v_results;
   exception 
     when NO_DATA_FOUND then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'domain_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'domain_get_info_r', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=domain&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      return null;    
+--      return null;    
+    when TOO_MANY_ROWS then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'domain_get_info_r', p_msg_type=>'TOO_MANY_ROWS',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=domain&\p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+--      return null;    
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'domain_get_info', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=domain&\p_date='
@@ -2137,6 +2314,217 @@ end blng_api;
       RAISE_APPLICATION_ERROR(-20002,'select row into domain error. '||SQLERRM);
       return null;
   end;
+
+
+  function client_data_add(
+                          p_client in ntg.dtype.t_id default null, 
+                          p_last_name in ntg.dtype.t_name default null, 
+                          p_first_name in ntg.dtype.t_name default null, 
+                          p_birth_date in ntg.dtype.t_date default null, 
+                          p_gender in ntg.dtype.t_status default null, 
+                          p_nationality in ntg.dtype.t_code default null, 
+                          p_doc_number in ntg.dtype.t_long_code default null,
+                          p_open_date in ntg.dtype.t_date default null, 
+                          p_expiry_date in ntg.dtype.t_date default null, 
+                          p_owner in ntg.dtype.t_status default null
+                          )
+  return ntg.dtype.t_id
+  is
+    v_obj_row blng.client_data%rowtype;
+    v_id ntg.dtype.t_id;
+  begin
+    v_obj_row.client_oid := p_client;
+    v_obj_row.last_name := lower(p_last_name);
+    v_obj_row.first_name := lower(p_first_name);
+    v_obj_row.birth_date := p_birth_date;
+    v_obj_row.nationality := p_nationality;
+    v_obj_row.gender := p_gender;
+    v_obj_row.doc_number := p_doc_number;
+    v_obj_row.open_date := p_open_date;
+    v_obj_row.expiry_date := p_expiry_date;
+    v_obj_row.owner := p_owner;
+
+    insert into blng.client_data values v_obj_row returning id into v_id;
+--    commit;
+    return v_id;
+  exception when others then
+--    rollback;
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_add', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=client_data&\p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'insert row into client_data error. '||SQLERRM);
+    return null;
+  end;
+
+  procedure client_data_edit(p_id in ntg.dtype.t_id,
+                          p_client in ntg.dtype.t_id default null, 
+                          p_last_name in ntg.dtype.t_name default null, 
+                          p_first_name in ntg.dtype.t_name default null, 
+                          p_birth_date in ntg.dtype.t_date default null, 
+                          p_gender in ntg.dtype.t_status default null, 
+                          p_nationality in ntg.dtype.t_code default null, 
+                          p_doc_number in ntg.dtype.t_long_code default null,
+                          p_open_date in ntg.dtype.t_date default null, 
+                          p_expiry_date in ntg.dtype.t_date default null, 
+                          p_owner in ntg.dtype.t_status default null)
+  is
+    v_obj_row_new blng.client_data%rowtype;
+    v_obj_row_old blng.client_data%rowtype;
+    v_mess ntg.dtype.t_msg;
+  begin
+    --v_client_data_row.xxx:='yyy';
+    select * into v_obj_row_old from blng.client_data where id = p_id;
+    v_obj_row_new := v_obj_row_old;
+
+
+    v_obj_row_new.last_name:=nvl(lower(p_last_name), v_obj_row_new.last_name);
+    v_obj_row_new.first_name:=nvl(lower(p_first_name), v_obj_row_new.first_name);
+    v_obj_row_new.birth_date:=nvl(p_birth_date, v_obj_row_new.birth_date);
+    v_obj_row_new.gender:=nvl(p_gender, v_obj_row_new.gender);
+    v_obj_row_new.client_oid:=nvl(p_client, v_obj_row_new.client_oid);
+    v_obj_row_new.nationality:=nvl(p_nationality, v_obj_row_new.nationality);
+--    v_obj_row_new.email:=nvl(p_email, v_obj_row_new.email);
+    v_obj_row_new.doc_number:=nvl(p_doc_number, v_obj_row_new.doc_number);
+    v_obj_row_new.open_date:=nvl(p_open_date, v_obj_row_new.open_date);
+    v_obj_row_new.expiry_date:=nvl(p_expiry_date, v_obj_row_new.expiry_date);
+    v_obj_row_new.owner:=nvl(p_owner, v_obj_row_new.owner);
+
+    if  
+      nvl(v_obj_row_new.last_name,'X') = nvl(v_obj_row_old.last_name,'X') AND
+      nvl(v_obj_row_new.first_name,'X') = nvl(v_obj_row_old.first_name,'X') AND
+      nvl(to_char(v_obj_row_new.birth_date,'ddmmyyyy'),'X') = nvl(to_char(v_obj_row_old.birth_date,'ddmmyyyy'),'X') and
+      nvl(v_obj_row_new.gender,'X') = nvl(v_obj_row_old.gender,'X') and
+      v_obj_row_new.client_oid = v_obj_row_old.client_oid and
+      nvl(v_obj_row_new.nationality,'X') = nvl(v_obj_row_old.nationality,'X') and
+  --    v_obj_row_new.email:=nvl(p_email, v_obj_row_new.email);
+      nvl(v_obj_row_new.doc_number,'X') = nvl(v_obj_row_old.doc_number,'X') and 
+      nvl(to_char(v_obj_row_new.open_date,'ddmmyyyy'),'X') = nvl(to_char(v_obj_row_old.open_date,'ddmmyyyy'),'X') and
+      nvl(to_char(v_obj_row_new.expiry_date,'ddmmyyyy'),'X') = nvl(to_char(v_obj_row_old.expiry_date,'ddmmyyyy'),'X') and
+      nvl(v_obj_row_new.owner,'X') = nvl(v_obj_row_old.owner,'X')   
+    then return; 
+    else
+      v_obj_row_new.amnd_date:=sysdate;
+      v_obj_row_new.amnd_user:=user;
+      --v_obj_row_new.amnd_user:=null;
+      v_obj_row_old.amnd_state:='I';
+      v_obj_row_old.id:=null;
+      insert into blng.client_data values v_obj_row_old;
+      update blng.client_data set row = v_obj_row_new where id = p_id;
+    end if;  
+    --    commit;
+  exception when others then
+--    rollback;
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=client_data&\p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'update row into client_data error. '||SQLERRM);
+  end;
+
+
+  function client_data_get_info(p_id in ntg.dtype.t_id, 
+                          p_client in ntg.dtype.t_id default null, 
+                          p_last_name in ntg.dtype.t_name default null, 
+                          p_first_name in ntg.dtype.t_name default null, 
+                          p_birth_date in ntg.dtype.t_date default null, 
+                          p_gender in ntg.dtype.t_status default null, 
+                          p_nationality in ntg.dtype.t_code default null, 
+                  p_doc_number in ntg.dtype.t_long_code default null,
+                  p_open_date in ntg.dtype.t_date default null, 
+                  p_expiry_date in ntg.dtype.t_date default null, 
+                  p_owner in ntg.dtype.t_status default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR;
+  begin
+      OPEN v_results FOR
+        SELECT
+        *
+        from blng.client_data 
+        where id = nvl(p_id,id)
+--        and last_name = nvl(p_last_name, last_name)
+--        and first_name = nvl(p_first_name, first_name)
+--        and birth_date = nvl(p_birth_date, birth_date)
+--        and gender = nvl(p_gender, gender)
+--        and company_oid = nvl(p_company, company_oid)
+--        and nationality = nvl(p_nationality, nationality)
+        and amnd_state = 'A'
+        and client_oid = nvl(p_client,client_oid)
+        order by id;
+    return v_results;
+  exception when others then
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client_data&\p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'select row into client_data error. '||SQLERRM);
+    return null;
+  end;
+
+  function client_data_get_info_r ( p_id in ntg.dtype.t_id, 
+                          p_client in ntg.dtype.t_id default null, 
+                          p_last_name in ntg.dtype.t_name default null, 
+                          p_first_name in ntg.dtype.t_name default null, 
+                          p_birth_date in ntg.dtype.t_date default null, 
+                          p_gender in ntg.dtype.t_status default null, 
+                          p_nationality in ntg.dtype.t_code default null, 
+                          p_doc_number in ntg.dtype.t_long_code default null,
+                          p_open_date in ntg.dtype.t_date default null, 
+                          p_expiry_date in ntg.dtype.t_date default null, 
+                          p_owner in ntg.dtype.t_status default null
+                            )
+  return blng.client_data%rowtype
+  is
+--    msg ntg.dtype.t_msg;
+ --   c_obj  SYS_REFCURSOR;
+    r_obj blng.client_data%rowtype;
+  begin
+  --OPEN v_results FOR
+        SELECT
+        * into r_obj
+        from blng.client_data 
+        where id = nvl(p_id,id)
+--        and  last_name = nvl(p_last_name, last_name)
+--        and first_name = nvl(p_first_name, first_name)
+--        and birth_date = nvl(p_birth_date, birth_date)
+--        and gender = nvl(p_gender, gender)
+--        and company_oid = nvl(p_company, company_oid)
+--        and nationality = nvl(p_nationality, nationality)
+        and client_oid = nvl(p_client,client_oid)
+        and amnd_state = 'A'
+        order by id;
+   -- order by id;    
+
+/*    c_obj := blng.blng_api.client_data_get_info(p_id, p_email);
+    --DBMS_OUTPUT.put_line (1);
+    LOOP
+      FETCH c_obj INTO r_obj;
+      IF c_obj%ROWCOUNT = 0 THEN raise NO_DATA_FOUND; END IF;
+      EXIT WHEN c_obj%NOTFOUND;
+    END LOOP;
+    CLOSE c_obj;*/
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then
+      --CLOSE c_obj;
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_get_info_r', p_msg_type=>'NO_DATA_FOUND',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client_data&\p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE;
+--      return null;
+    when TOO_MANY_ROWS then
+      --CLOSE c_obj;
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_get_info_r', p_msg_type=>'TOO_MANY_ROWS',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client_data&\p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE;
+--      return null;
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client_data&\p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into client_data error. '||SQLERRM);
+      return null;
+  end client_data_get_info_r;
+
 
 
 

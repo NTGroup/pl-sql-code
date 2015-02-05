@@ -287,6 +287,7 @@ begin
 
   CREATE INDEX ntg.log_ID_IDX ON ntg.log ("ID") 
   TABLESPACE "USERS" ;
+ 
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
@@ -423,5 +424,71 @@ end;
 ALTER TRIGGER ntg.mkp_TRGR ENABLE;
 
 end;
+
+/
+
+/* ntg.gds_nationality  */
+
+--------------------------------------------------------
+--  DDL for Table MARKUP
+--------------------------------------------------------
+
+  CREATE TABLE ntg.gds_nationality 
+   (
+id number(18,0),
+code varchar2(10),
+nls_name varchar2(255)
+   ) SEGMENT CREATION IMMEDIATE
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index MKP_ID_IDX
+--------------------------------------------------------
+
+  CREATE INDEX ntg.gnt_ID_IDX ON ntg.gds_nationality ("ID") 
+  TABLESPACE "USERS" ;
+  CREATE INDEX ntg.gnt_CD_IDX ON ntg.gds_nationality (code) 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table MARKUP
+--------------------------------------------------------
+
+  ALTER TABLE ntg.gds_nationality MODIFY ("ID" CONSTRAINT gnt_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ntg.gds_nationality ADD CONSTRAINT gnt_ID_PK PRIMARY KEY (ID)
+  USING INDEX ntg.gnt_ID_IDX ENABLE;
+
+
+  /*
+  ALTER TABLE ntg.markup ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
+  REFERENCES blng.client ("ID") ENABLE;
+   */
+--------------------------------------------------------
+--  DDL for Secuence MKP_SEQ
+--------------------------------------------------------
+ 
+  create sequence  ntg.gnt_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+--------------------------------------------------------
+--  DDL for Trigger MKP_TRGR
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER ntg.gnt_TRGR 
+BEFORE
+INSERT
+ON ntg.gds_nationality
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select gnt_SEQ.nextval into :new.id from dual; 
+--  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
+end;
+/
+ALTER TRIGGER ntg.gnt_TRGR ENABLE;
+
+/
 
 
