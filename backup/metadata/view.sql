@@ -238,12 +238,12 @@ group by iata;
 id,
 iata,
 name,
-(
-  select nls_name from ntg.geo where id = 
+nvl(
+ ( select nls_name from ntg.geo where id = 
   (
     select city_id from ntg.geo where id=d_i_n.id
-  ) 
-) city,
+  ) )
+,name) city,
 (
   select nls_name from ntg.geo where id = 
   (
