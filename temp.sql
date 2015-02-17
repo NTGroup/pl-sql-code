@@ -8,10 +8,20 @@ alter table  blng.company add utc_offset number;
 
 
 
+select * from log order by id
 
 
 
+select 
+blng.fwdr.get_tenant('redlinesoft@yandex.ru')
+from dual
 
+declare
+a number;
+begin
+  a := blng.fwdr.get_tenant('redlinesoft@yandex.ru');
+  dbms_output.put_line(''||a);
+end;
 
 
 

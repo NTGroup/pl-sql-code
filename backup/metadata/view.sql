@@ -469,7 +469,7 @@ create or replace view blng.v_total as
         and trans_trans.amnd_state = 'A'
         and trans_trans.id = trans.trans_type_oid
         and trans_trans.code in ('b','ci','cl')
-        and delay.amnd_state(+) = 'A'
+        and (delay.amnd_state(+) = 'A' or delay.amnd_state(+) = 'C')
         and delay.transaction_oid(+) = trans.id
         and delay.event_type_oid(+) = 6 -- buy
         order by trans.trans_date;
