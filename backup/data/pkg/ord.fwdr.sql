@@ -1,11 +1,22 @@
---------------------------------------------------------
---  DDL for Package FWDR
---------------------------------------------------------
-
   CREATE OR REPLACE PACKAGE "ORD"."FWDR" AS 
 
-  /* TODO enter package declarations (types, exceptions, methods etc) here */ 
+/*
 
+pkg: ord.fwdr
+
+*/
+
+/*
+
+$obj_type: function
+$obj_name: order_create
+$obj_desc: fake function. used in avia_register for creating emty order
+$obj_param: p_date: date for wich we need create order
+$obj_param: p_order_number: number could set or generate inside
+$obj_param: p_status: status like 'W' waiting or smth else 
+$obj_return: id of created order
+
+*/
   function order_create(p_date  in ntg.dtype.t_date default null, 
                     p_order_number  in ntg.dtype.t_long_code default null, 
                     p_client in ntg.dtype.t_id default null,
@@ -13,6 +24,14 @@
                     )
   return ntg.dtype.t_id;
 
+/*
+
+$obj_type: function
+$obj_name: item_add
+$obj_desc: fake function.
+$obj_return: id of created item
+
+*/
 
   function item_add(p_order_oid in ntg.dtype.t_id default null,
                           p_pnr_id in ntg.dtype.t_long_code default null,
@@ -23,6 +42,25 @@
                           p_nqt_id in ntg.dtype.t_long_code default null
                           )
   return ntg.dtype.t_id;
+
+/*
+
+$obj_type: procedure
+$obj_name: avia_register
+$obj_desc: procedure create item_avia row and then update info by nqt_id.
+$obj_desc: first call procedure create row. other call update info.
+$obj_param: p_nqt_id: id from NQT. search perform by this id
+$obj_param: p_pnr_id: record locator just for info
+$obj_param: p_time_limit: time limit just for info
+$obj_param: p_total_amount: total amount including markup
+$obj_param: p_total_markup: just total markup
+$obj_param: p_pnr_object: json for backup
+$obj_param: p_nqt_status: current NQT process
+$obj_param: p_client: client id for identify which client push the button
+$obj_param: p_tenant_id: id for client contract in text format just for NQT
+$obj_raise: true
+
+*/
 
   procedure avia_register(      p_nqt_id in ntg.dtype.t_long_code default null,
                           p_pnr_id in ntg.dtype.t_long_code default null,
@@ -36,41 +74,151 @@
                           
                           );
 
+/*
+
+$obj_type: procedure
+$obj_name: avia_reg_ticket
+$obj_desc: procedure get ticket info by nqt_id.
+$obj_desc: its create row for ticket. later this info will send to managers
+$obj_param: p_nqt_id: id from NQT. search perform by this id
+$obj_param: p_tenant_id: id for client contract in text format just for NQT
+$obj_param: p_ticket: json with ticket info.
+$obj_param: p_ticket: json: id,
+
+*/
   procedure avia_reg_ticket(  p_nqt_id in ntg.dtype.t_long_code default null,
                             p_tenant_id  in  ntg.dtype.t_long_code default null,
                             p_ticket in ntg.dtype.t_clob default null
                           );
 
+/*
 
+$obj_type: procedure
+$obj_name: avia_pay
+$obj_desc: procedure send item/order/bill to billing for pay.
+$obj_param: p_nqt_id: id from NQT. search perform by this id
+
+*/
   procedure avia_pay( p_nqt_id in ntg.dtype.t_long_code default null);
-  
+
+/*
+
+$obj_type: function
+$obj_name: order_get
+$obj_desc: fake
+
+*/
   function order_get(p_id in ntg.dtype.t_id)
   return SYS_REFCURSOR;
 
+/*
+
+$obj_type: function
+$obj_name: item_list
+$obj_desc: fake
+
+*/
   function item_get(p_id in ntg.dtype.t_id)
   return SYS_REFCURSOR;
 
+/*
+
+$obj_type: function
+$obj_name: item_list
+$obj_desc: fake
+
+*/
   function item_list(p_order in ntg.dtype.t_id)
   return SYS_REFCURSOR;
   
+
+
+/*
+
+$obj_type: function
+$obj_name: pnr_list
+$obj_desc: get pnr list whith statuses listed in p_nqt_status_list and with paging by p_rownum count.
+$obj_param: p_nqt_status_list: json[status]
+$obj_param: p_rownum: filter for rows count
+$obj_return: sys_refcursor[nqt_id, nqt_status, po_status, nqt_status_cur, null po_msg, 'avia' item_type, pnr_id]
+
+*/
   function pnr_list(p_nqt_status_list in ntg.dtype.t_clob, p_rownum in ntg.dtype.t_id default null)
   return SYS_REFCURSOR;
+
+/*
+
+$obj_type: function
+$obj_name: pnr_list
+$obj_desc: get pnr list whith id listed in p_nqt_id_list.
+$obj_param: p_nqt_id_list: json[id]
+$obj_return: sys_refcursor[nqt_id, nqt_status, po_status, nqt_status_cur, null po_msg, 'avia' item_type, pnr_id]
+
+*/
  
   function pnr_list(p_nqt_id_list in ntg.dtype.t_clob)
   return SYS_REFCURSOR;
-  
+
+/*
+
+$obj_type: procedure
+$obj_name: commission_get
+$obj_desc: calculate commission for nqt_id
+$obj_param: p_nqt_id: id from NQT. search perform by this id
+$obj_param: o_fix: in this paraveter returned fix commission value
+$obj_param: o_percent: in this paraveter returned percent commission value
+
+*/
   procedure commission_get(p_nqt_id in ntg.dtype.t_long_code, o_fix out  ntg.dtype.t_amount, o_percent out  ntg.dtype.t_amount);
 
+/*
+
+$obj_type: function
+$obj_name: order_number_generate
+$obj_desc: generate order number as last number + 1 by client id
+$obj_param: p_client: client id.
+$obj_return: string like 0012410032, where 1241 - client id and 32 is a counter of order
+
+*/
   function order_number_generate (p_client in ntg.dtype.t_id)
   return ntg.dtype.t_long_code;
 
+/*
+
+$obj_type: procedure
+$obj_name: avia_manual
+$obj_desc: update order status from INMANUAL to ISSUED or FAILED
+$obj_param: p_client: client id.
+$obj_param: p_result: ERROR or SUCCESS, if error then return all money. if SUCCESS update status to ISSUED.
+
+*/
   procedure avia_manual( p_nqt_id in ntg.dtype.t_long_code default null, p_result in ntg.dtype.t_long_code default null);
   
-    procedure cash_back(p_nqt_id in ntg.dtype.t_long_code);
-    
+
+/*
+$obj_type: procedure
+$obj_name: cash_back
+$obj_desc: perform reverse for order scheme. return bill to Waiting status
+$obj_desc: and call revoke_document from billing
+$obj_param: p_nqt_id: id from NQT. search perform by this id
+*/
+  procedure cash_back(p_nqt_id in ntg.dtype.t_long_code);
+
+/*
+$obj_type: function
+$obj_name: get_sales_list
+$obj_desc: fake
+*/    
   function get_sales_list(p_datetime_from in ntg.dtype.t_long_code default null,p_datetime_to in ntg.dtype.t_long_code default null)
   return SYS_REFCURSOR;
 
+/*
+$obj_type: function
+$obj_name: commission_view
+$obj_desc: return all rules by iata code of airline
+$obj_param: p_iata: iata 2 char code
+$obj_return: SYS_REFCURSOR[fields from v_rule view]
+*/
   function commission_view(p_iata in ntg.dtype.t_code default null)
   return SYS_REFCURSOR;
 
@@ -152,8 +300,6 @@ END FWDR;
                           p_tenant_id  in  ntg.dtype.t_long_code default null
                           )
   is
---    v_order_r ord%rowtype;
---    v_item_avia_r item_avia%rowtype;
     v_id ntg.dtype.t_id;
     v_order ntg.dtype.t_id;
     v_avia ntg.dtype.t_id;
@@ -167,7 +313,6 @@ END FWDR;
       raise VALUE_ERROR;
     end if;
     
-    --v_client := nvl(p_client,ntg.dtype.p_client);
     v_client := blng.fwdr.company_insteadof_client(to_number(p_tenant_id));
     if v_client is null then
       raise VALUE_ERROR;
@@ -177,8 +322,7 @@ END FWDR;
         
     if r_item_avia.id is not null then
     -- po_status not nulled when register calls
-      ORD_API.item_avia_edit (  --P_ID => P_ID,
-    --    P_ORDER_OID => P_ORDER_OID,
+      ORD_API.item_avia_edit ( 
         P_PNR_ID => P_PNR_ID,
         P_TIME_LIMIT => P_TIME_LIMIT,
         P_TOTAL_AMOUNT => P_TOTAL_AMOUNT,
@@ -509,8 +653,8 @@ END FWDR;
       select distinct rule_oid id, fix, percent, priority,rule_description 
       from ord.v_rule 
       where contract_type_oid = v_contract_type and iata = v_iata
-      and nvl(to_date(rule_life_from,'dd.mm.yyyy'),trunc(sysdate)) <= trunc(sysdate)
-      and nvl(to_date(rule_life_to,'dd.mm.yyyy'),trunc(sysdate)) >= trunc(sysdate)
+      and nvl(to_date(rule_life_from,'yyyy-mm-dd'),trunc(sysdate)) <= trunc(sysdate)
+      and nvl(to_date(rule_life_to,'yyyy-mm-dd'),trunc(sysdate)) >= trunc(sysdate)
       order by priority desc
     )
     loop
@@ -737,7 +881,6 @@ END FWDR;
       select * from ord.v_rule where IATA = p_iata;         
     return v_results;
   end;
-
 
 
 END FWDR;

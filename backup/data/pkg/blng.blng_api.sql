@@ -44,7 +44,8 @@
 -- CLIENT_ADD: Insert empty client row
 -- RETURNS: id of client
 
-  function company_add(p_name in ntg.dtype.t_name)
+  function company_add(p_name in ntg.dtype.t_name,
+                  p_utc_offset in ntg.dtype.t_id default null)
   return ntg.dtype.t_id;
 
 -- CLIENT_SET_NAME: update client with data
@@ -55,7 +56,8 @@
 -- RETURNS:
 --      Message. Ok, Error.
 
-  procedure company_edit(p_id in ntg.dtype.t_id, p_name in ntg.dtype.t_name);
+  procedure company_edit(p_id in ntg.dtype.t_id, p_name in ntg.dtype.t_name,
+                  p_utc_offset in ntg.dtype.t_id default null);
 --  return ntg.dtype.t_msg;
 
 -- CLIENT_SET_SMTH: update client with data
@@ -74,10 +76,12 @@
 --
 -- RETURNS:
 --      client data
-  function company_get_info(p_id in ntg.dtype.t_id default null)
+  function company_get_info(p_id in ntg.dtype.t_id default null,
+                  p_utc_offset in ntg.dtype.t_id default null)
   return SYS_REFCURSOR;
 
-  function company_get_info_r(p_id in ntg.dtype.t_id default null)
+  function company_get_info_r(p_id in ntg.dtype.t_id default null,
+                  p_utc_offset in ntg.dtype.t_id default null)
   return blng.company%rowtype;
 
 
@@ -92,7 +96,10 @@
                   p_birth_date in ntg.dtype.t_date default null, 
                   p_gender in ntg.dtype.t_status default null, 
                   p_nationality in ntg.dtype.t_code default null, 
-                  p_email in ntg.dtype.t_name default null)
+                  p_email in ntg.dtype.t_name default null,
+                  p_phone in ntg.dtype.t_name default null,
+                  p_utc_offset in ntg.dtype.t_id default null
+                  )
   return ntg.dtype.t_id;
 
 -- CLIENT_SET_NAME: update client with data
@@ -110,7 +117,9 @@
                           p_birth_date in ntg.dtype.t_date default null, 
                           p_gender in ntg.dtype.t_status default null, 
                           p_nationality in ntg.dtype.t_code default null, 
-                          p_email in ntg.dtype.t_name default null
+                          p_email in ntg.dtype.t_name default null,
+                  p_phone in ntg.dtype.t_name default null,
+                  p_utc_offset in ntg.dtype.t_id default null
   );
 --  return ntg.dtype.t_msg;
 
@@ -137,7 +146,9 @@
                             p_birth_date in ntg.dtype.t_date default null, 
                             p_gender in ntg.dtype.t_status default null, 
                             p_nationality in ntg.dtype.t_code default null, 
-                            p_email in ntg.dtype.t_name default null
+                            p_email in ntg.dtype.t_name default null,
+                  p_phone in ntg.dtype.t_name default null,
+                  p_utc_offset in ntg.dtype.t_id default null
   )
   return SYS_REFCURSOR;
 
@@ -148,7 +159,9 @@
                                 p_birth_date in ntg.dtype.t_date default null, 
                                 p_gender in ntg.dtype.t_status default null, 
                                 p_nationality in ntg.dtype.t_code default null, 
-                                p_email in ntg.dtype.t_name default null
+                                p_email in ntg.dtype.t_name default null,
+                  p_phone in ntg.dtype.t_name default null,
+                  p_utc_offset in ntg.dtype.t_id default null
                             )
   return blng.client%rowtype;
 
@@ -179,7 +192,8 @@
 --
 -- RETURNS: id of contract
 
-  function contract_add( p_company in ntg.dtype.t_id default null)
+  function contract_add( p_company in ntg.dtype.t_id default null,
+                  p_utc_offset in ntg.dtype.t_id default null)
   return ntg.dtype.t_id;
 
 -- CONTRACT_SET_NUMBER: update contract with data
@@ -190,7 +204,8 @@
 -- RETURNS:
 --      Message. Ok, Error.
 
-  procedure contract_edit(p_id in ntg.dtype.t_id default null, p_number in ntg.dtype.t_long_code default null);
+  procedure contract_edit(p_id in ntg.dtype.t_id default null, p_number in ntg.dtype.t_long_code default null,
+                  p_utc_offset in ntg.dtype.t_id default null);
 --  return ntg.dtype.t_msg;
 
 
@@ -200,10 +215,12 @@
 --
 -- RETURNS:
 --      contract data
-  function contract_get_info(p_id in ntg.dtype.t_id default null,p_company  in ntg.dtype.t_id default null)
+  function contract_get_info(p_id in ntg.dtype.t_id default null,p_company  in ntg.dtype.t_id default null,
+                  p_utc_offset in ntg.dtype.t_id default null)
   return SYS_REFCURSOR;
 
-  function contract_get_info_r(p_id in ntg.dtype.t_id default null,p_company  in ntg.dtype.t_id default null)
+  function contract_get_info_r(p_id in ntg.dtype.t_id default null,p_company  in ntg.dtype.t_id default null,
+                  p_utc_offset in ntg.dtype.t_id default null)
   return blng.contract%rowtype;
 
 --------------------------------------------------------------------------------
@@ -514,7 +531,8 @@
                   p_doc_number in ntg.dtype.t_long_code default null,
                   p_open_date in ntg.dtype.t_date default null, 
                   p_expiry_date in ntg.dtype.t_date default null, 
-                  p_owner in ntg.dtype.t_status default null)
+                  p_owner in ntg.dtype.t_status default null,
+                  p_phone in ntg.dtype.t_name default null)
   return ntg.dtype.t_id;
 
 -- CLIENT_SET_NAME: update client with data
@@ -535,7 +553,8 @@
                   p_doc_number in ntg.dtype.t_long_code default null,
                   p_open_date in ntg.dtype.t_date default null, 
                   p_expiry_date in ntg.dtype.t_date default null, 
-                  p_owner in ntg.dtype.t_status default null
+                  p_owner in ntg.dtype.t_status default null,
+                  p_phone in ntg.dtype.t_name default null
   );
 --  return ntg.dtype.t_msg;
 
@@ -565,7 +584,8 @@
                   p_doc_number in ntg.dtype.t_long_code default null,
                   p_open_date in ntg.dtype.t_date default null, 
                   p_expiry_date in ntg.dtype.t_date default null, 
-                  p_owner in ntg.dtype.t_status default null
+                  p_owner in ntg.dtype.t_status default null,
+                  p_phone in ntg.dtype.t_name default null
   )
   return SYS_REFCURSOR;
 
@@ -579,7 +599,8 @@
                                     p_doc_number in ntg.dtype.t_long_code default null,
                                     p_open_date in ntg.dtype.t_date default null, 
                                     p_expiry_date in ntg.dtype.t_date default null, 
-                                    p_owner in ntg.dtype.t_status default null
+                                    p_owner in ntg.dtype.t_status default null,
+                  p_phone in ntg.dtype.t_name default null
                             )
   return blng.client_data%rowtype;
 
@@ -595,13 +616,15 @@ end blng_api;
 
   CREATE OR REPLACE EDITIONABLE PACKAGE BODY "BLNG"."BLNG_API" as
 
-  function company_add(p_name in ntg.dtype.t_name)
+  function company_add(p_name in ntg.dtype.t_name,
+                  p_utc_offset in ntg.dtype.t_id default null)
   return ntg.dtype.t_id
   is
     v_company_row blng.company%rowtype;
     v_id ntg.dtype.t_id;
   begin
     v_company_row.name := p_name;
+    v_company_row.utc_offset := nvl(p_utc_offset,3);
     v_company_row.status := 'A';
     insert into blng.company values v_company_row returning id into v_id;
 ---    commit;
@@ -615,7 +638,8 @@ end blng_api;
     return null;
   end;
 
-  procedure company_edit(p_id in ntg.dtype.t_id, p_name in ntg.dtype.t_name)
+  procedure company_edit(p_id in ntg.dtype.t_id, p_name in ntg.dtype.t_name,
+                  p_utc_offset in ntg.dtype.t_id default null)
 --  return ntg.dtype.t_msg
   is
     v_company_row_new blng.company%rowtype;
@@ -631,6 +655,7 @@ end blng_api;
     insert into blng.company values v_company_row_old;
 
     v_company_row_new.name:=p_name;
+    v_company_row_new.utc_offset:=p_utc_offset;
     v_company_row_new.amnd_date:=sysdate;
     v_company_row_new.amnd_user:=user;
     --v_client_row_new.amnd_user:=null;
@@ -645,7 +670,8 @@ end blng_api;
   end;
 
 
-  function company_get_info(p_id in ntg.dtype.t_id default null)
+  function company_get_info(p_id in ntg.dtype.t_id default null,
+                  p_utc_offset in ntg.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
@@ -667,7 +693,8 @@ end blng_api;
   end;
 
 
-  function company_get_info_r(p_id in ntg.dtype.t_id default null)
+  function company_get_info_r(p_id in ntg.dtype.t_id default null,
+                  p_utc_offset in ntg.dtype.t_id default null)
   return blng.company%rowtype
   is
     v_results  blng.company%rowtype;
@@ -694,19 +721,24 @@ end blng_api;
                         p_birth_date in ntg.dtype.t_date default null, 
                         p_gender in ntg.dtype.t_status default null, 
                         p_nationality in ntg.dtype.t_code default null, 
-                        p_email in ntg.dtype.t_name default null)
+                        p_email in ntg.dtype.t_name default null,
+                        p_phone in ntg.dtype.t_name default null,
+                  p_utc_offset in ntg.dtype.t_id default null
+                        )
   return ntg.dtype.t_id
   is
     v_obj_row blng.client%rowtype;
     v_id ntg.dtype.t_id;
   begin
     v_obj_row.company_oid := p_company;
-    v_obj_row.last_name := lower(p_last_name);
-    v_obj_row.first_name := lower(p_first_name);
+    v_obj_row.last_name := upper(p_last_name);
+    v_obj_row.first_name := upper(p_first_name);
     v_obj_row.email := lower(p_email);
+    v_obj_row.phone := lower(p_phone);
     v_obj_row.birth_date := p_birth_date;
     v_obj_row.nationality := p_nationality;
-    v_obj_row.gender := p_gender;
+    v_obj_row.gender := upper(p_gender);
+    v_obj_row.utc_offset := nvl(p_utc_offset,3);
     v_obj_row.status := 'A';
     insert into blng.client values v_obj_row returning id into v_id;
 --    commit;
@@ -727,7 +759,9 @@ end blng_api;
                         p_birth_date in ntg.dtype.t_date default null, 
                         p_gender in ntg.dtype.t_status default null, 
                         p_nationality in ntg.dtype.t_code default null, 
-                        p_email in ntg.dtype.t_name default null)
+                        p_email in ntg.dtype.t_name default null,
+                        p_phone in ntg.dtype.t_name default null,
+                  p_utc_offset in ntg.dtype.t_id default null)
   is
     v_obj_row_new blng.client%rowtype;
     v_obj_row_old blng.client%rowtype;
@@ -738,13 +772,15 @@ end blng_api;
     v_obj_row_new := v_obj_row_old;
 
 
-    v_obj_row_new.last_name:=nvl(lower(p_last_name), v_obj_row_new.last_name);
-    v_obj_row_new.first_name:=nvl(lower(p_first_name), v_obj_row_new.first_name);
+    v_obj_row_new.last_name:=nvl(upper(p_last_name), v_obj_row_new.last_name);
+    v_obj_row_new.first_name:=nvl(upper(p_first_name), v_obj_row_new.first_name);
     v_obj_row_new.birth_date:=nvl(p_birth_date, v_obj_row_new.birth_date);
-    v_obj_row_new.gender:=nvl(p_gender, v_obj_row_new.gender);
+    v_obj_row_new.gender:=nvl(upper(p_gender), v_obj_row_new.gender);
     v_obj_row_new.company_oid:=nvl(p_company, v_obj_row_new.company_oid);
     v_obj_row_new.nationality:=nvl(p_nationality, v_obj_row_new.nationality);
     v_obj_row_new.email:=nvl(lower(p_email), v_obj_row_new.email);
+    v_obj_row_new.phone:=nvl(lower(p_phone), v_obj_row_new.phone);
+    v_obj_row_new.utc_offset:=nvl(p_utc_offset, v_obj_row_new.utc_offset);
     --v_obj_row_new.amnd_user:=null;
     
     if 
@@ -754,7 +790,8 @@ end blng_api;
       nvl(v_obj_row_new.gender,'X') = nvl(v_obj_row_old.gender,'X') and
       v_obj_row_new.company_oid = v_obj_row_old.company_oid and
       nvl(v_obj_row_new.nationality,'X') = nvl(v_obj_row_old.nationality,'X') and
-      nvl(v_obj_row_new.email,'X') = nvl(v_obj_row_old.email,'X')
+      nvl(v_obj_row_new.email,'X') = nvl(v_obj_row_old.email,'X') and
+      v_obj_row_new.utc_offset = v_obj_row_old.utc_offset
 
     then return; 
     else     
@@ -781,7 +818,9 @@ end blng_api;
                         p_birth_date in ntg.dtype.t_date default null, 
                         p_gender in ntg.dtype.t_status default null, 
                         p_nationality in ntg.dtype.t_code default null, 
-                        p_email in ntg.dtype.t_name default null)
+                        p_email in ntg.dtype.t_name default null,
+                        p_phone in ntg.dtype.t_name default null,
+                  p_utc_offset in ntg.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
@@ -806,7 +845,6 @@ end blng_api;
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
-    return null;
   end;
 
   function client_get_info_r ( p_id in ntg.dtype.t_id,
@@ -816,7 +854,9 @@ end blng_api;
                         p_birth_date in ntg.dtype.t_date default null, 
                         p_gender in ntg.dtype.t_status default null, 
                         p_nationality in ntg.dtype.t_code default null, 
-                        p_email in ntg.dtype.t_name default null
+                        p_email in ntg.dtype.t_name default null,
+                        p_phone in ntg.dtype.t_name default null,
+                  p_utc_offset in ntg.dtype.t_id default null
                             )
   return blng.client%rowtype
   is
@@ -856,20 +896,17 @@ end blng_api;
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE;
---      return null;
     when TOO_MANY_ROWS then
       --CLOSE c_obj;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'client_get_info_r', p_msg_type=>'TOO_MANY_ROWS',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE;
---      return null;
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'client_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
-      return null;
   end client_get_info_r;
 
 
@@ -971,7 +1008,8 @@ end blng_api;
 
 
 
-  function contract_add(p_company in ntg.dtype.t_id default null)
+  function contract_add(p_company in ntg.dtype.t_id default null,
+                  p_utc_offset in ntg.dtype.t_id default null)
   return ntg.dtype.t_id
   is
     v_contract_row blng.contract%rowtype;
@@ -1000,7 +1038,8 @@ end blng_api;
     return null;
   end;
 
-  procedure contract_edit(p_id in ntg.dtype.t_id default null, p_number in ntg.dtype.t_long_code default null)
+  procedure contract_edit(p_id in ntg.dtype.t_id default null, p_number in ntg.dtype.t_long_code default null,
+                  p_utc_offset in ntg.dtype.t_id default null)
 --  return ntg.dtype.t_msg
   is
     v_mess ntg.dtype.t_msg;
@@ -1031,7 +1070,8 @@ end blng_api;
   end;
 
 
-  function contract_get_info(p_id in ntg.dtype.t_id default null,p_company  in ntg.dtype.t_id default null)
+  function contract_get_info(p_id in ntg.dtype.t_id default null,p_company  in ntg.dtype.t_id default null,
+                  p_utc_offset in ntg.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
@@ -1052,7 +1092,8 @@ end blng_api;
     return null;
   end;
 
-  function contract_get_info_r(p_id in ntg.dtype.t_id default null,p_company  in ntg.dtype.t_id default null)
+  function contract_get_info_r(p_id in ntg.dtype.t_id default null,p_company  in ntg.dtype.t_id default null,
+                  p_utc_offset in ntg.dtype.t_id default null)
   return blng.contract%rowtype
   is
     v_results blng.contract%rowtype;
@@ -2271,7 +2312,6 @@ end blng_api;
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=domain&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into domain error. '||SQLERRM);
-      return null;
   end;
 
   function domain_get_info_r (p_id in ntg.dtype.t_id default null,
@@ -2290,10 +2330,10 @@ end blng_api;
       * into v_results
       from blng.domain
       where id = nvl(p_id,id)
-      and company_oid = nvl(p_company,company_oid)
+--      and company_oid = nvl(p_company,company_oid)
       and name = nvl(p_name,name)
-      and status = nvl(p_status,'A')
-      and is_domain = nvl(p_is_domain,is_domain)
+ --     and status = nvl(p_status,'A')
+--      and is_domain = nvl(p_is_domain,is_domain)
       and amnd_state = 'A';
     return v_results;
   exception 
@@ -2306,13 +2346,12 @@ end blng_api;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'domain_get_info_r', p_msg_type=>'TOO_MANY_ROWS',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=domain&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
---      return null;    
+        raise;
     when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'domain_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'domain_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=domain&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into domain error. '||SQLERRM);
-      return null;
   end;
 
 
@@ -2326,7 +2365,8 @@ end blng_api;
                           p_doc_number in ntg.dtype.t_long_code default null,
                           p_open_date in ntg.dtype.t_date default null, 
                           p_expiry_date in ntg.dtype.t_date default null, 
-                          p_owner in ntg.dtype.t_status default null
+                          p_owner in ntg.dtype.t_status default null,
+                        p_phone in ntg.dtype.t_name default null
                           )
   return ntg.dtype.t_id
   is
@@ -2334,15 +2374,16 @@ end blng_api;
     v_id ntg.dtype.t_id;
   begin
     v_obj_row.client_oid := p_client;
-    v_obj_row.last_name := lower(p_last_name);
-    v_obj_row.first_name := lower(p_first_name);
+    v_obj_row.last_name := upper(p_last_name);
+    v_obj_row.first_name := upper(p_first_name);
     v_obj_row.birth_date := p_birth_date;
     v_obj_row.nationality := p_nationality;
-    v_obj_row.gender := p_gender;
-    v_obj_row.doc_number := p_doc_number;
+    v_obj_row.gender := upper(p_gender);
+    v_obj_row.doc_number := upper(p_doc_number);
     v_obj_row.open_date := p_open_date;
     v_obj_row.expiry_date := p_expiry_date;
-    v_obj_row.owner := p_owner;
+    v_obj_row.owner := upper(p_owner);
+    v_obj_row.phone := p_phone;
 
     insert into blng.client_data values v_obj_row returning id into v_id;
 --    commit;
@@ -2366,7 +2407,8 @@ end blng_api;
                           p_doc_number in ntg.dtype.t_long_code default null,
                           p_open_date in ntg.dtype.t_date default null, 
                           p_expiry_date in ntg.dtype.t_date default null, 
-                          p_owner in ntg.dtype.t_status default null)
+                          p_owner in ntg.dtype.t_status default null,
+                        p_phone in ntg.dtype.t_name default null)
   is
     v_obj_row_new blng.client_data%rowtype;
     v_obj_row_old blng.client_data%rowtype;
@@ -2377,17 +2419,18 @@ end blng_api;
     v_obj_row_new := v_obj_row_old;
 
 
-    v_obj_row_new.last_name:=nvl(lower(p_last_name), v_obj_row_new.last_name);
-    v_obj_row_new.first_name:=nvl(lower(p_first_name), v_obj_row_new.first_name);
+    v_obj_row_new.last_name:=nvl(upper(p_last_name), v_obj_row_new.last_name);
+    v_obj_row_new.first_name:=nvl(upper(p_first_name), v_obj_row_new.first_name);
     v_obj_row_new.birth_date:=nvl(p_birth_date, v_obj_row_new.birth_date);
-    v_obj_row_new.gender:=nvl(p_gender, v_obj_row_new.gender);
+    v_obj_row_new.gender:=nvl(upper(p_gender), v_obj_row_new.gender);
     v_obj_row_new.client_oid:=nvl(p_client, v_obj_row_new.client_oid);
     v_obj_row_new.nationality:=nvl(p_nationality, v_obj_row_new.nationality);
 --    v_obj_row_new.email:=nvl(p_email, v_obj_row_new.email);
-    v_obj_row_new.doc_number:=nvl(p_doc_number, v_obj_row_new.doc_number);
+    v_obj_row_new.doc_number:=nvl(upper(p_doc_number), v_obj_row_new.doc_number);
     v_obj_row_new.open_date:=nvl(p_open_date, v_obj_row_new.open_date);
     v_obj_row_new.expiry_date:=nvl(p_expiry_date, v_obj_row_new.expiry_date);
-    v_obj_row_new.owner:=nvl(p_owner, v_obj_row_new.owner);
+    v_obj_row_new.owner:=nvl(upper(p_owner), v_obj_row_new.owner);
+    v_obj_row_new.phone:=nvl(p_phone, v_obj_row_new.phone);
 
     if  
       nvl(v_obj_row_new.last_name,'X') = nvl(v_obj_row_old.last_name,'X') AND
@@ -2400,7 +2443,8 @@ end blng_api;
       nvl(v_obj_row_new.doc_number,'X') = nvl(v_obj_row_old.doc_number,'X') and 
       nvl(to_char(v_obj_row_new.open_date,'ddmmyyyy'),'X') = nvl(to_char(v_obj_row_old.open_date,'ddmmyyyy'),'X') and
       nvl(to_char(v_obj_row_new.expiry_date,'ddmmyyyy'),'X') = nvl(to_char(v_obj_row_old.expiry_date,'ddmmyyyy'),'X') and
-      nvl(v_obj_row_new.owner,'X') = nvl(v_obj_row_old.owner,'X')   
+      nvl(v_obj_row_new.owner,'X') = nvl(v_obj_row_old.owner,'X') and  
+      nvl(v_obj_row_new.phone,'X') = nvl(v_obj_row_old.phone,'X')   
     then return; 
     else
       v_obj_row_new.amnd_date:=sysdate;
@@ -2431,7 +2475,8 @@ end blng_api;
                   p_doc_number in ntg.dtype.t_long_code default null,
                   p_open_date in ntg.dtype.t_date default null, 
                   p_expiry_date in ntg.dtype.t_date default null, 
-                  p_owner in ntg.dtype.t_status default null)
+                  p_owner in ntg.dtype.t_status default null,
+                        p_phone in ntg.dtype.t_name default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
@@ -2456,7 +2501,6 @@ end blng_api;
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client_data&\p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into client_data error. '||SQLERRM);
-    return null;
   end;
 
   function client_data_get_info_r ( p_id in ntg.dtype.t_id, 
@@ -2469,7 +2513,8 @@ end blng_api;
                           p_doc_number in ntg.dtype.t_long_code default null,
                           p_open_date in ntg.dtype.t_date default null, 
                           p_expiry_date in ntg.dtype.t_date default null, 
-                          p_owner in ntg.dtype.t_status default null
+                          p_owner in ntg.dtype.t_status default null,
+                        p_phone in ntg.dtype.t_name default null
                             )
   return blng.client_data%rowtype
   is
@@ -2509,20 +2554,17 @@ end blng_api;
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client_data&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE;
---      return null;
     when TOO_MANY_ROWS then
       --CLOSE c_obj;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_get_info_r', p_msg_type=>'TOO_MANY_ROWS',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client_data&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE;
---      return null;
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=client_data&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into client_data error. '||SQLERRM);
-      return null;
   end client_data_get_info_r;
 
 

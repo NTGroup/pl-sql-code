@@ -101,21 +101,21 @@ create or replace package body ntg.ntg_api as
   exception 
     when NO_DATA_FOUND then
       --CLOSE c_obj;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'gds_nationality_get_info_name', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=gds_nationality&\p_date='
+/*      NTG.LOG_API.LOG_ADD(p_proc_name=>'gds_nationality_get_info_name', p_msg_type=>'NO_DATA_FOUND',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=gds_nationality&\p_code='||p_code||'&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE;
---      return null;
+      RAISE;*/
+     return null;
     when TOO_MANY_ROWS then
       --CLOSE c_obj;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'gds_nationality_get_info_name', p_msg_type=>'TOO_MANY_ROWS',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=gds_nationality&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=gds_nationality&\p_code='||p_code||'&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE;
 --      return null;
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'gds_nationality_get_info_name', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=gds_nationality&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=gds_nationality&\p_code='||p_code||'&\p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into gds_nationality error. '||SQLERRM);
       return null;

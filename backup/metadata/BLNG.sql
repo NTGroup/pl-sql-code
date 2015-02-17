@@ -13,7 +13,8 @@ begin
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
    name varchar2(255),
-   status VARCHAR2(1)
+   status VARCHAR2(1),
+   utc_offset number
    
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
@@ -97,7 +98,9 @@ begin
    gender varchar2(1),
    email VARCHAR2(255),
    nationality VARCHAR2(255),
-   status VARCHAR2(1)
+   status VARCHAR2(1),
+   phone VARCHAR2(255),
+   utc_offset number
    
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
@@ -492,7 +495,8 @@ begin
    amnd_prev NUMBER(18,0), 
    contract_number VARCHAR2(50),
    status VARCHAR2(1),
-   company_oid NUMBER(18,0)
+   company_oid NUMBER(18,0),
+   utc_offset number
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
@@ -1428,7 +1432,8 @@ end;
    doc_number varchar2(50),
    expiry_date date,
    open_date date,
-   owner varchar2(1)
+   owner varchar2(1),
+   phone VARCHAR2(255)
   
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 

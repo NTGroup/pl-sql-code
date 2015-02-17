@@ -12,13 +12,13 @@
                             )
   return blng.v_account%rowtype;
 
-  function statemant( p_contract in ntg.dtype.t_id,
+/*  function statemant( p_contract in ntg.dtype.t_id,
                             p_trans_type_oid in ntg.dtype.t_id default null,
                             p_trans_type in ntg.dtype.t_name default null,
                             p_date_from in ntg.dtype.t_date default null,
                             p_date_to in ntg.dtype.t_date default null
                           )
-  return SYS_REFCURSOR;
+  return SYS_REFCURSOR;*/
 
 
 end info;
@@ -62,7 +62,7 @@ end info;
     return null;
   end contract_info_r;
  
-  function statemant( p_contract in ntg.dtype.t_id,
+/*  function statemant( p_contract in ntg.dtype.t_id,
                             p_trans_type_oid in ntg.dtype.t_id default null,
                             p_trans_type in ntg.dtype.t_name default null,
                             p_date_from in ntg.dtype.t_date default null,
@@ -90,7 +90,7 @@ end info;
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
     RAISE_APPLICATION_ERROR(-20002,'insert row into client error. '||SQLERRM);
     return null;
-  end;
+  end;*/
 
 end info;
 
