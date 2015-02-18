@@ -4,44 +4,110 @@
 
   CREATE OR REPLACE PACKAGE "BLNG"."CORE" as
 
+/*
+pkg: blng.core
+*/  
+
+/*
+$obj_type: constant
+$obj_name: g_delay_days
+$obj_desc: means how many days client has for pay loan
+*/
     g_delay_days CONSTANT     ntg.dtype.t_id := 30;
 
-  -- TO DO: is it good to put id in choice
-
-
-  /* TODO enter package declarations (types, exceptions, methods etc) here */
-
-
+/*
+$obj_type: procedure
+$obj_name: approve_documents
+$obj_desc: calls from scheduler. get list of document and separate it by transaction type.
+$obj_desc: documents like increase credit limit or loan days approve immediately
+$obj_desc: docs like cash_in/buy push to credit/debit_online accounts.
+*/
   procedure approve_documents;
 
+/*
+$obj_type: procedure
+$obj_name: buy
+$obj_desc: calls inside approve_documents and push buy documents to debit_online account
+$obj_param: p_doc: id of document
+*/
   procedure buy (p_doc in blng.document%rowtype);
 
+/*
+$obj_type: procedure
+$obj_name: cash_in
+$obj_desc: calls inside approve_documents and push cash_in documents to credit_online account
+$obj_param: p_doc: row from document
+*/
   procedure cash_in ( p_doc in blng.document%rowtype);
 
-
+/*
+$obj_type: procedure
+$obj_name: credit_online
+$obj_desc: calls from scheduler. get list of credit_online accounts and separate money to debit or loan accounts.
+$obj_desc: then close loan delay
+*/
   procedure credit_online;
 
-
+/*
+$obj_type: procedure
+$obj_name: debit_online
+$obj_desc: calls from scheduler. get list of debit_online accounts and separate money to debit or loan accounts.
+$obj_desc: then create loan delay
+*/
   procedure debit_online;
 
+/*
+$obj_type: procedure
+$obj_name: delay_remove
+$obj_desc: calls from credit_online and close loan delay
+$obj_param: p_contract: id of contract
+$obj_param: p_amount: how much money falls to delay list
+$obj_param: p_transaction: link to transaction id. later by this id cash_in operations may revokes
+*/
   procedure delay_remove(p_contract in ntg.dtype.t_id, p_amount in ntg.dtype.t_amount, p_transaction in ntg.dtype.t_id default null);
 
+  /*
+$obj_type: procedure
+$obj_name: delay_expire
+$obj_desc: calls from scheduler at 00:00 UTC. get list of expired delays, then block credit limit
+*/
   procedure delay_expire;
 
+/*
+$obj_type: procedure
+$obj_name: contract_unblock
+$obj_desc: calls by office user and give chance to pay smth for p_days. 
+$obj_desc: due to this days expired contract have unblocked credit limit. 
+$obj_desc: after p_days it blocks again
+$obj_param: p_contract: id of expired contract
+$obj_param: p_days: how much days gifted to client
+*/
   procedure contract_unblock(p_contract in ntg.dtype.t_id, p_days in ntg.dtype.t_id default 1);
 
+/*
+$obj_type: procedure
+$obj_name: revoke_document
+$obj_desc: get back money and erase transactions by p_document id
+$obj_param: p_document: id of document
+*/
   procedure revoke_document(p_document in ntg.dtype.t_id);
-
+  
+  
+/*
+$obj_type: function
+$obj_name: pay_contract_by_client
+$obj_desc: get contract which client can spend money 
+$obj_desc: documents like increase credit limit or loan days approve immediately
+$obj_desc: docs like buy or cash_in push to credit/debit_online accounts.
+$obj_param: p_client: client id
+$obj_return: contract id
+*/
   function pay_contract_by_client(p_client in ntg.dtype.t_id)
   return ntg.dtype.t_id;
   
 end core;
 
 /
-
---------------------------------------------------------
---  DDL for Package Body CORE
---------------------------------------------------------
 
   CREATE OR REPLACE PACKAGE BODY "BLNG"."CORE" as
 
