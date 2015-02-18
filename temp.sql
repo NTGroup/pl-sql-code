@@ -30,3 +30,16 @@ select * from blng.v_account
 select * from log order by id desc
 
 select * from ORD.ITEM_AVIA order by id desc
+
+
+select * from blng.v_statement
+where email = 's.popinevskiy@ntg-one.com'
+
+select * from blng.event_type
+
+
+select * from blng.delay
+where amnd_state = 'A'
+or id = 983
+
+
