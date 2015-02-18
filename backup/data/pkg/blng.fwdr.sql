@@ -17,24 +17,62 @@ $obj_return: contract(now company) identifire
 /*
 $obj_type: function
 $obj_name: company_insteadof_client
-$obj_desc: return client  
-$obj_desc: for checking is client registered in the system.
-$obj_param: p_email: user email
-$obj_return: contract(now company) identifire
+$obj_desc: return id of client with max id across company
+$obj_param: p_company: company id where we looking for client
+$obj_return: client id
 */
   function company_insteadof_client(p_company in ntg.dtype.t_id)
   return ntg.dtype.t_id;
-  
+
+/*
+$obj_type: function
+$obj_name: balance
+$obj_desc: return info of contract for show balance to the client
+$obj_param: P_TENANT_ID: contract(now company) id
+$obj_return: SYS_REFCURSOR[CONTRACT_OID, DEPOSIT, LOAN, CREDIT_LIMIT, 
+UNUSED_CREDIT_LIMIT, CREDIT_LIMIT_BLOCK, DEBIT_ONLINE, MAX_LOAN_TRANS_AMOUNT, 
+CREDIT_ONLINE, DELAY_DAYS, AVAILABLE,UNBLOCK_SUM, NEAR_UNBLOCK_SUM,BLOCK_DATE]
+*/
   function balance( P_TENANT_ID in ntg.dtype.t_id  default null
                           )
   return SYS_REFCURSOR;  
 
+/*
+$obj_type: function
+$obj_name: whoami
+$obj_desc: return info of contract for show balance to the client
+$obj_param: P_TENANT_ID: contract(now company) id
+$obj_return: SYS_REFCURSOR[CONTRACT_OID, DEPOSIT, LOAN, CREDIT_LIMIT, 
+$obj_return: UNUSED_CREDIT_LIMIT, CREDIT_LIMIT_BLOCK, DEBIT_ONLINE, MAX_LOAN_TRANS_AMOUNT, 
+$obj_return: CREDIT_ONLINE, DELAY_DAYS, AVAILABLE,UNBLOCK_SUM, NEAR_UNBLOCK_SUM,BLOCK_DATE]
+*/
   function whoami(p_user in ntg.dtype.t_name)
   return SYS_REFCURSOR;
 
+/*
+$obj_type: function
+$obj_name: client_data_edit
+$obj_desc: update client documents. if success return true else false
+$obj_param: p_data: data for update. format json[email, first_name, last_name, 
+$obj_param: p_data: gender, birth_date, nationality, phone, docs[doc_expiry_date, 
+$obj_param: p_data: doc_gender, doc_first_name, doc_last_name, doc_number, doc_owner, 
+$obj_param: p_data: doc_id, doc_nationality, doc_birth_date,doc_phone]]
+$obj_return: SYS_REFCURSOR[res:true/false]
+*/
   function client_data_edit(p_data in ntg.dtype.t_clob)
   return SYS_REFCURSOR;
 
+
+/*
+$obj_type: function
+$obj_name: statement
+$obj_desc: return list of transactions between dates in client timezone format
+$obj_param: p_email: user email which request statement
+$obj_param: p_date_from: date filter.
+$obj_param: p_date_to: date filter.
+$obj_param: p_rownum: cuts rows for paging
+$obj_return: SYS_REFCURSOR[all v_statemen filds + amount_cash_in,amount_buy,amount_from,amount_to]
+*/
   function statement(p_email  in ntg.dtype.t_name,
                       p_date_from in ntg.dtype.t_code,
                       p_date_to in ntg.dtype.t_code,
@@ -42,6 +80,14 @@ $obj_return: contract(now company) identifire
                     )
   return SYS_REFCURSOR;
 
+/*
+$obj_type: function
+$obj_name: loan_list
+$obj_desc: return list of loans with expired flag
+$obj_param: p_email: user email who request loan_list
+$obj_param: p_rownum: cuts rows for paging
+$obj_return: SYS_REFCURSOR[all v_statemen filds + amount_cash_in,amount_buy,amount_from,amount_to]
+*/
   function loan_list( p_email  in ntg.dtype.t_name,
                       p_rownum  in ntg.dtype.t_id default null
                     )
