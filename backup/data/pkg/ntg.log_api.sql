@@ -3,6 +3,13 @@
 --------------------------------------------------------
 
   CREATE OR REPLACE PACKAGE "NTG"."LOG_API" as 
+
+ /*
+ 
+ pkg: NTG.LOG_API 
+ 
+ */
+  
   subtype message is varchar2(4000);
 
   procedure log_add(

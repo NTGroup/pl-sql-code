@@ -4,6 +4,10 @@
 
   CREATE OR REPLACE PACKAGE "NTG"."DTYPE" as 
 
+  
+  /*
+ pkg: NTG.DTYPE
+ */
 
  subtype t_id is number(18,0);
  subtype t_amount is number(20,2);

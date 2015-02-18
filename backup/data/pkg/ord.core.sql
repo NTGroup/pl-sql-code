@@ -4,7 +4,23 @@
 
   CREATE OR REPLACE PACKAGE "ORD"."CORE" AS 
 
-  /* TODO enter package declarations (types, exceptions, methods etc) here */ 
+
+/*
+
+pkg: ORD.CORE
+
+*/
+
+/*
+
+$obj_type: procedure
+$obj_name: bill_pay
+$obj_desc: procedure perform transit bills with status [W]aiting to billing system. 
+$obj_desc: that means bill requested for pay. after that bill marked as [T]ransported
+$obj_desc: this procedure executed from job scheduler
+$obj_param: p_nqt_id: id from NQT. search perform by this id
+*/
+
   procedure bill_pay( p_nqt_id in ntg.dtype.t_long_code default null
                     );
 END CORE;

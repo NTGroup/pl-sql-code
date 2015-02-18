@@ -4,6 +4,14 @@
 
   CREATE OR REPLACE PACKAGE "NTG"."GEO_API" 
 IS
+
+ /*
+ 
+ pkg: garbage 
+ 
+ */
+
+
 type geo_record IS record (
     ID            GEO.ID%type ,
     PARENT_ID     GEO.PARENT_ID%type ,

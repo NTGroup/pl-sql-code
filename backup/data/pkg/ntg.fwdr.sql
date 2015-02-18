@@ -1,4 +1,19 @@
 create or replace package ntg.fwdr as
+
+/*
+
+pkg: ntg.fwdr
+
+*/
+
+/*
+
+$obj_type: function
+$obj_name: airline_commission_list
+$obj_desc: list of airlines with flag commission(means: is airline have rules for calc commission).
+$obj_return: SYS_REFCURSOR[airline_oid,name,IATA,commission[Y/N]]
+
+*/
   
   function airline_commission_list
   return SYS_REFCURSOR;

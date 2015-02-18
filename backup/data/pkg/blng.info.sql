@@ -3,22 +3,21 @@
 --------------------------------------------------------
 
   CREATE OR REPLACE PACKAGE "BLNG"."INFO" as 
+ 
+ /*
+ 
+ pkg: garbage 
+ 
+ */
 
+ 
   function available
   return ntg.dtype.t_amount;
-  /* TODO enter package declarations (types, exceptions, methods etc) here */ 
+  
   
   function contract_info_r ( p_contract in ntg.dtype.t_id default null
                             )
   return blng.v_account%rowtype;
-
-/*  function statemant( p_contract in ntg.dtype.t_id,
-                            p_trans_type_oid in ntg.dtype.t_id default null,
-                            p_trans_type in ntg.dtype.t_name default null,
-                            p_date_from in ntg.dtype.t_date default null,
-                            p_date_to in ntg.dtype.t_date default null
-                          )
-  return SYS_REFCURSOR;*/
 
 
 end info;
