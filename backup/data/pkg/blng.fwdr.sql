@@ -93,6 +93,19 @@ $obj_return: SYS_REFCURSOR[all v_statemen filds + amount_cash_in,amount_buy,amou
                     )
   return SYS_REFCURSOR;
 
+  
+/*
+$obj_type: function
+$obj_name: contract_info_r
+$obj_desc: return all fields from blng.v_account
+$obj_param: p_contract: contract id
+$obj_return: SYS_REFCURSOR[all v_statemen fields]
+*/
+ 
+  function v_account_get_info_r ( p_contract in ntg.dtype.t_id default null
+                            )
+  return blng.v_account%rowtype;
+
 
 
 end;
@@ -537,6 +550,26 @@ create  or replace package BODY blng.fwdr as
     return null;
   end;
 
+  
+
+  function v_account_get_info_r ( p_contract in ntg.dtype.t_id default null
+                            )
+  return blng.v_account%rowtype
+  is
+    r_account blng.v_account%rowtype;
+    v_contract ntg.dtype.t_id;
+  begin
+--    v_contract:=nvl(p_contract, blng.core.pay_contract_by_client(ntg.dtype.p_client) );
+    v_contract:=p_contract;
+    select * into r_account from blng.v_account where contract_oid = v_contract;
+    return r_account;
+  exception when others then 
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'contract_info', p_msg_type=>'UNHANDLED_ERROR', 
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=client&\p_date=' 
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+    RAISE_APPLICATION_ERROR(-20002,'insert row into client error. '||SQLERRM);
+    return null;
+  end contract_info_r;
 
 
 end;

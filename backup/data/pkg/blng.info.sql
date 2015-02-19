@@ -5,17 +5,19 @@
   CREATE OR REPLACE PACKAGE "BLNG"."INFO" as 
  
  /*
- 
  pkg: garbage 
- 
  */
 
+  
+/*
+$obj_type: function
+$obj_name: contract_info_r
+$obj_desc: return all fields from blng.v_account
+$obj_param: p_contract: contract id
+$obj_return: SYS_REFCURSOR[all v_statemen fields]
+*/
  
-  function available
-  return ntg.dtype.t_amount;
-  
-  
-  function contract_info_r ( p_contract in ntg.dtype.t_id default null
+  function v_account_get_info_r ( p_contract in ntg.dtype.t_id default null
                             )
   return blng.v_account%rowtype;
 
@@ -30,19 +32,7 @@ end info;
 
   CREATE OR REPLACE PACKAGE BODY "BLNG"."INFO" as
 
-  function available
-  return ntg.dtype.t_amount
-  is
-    v_amount ntg.dtype.t_amount;
-  begin
-    raise ntg.dtype.value_error; 
-    return 1;
-  exception when  ntg.dtype.value_error then
-      DBMS_OUTPUT.PUT_LINE(TO_CHAR(SQLERRM(-20000)));
-      return null;
-  end;
-
-  function contract_info_r ( p_contract in ntg.dtype.t_id default null
+  function v_account_get_info_r ( p_contract in ntg.dtype.t_id default null
                             )
   return blng.v_account%rowtype
   is

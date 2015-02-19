@@ -321,7 +321,7 @@ end core;
 
   begin
 
-    r_contract_info := blng.info.contract_info_r(p_contract => p_doc.contract_oid);
+    r_contract_info := blng.fwdr.v_account_get_info_r(p_contract => p_doc.contract_oid);
 
     if r_contract_info.debit_online<>0 or r_contract_info.credit_online<>0 then
       raise_application_error(-20000,'last trunsaction not approved. wait.');
@@ -373,7 +373,7 @@ end core;
     v_msg ntg.dtype.t_msg;
   begin
 
-    r_contract_info := blng.info.contract_info_r(p_contract => p_doc.contract_oid);
+    r_contract_info := blng.fwdr.v_account_get_info_r(p_contract => p_doc.contract_oid);
 
     if r_contract_info.debit_online<>0 or r_contract_info.credit_online<>0 then
 
@@ -570,7 +570,7 @@ end core;
         end if;
 
         if v_delay_amount != 0 then
-          r_contract_info := blng.info.contract_info_r(p_contract => r_debit_online.contract_oid);
+          r_contract_info := blng.fwdr.v_account_get_info_r(p_contract => r_debit_online.contract_oid);
           if r_contract_info.delay_days = 0 or r_contract_info.delay_days is null then r_contract_info.delay_days:= g_delay_days; end if;
           BLNG_API.delay_add( P_CONTRACT => r_debit_online.contract_oid,
                               p_date_to => trunc(sysdate)+r_contract_info.delay_days,
@@ -754,7 +754,7 @@ end core;
 
         log_contract := r_delay.contract_oid;
         r_account := blng.blng_api.account_get_info_r(p_contract => r_delay.contract_oid, p_code => 'clb');
-        r_contract_info := blng.info.contract_info_r(p_contract => r_delay.contract_oid);
+        r_contract_info := blng.fwdr.v_account_get_info_r(p_contract => r_delay.contract_oid);
         if r_account.amount = 0 then
         --  BLNG_API.account_edit(P_ID => r_account.id,P_AMOUNT => -r_contract_info.credit_limit);
           v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_AMOUNT => -r_contract_info.credit_limit,
@@ -917,7 +917,7 @@ end core;
 --    DBMS_OUTPUT.PUT_LINE ('delay');
 
     --check for wrong balance
-    r_contract_info := blng.info.contract_info_r(p_contract => r_document.contract_oid);
+    r_contract_info := blng.fwdr.v_account_get_info_r(p_contract => r_document.contract_oid);
 --    DBMS_OUTPUT.PUT_LINE ('delay1');
 -- TODO ACCOUNT_AMOUNT flow
     if r_contract_info.loan > 0 then
