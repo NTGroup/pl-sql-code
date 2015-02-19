@@ -10,17 +10,27 @@
  
  */
   
-  subtype message is varchar2(4000);
+  --subtype message is varchar2(4000);
 
+  
+/*
+$obj_type: procedure
+$obj_name: log_add
+$obj_desc: procedure for write log. this procedure make autonomous_transaction commits.
+$obj_desc: its mean independent of other function commit/rollback and not affect 
+$obj_desc: to other function commit/rollback
+$obj_param: P_PROC_NAME: name of process
+$obj_param: P_MSG: message that wont be written to log
+$obj_param: P_MSG_TYPE: Information/Error or etc. default Information
+$obj_param: P_INFO: some more details
+$obj_param: P_ALERT_LEVEL: 0..10. priority level, default 0
+*/
   procedure log_add(
     P_PROC_NAME   in dtype.t_long_code default null,
     P_MSG         in dtype.t_msg default null,
     P_MSG_TYPE    in dtype.t_long_code default 'Information',
     P_INFO        in dtype.t_msg default null,
     P_ALERT_LEVEL in dtype.t_id default 0);
-
-
-  /* TODO enter package declarations (types, exceptions, methods etc) here */ 
 
 
 end log_api;

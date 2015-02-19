@@ -1,13 +1,45 @@
---------------------------------------------------------
---  DDL for Package DTYPE
---------------------------------------------------------
-
   CREATE OR REPLACE PACKAGE "NTG"."DTYPE" as 
 
   
-  /*
+/*
  pkg: NTG.DTYPE
  */
+
+
+/*
+$obj_type: data_type
+
+$obj_name: t_id
+$obj_desc: for id. integer/number(18,0)
+
+$obj_name: t_amount
+$obj_desc: for money. float/number(20,2)
+
+$obj_name: t_status
+$obj_desc: for 1 letter statuses. char(1)
+
+$obj_name: t_msg
+$obj_desc: for long messages less 4000 chars. string(4000)/varchar2(4000)
+
+$obj_name: t_name
+$obj_desc: for client names or geo names less 255 chars. string(255)/varchar2(255)
+
+$obj_name: t_code
+$obj_desc: for short codes less 10 chars. string(10)/varchar2(10)
+
+$obj_name: t_long_code
+$obj_desc: for long codes less 50 chars. string(50)/varchar2(50)
+
+$obj_name: t_bool
+$obj_desc: for boolean values. 
+
+$obj_name: t_date
+$obj_desc: for date with time values. 
+
+$obj_name: t_clob
+$obj_desc: for big data clob. 
+
+*/
 
  subtype t_id is number(18,0);
  subtype t_amount is number(20,2);
@@ -20,47 +52,62 @@
  subtype t_date is date;
  subtype t_clob is clob;
 
- --p_client dtype.t_id := 31;
+
+ /*
+$obj_type: exception variable
+
+$obj_name: INVALID_PARAMETER
+$obj_desc: -6502
+
+$obj_name: max_loan_transaction_block
+$obj_desc:  -6502
+
+$obj_name: doc_waiting
+$obj_desc:  -20000
+
+$obj_name: insufficient_funds
+$obj_desc: -20001
+
+$obj_name: api_error
+$obj_desc: -20002
+
+$obj_name: VALUE_ERROR
+$obj_desc: -20003
+
+$obj_name: EXIT_ALERT
+$obj_desc: -20004
+
+$obj_name: INVALID_OPERATION
+$obj_desc: -20005
 
 
-
-
-/*  test_exception  EXCEPTION;                       -- declare exception
-  PRAGMA EXCEPTION_INIT (test_exception, -20000);  -- assign error code to exception
-
-  empty_function  EXCEPTION;                       -- declare exception
-  PRAGMA EXCEPTION_INIT (empty_function, -20000);  -- assign error code to exception
 */
-  INVALID_PARAMETER  EXCEPTION;                       -- declare exception
-  PRAGMA EXCEPTION_INIT (INVALID_PARAMETER, -6502);  -- assign error code to exception
+ 
+  INVALID_PARAMETER  EXCEPTION;                       
+  PRAGMA EXCEPTION_INIT (INVALID_PARAMETER, -6502);  
+
+  max_loan_transaction_block EXCEPTION; 
+  PRAGMA EXCEPTION_INIT (max_loan_transaction_block, -6502); 
   
-
-  max_loan_transaction_block EXCEPTION;                       -- declare exception
-  PRAGMA EXCEPTION_INIT (max_loan_transaction_block, -6502);  -- assign error code to exception
   
+  doc_waiting EXCEPTION;  
+  PRAGMA EXCEPTION_INIT (doc_waiting, -20000); 
 
-----------------------------------------------------------------------------------------
-  
-  doc_waiting EXCEPTION;                       -- declare exception
-  PRAGMA EXCEPTION_INIT (doc_waiting, -20000);  -- assign error code to exception
+  insufficient_funds  EXCEPTION;    
+  PRAGMA EXCEPTION_INIT (insufficient_funds, -20001); 
 
-  insufficient_funds  EXCEPTION;                       -- declare exception
-  PRAGMA EXCEPTION_INIT (insufficient_funds, -20001);  -- assign error code to exception
-
-  api_error  EXCEPTION;                       -- declare exception
-  PRAGMA EXCEPTION_INIT (api_error, -20002);  -- assign error code to exception
+  api_error  EXCEPTION;     
+  PRAGMA EXCEPTION_INIT (api_error, -20002); 
   
   VALUE_ERROR EXCEPTION;
-  PRAGMA EXCEPTION_INIT (VALUE_ERROR, -20003);  -- assign error code to exception
+  PRAGMA EXCEPTION_INIT (VALUE_ERROR, -20003);
 
   EXIT_ALERT EXCEPTION;
-  PRAGMA EXCEPTION_INIT (EXIT_ALERT, -20004);  -- assign error code to exception
+  PRAGMA EXCEPTION_INIT (EXIT_ALERT, -20004); 
 
   INVALID_OPERATION EXCEPTION;
-  PRAGMA EXCEPTION_INIT (INVALID_OPERATION, -20005);  -- assign error code to exception
+  PRAGMA EXCEPTION_INIT (INVALID_OPERATION, -20005);
 
-  --in block RAISE VALUE_ERROR
-  --insufficient funds
 end dtype;
 
 /

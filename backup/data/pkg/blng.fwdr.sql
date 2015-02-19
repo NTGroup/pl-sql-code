@@ -96,7 +96,7 @@ $obj_return: SYS_REFCURSOR[all v_statemen filds + amount_cash_in,amount_buy,amou
   
 /*
 $obj_type: function
-$obj_name: contract_info_r
+$obj_name: v_account_get_info_r
 $obj_desc: return all fields from blng.v_account
 $obj_param: p_contract: contract id
 $obj_return: SYS_REFCURSOR[all v_statemen fields]
