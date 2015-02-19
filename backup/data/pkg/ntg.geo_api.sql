@@ -54,7 +54,7 @@ return SYS_REFCURSOR;
 function airplane_get_list
 return SYS_REFCURSOR;
 
-Z
+
 
 END GEO_api;
 

@@ -23,7 +23,7 @@ return SYS_REFCURSOR;
 
 function num(p_num in number)
 return sys_refcursor;
-Z
+
 
 END markup_api;
 
