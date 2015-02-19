@@ -295,7 +295,7 @@ END FWDR;
   exception when others then
     rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'order_create', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=ord&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=ord,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into ord error. '||SQLERRM);
     return null;
@@ -325,7 +325,7 @@ END FWDR;
   exception when others then
     rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'item_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=item_avia&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=item_avia,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into item_avia error. '||SQLERRM);
     return null;
@@ -404,13 +404,13 @@ END FWDR;
     when VALUE_ERROR then
       rollback;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_register', p_msg_type=>'VALUE_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=item_avia&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=item_avia,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'avia_register error. put wrong value. '||SQLERRM);
     when others then    
       rollback;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_register', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=item_avia&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=item_avia,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'avia_register error. '||SQLERRM);
   end;
@@ -440,13 +440,13 @@ END FWDR;
     when VALUE_ERROR then
       rollback;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'VALUE_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=ticket&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=ticket,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'avia_reg_ticket error. put wrong value. '||SQLERRM);
     when others then    
       rollback;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=ticket&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=ticket,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'avia_reg_ticket error. '||SQLERRM);
   end;
@@ -468,7 +468,7 @@ END FWDR;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'item_list', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=item_avia&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=item_avia,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
     return null;
@@ -497,7 +497,7 @@ END FWDR;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'pnr_list', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=item_avia&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=item_avia,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
     return null;    
@@ -534,7 +534,7 @@ END FWDR;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'pnr_list', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=item_avia&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=item_avia,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
     return null;
@@ -553,7 +553,7 @@ END FWDR;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'item_list', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=item_avia&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=item_avia,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
     return null;    
@@ -572,7 +572,7 @@ END FWDR;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'order_get', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=ord&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=ord,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into ord error. '||SQLERRM);
     return null;
@@ -587,7 +587,7 @@ END FWDR;
   --  v_out number := null;
     r_json v_json%rowtype;
     r_item_avia item_avia%rowtype;
-    r_company blng.company%rowtype;
+    r_client blng.client%rowtype;
     r_order ord%rowtype;
 --    f_chs_VCeqMC number;  
 --    f_chs_MCneOC number;  
@@ -630,8 +630,10 @@ END FWDR;
 /* 
 $TODO: there must be check for users with ISSUES permission
 */
-      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.client_oid);
-      if r_company.id!=v_tenant_id then raise NO_DATA_FOUND; end if;
+      r_client := blng.blng_api.client_get_info_r(p_id=>r_order.client_oid);
+
+--      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.client_oid);
+      if r_client.company_oid!=v_tenant_id then raise NO_DATA_FOUND; end if;
 
     exception when NO_DATA_FOUND then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'NO_DATA_FOUND',
@@ -641,10 +643,8 @@ $TODO: there must be check for users with ISSUES permission
     end;
 
 
--------------------------------------------------
-
     NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'STARTED',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=commission&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
         
     r_item_avia := ord_api.item_avia_get_info_r(p_nqt_id => p_pnr_id);
@@ -673,7 +673,7 @@ $TODO: there must be check for users with ISSUES permission
       end loop; --json
     exception when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=commission&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
   --    RAISE_APPLICATION_ERROR(-20002,'commission_get error. '||SQLERRM);
       o_fix := null; o_percent:=5;
@@ -769,14 +769,14 @@ $TODO: there must be check for users with ISSUES permission
     WHEN NO_DATA_FOUND then 
       dbms_output.put_line(' p_id='||v_id||' v_iata='||v_iata||' o_fix='||o_fix||' o_percent='||o_percent);        
       NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=commission&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       return;
     when others then
     
 --    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)|| ' '||sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select&\p_table=commission&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)|| ' '||sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
 --    RAISE_APPLICATION_ERROR(-20002,'commission_get error. '||SQLERRM);
     o_fix := null; o_percent:=5;
@@ -804,7 +804,7 @@ $TODO: there must be check for users with ISSUES permission
     r_item_avia item_avia%rowtype;
     r_order ord%rowtype;
 --    r_client item_avia%rowtype;
-    r_company blng.company%rowtype;
+    r_client blng.client%rowtype;
     r_item_avia_status item_avia_status%rowtype;
     v_order_r ord%rowtype;
     v_bill ntg.dtype.t_id;
@@ -826,7 +826,7 @@ $TODO: there must be check for users with ISSUES permission
         NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_manual', p_msg_type=>'NO_DATA_FOUND',
           P_MSG => 'p_pnr_id does not exists',p_info => 'p_pnr_id='||p_pnr_id||',p_date='
           || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
-        RAISE_APPLICATION_ERROR(-20002,'avia_update error. p_pnr_id does not found.');
+        RAISE_APPLICATION_ERROR(-20002,'avia_manual error. p_pnr_id does not found.');
     end;
 --    dbms_output.put_line(' p_id='||p_pnr_id);          
 
@@ -837,14 +837,16 @@ $TODO: there must be check for users with ISSUES permission
 /* 
 $TODO: there must be check for users with ISSUES permission
 */
-      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.client_oid);
-      if r_company.id!=v_tenant_id then raise NO_DATA_FOUND; end if;
+      r_client := blng.blng_api.client_get_info_r(p_id=>r_order.client_oid);
+
+--      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.client_oid);
+      if r_client.company_oid!=v_tenant_id then raise NO_DATA_FOUND; end if;
 
     exception when NO_DATA_FOUND then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_manual', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => 'user_id not found',p_info => 'p_user_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
-      RAISE_APPLICATION_ERROR(-20002,'avia_update error. user_id not found. ');
+      RAISE_APPLICATION_ERROR(-20002,'avia_manual error. user_id not found. ');
     end;
     
     ord_api.item_avia_status_edit (  p_item_avia => r_item_avia.id, p_po_status => nvl(p_result,'INPROGRESS'),
@@ -859,7 +861,7 @@ $TODO: there must be check for users with ISSUES permission
     when others then
     rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_manual', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=item_avia_status&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=item_avia_status,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'avia_manual error. '||SQLERRM);
   end;
@@ -883,7 +885,7 @@ $TODO: there must be check for users with ISSUES permission
         exception when others then
           rollback;
           NTG.LOG_API.LOG_ADD(p_proc_name=>'cash_back', p_msg_type=>'UNHANDLED_ERROR', 
-            P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=bill&\p_date=' 
+            P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=bill,p_date=' 
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
           CLOSE c_bill;
           raise;
@@ -894,7 +896,7 @@ $TODO: there must be check for users with ISSUES permission
   exception when others then 
     rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'cash_back', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=bill&\p_date=' 
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=bill,p_date=' 
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
     RAISE_APPLICATION_ERROR(-20002,'cash_back error. '||SQLERRM);
   end;
@@ -997,7 +999,7 @@ $TODO: there must be check for users with ISSUES permission
       rollback;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_create', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)
-        || ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=item_avia&\p_date='
+        || ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=item_avia,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'avia_create error. '||SQLERRM);
   end;
@@ -1021,12 +1023,13 @@ $TODO: there must be check for users with ISSUES permission
     v_contract ntg.dtype.t_id;
     r_item_avia item_avia%rowtype;
     r_order ord%rowtype;
-    r_company blng.company%rowtype;
+    r_client blng.client%rowtype;
     v_tenant_id ntg.dtype.t_id;
   begin
 
   v_tenant_id := to_number(p_tenant_id);
-
+  
+  dbms_output.put_line(' v_tenant_id='||v_tenant_id); 
     begin 
       if p_pnr_id is null then raise NO_DATA_FOUND; end if;
       -- check that item with this pnr_id exists
@@ -1041,14 +1044,16 @@ $TODO: there must be check for users with ISSUES permission
 --    dbms_output.put_line(' p_id='||p_pnr_id);          
 
     begin 
-      -- check that cliemt with this user_id exist
+      -- check that client with this user_id exist
       if v_tenant_id is null then raise NO_DATA_FOUND; end if;
       r_order := ord_api.ord_get_info_r(p_id=>r_item_avia.order_oid);
 /* 
 $TODO: there must be check for users with ISSUES permission
 */
-      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.client_oid);
-      if r_company.id!=v_tenant_id then raise NO_DATA_FOUND; end if;
+      r_client := blng.blng_api.client_get_info_r(p_id=>r_order.client_oid);
+
+--      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.client_oid);
+      if r_client.company_oid!=v_tenant_id then raise NO_DATA_FOUND; end if;
 
     exception when NO_DATA_FOUND then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_update', p_msg_type=>'NO_DATA_FOUND',
@@ -1077,7 +1082,7 @@ $TODO: there must be check for users with ISSUES permission
     when others then    
       rollback;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_update', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert&\p_table=item_avia&\p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=item_avia,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'avia_update error. '||SQLERRM);
   end;
@@ -1138,7 +1143,7 @@ $TODO: there must be check for users with ISSUES permission
     when others then
     rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_pay', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10) || ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=item_avia_status&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10) || ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=item_avia_status,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'avia_pay error. '||SQLERRM);
   end;
@@ -1192,7 +1197,7 @@ $TODO: there must be check for users with ISSUES permission
     when others then
     rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10) || ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&\p_table=item_avia_status&\p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10) || ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=item_avia_status,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'avia_booked error. '||SQLERRM);
   end;

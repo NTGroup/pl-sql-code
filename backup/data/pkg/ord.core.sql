@@ -1,7 +1,3 @@
---------------------------------------------------------
---  DDL for Package CORE
---------------------------------------------------------
-
   CREATE OR REPLACE PACKAGE "ORD"."CORE" AS 
 
 
@@ -79,7 +75,7 @@ END CORE;
   exception when others then
     rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update&p_table=bill&p_date='
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=bill,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'bill_pay error. '||SQLERRM);
   end;
