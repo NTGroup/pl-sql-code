@@ -3,6 +3,12 @@ drop package ntg.markup_api;
 drop package ntg.geo_api;
 drop package ntg.dp;
 drop package blng.info;
+drop procedure ntg.test;
+drop function ntg.hello;
+drop type ntg.iata_o;
+drop type ntg.dnames_tab;
+drop type ntg.dnames_tab1;
+drop user EXP CASCADE;
 
 
 
