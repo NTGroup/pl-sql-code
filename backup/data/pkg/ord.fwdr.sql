@@ -68,7 +68,7 @@ $obj_param: p_tenant_id: id of company in text format, for authorization
                           p_total_amount in ntg.dtype.t_amount default null,
                           p_total_markup in ntg.dtype.t_amount default null,
                           p_pnr_object in ntg.dtype.t_clob default null,
-                          p_nqt_status in  ntg.dtype.t_status default null,
+                          p_nqt_status in  ntg.dtype.t_long_code default null,
                           p_tenant_id  in  ntg.dtype.t_long_code default null
                           );
 
@@ -337,7 +337,7 @@ END FWDR;
                           p_total_amount in ntg.dtype.t_amount default null,
                           p_total_markup in ntg.dtype.t_amount default null,
                           p_pnr_object in ntg.dtype.t_clob default null,
-                          p_nqt_status in  ntg.dtype.t_status default null,
+                          p_nqt_status in  ntg.dtype.t_long_code default null,
                           p_client in ntg.dtype.t_id default null,
                           p_tenant_id  in  ntg.dtype.t_long_code default null
                           )
@@ -675,8 +675,8 @@ $TODO: there must be check for users with ISSUES permission
       NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-  --    RAISE_APPLICATION_ERROR(-20002,'commission_get error. '||SQLERRM);
-      o_fix := null; o_percent:=5;
+      RAISE_APPLICATION_ERROR(-20002,'commission_get error. json not found. '||SQLERRM);
+      --      o_fix := null; o_percent:=5;
     end;
  
  
@@ -778,8 +778,8 @@ $TODO: there must be check for users with ISSUES permission
     NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)|| ' '||sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
---    RAISE_APPLICATION_ERROR(-20002,'commission_get error. '||SQLERRM);
-    o_fix := null; o_percent:=5;
+    RAISE_APPLICATION_ERROR(-20002,'commission_get error. '||SQLERRM);
+    ---o_fix := null; o_percent:=5;
   end;
 
   function order_number_generate (p_client in ntg.dtype.t_id)
@@ -1011,7 +1011,7 @@ $TODO: there must be check for users with ISSUES permission
                           p_total_amount in ntg.dtype.t_amount default null,
                           p_total_markup in ntg.dtype.t_amount default null,
                           p_pnr_object in ntg.dtype.t_clob default null,
-                          p_nqt_status in  ntg.dtype.t_status default null,
+                          p_nqt_status in  ntg.dtype.t_long_code default null,
                           p_tenant_id  in  ntg.dtype.t_long_code default null
                           )
   is
@@ -1062,9 +1062,11 @@ $TODO: there must be check for users with ISSUES permission
       RAISE_APPLICATION_ERROR(-20002,'avia_update error. user_id not found. ');
     end;
     
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_update', p_msg_type=>'RUN item_avia_edit',
+/*
+        NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_update', p_msg_type=>'RUN item_avia_edit',
         P_MSG => 'p_nqt_status='||p_nqt_status||',P_PNR_ID='||P_PNR_ID,
         p_info => 'p_date='|| to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>0);
+*/
 
     -- po_status not nulled when register calls
       ORD_API.item_avia_edit ( 

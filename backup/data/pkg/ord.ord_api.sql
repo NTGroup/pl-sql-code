@@ -376,23 +376,25 @@ END ORD_API;
     c_obj  SYS_REFCURSOR;
     r_obj item_avia%rowtype;
   begin
-    c_obj := ord_api.item_avia_get_info(p_id, p_nqt_id,p_order);
-    --DBMS_OUTPUT.put_line (1);
-    LOOP
-      FETCH c_obj INTO r_obj;
-      EXIT WHEN c_obj%NOTFOUND;
-      --DBMS_OUTPUT.put_line (r_account.name);
-    END LOOP;
-    CLOSE c_obj;
+  
+    SELECT
+    * into r_obj
+    from ord.item_avia 
+    where id = nvl(p_id,id)
+    and nqt_id = nvl(p_nqt_id,nqt_id)
+    and order_oid = nvl(p_order,order_oid)
+    and amnd_state = 'A'
+    order by id;
     return r_obj;
   exception 
-    when NO_DATA_FOUND then raise;
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
     when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'item_avia_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select,p_table=item_avia,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
---    return null;
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'item_avia_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select,p_table=item_avia,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
+  --    return null;
   end item_avia_get_info_r;
 
   procedure item_avia_edit( P_ID  in ntg.dtype.t_id default null,
