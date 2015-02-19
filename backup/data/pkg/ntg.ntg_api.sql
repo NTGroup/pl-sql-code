@@ -5,6 +5,20 @@ grant execute on ntg.ntg_api to po_fwdr;
 /
 
 create or replace package ntg.ntg_api as
+
+  
+/*
+$pkg: ntg.ntg_api
+*/
+
+/*
+$obj_desc: ***_add insert row into table ***. could return id of new row.
+$obj_desc: ***_edit update row into table ***. object have always one id. first, old data with amnd_state = [I]nactive
+$obj_desc: inserted as row with link to new row(amnd_prev). new data just update object row, 
+$obj_desc: amnd_date updates to sysdate and amnd_user to current user who called api.
+$obj_desc: ***_get_info return data from table *** with format SYS_REFCURSOR.
+$obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
+*/
   
   function gds_nationality_get_info (p_code in ntg.dtype.t_code)
   return SYS_REFCURSOR;

@@ -1,81 +1,27 @@
---------------------------------------------------------
---  DDL for Package BLNG_API
---------------------------------------------------------
 
   CREATE OR REPLACE EDITIONABLE PACKAGE "BLNG"."BLNG_API" as
 
----------------------------
--- TYPES
---
--- T_MESSAGE: type for returning errors
-
--- CLIENT_RT: table/list of blng.client rows
---  type client_rt is table of blng.client%rowtype;
-
-
----------------------------
--- PROCEDURES AND FUNCTIONS
---
--- DESCRIPTON EXAMPLE
--- OPEN: Specifies the type of object whose metadata is to be retrieved.
--- PARAMETERS:
---      object_type     - Identifies the type of objects to be retrieved; i.e.,
---              TABLE, INDEX, etc. This determines which view is selected.
---      version         - The version of the objects' metadata to be fetched.
---              To be used in downgrade scenarios: Objects in the DB that are
---              incompatible with an older specified version are not returned.
---              Values can be 'COMPATIBLE' (default), 'LATEST' or a specific
---              version number.
---      model           - The view of the metadata, such as Oracle proprietary,
---              ANSI99, etc.  Currently only 'ORACLE' is supported.
---      public_func     - Name of the public function in DBMS_METADATA called
---              by the user; for error reporting.
---      current_user    - Current user name.
---
--- RETURNS:
---      A handle to be used in subsequent calls to SET_FILTER,
---      ADD_TRANSFORM, GET_QUERY, SET_PARSE_ITEM and CLOSE.
--- EXCEPTIONS:
---      INVALID_ARGVAL  - a NULL or invalid value was supplied for an input
---              parameter.
-
---------------------------------------------------------------------------------
---------------------------------------------------------------------------COMPANY
--- CLIENT_ADD: Insert empty client row
--- RETURNS: id of client
-
+  
+/*
+$pkg: BLNG.BLNG_API
+*/
+  
+/*
+$obj_desc: ***_add insert row into table ***. could return id of new row.
+$obj_desc: ***_edit update row into table ***. object have always one id. first, old data with amnd_state = [I]nactive
+$obj_desc: inserted as row with link to new row(amnd_prev). new data just update object row, 
+$obj_desc: amnd_date updates to sysdate and amnd_user to current user who called api.
+$obj_desc: ***_get_info return data from table *** with format SYS_REFCURSOR.
+$obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
+*/
   function company_add(p_name in ntg.dtype.t_name,
                   p_utc_offset in ntg.dtype.t_id default null)
   return ntg.dtype.t_id;
 
--- CLIENT_SET_NAME: update client with data
--- PARAMETERS:
---      p_id    - client id
---      p_name  - client name for update
---
--- RETURNS:
---      Message. Ok, Error.
 
   procedure company_edit(p_id in ntg.dtype.t_id, p_name in ntg.dtype.t_name,
                   p_utc_offset in ntg.dtype.t_id default null);
---  return ntg.dtype.t_msg;
 
--- CLIENT_SET_SMTH: update client with data
--- PARAMETERS:
---      p_id    - client id
---      p_smth  - client smth for update
---
--- RETURNS:
---      Message. Ok, Error.
---  function client_set_smth(p_id in blng.client.id%type, p_smth in blng.client.name%type)
---  return t_message;
-
--- CLIENT_GET_INFO: update client with data
--- PARAMETERS:
---      p_id    - client id
---
--- RETURNS:
---      client data
   function company_get_info(p_id in ntg.dtype.t_id default null,
                   p_utc_offset in ntg.dtype.t_id default null)
   return SYS_REFCURSOR;
@@ -84,11 +30,6 @@
                   p_utc_offset in ntg.dtype.t_id default null)
   return blng.company%rowtype;
 
-
---------------------------------------------------------------------------------
---------------------------------------------------------------------------CLIENT
--- CLIENT_ADD: Insert empty client row
--- RETURNS: id of client
 
   function client_add(p_company in ntg.dtype.t_id default null, 
                   p_last_name in ntg.dtype.t_name default null, 
@@ -102,14 +43,6 @@
                   )
   return ntg.dtype.t_id;
 
--- CLIENT_SET_NAME: update client with data
--- PARAMETERS:
---      p_id    - client id
---      p_name  - client name for update
---
--- RETURNS:
---      Message. Ok, Error.
-
   procedure client_edit(p_id in ntg.dtype.t_id, 
                           p_company in ntg.dtype.t_id default null, 
                           p_last_name in ntg.dtype.t_name default null, 
@@ -121,24 +54,7 @@
                   p_phone in ntg.dtype.t_name default null,
                   p_utc_offset in ntg.dtype.t_id default null
   );
---  return ntg.dtype.t_msg;
 
--- CLIENT_SET_SMTH: update client with data
--- PARAMETERS:
---      p_id    - client id
---      p_smth  - client smth for update
---
--- RETURNS:
---      Message. Ok, Error.
---  function client_set_smth(p_id in blng.client.id%type, p_smth in blng.client.name%type)
---  return t_message;
-
--- CLIENT_GET_INFO: update client with data
--- PARAMETERS:
---      p_id    - client id
---
--- RETURNS:
---      client data
   function client_get_info( p_id in ntg.dtype.t_id  default null,
                             p_company in ntg.dtype.t_id default null, 
                             p_last_name in ntg.dtype.t_name default null, 
@@ -180,41 +96,13 @@
                                     )
   return SYS_REFCURSOR;
 
-
-
-
---------------------------------------------------------------------------------
-------------------------------------------------------------------------CONTRACT
-
--- CONTRACT_ADD: Insert empty contract row
--- PARAMETERS:
---      p_id    - client id
---
--- RETURNS: id of contract
-
   function contract_add( p_company in ntg.dtype.t_id default null,
                   p_utc_offset in ntg.dtype.t_id default null)
   return ntg.dtype.t_id;
 
--- CONTRACT_SET_NUMBER: update contract with data
--- PARAMETERS:
---      p_id    - contract id
---      p_number  - contract name for update
---
--- RETURNS:
---      Message. Ok, Error.
-
   procedure contract_edit(p_id in ntg.dtype.t_id default null, p_number in ntg.dtype.t_long_code default null,
                   p_utc_offset in ntg.dtype.t_id default null);
---  return ntg.dtype.t_msg;
 
-
--- CONTRACT_GET_INFO: update contract with data
--- PARAMETERS:
---      p_id    - contract id
---
--- RETURNS:
---      contract data
   function contract_get_info(p_id in ntg.dtype.t_id default null,p_company  in ntg.dtype.t_id default null,
                   p_utc_offset in ntg.dtype.t_id default null)
   return SYS_REFCURSOR;
@@ -223,39 +111,7 @@
                   p_utc_offset in ntg.dtype.t_id default null)
   return blng.contract%rowtype;
 
---------------------------------------------------------------------------------
--------------------------------------------------------------------------ACCOUNT
-
--- ACCOUNT_ADD: Insert empty contract row
--- PARAMETERS:
---      p_id    - client id
---
--- RETURNS: id of contract
-
   procedure account_init(p_contract in ntg.dtype.t_id);
-
-/*
--- CONTRACT_SET_NUMBER: update contract with data
--- PARAMETERS:
---      p_id    - contract id
---      p_number  - contract name for update
---
--- RETURNS:
---      Message. Ok, Error.
-
-  function contract_set_number(p_id in blng.contract.id%type, p_number in blng.contract.contract_number%type)
-  return t_message;
-
-
--- ACCOUNT_GET_INFO: update contract with data
--- PARAMETERS:
---      p_id    - contract id
---
--- RETURNS:
---      contract data
-  function contract_get_info(p_id in blng.contract.id%type)
-  return SYS_REFCURSOR;
-*/
 
  procedure account_edit(       p_id in ntg.dtype.t_id default null,
                                -- p_contract in ntg.dtype.t_id default null,
@@ -516,12 +372,6 @@
                           )
   return blng.domain%rowtype;
 
-
---------------------------------------------------------------------------------
---------------------------------------------------------------------------CLIENT
--- CLIENT_ADD: Insert empty client row
--- RETURNS: id of client
-
   function client_data_add(p_client in ntg.dtype.t_id default null, 
                   p_last_name in ntg.dtype.t_name default null, 
                   p_first_name in ntg.dtype.t_name default null, 
@@ -534,14 +384,6 @@
                   p_owner in ntg.dtype.t_status default null,
                   p_phone in ntg.dtype.t_name default null)
   return ntg.dtype.t_id;
-
--- CLIENT_SET_NAME: update client with data
--- PARAMETERS:
---      p_id    - client id
---      p_name  - client name for update
---
--- RETURNS:
---      Message. Ok, Error.
 
   procedure client_data_edit(p_id in ntg.dtype.t_id, 
                           p_client in ntg.dtype.t_id default null, 
@@ -556,24 +398,7 @@
                   p_owner in ntg.dtype.t_status default null,
                   p_phone in ntg.dtype.t_name default null
   );
---  return ntg.dtype.t_msg;
 
--- CLIENT_SET_SMTH: update client with data
--- PARAMETERS:
---      p_id    - client id
---      p_smth  - client smth for update
---
--- RETURNS:
---      Message. Ok, Error.
---  function client_set_smth(p_id in blng.client.id%type, p_smth in blng.client.name%type)
---  return t_message;
-
--- CLIENT_GET_INFO: update client with data
--- PARAMETERS:
---      p_id    - client id
---
--- RETURNS:
---      client data
   function client_data_get_info( p_id in ntg.dtype.t_id  default null,
                             p_client in ntg.dtype.t_id default null, 
                             p_last_name in ntg.dtype.t_name default null, 
@@ -609,10 +434,6 @@
 end blng_api;
 
 /
-
---------------------------------------------------------
---  DDL for Package Body BLNG_API
---------------------------------------------------------
 
   CREATE OR REPLACE EDITIONABLE PACKAGE BODY "BLNG"."BLNG_API" as
 

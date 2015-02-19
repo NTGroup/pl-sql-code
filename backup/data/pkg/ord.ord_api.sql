@@ -1,10 +1,20 @@
---------------------------------------------------------
---  DDL for Package ORD_API
---------------------------------------------------------
 
   CREATE OR REPLACE  PACKAGE "ORD"."ORD_API" AS 
 
-  /* TODO enter package declarations (types, exceptions, methods etc) here */ 
+    
+/*
+$pkg: ORD.ORD_API
+*/
+
+/*
+$obj_desc: ***_add insert row into table ***. could return id of new row.
+$obj_desc: ***_edit update row into table ***. object have always one id. first, old data with amnd_state = [I]nactive
+$obj_desc: inserted as row with link to new row(amnd_prev). new data just update object row, 
+$obj_desc: amnd_date updates to sysdate and amnd_user to current user who called api.
+$obj_desc: ***_get_info return data from table *** with format SYS_REFCURSOR.
+$obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
+*/
+
   function ord_add( p_date  in ntg.dtype.t_date default null, 
                     p_order_number  in ntg.dtype.t_long_code default null, 
                     p_client in ntg.dtype.t_id default null,
@@ -216,10 +226,6 @@
 END ORD_API;
 
 /
-
---------------------------------------------------------
---  DDL for Package Body ORD_API
---------------------------------------------------------
 
   CREATE OR REPLACE  PACKAGE BODY "ORD"."ORD_API" AS
 
