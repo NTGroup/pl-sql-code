@@ -155,7 +155,7 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   function commission_details_get_info_r ( p_id in ntg.dtype.t_id default null, p_commission in ntg.dtype.t_id default null)
   return commission_details%rowtype;
 
-  function commission_template_get_id( p_type in ntg.dtype.t_name default null)
+  function commission_template_get_id( p_type in ntg.dtype.t_long_code default null)
   return  ntg.dtype.t_id;
 
 /*  function v_json_r ( p_item_avia in ntg.dtype.t_id default null)
@@ -860,12 +860,12 @@ END ORD_API;
   end commission_details_get_info_r;
 
 
-  function commission_template_get_id( p_type in ntg.dtype.t_name default null)
+  function commission_template_get_id( p_type in ntg.dtype.t_long_code default null)
   return  ntg.dtype.t_id
   is
     v_result  ntg.dtype.t_id;
   begin
-    if p_id is null then raise NO_DATA_FOUND; end if;   
+    if p_type is null then raise NO_DATA_FOUND; end if;   
 
     SELECT id into v_result        
     from ord.commission_template 

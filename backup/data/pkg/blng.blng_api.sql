@@ -206,7 +206,7 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   return ntg.dtype.t_id;
 
   procedure event_edit ( p_id in ntg.dtype.t_id default null,
-                        p_status in ntg.dtype.t_name default null,
+                        p_status in ntg.dtype.t_status default null,
                         p_amount in ntg.dtype.t_amount default null
                       );
 
@@ -219,35 +219,35 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                           )
   return SYS_REFCURSOR;
 
-  function status_type_add( p_name in ntg.dtype.t_anme default null,
+  function status_type_add( p_name in ntg.dtype.t_name default null,
                             p_code in ntg.dtype.t_code default null,
-                            p_details in ntg.dtype.t_id default null
+                            p_details in ntg.dtype.t_msg default null
                           )
   return ntg.dtype.t_id;
 
   procedure status_type_edit ( p_id in ntg.dtype.t_id default null,
-                        p_name in ntg.dtype.t_anme default null,
+                        p_name in ntg.dtype.t_name default null,
                         p_code in ntg.dtype.t_code default null,
-                        p_details in ntg.dtype.t_id default null
+                        p_details in ntg.dtype.t_msg default null
                       );
 
   function status_type_get_info ( p_id in ntg.dtype.t_id default null,
                                   p_name in ntg.dtype.t_name default null,
                                   p_code in ntg.dtype.t_code default null,
-                                  p_details in ntg.dtype.t_id default null
+                                  p_details in ntg.dtype.t_msg default null
                                 )
   return SYS_REFCURSOR;
 
   function event_type_add( p_name in ntg.dtype.t_name default null,
                             p_code in ntg.dtype.t_code default null,
-                            p_details in ntg.dtype.t_id default null
+                            p_details in ntg.dtype.t_msg default null
                           )
   return ntg.dtype.t_id;
 
   procedure event_type_edit ( p_id in ntg.dtype.t_id default null,
                         p_name in ntg.dtype.t_name default null,
                         p_code in ntg.dtype.t_code default null,
-                        p_details in ntg.dtype.t_id default null,
+                        p_details in ntg.dtype.t_msg default null
                       );
 
   function event_type_get_info ( p_id in ntg.dtype.t_id default null,
@@ -263,14 +263,14 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
 
   function trans_type_add( p_name in ntg.dtype.t_name default null,
                             p_code in ntg.dtype.t_code default null,
-                            p_details in ntg.dtype.t_id default null
+                            p_details in ntg.dtype.t_msg default null
                           )
   return ntg.dtype.t_id;
 
   procedure trans_type_edit ( p_id in ntg.dtype.t_id default null,
                         p_name in ntg.dtype.t_name default null,
                         p_code in ntg.dtype.t_code default null,
-                        p_details in ntg.dtype.t_id default null
+                        p_details in ntg.dtype.t_msg default null
                       );
 
   function trans_type_get_info ( p_id in ntg.dtype.t_id default null,
@@ -340,7 +340,7 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                             p_date_to in ntg.dtype.t_date default NULL,
                             p_event_type in ntg.dtype.t_id default null,
                             p_transaction in ntg.dtype.t_id default null,
-                            p_priority in ntg.dtype.t_id default null,
+                            p_priority in ntg.dtype.t_id default null
                           )
   return blng.delay%rowtype;
   
@@ -1337,7 +1337,7 @@ $TODO: all this nullable fields are bad. document_get_info
 
 
   function event_add( p_contract in ntg.dtype.t_id default null,
-                      p_amount in ntg.dtype.t_amount default null,,
+                      p_amount in ntg.dtype.t_amount default null,
                       p_transaction in ntg.dtype.t_id default null,
                       p_date_to in ntg.dtype.t_date default null,
                       p_event_type in ntg.dtype.t_id default null,
@@ -1478,7 +1478,7 @@ $TODO: all this nullable fields are bad. document_get_info
   end;
 
   function account_type_add( p_name in ntg.dtype.t_name default null,
-                            p_code in bntg.dtype.t_code default null,
+                            p_code in ntg.dtype.t_code default null,
                             p_priority in ntg.dtype.t_id default null,
                             p_details in ntg.dtype.t_msg default null
                           )
