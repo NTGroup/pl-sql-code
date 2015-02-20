@@ -86,11 +86,14 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                                 p_contract in ntg.dtype.t_id
                               );
 
-  procedure client2contract_edit( p_client in ntg.dtype.t_id default null,
+  procedure client2contract_edit( p_id in ntg.dtype.t_id default null,
+                                   p_client in ntg.dtype.t_id default null,
                                   p_contract in ntg.dtype.t_id default null,
-                                  p_status in ntg.dtype.t_status default null);
+                                  p_status in ntg.dtype.t_status default null
+                                  );
 
-  function client2contract_get_info(  p_client in ntg.dtype.t_id default null,
+  function client2contract_get_info(  p_id in ntg.dtype.t_id default null,
+                                      p_client in ntg.dtype.t_id default null,
                                       p_contract in ntg.dtype.t_id default null,
                                       p_permission in ntg.dtype.t_status default null
                                     )
@@ -165,7 +168,7 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   function transaction_add ( p_doc in ntg.dtype.t_id  default null,
                           p_amount in ntg.dtype.t_amount  default null,
                           p_trans_type in ntg.dtype.t_id  default null,
-                          p_trans_date in blng.transaction.trans_date%type  default null,
+                          p_trans_date in ntg.dtype.t_date default null,
                           p_target_account in ntg.dtype.t_id  default null,
                           p_status in ntg.dtype.t_status  default 'P',
                           p_prev in ntg.dtype.t_id  default null
@@ -175,7 +178,7 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   function transaction_add_with_acc ( p_doc in ntg.dtype.t_id  default null,
                           p_amount in ntg.dtype.t_amount  default null,
                           p_trans_type in ntg.dtype.t_id  default null,
-                          p_trans_date in blng.transaction.trans_date%type  default null,
+                          p_trans_date in ntg.dtype.t_date default null,
                           p_target_account in ntg.dtype.t_id  default null,
                           p_status in ntg.dtype.t_status  default 'P',
                           p_prev in ntg.dtype.t_id  default null
@@ -192,59 +195,59 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                             )
   return SYS_REFCURSOR;
 
-  function event_add( p_contract in blng.event.contract_oid%type,
-                      p_amount in blng.event.amount%type,
-                      p_transaction in blng.event.transaction_oid%type,
-                      p_date_to in blng.event.date_to%type,
-                      p_event_type in blng.event.event_type_oid%type,
-                      p_status in blng.event.status%type,
-                      p_priority in blng.event.priority%type
+  function event_add( p_contract in ntg.dtype.t_id default null,
+                      p_amount in ntg.dtype.t_amount default null,
+                      p_transaction in ntg.dtype.t_id default null,
+                      p_date_to in ntg.dtype.t_date default null,
+                      p_event_type in ntg.dtype.t_id default null,
+                      p_status in ntg.dtype.t_status default null,
+                      p_priority in ntg.dtype.t_id default null
                     )
-  return blng.event.id%type;
+  return ntg.dtype.t_id;
 
-  procedure event_edit ( p_id blng.event.id%type,
-                        p_status in blng.event.status%type,
-                        p_amount in blng.event.amount%type
+  procedure event_edit ( p_id in ntg.dtype.t_id default null,
+                        p_status in ntg.dtype.t_name default null,
+                        p_amount in ntg.dtype.t_amount default null
                       );
 
-  function event_get_info ( p_id in blng.event.id%type,
-                            p_contract in blng.event.contract_oid%type,
-                            p_date_to in blng.event.date_to%type,
-                            p_event_type in blng.event.event_type_oid%type,
-                            p_status in blng.event.status%type,
-                            p_priority in blng.event.priority%type
+  function event_get_info ( p_id in ntg.dtype.t_id default null,
+                            p_contract in ntg.dtype.t_id default null,
+                            p_date_to in ntg.dtype.t_date default null,
+                            p_event_type in ntg.dtype.t_id default null,
+                            p_status in ntg.dtype.t_status default null,
+                            p_priority in ntg.dtype.t_id default null
                           )
   return SYS_REFCURSOR;
 
-  function status_type_add( p_name in blng.status_type.name%type,
-                            p_code in blng.status_type.code%type,
-                            p_details in blng.status_type.details%type
+  function status_type_add( p_name in ntg.dtype.t_anme default null,
+                            p_code in ntg.dtype.t_code default null,
+                            p_details in ntg.dtype.t_id default null
                           )
-  return blng.status_type.id%type;
+  return ntg.dtype.t_id;
 
-  procedure status_type_edit ( p_id blng.status_type.id%type,
-                        p_name in blng.status_type.name%type,
-                        p_code in blng.status_type.code%type,
-                        p_details in blng.status_type.details%type
+  procedure status_type_edit ( p_id in ntg.dtype.t_id default null,
+                        p_name in ntg.dtype.t_anme default null,
+                        p_code in ntg.dtype.t_code default null,
+                        p_details in ntg.dtype.t_id default null
                       );
 
-  function status_type_get_info ( p_id in blng.status_type.id%type,
-                                  p_name in blng.status_type.name%type,
-                                  p_code in blng.status_type.code%type,
-                                  p_details in blng.status_type.details%type
+  function status_type_get_info ( p_id in ntg.dtype.t_id default null,
+                                  p_name in ntg.dtype.t_name default null,
+                                  p_code in ntg.dtype.t_code default null,
+                                  p_details in ntg.dtype.t_id default null
                                 )
   return SYS_REFCURSOR;
 
-  function event_type_add( p_name in blng.event_type.name%type,
-                            p_code in blng.event_type.code%type,
-                            p_details in blng.event_type.details%type
+  function event_type_add( p_name in ntg.dtype.t_name default null,
+                            p_code in ntg.dtype.t_code default null,
+                            p_details in ntg.dtype.t_id default null
                           )
-  return blng.event_type.id%type;
+  return ntg.dtype.t_id;
 
-  procedure event_type_edit ( p_id blng.event_type.id%type,
-                        p_name in blng.event_type.name%type,
-                        p_code in blng.event_type.code%type,
-                        p_details in blng.event_type.details%type
+  procedure event_type_edit ( p_id in ntg.dtype.t_id default null,
+                        p_name in ntg.dtype.t_name default null,
+                        p_code in ntg.dtype.t_code default null,
+                        p_details in ntg.dtype.t_id default null,
                       );
 
   function event_type_get_info ( p_id in ntg.dtype.t_id default null,
@@ -258,16 +261,16 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                                 )
   return ntg.dtype.t_id;
 
-  function trans_type_add( p_name in blng.trans_type.name%type,
-                            p_code in blng.trans_type.code%type,
-                            p_details in blng.trans_type.details%type
+  function trans_type_add( p_name in ntg.dtype.t_name default null,
+                            p_code in ntg.dtype.t_code default null,
+                            p_details in ntg.dtype.t_id default null
                           )
-  return blng.trans_type.id%type;
+  return ntg.dtype.t_id;
 
-  procedure trans_type_edit ( p_id blng.trans_type.id%type,
-                        p_name in blng.trans_type.name%type,
-                        p_code in blng.trans_type.code%type,
-                        p_details in blng.trans_type.details%type
+  procedure trans_type_edit ( p_id in ntg.dtype.t_id default null,
+                        p_name in ntg.dtype.t_name default null,
+                        p_code in ntg.dtype.t_code default null,
+                        p_details in ntg.dtype.t_id default null
                       );
 
   function trans_type_get_info ( p_id in ntg.dtype.t_id default null,
@@ -281,25 +284,25 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                                 )
   return ntg.dtype.t_id;
 
-  function account_type_add( p_name in blng.account_type.name%type,
-                            p_code in blng.account_type.code%type,
-                            p_priority in blng.account_type.priority%type,
-                            p_details in blng.account_type.details%type
+  function account_type_add( p_name in ntg.dtype.t_name default null,
+                            p_code in ntg.dtype.t_code default null,
+                            p_priority in ntg.dtype.t_id default null,
+                            p_details in ntg.dtype.t_msg default null
                           )
-  return blng.account_type.id%type;
+  return ntg.dtype.t_id;
 
-  procedure account_type_edit ( p_id blng.account_type.id%type,
-                        p_name in blng.account_type.name%type,
-                        p_code in blng.account_type.code%type,
-                        p_details in blng.account_type.details%type,
-                        p_priority in blng.account_type.priority%type
+  procedure account_type_edit ( p_id in ntg.dtype.t_id default null,
+                        p_name in ntg.dtype.t_name default null,
+                        p_code in ntg.dtype.t_code default null,
+                        p_details in ntg.dtype.t_msg default null,
+                        p_priority in ntg.dtype.t_id default null
                       );
 
-  function account_type_get_info ( p_id in blng.account_type.id%type default null,
-                                  p_name in blng.account_type.name%type default null,
-                                  p_code in blng.account_type.code%type default null,
-                                  p_details in blng.account_type.details%type default null,
-                                  p_priority in blng.account_type.priority%type default null
+  function account_type_get_info ( p_id in ntg.dtype.t_id default null,
+                                  p_name in ntg.dtype.t_name default null,
+                                  p_code in ntg.dtype.t_code default null,
+                                  p_details in ntg.dtype.t_msg default null,
+                                  p_priority in ntg.dtype.t_id default null
                                 )
   return SYS_REFCURSOR;
 
@@ -307,10 +310,10 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   procedure delay_add( p_contract in ntg.dtype.t_id default null,
                       p_amount in ntg.dtype.t_amount default null,
                       p_transaction in ntg.dtype.t_id default null,
-                      p_date_to in ntg.dtype.t_date default trunc(sysdate),
+                      p_date_to in ntg.dtype.t_date default null,
                       p_event_type in ntg.dtype.t_id default null,
                       p_status in ntg.dtype.t_status default null,
-                      p_priority in blng.delay.priority%type default null,
+                      p_priority in ntg.dtype.t_id default null,
                       p_parent_id in ntg.dtype.t_id default null
                     );
 
@@ -327,7 +330,7 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                             p_date_to in ntg.dtype.t_date default null,
                             p_event_type in ntg.dtype.t_id default null,
                             p_transaction in ntg.dtype.t_id default null,
-                            p_priority in blng.delay.priority%type default null,
+                            p_priority in ntg.dtype.t_id default null,
                             p_parent_id in ntg.dtype.t_id default null
                           )
   return SYS_REFCURSOR;
@@ -337,7 +340,7 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                             p_date_to in ntg.dtype.t_date default NULL,
                             p_event_type in ntg.dtype.t_id default null,
                             p_transaction in ntg.dtype.t_id default null,
-                            p_priority in blng.delay.priority%type default null
+                            p_priority in ntg.dtype.t_id default null,
                           )
   return blng.delay%rowtype;
   
@@ -448,26 +451,21 @@ end blng_api;
     v_company_row.utc_offset := nvl(p_utc_offset,3);
     v_company_row.status := 'A';
     insert into blng.company values v_company_row returning id into v_id;
----    commit;
     return v_id;
   exception when others then
---    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'company_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=company,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into company error. '||SQLERRM);
-    return null;
   end;
 
   procedure company_edit(p_id in ntg.dtype.t_id, p_name in ntg.dtype.t_name,
                   p_utc_offset in ntg.dtype.t_id default null)
---  return ntg.dtype.t_msg
   is
     v_company_row_new blng.company%rowtype;
     v_company_row_old blng.company%rowtype;
     v_mess ntg.dtype.t_msg;
   begin
-    --v_client_row.xxx:='yyy';
     select * into v_company_row_old from blng.company where id = p_id;
     v_company_row_new := v_company_row_old;
 
@@ -481,9 +479,8 @@ end blng_api;
     v_company_row_new.amnd_user:=user;
     --v_client_row_new.amnd_user:=null;
     update blng.company set row = v_company_row_new where id = p_id;
---    commit;
+
   exception when others then
---    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'company_edit', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=company,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -500,7 +497,6 @@ end blng_api;
       OPEN v_results FOR
         SELECT
         *
-        --id, name
         from blng.company 
         where  id = nvl(p_id,id)
         order by id;
@@ -510,7 +506,6 @@ end blng_api;
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=company,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into company error. '||SQLERRM);
-    return null;
   end;
 
 
@@ -518,21 +513,26 @@ end blng_api;
                   p_utc_offset in ntg.dtype.t_id default null)
   return blng.company%rowtype
   is
-    v_results  blng.company%rowtype;
+    r_obj  blng.company%rowtype;
   begin
-        SELECT
-        *
-        into v_results
-        from blng.company 
-        where id = nvl(p_id,id)
-        order by id;
-    return v_results;
-  exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'company_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=company,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into company error. '||SQLERRM);
-    return null;
+    if p_id is null then raise NO_DATA_FOUND; end if;   
+    SELECT
+    *
+    into r_obj
+    from blng.company 
+    where id = nvl(p_id,id)
+    order by id;
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'company_get_info', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=company,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into company error. '||SQLERRM);
   end;
   
   function client_add(
@@ -562,15 +562,13 @@ end blng_api;
     v_obj_row.utc_offset := nvl(p_utc_offset,3);
     v_obj_row.status := 'A';
     insert into blng.client values v_obj_row returning id into v_id;
---    commit;
+
     return v_id;
   exception when others then
---    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'client_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=client,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into client error. '||SQLERRM);
-    return null;
   end;
 
   procedure client_edit(p_id in ntg.dtype.t_id,
@@ -588,7 +586,6 @@ end blng_api;
     v_obj_row_old blng.client%rowtype;
     v_mess ntg.dtype.t_msg;
   begin
-    --v_client_row.xxx:='yyy';
     select * into v_obj_row_old from blng.client where id = p_id;
     v_obj_row_new := v_obj_row_old;
 
@@ -623,12 +620,16 @@ end blng_api;
       insert into blng.client values v_obj_row_old;  
       update blng.client set row = v_obj_row_new where id = p_id;
     end if;
-  exception when others then
---    rollback;
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'client_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=client,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'update row into client error. '||SQLERRM);
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;    
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'client_edit', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=client,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'update row into client error. '||SQLERRM);
   end;
 
 
@@ -681,48 +682,23 @@ end blng_api;
                             )
   return blng.client%rowtype
   is
---    msg ntg.dtype.t_msg;
- --   c_obj  SYS_REFCURSOR;
     r_obj blng.client%rowtype;
   begin
-  --OPEN v_results FOR
-        SELECT
-        * into r_obj
-        from blng.client 
-        where id = nvl(p_id,id)
---        and  last_name = nvl(p_last_name, last_name)
---        and first_name = nvl(p_first_name, first_name)
---        and birth_date = nvl(p_birth_date, birth_date)
---        and gender = nvl(p_gender, gender)
---        and company_oid = nvl(p_company, company_oid)
---        and nationality = nvl(p_nationality, nationality)
-        and email = nvl(lower(p_email), email)
-        and amnd_state = 'A'
-        order by id;
-   -- order by id;    
-
-/*    c_obj := blng.blng_api.client_get_info(p_id, p_email);
-    --DBMS_OUTPUT.put_line (1);
-    LOOP
-      FETCH c_obj INTO r_obj;
-      IF c_obj%ROWCOUNT = 0 THEN raise NO_DATA_FOUND; END IF;
-      EXIT WHEN c_obj%NOTFOUND;
-    END LOOP;
-    CLOSE c_obj;*/
+    if p_id is null and p_email is null then raise NO_DATA_FOUND; end if;   
+  
+    SELECT
+    * into r_obj
+    from blng.client 
+    where id = nvl(p_id,id)
+    and email = nvl(lower(p_email), email)
+    and amnd_state = 'A'
+    order by id;
     return r_obj;
   exception 
-    when NO_DATA_FOUND then
-      --CLOSE c_obj;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'client_get_info_r', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE;
-    when TOO_MANY_ROWS then
-      --CLOSE c_obj;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'client_get_info_r', p_msg_type=>'TOO_MANY_ROWS',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE;
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'client_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date='
@@ -744,20 +720,17 @@ end blng_api;
     v_client2contract_row.client_oid := p_client;
     v_client2contract_row.permission := p_permission;
     v_client2contract_row.contract_oid := p_contract;
---    insert into blng.client2contract values v_client2contract_row returning id into v_id;
     insert into blng.client2contract values v_client2contract_row;
---    commit;
---    return v_id;
   exception when others then
---    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'client2contract_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=client2contract,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into client2contract error. '||SQLERRM);
---    return null;
   end;
 
-  procedure client2contract_edit( p_client in ntg.dtype.t_id default null,
+  procedure client2contract_edit( 
+                                  p_id in ntg.dtype.t_id default null,
+                                  p_client in ntg.dtype.t_id default null,
                                   p_contract in ntg.dtype.t_id default null,
                                   p_status in ntg.dtype.t_status default null)
   is
@@ -766,11 +739,11 @@ end blng_api;
     v_mess ntg.dtype.t_msg;
     v_id ntg.dtype.t_id;
   begin
-    if p_status is null then raise ntg.dtype.value_error; end if;
-    --v_client_row.xxx:='yyy';
+    if p_status is null then raise NO_DATA_FOUND; end if;
+    if p_id is null then raise NO_DATA_FOUND; end if; 
+    
     select * into v_client2contract_row_old from blng.client2contract
-    where client_oid = nvl(p_client,client_oid)
-    and contract_oid = nvl(p_contract,contract_oid);
+    where id = nvl(p_id,id);
 
     v_id := v_client2contract_row_old.id;
     v_client2contract_row_new := v_client2contract_row_old;
@@ -786,13 +759,11 @@ end blng_api;
     update blng.client2contract set row = v_client2contract_row_new where id = v_id;
 --    commit;
   exception
-    when ntg.dtype.value_error then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'client2contract_edit', p_msg_type=>'ntg.dtype.value_error',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=client2contract,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      raise;
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;    
     when others then
---      rollback;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'client2contract_edit', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=client2contract,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -800,7 +771,8 @@ end blng_api;
   end;
 
 
-  function client2contract_get_info(  p_client in ntg.dtype.t_id default null,
+  function client2contract_get_info(  p_id in ntg.dtype.t_id default null,
+                                      p_client in ntg.dtype.t_id default null,
                                       p_contract in ntg.dtype.t_id default null,
                                       p_permission in ntg.dtype.t_status default null
                                     )
@@ -811,7 +783,6 @@ end blng_api;
       OPEN v_results FOR
         SELECT
         *
-        --id, name
         from blng.client2contract
         where client_oid = nvl(p_client,client_oid)
         and contract_oid = nvl(p_contract,contract_oid)
@@ -824,7 +795,6 @@ end blng_api;
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client2contract,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into client2contract error. '||SQLERRM);
-    return null;
   end;
 
 
@@ -837,7 +807,7 @@ end blng_api;
     v_id ntg.dtype.t_id;
     v_number ntg.dtype.t_long_code;
   begin
---    v_contract_row.client_oid := p_client;
+
     select to_char(sysdate,'yyyymmdd')||'-'||p_company||'-'||(count(*) + 1) into v_number from blng.contract where
     id in (select contract_oid from blng.client2contract where client_oid in 
               (select id from blng.client where company_oid = p_company and amnd_state = 'A')
@@ -848,26 +818,24 @@ end blng_api;
     v_contract_row.company_oid := p_company;
     v_contract_row.status := 'A';
     insert into blng.contract values v_contract_row returning id into v_id;
---    commit;
     return v_id;
   exception when others then
---    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'contract_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=contract,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into contract error. '||SQLERRM);
-    return null;
   end;
 
   procedure contract_edit(p_id in ntg.dtype.t_id default null, p_number in ntg.dtype.t_long_code default null,
                   p_utc_offset in ntg.dtype.t_id default null)
---  return ntg.dtype.t_msg
   is
     v_mess ntg.dtype.t_msg;
     v_contract_row_new blng.contract%rowtype;
     v_contract_row_old blng.contract%rowtype;
   begin
-
+  
+    if p_id is null then raise NO_DATA_FOUND; end if; 
+    
     select * into v_contract_row_old from blng.contract where id = p_id;
     v_contract_row_new := v_contract_row_old;
 
@@ -881,9 +849,12 @@ end blng_api;
     v_contract_row_new.contract_number := p_number;
 
     update blng.contract set row = v_contract_row_new where id = p_id;
---    commit;
-  exception when others then
---    rollback;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+  when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'contract_edit', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=contract,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -897,67 +868,70 @@ end blng_api;
   is
     v_results SYS_REFCURSOR;
   begin
-      OPEN v_results FOR
-        SELECT *
-        --id, contract_number
-        from blng.contract 
-        where id = nvl(p_id,id)
-        and company_oid = nvl(p_company,company_oid)
-        order by id;
+    OPEN v_results FOR
+      SELECT *
+      from blng.contract 
+      where id = nvl(p_id,id)
+      and company_oid = nvl(p_company,company_oid)
+      order by id;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'contract_get_info', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into contract error. '||SQLERRM);
-    return null;
   end;
 
   function contract_get_info_r(p_id in ntg.dtype.t_id default null,p_company  in ntg.dtype.t_id default null,
                   p_utc_offset in ntg.dtype.t_id default null)
   return blng.contract%rowtype
   is
-    v_results blng.contract%rowtype;
+    r_obj blng.contract%rowtype;
   begin
- --     OPEN v_results FOR
-        SELECT *
-        into v_results
-        from blng.contract 
-        where id = nvl(p_id,id)
-        and company_oid = nvl(p_company,company_oid)
-        order by id;
-    return v_results;
-  exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'contract_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into contract error. '||SQLERRM);
-    return null;
+    if p_id is null and p_company is null then raise NO_DATA_FOUND; end if; 
+    SELECT *
+    into r_obj
+    from blng.contract 
+    where id = nvl(p_id,id)
+    and company_oid = nvl(p_company,company_oid)
+    order by id;
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;        
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'contract_get_info', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into contract error. '||SQLERRM);
   end;
 
 
   procedure account_init(p_contract in ntg.dtype.t_id)
   is
-    --v_account_type_row blng.contract%rowtype;
-    --v_account_row blng.contract%rowtype;
-    --v_id blng.contract.id%type;
   begin
+    if p_contract is null then raise NO_DATA_FOUND; end if; 
     insert into blng.account (contract_oid,code ,amount,priority,account_type_oid)
     select --null id,null amnd_date,user amnd_user,'A' amnd_state,null amnd_prev,
     p_contract contract_oid,code,0 amount,priority, id account_type_oid
     from blng.account_type
     where id not in (select account_type_oid from blng.account where contract_oid = p_contract);
---    commit;
-  exception when others then
---    rollback;
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'account_init', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=account,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'insert row into account error. '||SQLERRM);
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'account_init', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=account,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'insert row into account error. '||SQLERRM);
   end;
 
---from here cant be commits/rollbacks inside functions
- procedure account_edit(       p_id in ntg.dtype.t_id default null,
+
+  procedure account_edit(       p_id in ntg.dtype.t_id default null,
                                -- p_contract in ntg.dtype.t_id default null,
                                -- p_account_type in ntg.dtype.t_id default null,
                                -- p_code in ntg.dtype.t_code default null,
@@ -971,12 +945,9 @@ end blng_api;
   begin
   --if incoming amount is 0 then exit
     if p_amount = 0 then return; end if;
-    --get account row as new and old
+    if p_id is null then raise NO_DATA_FOUND; end if;     
     select * into v_account_row_old from blng.account
       where id = nvl(p_id,id)
- --     and contract_oid = nvl(p_contract,contract_oid)
- --     and code = nvl(p_code,code)
- --     and account_type_oid = nvl(p_account_type,account_type_oid)
       and amnd_state = 'A';
 
     v_id := v_account_row_old.id;
@@ -993,11 +964,16 @@ end blng_api;
     v_account_row_new.amount := v_account_row_new.amount + p_amount;
 
     update blng.account set row = v_account_row_new where id = v_id;
-  exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'account_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=account,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'update row into account error. '||SQLERRM);
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'account_edit', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=account,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'update row into account error. '||SQLERRM);
   end;
 
   function account_get_info ( p_id in ntg.dtype.t_id default null,
@@ -1013,7 +989,6 @@ end blng_api;
     OPEN v_results FOR
       SELECT
       *
-      --id, code, amount, priority
       from blng.account
       where id = nvl(p_id,id)
       and contract_oid = nvl(p_contract,contract_oid)
@@ -1029,7 +1004,6 @@ end blng_api;
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=account,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into account error. '||SQLERRM);
-    return null;
   end account_get_info;
 
   function account_get_info_r ( p_id in ntg.dtype.t_id default null,
@@ -1039,33 +1013,28 @@ end blng_api;
                             )
   return blng.account%rowtype
   is
-    msg ntg.dtype.t_msg;
-    c_account  SYS_REFCURSOR;
-    r_account blng.account%rowtype;
+    r_obj blng.account%rowtype;
   begin
-    c_account := blng.blng_api.account_get_info(p_id, p_contract, p_code, p_account_type);
-    --DBMS_OUTPUT.put_line (1);
-    LOOP
-      FETCH c_account INTO r_account;
-      IF c_account%ROWCOUNT = 0 THEN raise NO_DATA_FOUND; END IF;
-      EXIT WHEN c_account%NOTFOUND;
-    END LOOP;
-    CLOSE c_account;
-    return r_account;
+    SELECT
+    * into r_obj
+    from blng.account
+    where id = nvl(p_id,id)
+    and contract_oid = nvl(p_contract,contract_oid)
+    and code = nvl(p_code,code)
+    and account_type_oid = nvl(p_account_type,account_type_oid)
+    and amnd_state = 'A'
+    order by contract_oid, priority;
+    return r_obj;
   exception 
-    when NO_DATA_FOUND then
-      CLOSE c_account;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'account_get_info_r', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=account,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE;
-      return null;
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'account_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=account,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into account error. '||SQLERRM);
-      return null;
   end account_get_info_r;
 
   function document_add ( p_contract in ntg.dtype.t_id default null,
@@ -1076,7 +1045,7 @@ end blng_api;
   return ntg.dtype.t_id
   is
     v_document_row blng.document%rowtype;
-    v_id blng.document.id%type;
+    v_id ntg.dtype.t_id;
   begin
     v_document_row.contract_oid := p_contract;
     v_document_row.amount := p_amount;
@@ -1084,15 +1053,12 @@ end blng_api;
     v_document_row.doc_date := sysdate;
     v_document_row.bill_oid := p_bill;
     insert into blng.document values v_document_row returning id into v_id;
---    commit;
     return v_id;
   exception when others then
---    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'document_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=document,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into document error. '||SQLERRM);
-    return null;
   end;
 
   procedure document_edit(p_id in ntg.dtype.t_id, p_status in ntg.dtype.t_status default null)
@@ -1115,41 +1081,47 @@ end blng_api;
     v_document_row_new.status := p_status;
 
     update blng.document set row = v_document_row_new where id = v_document_row_new.id;
-  exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'document_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=document,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'update row into document error. '||SQLERRM);
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'document_edit', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=document,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'update row into document error. '||SQLERRM);
   end;
 
   function document_get_info( p_id in ntg.dtype.t_id default null,
                               p_contract in ntg.dtype.t_id  default null,
                               p_trans_type in ntg.dtype.t_id  default null,
                               p_status in ntg.dtype.t_status  default null,
-                          p_bill in ntg.dtype.t_id default null
+                              p_bill in ntg.dtype.t_id default null
                             )
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
   begin
+/*
+$TODO: all this nullable fields are bad. document_get_info
+*/  
     if p_bill is not null then  
       OPEN v_results FOR
         SELECT
         *
-        --id, trans_type_oid, amount, doc_date
         from blng.document
         where id = nvl(p_id,id)
         and contract_oid = nvl(p_contract,contract_oid)
         and trans_type_oid = nvl(p_trans_type,trans_type_oid)
         and status = nvl(p_status,status)
-        and bill_oid = nvl(p_bill,bill_oid)
+        and bill_oid = p_bill
         and amnd_state = 'A'
         order by contract_oid, id asc;
     else
       OPEN v_results FOR
         SELECT
         *
-        --id, trans_type_oid, amount, doc_date
         from blng.document
         where id = nvl(p_id,id)
         and contract_oid = nvl(p_contract,contract_oid)
@@ -1160,13 +1132,11 @@ end blng_api;
     end if;
     return v_results;
   exception
-    when NO_DATA_FOUND then return null;
     when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'document_get_info', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=document,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into document error. '||SQLERRM);
-    return null;
   end;
 
   function document_get_info_r( p_id in ntg.dtype.t_id default null,
@@ -1177,41 +1147,42 @@ end blng_api;
                             )
   return blng.document%rowtype
   is
-    msg ntg.dtype.t_msg;
-    c_document  SYS_REFCURSOR;
-    r_document blng.document%rowtype;
+
+    r_obj blng.document%rowtype;
   begin
-    c_document := blng.blng_api.document_get_info(p_id, p_contract, p_trans_type, p_status,p_bill);
-    --DBMS_OUTPUT.put_line (1);
-    LOOP
-      FETCH c_document INTO r_document;
-      IF c_document%ROWCOUNT = 0 THEN raise NO_DATA_FOUND; END IF;      
-      EXIT WHEN c_document%NOTFOUND;
-      --DBMS_OUTPUT.put_line (r_account.name);
-    END LOOP;
-    CLOSE c_document;
-    return r_document;
+    if p_bill is not null then  
+        SELECT
+        * into r_obj
+        from blng.document
+        where bill_oid = p_bill
+        and amnd_state = 'A'
+        order by contract_oid, id asc;
+    else
+        SELECT
+        * into r_obj
+        from blng.document
+        where id = nvl(p_id,id)
+        and amnd_state = 'A'
+        order by contract_oid, id asc;    
+    end if;
+    return r_obj;
   exception 
-    when NO_DATA_FOUND then --this function by ID. so, if it called, its mean result MUST be returned
-      CLOSE c_document;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'document_get_info_r', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=document,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE;
-      return null;
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;    
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'document_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=document,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into document error. '||SQLERRM);
-      return null;
   end document_get_info_r;
 
 
   function transaction_add ( p_doc in ntg.dtype.t_id  default null,
                           p_amount in ntg.dtype.t_amount  default null,
                           p_trans_type in ntg.dtype.t_id  default null,
-                          p_trans_date in blng.transaction.trans_date%type  default null,
+                          p_trans_date in ntg.dtype.t_date  default null,
                           p_target_account in ntg.dtype.t_id  default null,
                           p_status in ntg.dtype.t_status  default 'P',
                           p_prev in ntg.dtype.t_id  default null
@@ -1220,7 +1191,7 @@ end blng_api;
   return ntg.dtype.t_id
   is
     v_transaction_row blng.transaction%rowtype;
-    v_id blng.transaction.id%type;
+    v_id ntg.dtype.t_id;
   begin
     if p_amount = 0 or p_amount is null then raise ntg.dtype.exit_alert; end if;
     --if p_doc is null then raise_application_error(-20003, 'doc is null'); end if;
@@ -1244,27 +1215,22 @@ end blng_api;
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=transaction,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       raise;
-      return null;
-
     when ntg.dtype.value_error then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'transaction_add', p_msg_type=>'ntg.dtype.value_error',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=transaction,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       raise;
-      return null;
-
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'transaction_add', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=transaction,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'insert row into transaction error. '||SQLERRM);
-      return null;
   end;
 
   function transaction_add_with_acc ( p_doc in ntg.dtype.t_id  default null,
                           p_amount in ntg.dtype.t_amount  default null,
                           p_trans_type in ntg.dtype.t_id  default null,
-                          p_trans_date in blng.transaction.trans_date%type  default null,
+                          p_trans_date in ntg.dtype.t_date  default null,
                           p_target_account in ntg.dtype.t_id  default null,
                           p_status in ntg.dtype.t_status  default 'P',
                           p_prev in ntg.dtype.t_id  default null
@@ -1292,21 +1258,16 @@ end blng_api;
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       raise;
-      return null;
-
     when ntg.dtype.value_error then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'transaction_add_with_acc', p_msg_type=>'ntg.dtype.value_error',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       raise;
-      return null;
-
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'transaction_add_with_acc', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'insert row into transaction error. '||SQLERRM);
-      return null;
   end;
 
   procedure transaction_edit(p_id in ntg.dtype.t_id, p_status ntg.dtype.t_status default 'P')
@@ -1315,7 +1276,8 @@ end blng_api;
     v_transaction_row_new blng.transaction%rowtype;
     v_transaction_row_old blng.transaction%rowtype;
   begin
-
+    if p_id is null then raise NO_DATA_FOUND; end if; 
+    
     select * into v_transaction_row_old from blng.transaction where id = p_id;
     v_transaction_row_new := v_transaction_row_old;
 
@@ -1329,11 +1291,16 @@ end blng_api;
     v_transaction_row_new.status := p_status;
 
     update blng.transaction set row = v_transaction_row_new where id = v_transaction_row_new.id;
-  exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'transaction_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=transaction,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'update row into transaction error. '||SQLERRM);
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'transaction_edit', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=transaction,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'update row into transaction error. '||SQLERRM);
   end;
 
   function transaction_get_info( p_id in ntg.dtype.t_id default null,
@@ -1347,7 +1314,7 @@ end blng_api;
     v_results SYS_REFCURSOR;
   begin
     OPEN v_results FOR
-      SELECT --id, trans_type_oid, amount, trans_date, target_account_oid
+      SELECT 
       *
       from blng.transaction
       where id = nvl(p_id,id)
@@ -1358,29 +1325,29 @@ end blng_api;
       and amnd_state = 'A'
       order by id;
     return v_results;
-  exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'transaction_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=transaction,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into transaction error. '||SQLERRM);
-    return null;
+  exception 
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'transaction_get_info', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=transaction,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into transaction error. '||SQLERRM);
   end;
 
 
 
 
-  function event_add( p_contract in blng.event.contract_oid%type,
-                      p_amount in blng.event.amount%type,
-                      p_transaction in blng.event.transaction_oid%type,
-                      p_date_to in blng.event.date_to%type,
-                      p_event_type in blng.event.event_type_oid%type,
-                      p_status in blng.event.status%type,
-                      p_priority in blng.event.priority%type
+  function event_add( p_contract in ntg.dtype.t_id default null,
+                      p_amount in ntg.dtype.t_amount default null,,
+                      p_transaction in ntg.dtype.t_id default null,
+                      p_date_to in ntg.dtype.t_date default null,
+                      p_event_type in ntg.dtype.t_id default null,
+                      p_status in ntg.dtype.t_status default null,
+                      p_priority in ntg.dtype.t_id default null
                     )
-  return blng.event.id%type
+  return ntg.dtype.t_id 
   is
     v_event_row blng.event%rowtype;
-    v_id blng.event.id%type;
+    v_id ntg.dtype.t_id;
   begin
     v_event_row.contract_oid := p_contract;
     v_event_row.amount := p_amount;
@@ -1396,15 +1363,13 @@ end blng_api;
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=event,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into event error. '||SQLERRM);
-    return null;
   end;
 
-  procedure event_edit ( p_id blng.event.id%type,
-                        p_status in blng.event.status%type,
-                        p_amount in blng.event.amount%type
+  procedure event_edit ( p_id in ntg.dtype.t_id default null,
+                        p_status in ntg.dtype.t_status default null,
+                        p_amount in ntg.dtype.t_amount default null
                       )
   is
-    v_mess ntg.dtype.t_msg;
     v_event_row_new blng.event%rowtype;
     v_event_row_old blng.event%rowtype;
   begin
@@ -1421,19 +1386,25 @@ end blng_api;
     v_event_row_new.amount:=p_amount;
 
     update blng.event set row = v_event_row_new where id = p_id;
-  exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'eventn_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=event,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'update row into event error. '||SQLERRM);
+    
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'eventn_edit', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=event,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'update row into event error. '||SQLERRM);
   end;
 
-  function event_get_info ( p_id in blng.event.id%type,
-                            p_contract in blng.event.contract_oid%type,
-                            p_date_to in blng.event.date_to%type,
-                            p_event_type in blng.event.event_type_oid%type,
-                            p_status in blng.event.status%type,
-                            p_priority in blng.event.priority%type
+  function event_get_info ( p_id in ntg.dtype.t_id default null,
+                            p_contract in ntg.dtype.t_id default null,
+                            p_date_to in ntg.dtype.t_date default null,
+                            p_event_type in ntg.dtype.t_id default null,
+                            p_status in ntg.dtype.t_status default null,
+                            p_priority in ntg.dtype.t_id default null
                           )
   return SYS_REFCURSOR
   is
@@ -1451,23 +1422,27 @@ end blng_api;
       and amnd_state = 'A'
       order by id desc;
     return v_results;
-  exception when others then
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+  when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'event_get_info', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=event,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into event error. '||SQLERRM);
-    return null;
   end;
 
 
-  function status_type_add( p_name in blng.status_type.name%type,
-                            p_code in blng.status_type.code%type,
-                            p_details in blng.status_type.details%type
+  function status_type_add( p_name in ntg.dtype.t_name default null,
+                            p_code in ntg.dtype.t_code default null,
+                            p_details in ntg.dtype.t_msg default null
                           )
-  return blng.status_type.id%type
+  return ntg.dtype.t_id 
   is
     v_status_type_row blng.status_type%rowtype;
-    v_id blng.status_type.id%type;
+    v_id ntg.dtype.t_id;
   begin
     v_status_type_row.name := p_name;
     v_status_type_row.code := p_code;
@@ -1479,17 +1454,16 @@ end blng_api;
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=status_type,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into status_type error. '||SQLERRM);
-    return null;
   end;
 
-  function event_type_add( p_name in blng.event_type.name%type,
-                            p_code in blng.event_type.code%type,
-                            p_details in blng.event_type.details%type
+  function event_type_add( p_name in ntg.dtype.t_name default null,
+                            p_code in ntg.dtype.t_code default null,
+                            p_details in ntg.dtype.t_msg default null
                           )
-  return blng.event_type.id%type
+  return ntg.dtype.t_id
   is
     v_event_type_row blng.event_type%rowtype;
-    v_id blng.event_type.id%type;
+    v_id ntg.dtype.t_id;
   begin
     v_event_type_row.name := p_name;
     v_event_type_row.code := p_code;
@@ -1501,18 +1475,17 @@ end blng_api;
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=event_type,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into event_type error. '||SQLERRM);
-    return null;
   end;
 
-  function account_type_add( p_name in blng.account_type.name%type,
-                            p_code in blng.account_type.code%type,
-                            p_priority in blng.account_type.priority%type,
-                            p_details in blng.account_type.details%type
+  function account_type_add( p_name in ntg.dtype.t_name default null,
+                            p_code in bntg.dtype.t_code default null,
+                            p_priority in ntg.dtype.t_id default null,
+                            p_details in ntg.dtype.t_msg default null
                           )
-  return blng.account_type.id%type
+  return ntg.dtype.t_id
   is
     v_account_type_row blng.account_type%rowtype;
-    v_id blng.account_type.id%type;
+    v_id ntg.dtype.t_id;
   begin
     v_account_type_row.name := p_name;
     v_account_type_row.code := p_code;
@@ -1520,22 +1493,22 @@ end blng_api;
     v_account_type_row.details := p_details;
     insert into blng.account_type values v_account_type_row returning id into v_id;
     return v_id;
-  exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'account_type_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=account_type,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'insert row into account_type error. '||SQLERRM);
-    return null;
+  exception 
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'account_type_add', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=account_type,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'insert row into account_type error. '||SQLERRM);
   end;
 
-  function trans_type_add( p_name in blng.trans_type.name%type,
-                            p_code in blng.trans_type.code%type,
-                            p_details in blng.trans_type.details%type
+  function trans_type_add( p_name in ntg.dtype.t_name default null,
+                            p_code in ntg.dtype.t_code default null,
+                            p_details in ntg.dtype.t_msg default null
                           )
-  return blng.trans_type.id%type
+  return ntg.dtype.t_id
   is
     v_trans_type_row blng.trans_type%rowtype;
-    v_id blng.trans_type.id%type;
+    v_id ntg.dtype.t_id;
   begin
     v_trans_type_row.name := p_name;
     v_trans_type_row.code := p_code;
@@ -1547,13 +1520,12 @@ end blng_api;
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=trans_type,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into trans_type error. '||SQLERRM);
-    return null;
   end;
 
-  procedure status_type_edit ( p_id blng.status_type.id%type,
-                        p_name in blng.status_type.name%type,
-                        p_code in blng.status_type.code%type,
-                        p_details in blng.status_type.details%type
+  procedure status_type_edit ( p_id in ntg.dtype.t_id default null,
+                        p_name in ntg.dtype.t_name default null,
+                        p_code in ntg.dtype.t_code default null,
+                        p_details in ntg.dtype.t_msg default null
                       )
   is
     v_mess ntg.dtype.t_msg;
@@ -1583,17 +1555,22 @@ end blng_api;
 
     end if;
 
-  exception when others then
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+  when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'status_type_edit', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=status_type,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'update row into status_type error. '||SQLERRM);
   end;
 
-  procedure trans_type_edit ( p_id blng.trans_type.id%type,
-                        p_name in blng.trans_type.name%type,
-                        p_code in blng.trans_type.code%type,
-                        p_details in blng.trans_type.details%type
+  procedure trans_type_edit ( p_id in ntg.dtype.t_id default null,
+                        p_name in ntg.dtype.t_name default null,
+                        p_code in ntg.dtype.t_code default null,
+                        p_details in ntg.dtype.t_msg default null
                       )
   is
     v_mess ntg.dtype.t_msg;
@@ -1622,17 +1599,22 @@ end blng_api;
 
     end if;
 
-  exception when others then
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+  when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'trans_type_edit', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=trans_type,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'update row into trans_type error. '||SQLERRM);
   end;
 
-  procedure event_type_edit ( p_id blng.event_type.id%type,
-                        p_name in blng.event_type.name%type,
-                        p_code in blng.event_type.code%type,
-                        p_details in blng.event_type.details%type
+  procedure event_type_edit ( p_id in ntg.dtype.t_id default null,
+                        p_name in ntg.dtype.t_name default null,
+                        p_code in ntg.dtype.t_code default null,
+                        p_details in ntg.dtype.t_msg default null
                       )
   is
     v_mess ntg.dtype.t_msg;
@@ -1661,7 +1643,12 @@ end blng_api;
 
     end if;
 
-  exception when others then
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+  when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'event_type_edit', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=event_type,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -1669,11 +1656,11 @@ end blng_api;
   end;
 
 
-  procedure account_type_edit ( p_id blng.account_type.id%type,
-                        p_name in blng.account_type.name%type,
-                        p_code in blng.account_type.code%type,
-                        p_details in blng.account_type.details%type,
-                        p_priority in blng.account_type.priority%type
+  procedure account_type_edit ( p_id in ntg.dtype.t_id default null,
+                        p_name in ntg.dtype.t_name default null,
+                        p_code in ntg.dtype.t_code default null,
+                        p_details in ntg.dtype.t_msg default null,
+                        p_priority in ntg.dtype.t_id default null
                       )
   is
     v_mess ntg.dtype.t_msg;
@@ -1704,25 +1691,30 @@ end blng_api;
 
     end if;
 
-  exception when others then
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+  when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'account_type_edit', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=account_type,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'update row into account_type error. '||SQLERRM);
   end;
 
-  function account_type_get_info ( p_id in blng.account_type.id%type default null,
-                                  p_name in blng.account_type.name%type default null,
-                                  p_code in blng.account_type.code%type default null,
-                                  p_details in blng.account_type.details%type default null,
-                                  p_priority in blng.account_type.priority%type default null
+  function account_type_get_info ( p_id in ntg.dtype.t_id default null,
+                                  p_name in ntg.dtype.t_name default null,
+                                  p_code in ntg.dtype.t_code default null,
+                                  p_details in ntg.dtype.t_msg default null,
+                                  p_priority in ntg.dtype.t_id default null
                                 )
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
   begin
     OPEN v_results FOR
-      SELECT --id, name, code, details, priority
+      SELECT 
       *
       from blng.account_type
       where id = nvl(p_id,id)
@@ -1732,12 +1724,16 @@ end blng_api;
       and priority = nvl(p_priority,priority)
       and amnd_state = 'A';
     return v_results;
-  exception when others then
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+  when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'account_type_get_info', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=account_type,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into account_type error. '||SQLERRM);
-    return null;
   end;
 
   function trans_type_get_info ( p_id in ntg.dtype.t_id default null,
@@ -1749,21 +1745,24 @@ end blng_api;
     v_results SYS_REFCURSOR;
   begin
     OPEN v_results FOR
-      SELECT --id, name, code, details
+      SELECT 
       *
       from blng.trans_type
       where id = nvl(p_id,id)
       and name = nvl(p_name,name)
       and code = nvl(p_code,code)
---      and details = nvl(p_details,details)
       and amnd_state = 'A';
     return v_results;
-  exception when others then
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+  when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'trans_type_get_info', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=trans_type,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into trans_type error. '||SQLERRM);
-    return null;
   end;
 
   function trans_type_get_id (    p_name in ntg.dtype.t_name default null,
@@ -1775,18 +1774,20 @@ end blng_api;
   begin
     SELECT id into v_results
       from blng.trans_type
-      where /*id = nvl(p_id,id)
-      and*/ name = nvl(p_name,name)
+      where name = nvl(p_name,name)
       and code = nvl(p_code,code)
---      and details = nvl(p_details,details)
       and amnd_state = 'A';
     return v_results;
-  exception when others then
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+  when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'trans_type_get_id', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=trans_type,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into trans_type error. '||SQLERRM);
-    return null;
   end;
 
   function event_type_get_info ( p_id in ntg.dtype.t_id default null,
@@ -1798,21 +1799,24 @@ end blng_api;
     v_results SYS_REFCURSOR;
   begin
     OPEN v_results FOR
-      SELECT --id, name, code, details
+      SELECT 
       *
       from blng.event_type
       where id = nvl(p_id,id)
       and name = nvl(p_name,name)
       and code = nvl(p_code,code)
---      and details = nvl(p_details,details)
       and amnd_state = 'A';
     return v_results;
-  exception when others then
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+  when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'event_type_get_info', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=event_type,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into event_type error. '||SQLERRM);
-    return null;
   end;
 
   function event_type_get_id (    p_name in ntg.dtype.t_name default null,
@@ -1822,35 +1826,36 @@ end blng_api;
   is
     v_results ntg.dtype.t_id;
   begin
---    OPEN v_results FOR
       SELECT id into v_results
       from blng.event_type
-      where /*id = nvl(p_id,id)
-      and*/ name = nvl(p_name,name)
+      where name = nvl(p_name,name)
       and code = nvl(p_code,code)
---      and details = nvl(p_details,details)
       and amnd_state = 'A';
     return v_results;
-  exception when others then
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+  when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'event_type_get_id', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=event_type,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into event_type error. '||SQLERRM);
-    return null;
   end;
 
 
-  function status_type_get_info ( p_id in blng.status_type.id%type,
-                                  p_name in blng.status_type.name%type,
-                                  p_code in blng.status_type.code%type,
-                                  p_details in blng.status_type.details%type
+  function status_type_get_info ( p_id in ntg.dtype.t_id default null,
+                                  p_name in ntg.dtype.t_name default null,
+                                  p_code in ntg.dtype.t_code default null,
+                                  p_details in ntg.dtype.t_msg default null
                                 )
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
   begin
     OPEN v_results FOR
-      SELECT --id, name, code, details
+      SELECT 
       *
       from blng.status_type
       where id = nvl(p_id,id)
@@ -1859,39 +1864,40 @@ end blng_api;
       and details = nvl(p_details,details)
       and amnd_state = 'A';
     return v_results;
-  exception when others then
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+  when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'status_type_get_info', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=status_type,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into status_type error. '||SQLERRM);
-    return null;
   end;
 
 
   procedure delay_add( p_contract in ntg.dtype.t_id default null,
                       p_amount in ntg.dtype.t_amount default null,
                       p_transaction in ntg.dtype.t_id default null,
-                      p_date_to in ntg.dtype.t_date default trunc(sysdate),
+                      p_date_to in ntg.dtype.t_date default null,
                       p_event_type in ntg.dtype.t_id default null,
                       p_status in ntg.dtype.t_status default null,
-                      p_priority in blng.delay.priority%type default null,
+                      p_priority in ntg.dtype.t_id default null,
                       p_parent_id in ntg.dtype.t_id default null
                     )
   is
     v_delay_row blng.delay%rowtype;
     v_id ntg.dtype.t_id;
-    --v_date_to ntg.dtype.t_date;
   begin
     v_delay_row.contract_oid := p_contract;
     v_delay_row.amount := p_amount;
     v_delay_row.transaction_oid := p_transaction;
-    v_delay_row.date_to := p_date_to;
+    v_delay_row.date_to := nvl(p_date_to,trunc(sysdate));
     v_delay_row.event_type_oid := p_event_type;
-    --v_delay_row.status := p_status;
     v_delay_row.priority := p_priority;
     v_delay_row.parent_id := p_parent_id;
     v_delay_row.status := 'A';
---    insert into blng.delay values v_delay_row returning id into v_id;
     insert into blng.delay values v_delay_row;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_add', p_msg_type=>'UNHANDLED_ERROR',
@@ -1916,7 +1922,6 @@ end blng_api;
 --so it parameter cant be as filter and edited value
     select * into v_delay_row_old from blng.delay
     where id = p_id
---    and transaction_oid=nvl(p_transaction,transaction_oid)
     ;
 
     v_delay_row_new := v_delay_row_old;
@@ -1929,7 +1934,6 @@ end blng_api;
     v_delay_row_new.amnd_user:=user;
     v_delay_row_new.transaction_oid:=nvl(p_transaction, v_delay_row_new.transaction_oid);
     v_delay_row_new.event_type_oid := nvl(p_event_type, v_delay_row_new.event_type_oid);
-   -- v_delay_row_new.status:=p_status;
     if p_status in ('C') then v_delay_row_new.amnd_state :='C'; v_delay_row_new.status :='C'; end if;
     if p_status in ('A') then v_delay_row_new.amnd_state :='A'; v_delay_row_new.status :='A'; end if;
     if p_status in ('R') then v_delay_row_new.amnd_state :='R'; v_delay_row_new.status :='R'; end if;
@@ -1939,7 +1943,12 @@ end blng_api;
     v_delay_row_new.parent_id:= nvl(p_parent_id, v_delay_row_new.parent_id);
 
     update blng.delay set row = v_delay_row_new where id = v_delay_row_new.id;
-  exception when others then
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+  when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_edit', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=delay,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -1951,7 +1960,7 @@ end blng_api;
                             p_date_to in ntg.dtype.t_date default NULL,
                             p_event_type in ntg.dtype.t_id default null,
                             p_transaction in ntg.dtype.t_id default null,
-                            p_priority in blng.delay.priority%type default null,
+                            p_priority in ntg.dtype.t_id default null,
                             p_parent_id in ntg.dtype.t_id default null
                             
                           )
@@ -1960,32 +1969,27 @@ end blng_api;
     v_results SYS_REFCURSOR;
   begin
     OPEN v_results FOR
-      SELECT --id, event_type_oid, transaction_oid, date_to, contract_oid, amount, status, priority
+      SELECT 
       *
       from blng.delay
       where id = nvl(p_id,id)
       and contract_oid = nvl(p_contract,contract_oid)
       and transaction_oid = nvl(p_transaction,transaction_oid)
-      and trunc(date_to) = trunc(nvl(p_date_to,date_to))
       and event_type_oid = nvl(p_event_type,event_type_oid)
-   --   and status = 'A'
       and priority = nvl(p_priority,priority)
       and amnd_state != 'I'
---      and nvl(p_parent_id,)
       order by contract_oid asc, date_to asc, id asc;
     return v_results;
   exception 
-    when NO_DATA_FOUND then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_get_info', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=delay,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      return null;    
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;    
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_get_info', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=delay,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into delay error. '||SQLERRM);
-      return null;
   end;
 
 
@@ -1994,43 +1998,35 @@ end blng_api;
                             p_date_to in ntg.dtype.t_date default NULL,
                             p_event_type in ntg.dtype.t_id default null,
                             p_transaction in ntg.dtype.t_id default null,
-                            p_priority in blng.delay.priority%type default null
+                            p_priority in ntg.dtype.t_id default null
                           )
   return blng.delay%rowtype
   is
     msg ntg.dtype.t_msg;
     c_delay  SYS_REFCURSOR;
-    r_delay blng.delay%rowtype;
+    r_obj blng.delay%rowtype;
   begin
-      SELECT --id, event_type_oid, transaction_oid, date_to, contract_oid, amount, status, priority
-      * into r_delay
+      SELECT 
+      * into r_obj
       from blng.delay
       where id = nvl(p_id,id)
       and contract_oid = nvl(p_contract,contract_oid)
       and transaction_oid = nvl(p_transaction,transaction_oid)
-      and trunc(date_to) = trunc(nvl(p_date_to,date_to))
       and event_type_oid = nvl(p_event_type,event_type_oid)
-   --   and status = 'A'
       and priority = nvl(p_priority,priority)
       and amnd_state != 'I'
---      and nvl(p_parent_id,)
       order by contract_oid asc, date_to asc, id asc;
---    return v_results;
-    return r_delay;
+    return r_obj;
   exception 
-    when NO_DATA_FOUND then
---      CLOSE c_delay;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_get_info_r', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=delay,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      return null;
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;    
     when others then
---      CLOSE c_delay;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=delay,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into delay error. '||SQLERRM);
-      return null;
   end delay_get_info_r;
 
 
@@ -2047,7 +2043,6 @@ end blng_api;
     v_obj_row.company_oid := p_company;
     v_obj_row.is_domain := p_is_domain;
     v_obj_row.status := 'A';
---    insert into blng.delay values v_delay_row returning id into v_id;
     insert into blng.domain values v_obj_row;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'domain_add', p_msg_type=>'UNHANDLED_ERROR',
@@ -2084,14 +2079,19 @@ end blng_api;
     v_obj_row_new.name:=nvl(p_name, v_obj_row_new.name);
     v_obj_row_new.company_oid := nvl(p_company, v_obj_row_new.company_oid);
     v_obj_row_new.is_domain := nvl(p_is_domain, v_obj_row_new.is_domain);
---    v_obj_row_new.status:=p_status;
+
     if p_status in ('C') then v_obj_row_new.amnd_state :='C'; v_obj_row_new.status :='C'; end if;
     if p_status in ('I') then v_obj_row_new.status :='I'; end if;
     if p_status in ('A') then v_obj_row_new.status :='A'; end if;
 
 
     update blng.domain set row = v_obj_row_new where id = v_obj_row_new.id;
-  exception when others then
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+  when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_edit', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=domain,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -2112,7 +2112,7 @@ end blng_api;
     v_results SYS_REFCURSOR;
   begin
     OPEN v_results FOR
-      SELECT --id, event_type_oid, transaction_oid, date_to, contract_oid, amount, status, priority
+      SELECT 
       *
       from blng.domain
       where id = nvl(p_id,id)
@@ -2123,11 +2123,10 @@ end blng_api;
       and amnd_state = 'A';
     return v_results;
   exception 
-    when NO_DATA_FOUND then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'domain_get_info', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=domain,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-        raise;
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;    
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'domain_get_info', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=domain,p_date='
@@ -2144,19 +2143,15 @@ end blng_api;
                           )
   return blng.domain%rowtype
   is
-    v_results blng.domain%rowtype;
+    r_obj blng.domain%rowtype;
   begin
---    OPEN v_results FOR
-      SELECT --id, event_type_oid, transaction_oid, date_to, contract_oid, amount, status, priority
-      * into v_results
+      SELECT 
+      * into r_obj
       from blng.domain
       where id = nvl(p_id,id)
---      and company_oid = nvl(p_company,company_oid)
       and name = nvl(p_name,name)
- --     and status = nvl(p_status,'A')
---      and is_domain = nvl(p_is_domain,is_domain)
       and amnd_state = 'A';
-    return v_results;
+    return r_obj;
   exception 
     when NO_DATA_FOUND then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'domain_get_info_r', p_msg_type=>'NO_DATA_FOUND',
@@ -2207,15 +2202,12 @@ end blng_api;
     v_obj_row.phone := p_phone;
 
     insert into blng.client_data values v_obj_row returning id into v_id;
---    commit;
     return v_id;
   exception when others then
---    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=client_data,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into client_data error. '||SQLERRM);
-    return null;
   end;
 
   procedure client_data_edit(p_id in ntg.dtype.t_id,
@@ -2235,10 +2227,8 @@ end blng_api;
     v_obj_row_old blng.client_data%rowtype;
     v_mess ntg.dtype.t_msg;
   begin
-    --v_client_data_row.xxx:='yyy';
     select * into v_obj_row_old from blng.client_data where id = p_id;
     v_obj_row_new := v_obj_row_old;
-
 
     v_obj_row_new.last_name:=nvl(upper(p_last_name), v_obj_row_new.last_name);
     v_obj_row_new.first_name:=nvl(upper(p_first_name), v_obj_row_new.first_name);
@@ -2270,15 +2260,18 @@ end blng_api;
     else
       v_obj_row_new.amnd_date:=sysdate;
       v_obj_row_new.amnd_user:=user;
-      --v_obj_row_new.amnd_user:=null;
       v_obj_row_old.amnd_state:='I';
       v_obj_row_old.id:=null;
       insert into blng.client_data values v_obj_row_old;
       update blng.client_data set row = v_obj_row_new where id = p_id;
     end if;  
-    --    commit;
-  exception when others then
---    rollback;
+
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;    
+  when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=client_data,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -2307,17 +2300,16 @@ end blng_api;
         *
         from blng.client_data 
         where id = nvl(p_id,id)
---        and last_name = nvl(p_last_name, last_name)
---        and first_name = nvl(p_first_name, first_name)
---        and birth_date = nvl(p_birth_date, birth_date)
---        and gender = nvl(p_gender, gender)
---        and company_oid = nvl(p_company, company_oid)
---        and nationality = nvl(p_nationality, nationality)
         and amnd_state = 'A'
         and client_oid = nvl(p_client,client_oid)
         order by id;
     return v_results;
-  exception when others then
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;     
+  when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_get_info', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client_data,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -2339,44 +2331,24 @@ end blng_api;
                             )
   return blng.client_data%rowtype
   is
---    msg ntg.dtype.t_msg;
- --   c_obj  SYS_REFCURSOR;
     r_obj blng.client_data%rowtype;
   begin
-  --OPEN v_results FOR
+
         SELECT
         * into r_obj
         from blng.client_data 
         where id = nvl(p_id,id)
---        and  last_name = nvl(p_last_name, last_name)
---        and first_name = nvl(p_first_name, first_name)
---        and birth_date = nvl(p_birth_date, birth_date)
---        and gender = nvl(p_gender, gender)
---        and company_oid = nvl(p_company, company_oid)
---        and nationality = nvl(p_nationality, nationality)
         and client_oid = nvl(p_client,client_oid)
         and amnd_state = 'A'
         order by id;
-   -- order by id;    
-
-/*    c_obj := blng.blng_api.client_data_get_info(p_id, p_email);
-    --DBMS_OUTPUT.put_line (1);
-    LOOP
-      FETCH c_obj INTO r_obj;
-      IF c_obj%ROWCOUNT = 0 THEN raise NO_DATA_FOUND; END IF;
-      EXIT WHEN c_obj%NOTFOUND;
-    END LOOP;
-    CLOSE c_obj;*/
     return r_obj;
   exception 
     when NO_DATA_FOUND then
-      --CLOSE c_obj;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_get_info_r', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client_data,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE;
     when TOO_MANY_ROWS then
-      --CLOSE c_obj;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_get_info_r', p_msg_type=>'TOO_MANY_ROWS',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client_data,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -2387,9 +2359,6 @@ end blng_api;
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into client_data error. '||SQLERRM);
   end client_data_get_info_r;
-
-
-
 
 end blng_api;
 

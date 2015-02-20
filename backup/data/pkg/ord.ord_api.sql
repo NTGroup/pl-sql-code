@@ -245,10 +245,8 @@ END ORD_API;
     v_ord_row.client_oid:=p_client;
     v_ord_row.status:=p_status;
     insert into ord.ord values v_ord_row returning id into v_id;
---    commit;
     return v_id;
   exception when others then
---    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'ord_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert,p_table=ord,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -283,12 +281,9 @@ END ORD_API;
     v_item_avia_row.nqt_status:=  p_nqt_status;
     v_item_avia_row.po_status:=  p_po_status;
     v_item_avia_row.nqt_status_cur:=  p_nqt_status_cur;
---    v_item_avia_row.client_oid:=  p_client;
     insert into ord.item_avia values v_item_avia_row returning id into v_id;
---    commit;
     return v_id;
   exception when others then
---    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'item_avia_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert,p_table=item_avia,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -312,7 +307,6 @@ END ORD_API;
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=ord,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into ord error. '||SQLERRM);
-    return null;
   end;
 
 
@@ -323,21 +317,19 @@ END ORD_API;
     c_obj  SYS_REFCURSOR;
     r_obj ord%rowtype;
   begin
-    c_obj := ord_api.ord_get_info(p_id);
-    --DBMS_OUTPUT.put_line (1);
-    LOOP
-      FETCH c_obj INTO r_obj;
-      EXIT WHEN c_obj%NOTFOUND;
-      --DBMS_OUTPUT.put_line (r_account.name);
-    END LOOP;
-    CLOSE c_obj;
+    if p_id is null then raise NO_DATA_FOUND; end if;
+    SELECT
+    * into r_obj
+    from ord.ord where id = p_id
+    order by id;
     return r_obj;
-  exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'ord_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=ord,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into ord error. '||SQLERRM);
-    return null;
+  exception 
+    when NO_DATA_FOUND then raise;
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'ord_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=ord,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into ord error. '||SQLERRM);
   end;
 
 
@@ -369,7 +361,6 @@ END ORD_API;
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select,p_table=item_avia,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
---    return null;
   end;
 
   function item_avia_get_info_r ( p_id in ntg.dtype.t_id default null,
@@ -395,12 +386,13 @@ END ORD_API;
   exception 
     when NO_DATA_FOUND then 
       raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'item_avia_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select,p_table=item_avia,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
-  --    return null;
   end item_avia_get_info_r;
 
   procedure item_avia_edit( P_ID  in ntg.dtype.t_id default null,
@@ -416,12 +408,12 @@ END ORD_API;
                           p_nqt_status_cur in ntg.dtype.t_status default null
                           )
   is
-  --  v_mess ntg.dtype.t_msg;
     v_obj_row_new item_avia%rowtype;
     v_obj_row_old item_avia%rowtype;
---    v_id 
   begin
 
+    if p_id is null and p_nqt_id is null then raise NO_DATA_FOUND; end if;
+    
     select * into v_obj_row_old from item_avia 
         where id = nvl(p_id,id)
         and nqt_id = nvl(p_nqt_id,nqt_id)
@@ -448,12 +440,8 @@ END ORD_API;
 
     update item_avia set row = v_obj_row_new where id = v_obj_row_new.id;
   exception 
-    when NO_DATA_FOUND then
-/*      NTG.LOG_API.LOG_ADD(p_proc_name=>'item_avia_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update,p_table=item_avia,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'update row into item_avia error. '||SQLERRM);*/
-      raise;
+    when NO_DATA_FOUND then raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then raise NO_DATA_FOUND;
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'item_avia_edit', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update,p_table=item_avia,p_date='
@@ -482,15 +470,12 @@ END ORD_API;
     v_obj_row.DATE_TO:=  P_DATE_TO;
 
     insert into ord.commission values v_obj_row returning id into v_id;
---    commit;
     return v_id;
   exception when others then
---    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=commission,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into commission error. '||SQLERRM);
-    return null;
   end;
 
 
@@ -503,16 +488,15 @@ END ORD_API;
                           P_DATE_FROM IN ntg.dtype.T_DATE DEFAULT NULL,
                           P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL)
   is
-  --  v_mess ntg.dtype.t_msg;
     v_obj_row_new commission%rowtype;
     v_obj_row_old commission%rowtype;
---    v_id 
   begin
 
+    if p_id is null then raise NO_DATA_FOUND; end if; 
     select * into v_obj_row_old from commission 
-        where id = nvl(p_id,id)
-        and amnd_state = 'A'
-    ;
+        where id = p_id
+        and amnd_state = 'A';
+        
     v_obj_row_new := v_obj_row_old;
 
     v_obj_row_old.amnd_state:='I';
@@ -532,10 +516,6 @@ END ORD_API;
     update commission set row = v_obj_row_new where id = v_obj_row_new.id;
   exception 
     when NO_DATA_FOUND then
-/*      NTG.LOG_API.LOG_ADD(p_proc_name=>'item_avia_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update,p_table=item_avia,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'update row into item_avia error. '||SQLERRM);*/
       raise;
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_edit', p_msg_type=>'UNHANDLED_ERROR',
@@ -567,7 +547,6 @@ END ORD_API;
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into commission error. '||SQLERRM);
-    return null;
   end;
 
 
@@ -579,21 +558,25 @@ END ORD_API;
     c_obj  SYS_REFCURSOR;
     r_obj commission%rowtype;
   begin
-    c_obj := ord_api.commission_get_info(p_id, p_airline);
-    --DBMS_OUTPUT.put_line (1);
-    LOOP
-      FETCH c_obj INTO r_obj;
-      EXIT WHEN c_obj%NOTFOUND;
-      --DBMS_OUTPUT.put_line (r_account.name);
-    END LOOP;
-    CLOSE c_obj;
+    if p_id is null and p_airline is null then raise NO_DATA_FOUND; end if;
+    SELECT
+    * into r_obj
+    from ord.commission 
+    where id = nvl(p_id,id)
+    and airline = nvl(p_airline,airline)
+    and amnd_state = 'A'
+    order by id;
     return r_obj;
-  exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into commission error. '||SQLERRM);
-    return null;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;
+    when others then
+        NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+          P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
+          || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+        RAISE_APPLICATION_ERROR(-20002,'select row into commission error. '||SQLERRM);
   end commission_get_info_r;
 
 
@@ -632,15 +615,12 @@ END ORD_API;
     v_obj_row.priority:=  p_priority;
 
     insert into ord.commission_template values v_obj_row returning id into v_id;
---    commit;
     return v_id;
   exception when others then
---    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_template_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=commission_template,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into commission_template error. '||SQLERRM);
-    return null;
   end;
 
 
@@ -660,16 +640,14 @@ END ORD_API;
                                     p_TARIFF in ntg.dtype.t_code default null,
                                     p_priority in ntg.dtype.t_id default null)
   is
-  --  v_mess ntg.dtype.t_msg;
     v_obj_row_new commission_template%rowtype;
     v_obj_row_old commission_template%rowtype;
---    v_id 
   begin
+    if p_id is null then raise NO_DATA_FOUND; end if;
 
     select * into v_obj_row_old from commission_template 
-        where id = nvl(p_id,id)
-        and amnd_state = 'A'
-    ;
+        where id = p_id
+        and amnd_state = 'A';
     v_obj_row_new := v_obj_row_old;
 
     v_obj_row_old.amnd_state:='I';
@@ -696,12 +674,10 @@ END ORD_API;
 
     update commission_template set row = v_obj_row_new where id = v_obj_row_new.id;
   exception 
-    when NO_DATA_FOUND then
-/*      NTG.LOG_API.LOG_ADD(p_proc_name=>'item_avia_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update,p_table=item_avia,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'update row into item_avia error. '||SQLERRM);*/
-      raise;
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_template_edit', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=commission_template,p_date='
@@ -729,7 +705,6 @@ END ORD_API;
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission_template,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into commission_template error. '||SQLERRM);
-    return null;
   end;
 
 
@@ -739,21 +714,25 @@ END ORD_API;
     c_obj  SYS_REFCURSOR;
     r_obj commission_template%rowtype;
   begin
-    c_obj := ord_api.commission_template_get_info(p_id);
-    --DBMS_OUTPUT.put_line (1);
-    LOOP
-      FETCH c_obj INTO r_obj;
-      EXIT WHEN c_obj%NOTFOUND;
-      --DBMS_OUTPUT.put_line (r_account.name);
-    END LOOP;
-    CLOSE c_obj;
+    if p_id is null then raise NO_DATA_FOUND; end if; 
+    
+    SELECT
+    * into r_obj
+    from ord.commission_template 
+    where id = nvl(p_id,id)
+    and amnd_state = 'A'
+    order by id;
     return r_obj;
-  exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_template_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission_template,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into commission_template error. '||SQLERRM);
-    return null;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_template_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission_template,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into commission_template error. '||SQLERRM);
   end commission_template_get_info_r;
 
 
@@ -771,17 +750,13 @@ END ORD_API;
     v_obj_row.commission_template_oid:=  p_commission_template;
     v_obj_row.value:=  p_value;
 
-
     insert into ord.commission_details values v_obj_row returning id into v_id;
---    commit;
     return v_id;
   exception when others then
---    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_details_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=commission_details,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into commission_details error. '||SQLERRM);
-    return null;
   end;
 
 
@@ -791,12 +766,11 @@ END ORD_API;
                                     p_commission_template in ntg.dtype.t_id default null,
                                     p_value in  ntg.dtype.t_name default null)
   is
-  --  v_mess ntg.dtype.t_msg;
     v_obj_row_new commission_details%rowtype;
     v_obj_row_old commission_details%rowtype;
---    v_id 
   begin
-
+    if p_id is null then raise NO_DATA_FOUND; end if; 
+  
     select * into v_obj_row_old from commission_details 
         where id = nvl(p_id,id)
         and amnd_state = 'A'
@@ -807,7 +781,6 @@ END ORD_API;
     v_obj_row_old.id:=null;
     insert into commission_details values v_obj_row_old;
 
-
     v_obj_row_new.amnd_date:=sysdate;
     v_obj_row_new.amnd_user:=user;
     v_obj_row_new.commission_oid := nvl(p_commission,v_obj_row_new.commission_oid);
@@ -816,12 +789,10 @@ END ORD_API;
 
     update commission_details set row = v_obj_row_new where id = v_obj_row_new.id;
   exception 
-    when NO_DATA_FOUND then
-/*      NTG.LOG_API.LOG_ADD(p_proc_name=>'item_avia_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update,p_table=item_avia,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'update row into item_avia error. '||SQLERRM);*/
-      raise;
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_details_edit', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=commission_details,p_date='
@@ -836,21 +807,27 @@ END ORD_API;
   is
     v_results SYS_REFCURSOR;
   begin
-      OPEN v_results FOR
-        SELECT
-        *
-        from ord.commission_details 
-        where id = nvl(p_id,id)
-        and commission_oid = nvl(p_commission,commission_oid)
-        and amnd_state = 'A'
-        order by id;
+    if p_id is null and p_commission is null then raise NO_DATA_FOUND; end if; 
+    
+    OPEN v_results FOR
+      SELECT
+      *
+      from ord.commission_details 
+      where id = nvl(p_id,id)
+      and commission_oid = nvl(p_commission,commission_oid)
+      and amnd_state = 'A'
+      order by id;
     return v_results;
-  exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_details_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission_details,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into commission_details error. '||SQLERRM);
-    return null;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;    
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_details_get_info', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission_details,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into commission_details error. '||SQLERRM);
   end;
 
 
@@ -860,21 +837,26 @@ END ORD_API;
     c_obj  SYS_REFCURSOR;
     r_obj commission_details%rowtype;
   begin
-    c_obj := ord_api.commission_details_get_info(p_id,p_commission);
-    --DBMS_OUTPUT.put_line (1);
-    LOOP
-      FETCH c_obj INTO r_obj;
-      EXIT WHEN c_obj%NOTFOUND;
-      --DBMS_OUTPUT.put_line (r_account.name);
-    END LOOP;
-    CLOSE c_obj;
+    if p_id is null and p_commission is null then raise NO_DATA_FOUND; end if; 
+    
+    SELECT
+    * into r_obj
+    from ord.commission_details 
+    where id = nvl(p_id,id)
+    and commission_oid = nvl(p_commission,commission_oid)
+    and amnd_state = 'A'
+    order by id;
     return r_obj;
-  exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_details_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission_details,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into commission_details error. '||SQLERRM);
-    return null;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;    
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_details_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission_details,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into commission_details error. '||SQLERRM);
   end commission_details_get_info_r;
 
 
@@ -883,37 +865,46 @@ END ORD_API;
   is
     v_result  ntg.dtype.t_id;
   begin
---      OPEN v_results FOR
-        SELECT id into v_result        
-        from ord.commission_template 
-        where template_type = nvl(p_type,template_type)
-        and amnd_state = 'A'
-        order by id;
+    if p_id is null then raise NO_DATA_FOUND; end if;   
+
+    SELECT id into v_result        
+    from ord.commission_template 
+    where template_type = nvl(p_type,template_type)
+    and amnd_state = 'A'
+    order by id;
     return v_result;
-  exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_template_get_id', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission_template,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into commission_template error. '||SQLERRM);
-    return null;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;      
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_template_get_id', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission_template,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into commission_template error. '||SQLERRM);
   end;
 
 
   function v_json_r ( p_item_avia in ntg.dtype.t_id default null)
   return v_json%rowtype
   is
---    c_obj  SYS_REFCURSOR;
     r_obj v_json%rowtype;
   begin
+    if p_item_avia is null then raise NO_DATA_FOUND; end if; 
     select * into r_obj from ord.v_json where id = p_item_avia;
 
     return r_obj;
-  exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'v_json_r', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=v_json,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into v_json error. '||SQLERRM);
-    return null;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;       
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'v_json_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=v_json,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into v_json error. '||SQLERRM);
   end v_json_r;
 
   function bill_add( p_order in ntg.dtype.t_id default null,
@@ -930,20 +921,22 @@ END ORD_API;
   begin
     v_obj_row.order_oid:=  p_order;
     v_obj_row.amount:=  p_amount;
-    v_obj_row.bill_date:=  p_date;
-    v_obj_row.status:=  p_status;
+    v_obj_row.bill_date:=  nvl(p_date,sysdate);
+    v_obj_row.status:=  nvl(p_status,'A');
     v_obj_row.contract_oid:=  p_contract;
 
     insert into ord.bill values v_obj_row returning id into v_id;
---    commit;
     return v_id;
-  exception when others then
---    rollback;
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'bill_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=bill,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'insert row into bill error. '||SQLERRM);
-    return null;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;     
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'bill_add', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=bill,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'insert row into bill error. '||SQLERRM);
   end;
 
 
@@ -955,12 +948,10 @@ END ORD_API;
                         p_contract in  ntg.dtype.t_id default null
                       )
   is
-  --  v_mess ntg.dtype.t_msg;
     v_obj_row_new bill%rowtype;
     v_obj_row_old bill%rowtype;
---    v_id 
   begin
-
+    if p_id is null then raise NO_DATA_FOUND; end if; 
     select * into v_obj_row_old from bill 
         where id = nvl(p_id,id)
         and amnd_state = 'A'
@@ -978,12 +969,10 @@ END ORD_API;
 
     update bill set row = v_obj_row_new where id = v_obj_row_new.id;
   exception 
-    when NO_DATA_FOUND then
-/*      NTG.LOG_API.LOG_ADD(p_proc_name=>'item_avia_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update,p_table=item_avia,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'update row into item_avia error. '||SQLERRM);*/
-      raise;
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'bill_edit', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=bill,p_date='
@@ -1002,23 +991,22 @@ END ORD_API;
   is
     v_results SYS_REFCURSOR;
   begin
-      OPEN v_results FOR
-        SELECT
-        *
-        from ord.bill 
-        where id = nvl(p_id,id)
-        and order_oid = nvl(p_order,order_oid)
-        and status = nvl(p_status,status)
-        and contract_oid = nvl(p_contract,contract_oid)
-        and amnd_state = 'A'
-        order by id;
+    OPEN v_results FOR
+      SELECT
+      *
+      from ord.bill 
+      where id = nvl(p_id,id)
+      and order_oid = nvl(p_order,order_oid)
+      and status = nvl(p_status,status)
+      and contract_oid = nvl(p_contract,contract_oid)
+      and amnd_state = 'A'
+      order by id;
     return v_results;
   exception when others then
     NTG.LOG_API.LOG_ADD(p_proc_name=>'bill_get_info', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=bill,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into bill error. '||SQLERRM);
-    return null;
   end;
 
 
@@ -1033,21 +1021,24 @@ END ORD_API;
     c_obj  SYS_REFCURSOR;
     r_obj bill%rowtype;
   begin
-    c_obj := ord_api.bill_get_info(p_id,p_order,p_date,p_status,p_contract);
-    --DBMS_OUTPUT.put_line (1);
-    LOOP
-      FETCH c_obj INTO r_obj;
-      EXIT WHEN c_obj%NOTFOUND;
-      --DBMS_OUTPUT.put_line (r_account.name);
-    END LOOP;
-    CLOSE c_obj;
+    SELECT
+    * into r_obj
+    from ord.bill 
+    where id = nvl(p_id,id)
+    and status = nvl(p_status,status)
+    and amnd_state = 'A'
+    order by id;
     return r_obj;
-  exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'bill_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=bill,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into bill error. '||SQLERRM);
-    return null;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'bill_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=bill,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into bill error. '||SQLERRM);
   end;
 
   function item_avia_status_add( 
@@ -1065,15 +1056,12 @@ END ORD_API;
     v_obj_row.nqt_status_cur:=  p_nqt_status_cur;
 
     insert into ord.item_avia_status values v_obj_row returning id into v_id;
---    commit;
     return v_id;
   exception when others then
---    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'item_avia_status_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=item_avia_status,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into item_avia_status error. '||SQLERRM);
-    return null;
   end;
 
 
@@ -1083,12 +1071,11 @@ END ORD_API;
                                     p_nqt_status_cur in  ntg.dtype.t_status default null
                       )
   is
-  --  v_mess ntg.dtype.t_msg;
     v_obj_row_new item_avia_status%rowtype;
     v_obj_row_old item_avia_status%rowtype;
---    v_id 
   begin
-
+    if p_id is null and p_item_avia is null then raise NO_DATA_FOUND; end if;   
+  
     select * into v_obj_row_old from item_avia_status 
         where id = nvl(p_id,id)
         and item_avia_oid = nvl(p_item_avia,item_avia_oid)
@@ -1108,12 +1095,10 @@ END ORD_API;
 
     update item_avia_status set row = v_obj_row_new where id = v_obj_row_new.id;
   exception 
-    when NO_DATA_FOUND then
-/*      NTG.LOG_API.LOG_ADD(p_proc_name=>'item_avia_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update,p_table=item_avia,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'update row into item_avia error. '||SQLERRM);*/
-      raise;
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;
     when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'item_avia_status_edit', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=item_avia_status,p_date='
@@ -1143,7 +1128,6 @@ END ORD_API;
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=item_avia_status,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia_status error. '||SQLERRM);
-    return null;
   end;
 
 
@@ -1152,24 +1136,28 @@ END ORD_API;
                           )
   return item_avia_status%rowtype
   is
-    c_obj  SYS_REFCURSOR;
     r_obj item_avia_status%rowtype;
   begin
-    c_obj := ord_api.item_avia_status_get_info(p_id,p_item_avia);
-    --DBMS_OUTPUT.put_line (1);
-    LOOP
-      FETCH c_obj INTO r_obj;
-      EXIT WHEN c_obj%NOTFOUND;
-      --DBMS_OUTPUT.put_line (r_account.name);
-    END LOOP;
-    CLOSE c_obj;
+    if p_id is null and p_item_avia is null then raise NO_DATA_FOUND; end if;   
+    
+    SELECT
+    * into r_obj
+    from ord.item_avia_status 
+    where id = nvl(p_id,id)
+    and item_avia_oid = nvl(p_item_avia,item_avia_oid)
+    and amnd_state = 'A'
+    order by id;
     return r_obj;
-  exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'item_avia_status_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=item_avia_status,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into item_avia_status error. '||SQLERRM);
-    return null;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'item_avia_status_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=item_avia_status,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into item_avia_status error. '||SQLERRM);
   end;
 
 
