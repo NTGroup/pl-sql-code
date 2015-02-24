@@ -114,6 +114,13 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                   p_utc_offset in ntg.dtype.t_id default null)
   return blng.contract%rowtype;
 
+
+/*
+$obj_type: procedure
+$obj_name: account_init
+$obj_desc: create all accounts under the contract
+$obj_param: p_contract: contract id
+*/
   procedure account_init(p_contract in ntg.dtype.t_id);
 
  procedure account_edit(       p_id in ntg.dtype.t_id default null,
