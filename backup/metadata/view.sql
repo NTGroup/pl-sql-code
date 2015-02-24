@@ -283,32 +283,39 @@ from
 order by 2;
 /
 
-  CREATE OR REPLACE  VIEW "NTG"."V_MARKUP" 
+/*  CREATE OR REPLACE  VIEW "NTG"."V_MARKUP" 
   as
   select
-  (select iata from ntg.airline a where a.id = validating_carrier) validating_carrier,
-  class_of_service,
+  mkp.id,
+  nvl(mkp.contract_oid,0) tenant_id,
+  air.iata validating_carrier,
+  mkp.class_of_service,
   case
-  when segment is not null and segment = 'Y' then 'Y' 
+  when mkp.segment is not null and mkp.segment = 'Y' then 'Y' 
   else 'N'
   end segment,
-  nvl(v_from,0) v_from,
-  nvl(v_to,0) v_to,
+  nvl(mkp.v_from,0) v_from,
+  nvl(mkp.v_to,0) v_to,
   case
-  when absolut = 'Y'  then absolut_amount 
+  when mkp.absolut = 'Y'  then mkp.absolut_amount 
   else null
   end absolut_amount,
   case
-  when percent = 'Y'  then percent_amount 
+  when mkp.percent = 'Y'  then mkp.percent_amount 
   else null
   end percent_amount,
   case
-  when percent = 'Y'  then min_absolut 
+  when mkp.percent = 'Y'  then mkp.min_absolut 
   else null
-  end min_absolut
+  end min_absolut,
+  (select max(id) from ntg.markup)  version
   
-  from markup
-  where amnd_state = 'A';
+  from markup mkp, airline air
+  where mkp.amnd_state = 'A'
+  AND air.amnd_state = 'A'
+  and air.id = mkp.validating_carrier;
+
+*/
 
 /
 

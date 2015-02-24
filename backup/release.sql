@@ -9,7 +9,13 @@ drop type ntg.iata_o;
 drop type ntg.dnames_tab;
 drop type ntg.dnames_tab1;
 drop user EXP CASCADE;
+drop view ntg.v_markup;
 
+ALTER TABLE ntg.MARKUP RENAME COLUMN CLIENT TO CONTRACT_OID;
+alter table markup drop column contract_oid;
+
+alter table markup drop column CLIENT;
+alter table markup add contract_oid number(18,0);
 
 
 @metadata/view.sql;
