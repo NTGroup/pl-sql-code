@@ -1,5 +1,6 @@
 grant select on blng.client to ord;
 grant select on blng.company to ord;
+grant select on blng.client2contract to ord;
 /
 CREATE OR REPLACE PACKAGE "ORD"."FWDR" AS 
 
@@ -58,7 +59,7 @@ $obj_param: p_total_amount: total amount including markup
 $obj_param: p_total_markup: just total markup
 $obj_param: p_pnr_object: json for backup
 $obj_param: p_nqt_status: current NQT process
-$obj_param: p_tenant_id: id of company in text format, for authorization
+$obj_param: p_tenant_id: id of contract in text format, for authorization
 
 */
 
@@ -79,7 +80,7 @@ $obj_name: avia_reg_ticket
 $obj_desc: procedure get ticket info by nqt_id.
 $obj_desc: its create row for ticket. later this info will send to managers
 $obj_param: p_nqt_id: id from NQT. search perform by this id
-$obj_param: p_tenant_id: id for client contract in text format just for NQT
+$obj_param: p_tenant_id: id of contract in text format, for authorization
 $obj_param: p_ticket: json with ticket info.
 $obj_param: p_ticket: json: id,
 
@@ -153,7 +154,7 @@ $obj_name: pnr_list
 $obj_desc: get pnr list whith id listed in p_pnr_list.
 $obj_param: p_pnr_list: json[p_pnr_id,p_tenant_id], where
 $obj_param: p_pnr_id: id from NQT. search perform by this id
-$obj_param: p_tenant_id: id of company. for authorisation 
+$obj_param: p_tenant_id: id of contract in text format, for authorization
 $obj_return: sys_refcursor[pnr_id, nqt_status, po_status, nqt_status_cur, null po_msg, 'avia' item_type, pnr_locator,tenant_id]
 
 */
@@ -167,7 +168,7 @@ $obj_type: procedure
 $obj_name: commission_get
 $obj_desc: calculate commission for pnr_id
 $obj_param: p_pnr_id: id from NQT. search perform by this id
-$obj_param: p_tenant_id: id of company. for authorisation 
+$obj_param: p_tenant_id: id of contract in text format, for authorization
 $obj_param: o_fix: in this paraveter returned fix commission value
 $obj_param: o_percent: in this paraveter returned percent commission value
 
@@ -197,7 +198,7 @@ $obj_type: procedure
 $obj_name: avia_manual
 $obj_desc: update order status to p_result[ERROR/SUCCESS] or to INPROGRESS, if ERROR then return all money.
 $obj_param: p_pnr_id: id from NQT. search perform by this id
-$obj_param: p_tenant_id: id of company. for authorisation 
+$obj_param: p_tenant_id: id of contract in text format, for authorization
 $obj_param: p_result: [ERROR/SUCCESS/ if null then INPROGRESS] 
 
 */
@@ -268,10 +269,6 @@ $obj_param: p_user_id: user identifire. at this moment email
 END FWDR;
 
 /
-
---------------------------------------------------------
---  DDL for Package Body FWDR
---------------------------------------------------------
 
   CREATE OR REPLACE PACKAGE BODY "ORD"."FWDR" AS
 
@@ -513,7 +510,7 @@ END FWDR;
         SELECT
         ia.nqt_id pnr_id, ia.nqt_status, ias.po_status, ias.nqt_status_cur, 
         null po_msg, 'avia' item_type, ia.pnr_id pnr_locator, j.p_tenant_id tenant_id
-        from ord.item_avia ia, ord.item_avia_status ias, blng.client cl, ord.ord ord,
+        from ord.item_avia ia, ord.item_avia_status ias, blng.client cl, ord.ord ord, blng.client2contract c2c,
         json_table  
           ( p_pnr_list,'$[*]' 
           columns (p_pnr_id VARCHAR2(250) path '$.p_pnr_id',
@@ -529,7 +526,9 @@ END FWDR;
         and ord.id = ia.order_oid
         and cl.amnd_state = 'A'
         and cl.id = ord.client_oid
-        and cl.company_oid = j.p_tenant_id
+        and c2c.contract_oid = j.p_tenant_id
+        and cl.id = c2c.client_oid
+        and c2c.permission = 'B'
         order by ia.time_limit asc; 
     return v_results;
   exception when others then
@@ -631,9 +630,9 @@ END FWDR;
 $TODO: there must be check for users with ISSUES permission
 */
       r_client := blng.blng_api.client_get_info_r(p_id=>r_order.client_oid);
-
+      
 --      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.client_oid);
-      if r_client.company_oid!=v_tenant_id then raise NO_DATA_FOUND; end if;
+      if blng.core.pay_contract_by_client(r_client.id)!=v_tenant_id then raise NO_DATA_FOUND; end if;
 
     exception when NO_DATA_FOUND then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'NO_DATA_FOUND',
@@ -840,7 +839,7 @@ $TODO: there must be check for users with ISSUES permission
       r_client := blng.blng_api.client_get_info_r(p_id=>r_order.client_oid);
 
 --      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.client_oid);
-      if r_client.company_oid!=v_tenant_id then raise NO_DATA_FOUND; end if;
+      if blng.core.pay_contract_by_client(r_client.id)!=v_tenant_id then raise NO_DATA_FOUND; end if;
 
     exception when NO_DATA_FOUND then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_manual', p_msg_type=>'NO_DATA_FOUND',
@@ -1053,7 +1052,7 @@ $TODO: there must be check for users with ISSUES permission
       r_client := blng.blng_api.client_get_info_r(p_id=>r_order.client_oid);
 
 --      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.client_oid);
-      if r_client.company_oid!=v_tenant_id then raise NO_DATA_FOUND; end if;
+      if blng.core.pay_contract_by_client(r_client.id)!=v_tenant_id then raise NO_DATA_FOUND; end if;
 
     exception when NO_DATA_FOUND then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_update', p_msg_type=>'NO_DATA_FOUND',

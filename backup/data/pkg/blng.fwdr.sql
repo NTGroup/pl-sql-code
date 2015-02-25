@@ -6,7 +6,7 @@ $pkg: blng.fwdr
 /*
 $obj_type: function
 $obj_name: get_tenant
-$obj_desc: return tenant. tenant is contract/company identifire. tenant using 
+$obj_desc: return tenant. tenant is contract identifire. tenant using 
 $obj_desc: for checking is client registered in the system.
 $obj_param: p_email: user email
 $obj_return: contract(now company) identifire
@@ -28,7 +28,7 @@ $obj_return: client id
 $obj_type: function
 $obj_name: balance
 $obj_desc: return info of contract for show balance to the client
-$obj_param: P_TENANT_ID: contract(now company) id
+$obj_param: P_TENANT_ID: contract id
 $obj_return: SYS_REFCURSOR[CONTRACT_OID, DEPOSIT, LOAN, CREDIT_LIMIT, 
 UNUSED_CREDIT_LIMIT, CREDIT_LIMIT_BLOCK, DEBIT_ONLINE, MAX_LOAN_TRANS_AMOUNT, 
 CREDIT_ONLINE, DELAY_DAYS, AVAILABLE,UNBLOCK_SUM, NEAR_UNBLOCK_SUM,BLOCK_DATE]
@@ -40,11 +40,12 @@ CREDIT_ONLINE, DELAY_DAYS, AVAILABLE,UNBLOCK_SUM, NEAR_UNBLOCK_SUM,BLOCK_DATE]
 /*
 $obj_type: function
 $obj_name: whoami
-$obj_desc: return info of contract for show balance to the client
-$obj_param: P_TENANT_ID: contract(now company) id
-$obj_return: SYS_REFCURSOR[CONTRACT_OID, DEPOSIT, LOAN, CREDIT_LIMIT, 
-$obj_return: UNUSED_CREDIT_LIMIT, CREDIT_LIMIT_BLOCK, DEBIT_ONLINE, MAX_LOAN_TRANS_AMOUNT, 
-$obj_return: CREDIT_ONLINE, DELAY_DAYS, AVAILABLE,UNBLOCK_SUM, NEAR_UNBLOCK_SUM,BLOCK_DATE]
+$obj_desc: return info for user
+$obj_param: p_user: email
+$obj_return: SYS_REFCURSOR[CLIENT_ID, LAST_NAME, FIRST_NAME, EMAIL, PHONE, --TENANT_ID, 
+$obj_return: BIRTH_DATE, GENDER, NATIONALITY, NLS_NATIONALITY, DOC_ID, DOC_EXPIRY_DATE, 
+$obj_return: DOC_NUMBER, DOC_LAST_NAME, DOC_FIRST_NAME, DOC_OWNER, DOC_GENDER, 
+$obj_return: DOC_BIRTH_DATE, DOC_NATIONALITY, DOC_NLS_NATIONALITY, DOC_PHONE, COMPANY_NAME]
 */
   function whoami(p_user in ntg.dtype.t_name)
   return SYS_REFCURSOR;
@@ -118,7 +119,7 @@ create  or replace package BODY blng.fwdr as
     r_client blng.client%rowtype;
 --    r_company blng.company%rowtype;
     v_client ntg.dtype.t_id;
-    v_company ntg.dtype.t_id;
+    v_contract ntg.dtype.t_id;
     r_company blng.company%rowtype;
     r_contract blng.contract%rowtype;
     r_domain blng.domain%rowtype;
@@ -127,7 +128,7 @@ create  or replace package BODY blng.fwdr as
   --all emails must be in lower case
     begin
       r_client:=blng.blng_api.client_get_info_r(p_email=>lower(p_email));
-      v_company := r_client.company_oid;
+      v_contract := blng.core.pay_contract_by_client(r_client.id);
     exception 
       when NO_DATA_FOUND then
         begin
@@ -142,21 +143,21 @@ create  or replace package BODY blng.fwdr as
             exception when NO_DATA_FOUND then raise;
             end;
         end;
-        v_company:=r_domain.company_oid;
 --dbms_output.put_line(sysdate||'3');
-        r_company:=blng.blng_api.company_get_info_r(p_id=>v_company);        
-        r_contract:=blng.blng_api.contract_get_info_r(p_company=>v_company);
+        r_company:=blng.blng_api.company_get_info_r(p_id=>r_domain.company_oid);        
+        r_contract:=blng.blng_api.contract_get_info_r(p_company=>r_company.id);
+        v_contract:=r_contract.id;
 --dbms_output.put_line(sysdate||'4');
-        select count(*) into v_client_count from blng.client where amnd_state = 'A' and company_oid = v_company and amnd_date > sysdate-1/24/60;
+        select count(*) into v_client_count from blng.client where amnd_state = 'A' and company_oid = r_company.id and amnd_date > sysdate-1/24/60;
         -- auto user registration stoper 10 user per minute
         if v_client_count>=10 then return null; end if;
 --dbms_output.put_line(sysdate||'5');
-        v_client := blng.BLNG_API.client_add(P_last_NAME => REGEXP_SUBSTR ( lower(p_email), '^[^@]*' ), p_company => v_company,p_email=>p_email,p_utc_offset=>r_company.utc_offset);
+        v_client := blng.BLNG_API.client_add(P_last_NAME => REGEXP_SUBSTR ( lower(p_email), '^[^@]*' ), p_company => r_company.id,p_email=>p_email,p_utc_offset=>r_company.utc_offset);
 --dbms_output.put_line(sysdate||'6');
         blng.BLNG_API.client2contract_add(P_client => v_client, p_permission=> 'B', p_contract => r_contract.id);
         commit;
     end;
-    return v_company;
+    return v_contract;
   exception 
     when NO_DATA_FOUND then
       rollback;
@@ -199,7 +200,8 @@ create  or replace package BODY blng.fwdr as
     v_results SYS_REFCURSOR; 
     v_contract ntg.dtype.t_id;
   begin
-    v_contract:= blng.core.pay_contract_by_client(blng.fwdr.company_insteadof_client(P_TENANT_ID)) ;
+--    v_contract:= blng.core.pay_contract_by_client(blng.fwdr.company_insteadof_client(P_TENANT_ID)) ;
+    v_contract:= P_TENANT_ID;
       OPEN v_results FOR
         select
         acc.CONTRACT_OID, acc.DEPOSIT, abs(acc.LOAN) loan, acc.CREDIT_LIMIT, 
@@ -232,9 +234,9 @@ create  or replace package BODY blng.fwdr as
   begin
 
 --    v_results:=blng.blng_api.client_get_info(p_email=>p_user);
-      OPEN v_results FOR
+    OPEN v_results FOR
       select clt.id client_id, INITCAP(clt.last_name) last_name, INITCAP(clt.first_name) first_name,clt.email,clt.phone,
-      clt.company_oid tenant_id, to_char(clt.birth_date,'yyyy-mm-dd') birth_date,
+      /*blng.core.pay_contract_by_client() tenant_id,*/ to_char(clt.birth_date,'yyyy-mm-dd') birth_date,
       clt.gender,
       clt.nationality,
       ntg.ntg_api.gds_nationality_get_info_name(clt.nationality) nls_nationality,
@@ -362,7 +364,7 @@ create  or replace package BODY blng.fwdr as
   exception 
     when NO_DATA_FOUND then
       ROLLBACK;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'get_tenant', p_msg_type=>'NO_DATA_FOUND',
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
 --      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
@@ -371,7 +373,7 @@ create  or replace package BODY blng.fwdr as
       return v_results;
     when others then
       ROLLBACK;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'whoami', p_msg_type=>'UNHANDLED_ERROR', 
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
 --      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
@@ -390,10 +392,13 @@ create  or replace package BODY blng.fwdr as
   is
     v_results SYS_REFCURSOR; 
     v_contract ntg.dtype.t_id;
---    r_company blng.company%rowtype;
+--    v_contract
+    r_client blng.client%rowtype;
+    --r_client
   begin
---      r_client
---      r_company:=blng.blng_api.company_get_info_r(p_id=>v_company);        
+  
+      r_client:=blng.blng_api.client_get_info_r(p_email => p_email);
+      v_contract:=blng.core.pay_contract_by_client(r_client.id);        
 
 --    v_results:=blng.blng_api.client_get_info(p_email=>p_user);
       OPEN v_results FOR
@@ -416,6 +421,7 @@ create  or replace package BODY blng.fwdr as
           max(doc_id) doc_id 
           from 
           blng.v_statement
+--          where contract_id = v_contract
           where email = p_email
           and trans_date < to_date(p_date_from,'yyyy-mm-dd')-utc_offset/24
         ) is null 
@@ -428,10 +434,12 @@ create  or replace package BODY blng.fwdr as
           max(doc_id) doc_id 
           from 
           blng.v_statement
+--          where contract_id = v_contract
           where email = p_email
           and trans_date < to_date(p_date_from,'yyyy-mm-dd')-utc_offset/24
         )
-        and email = p_email
+--          where contract_id = v_contract
+          and email = p_email
         )
       end amount_from,
       case  
@@ -440,6 +448,7 @@ create  or replace package BODY blng.fwdr as
           max(doc_id) doc_id 
           from 
           blng.v_statement
+--          where contract_id = v_contract
           where email = p_email
           and trans_date < to_date(p_date_to,'yyyy-mm-dd')+1-utc_offset/24
         ) is null 
@@ -452,10 +461,12 @@ create  or replace package BODY blng.fwdr as
           max(doc_id) doc_id 
           from 
           blng.v_statement
+--          where contract_id = v_contract
           where email = p_email
           and trans_date < to_date(p_date_to,'yyyy-mm-dd')+1-utc_offset/24
         )
-        and email = p_email
+--        and contract_id = v_contract
+          and email = p_email
         )
         end amount_to,
         1 one
@@ -467,8 +478,8 @@ create  or replace package BODY blng.fwdr as
           st.*
           from 
           blng.v_statement st
-          where 
-          email = p_email
+--          where contract_id = v_contract
+          where email = p_email
           and trans_date >= to_date(p_date_from,'yyyy-mm-dd')-utc_offset/24
           and trans_date < to_date(p_date_to,'yyyy-mm-dd')+1-utc_offset/24
         )
