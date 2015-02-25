@@ -125,7 +125,18 @@ create  or replace package BODY blng.fwdr as
     r_domain blng.domain%rowtype;
     v_client_count ntg.dtype.t_id;
   begin
-  --all emails must be in lower case
+-- for authorization we have to return tenant_id.
+-- tenant_id is a identifire that user is valid. if function doesnt return tenant its mean user/email not valid.
+-- second process of function is creating valid users. its mean checking emails in domain table. if its valid then create user.
+-- 1. check user email exists at client table then authorise(return tenant_id)
+-- 2. check domain of email (example: "gmail.com") in the domain table. if exists then create user in client table and authorise.
+-- 3. check full email address in domain table. if exists then create user in client table and authorise.
+-- 3.a. after creating user we must delete it from domain table.
+-- 4. else return exception
+-- 5. to pretend attack i initialise stopper v_client_count. this variable equal count of new users last 1 minute.
+-- if its more than 10 users than stop creating users. 
+
+-- all emails must be in lower case
     begin
       r_client:=blng.blng_api.client_get_info_r(p_email=>lower(p_email));
       v_contract := blng.core.pay_contract_by_client(r_client.id);
@@ -149,7 +160,7 @@ create  or replace package BODY blng.fwdr as
         v_contract:=r_contract.id;
 --dbms_output.put_line(sysdate||'4');
         select count(*) into v_client_count from blng.client where amnd_state = 'A' and company_oid = r_company.id and amnd_date > sysdate-1/24/60;
-        -- auto user registration stoper 10 user per minute
+-- auto user registration stoper 10 user per minute
         if v_client_count>=10 then return null; end if;
 --dbms_output.put_line(sysdate||'5');
         v_client := blng.BLNG_API.client_add(P_last_NAME => REGEXP_SUBSTR ( lower(p_email), '^[^@]*' ), p_company => r_company.id,p_email=>p_email,p_utc_offset=>r_company.utc_offset);
@@ -173,9 +184,10 @@ create  or replace package BODY blng.fwdr as
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=delay,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
-      return null;
+--      return null;
   end;
 
+  
   function company_insteadof_client(p_company in ntg.dtype.t_id)
   return ntg.dtype.t_id
   is
@@ -214,7 +226,6 @@ create  or replace package BODY blng.fwdr as
         from blng.v_account acc, blng.v_total total 
         where acc.contract_oid = v_contract
         and acc.contract_oid = total.contract_oid(+)
-
     
     ;
     return v_results;
@@ -223,7 +234,7 @@ create  or replace package BODY blng.fwdr as
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=v_account,p_date=' 
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
     RAISE_APPLICATION_ERROR(-20002,'select row into v_account error. '||SQLERRM);
-    return null;
+ --   return null;
   end;
 
   function whoami(p_user in ntg.dtype.t_name)
@@ -267,7 +278,6 @@ create  or replace package BODY blng.fwdr as
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_user='||p_user||',p_date=' 
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
     RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
-    return null;
   end;
 
 
@@ -279,7 +289,7 @@ create  or replace package BODY blng.fwdr as
     r_client blng.client%rowtype;
     r_client_data blng.client_data%rowtype;
   begin
-
+-- first update client info. then if doc_number is not null then update client_data 
     for i in (
       select 
       dd.*
@@ -409,7 +419,6 @@ create  or replace package BODY blng.fwdr as
       TRANSACTION_DATE,TRANSACTION_TIME,AMOUNT_BEFORE,AMOUNT,AMOUNT_AFTER,TRANSACTION_TYPE,NQT_ID,ORDER_NUMBER,LAST_NAME,FIRST_NAME,EMAIL,
       sum(case when docs.doc_trans_code = 'b' then amount else 0 end)  over (partition by docs.one) amount_buy,
       sum(case when docs.doc_trans_code = 'ci' then amount else 0 end) over (partition by docs.one)  amount_cash_in,
-
       amount_from,
       amount_to
       from
@@ -496,7 +505,7 @@ create  or replace package BODY blng.fwdr as
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date=' 
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
     RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
-    return null;
+--    return null;
   end;
 
   function loan_list(p_email  in ntg.dtype.t_name,

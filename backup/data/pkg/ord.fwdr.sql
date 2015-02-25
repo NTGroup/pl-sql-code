@@ -602,11 +602,8 @@ END FWDR;
     v_id ntg.dtype.t_id;
     
   begin
-
 --o_percent:=0.6;
 --o_fix:= 2.3;
-
-
     v_tenant_id := to_number(p_tenant_id);
 
     begin 
@@ -623,7 +620,7 @@ END FWDR;
 --    dbms_output.put_line(' p_id='||p_pnr_id);          
 
     begin 
-      -- check that cliemt with this user_id exist
+-- check that cliemt with this user_id exist
       if v_tenant_id is null then raise NO_DATA_FOUND; end if;
       r_order := ord_api.ord_get_info_r(p_id=>r_item_avia.order_oid);
 /* 
@@ -648,18 +645,18 @@ $TODO: there must be check for users with ISSUES permission
         
     r_item_avia := ord_api.item_avia_get_info_r(p_nqt_id => p_pnr_id);
     if r_item_avia.id is null then
-      dbms_output.put_line(' p_id='||p_pnr_id);          
+--      dbms_output.put_line(' p_id='||p_pnr_id);          
       --raise NO_DATA_FOUND;
       return;
     end if;
-    dbms_output.put_line('NN p_id='||r_item_avia.id);          
+--    dbms_output.put_line('NN p_id='||r_item_avia.id);          
     v_id:= r_item_avia.id;
   
     select distinct al.id, al.iata  into v_airline, v_iata from ord.v_json j, ntg.airline al where j.id = v_id
     and al.AMND_STATE = 'A'
     and j.validatingcarrier = al.iata
     ;
-    dbms_output.put_line('1');          
+--    dbms_output.put_line('1');          
 
 -- 1. get contract_type (code-share/interline/self)
     f_VCeqMC := 1;
@@ -677,10 +674,6 @@ $TODO: there must be check for users with ISSUES permission
       RAISE_APPLICATION_ERROR(-20002,'commission_get error. json not found. '||SQLERRM);
       --      o_fix := null; o_percent:=5;
     end;
- 
- 
--- if some epressoin true then details_r is true
--- else nothing
     if f_VCeqMC = 0 then
       v_contract_type := ord_api.commission_template_get_id('interline');
     elsif f_MCeqOC = 0 then
@@ -689,8 +682,9 @@ $TODO: there must be check for users with ISSUES permission
       v_contract_type := ord_api.commission_template_get_id('self');
     end if;
 
-    dbms_output.put_line('2');
+--    dbms_output.put_line('2');
 
+-- get list of rulles for airline
     for i_rule in ( 
       select distinct rule_oid id, fix, percent, priority,rule_description 
       from ord.v_rule 
@@ -701,7 +695,7 @@ $TODO: there must be check for users with ISSUES permission
     )
     loop
 -- several rules can be true. each of them we need to check and get minimum commission value.
--- its mean we need to check all rules.
+-- its mean we have to check all rules.
       f_rule := 1; 
       for i_condition in (
         select template_type_code,template_value, template_type_oid from ord.v_rule where contract_type_oid = v_contract_type and iata = v_iata and rule_oid = i_rule.id
@@ -709,11 +703,11 @@ $TODO: there must be check for users with ISSUES permission
       loop
         f_template_type := 0; 
         
--- template_type distribute rule by types. for examples geo type and class type.
--- each of types must be true inside rule.
--- thats why order of types is dosnt matter
+-- template_type distribute rule by conditions. for examples geo type and class type.
+-- each of conditions must be true inside rule.
+-- thats why order of conditions is dosnt matter
 
--- for each template_type we make different logic. 
+-- for each conditions we make different logic. 
 -- json is just iteration for each segment. some conditions must be true for each segment,
 -- others only for one of them
         
@@ -747,7 +741,7 @@ $TODO: there must be check for users with ISSUES permission
           exit;
         end if;
         
-      end loop; --template_type
+      end loop; --i_condition
       
       if f_rule = 1 then
         if o_fix is null or o_fix > i_rule.fix then 
@@ -759,7 +753,7 @@ $TODO: there must be check for users with ISSUES permission
       end if;
     dbms_output.put_line(' p_id='||i_rule.rule_description||' v_iata='||v_iata||' o_fix='||o_fix||' o_percent='||o_percent);          
     end loop; --i_rule
-    dbms_output.put_line('3');          
+--    dbms_output.put_line('3');          
  
     if o_fix is not null then o_percent := null; end if;
     --c_fix := to_char(o);
@@ -772,8 +766,6 @@ $TODO: there must be check for users with ISSUES permission
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       return;
     when others then
-    
---    rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)|| ' '||sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -818,7 +810,7 @@ $TODO: there must be check for users with ISSUES permission
   
     begin 
       if p_pnr_id is null then raise NO_DATA_FOUND; end if;
-      -- check that item with this pnr_id exists
+-- check that item with this pnr_id exists
       r_item_avia := ord_api.item_avia_get_info_r(p_nqt_id=>p_pnr_id);
     exception 
       when NO_DATA_FOUND then 
@@ -830,7 +822,7 @@ $TODO: there must be check for users with ISSUES permission
 --    dbms_output.put_line(' p_id='||p_pnr_id);          
 
     begin 
-      -- check that cliemt with this user_id exist
+-- check that cliemt with this user_id exist
       if v_tenant_id is null then raise NO_DATA_FOUND; end if;
       r_order := ord_api.ord_get_info_r(p_id=>r_item_avia.order_oid);
 /* 
@@ -953,7 +945,7 @@ $TODO: there must be check for users with ISSUES permission
   begin
 
     begin 
-      -- check that cliemt with this user_id exist
+-- check that cliemt with this user_id exist
       if p_user_id is null then raise NO_DATA_FOUND; end if;
       
       r_client := blng.blng_api.client_get_info_r(p_email=>p_user_id);
@@ -1031,7 +1023,7 @@ $TODO: there must be check for users with ISSUES permission
   dbms_output.put_line(' v_tenant_id='||v_tenant_id); 
     begin 
       if p_pnr_id is null then raise NO_DATA_FOUND; end if;
-      -- check that item with this pnr_id exists
+-- check that item with this pnr_id exists
       r_item_avia := ord_api.item_avia_get_info_r(p_nqt_id=>p_pnr_id);
     exception 
       when NO_DATA_FOUND then 
@@ -1101,10 +1093,9 @@ $TODO: there must be check for users with ISSUES permission
     c_bill  SYS_REFCURSOR;
     r_bill bill%rowtype;
   begin
-  
 
     begin 
-      -- check that cliemt with this user_id exists
+-- check that cliemt with this user_id exists
       if p_user_id is null then raise NO_DATA_FOUND; end if;
       
       r_client := blng.blng_api.client_get_info_r(p_email=>p_user_id);
@@ -1116,7 +1107,7 @@ $TODO: there must be check for users with ISSUES permission
     end;
 
     begin 
-      -- check that cliemt with this user_id exists
+-- check that cliemt with this user_id exists
       if p_pnr_id is null then raise NO_DATA_FOUND; end if;
       
       r_item_avia := ord_api.item_avia_get_info_r(p_nqt_id=>p_pnr_id);
@@ -1131,7 +1122,7 @@ $TODO: there must be check for users with ISSUES permission
                             p_nqt_status_cur => r_item_avia.nqt_status) ;  
                                     
     c_bill := ord_api.bill_get_info(p_order => r_item_avia.order_oid, p_status=>'M');
-
+-- push all Managed bills to Waiting for pay process
     LOOP
       FETCH c_bill INTO r_bill;
       EXIT WHEN c_bill%NOTFOUND;
@@ -1161,7 +1152,7 @@ $TODO: there must be check for users with ISSUES permission
   begin
   
     begin 
-      -- check that cliemt with this user_id exists
+-- check that cliemt with this user_id exists
       if p_user_id is null then raise NO_DATA_FOUND; end if;
       
       r_client := blng.blng_api.client_get_info_r(p_email=>p_user_id);
@@ -1173,11 +1164,11 @@ $TODO: there must be check for users with ISSUES permission
     end;
 
     begin 
-      -- check that cliemt with this user_id exists
+-- check that cliemt with this user_id exists
       if p_pnr_id is null then raise NO_DATA_FOUND; end if;
       
       r_item_avia := ord_api.item_avia_get_info_r(p_nqt_id=>p_pnr_id);
- --     if r_item_avia.order_oid is null then raise NO_DATA_FOUND; end if;
+--     if r_item_avia.order_oid is null then raise NO_DATA_FOUND; end if;
       
     exception when NO_DATA_FOUND then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'NO_DATA_FOUND',
