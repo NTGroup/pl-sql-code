@@ -430,8 +430,8 @@ create  or replace package BODY blng.fwdr as
           max(doc_id) doc_id 
           from 
           blng.v_statement
---          where contract_id = v_contract
-          where email = p_email
+          where contract_id = v_contract
+--          where email = p_email
           and trans_date < to_date(p_date_from,'yyyy-mm-dd')-utc_offset/24
         ) is null 
        then 0
@@ -443,12 +443,12 @@ create  or replace package BODY blng.fwdr as
           max(doc_id) doc_id 
           from 
           blng.v_statement
---          where contract_id = v_contract
-          where email = p_email
+          where contract_id = v_contract
+--          where email = p_email
           and trans_date < to_date(p_date_from,'yyyy-mm-dd')-utc_offset/24
         )
---          where contract_id = v_contract
-          and email = p_email
+          and contract_id = v_contract
+--          and email = p_email
         )
       end amount_from,
       case  
@@ -457,8 +457,8 @@ create  or replace package BODY blng.fwdr as
           max(doc_id) doc_id 
           from 
           blng.v_statement
---          where contract_id = v_contract
-          where email = p_email
+          where contract_id = v_contract
+--          where email = p_email
           and trans_date < to_date(p_date_to,'yyyy-mm-dd')+1-utc_offset/24
         ) is null 
        then 0
@@ -470,12 +470,12 @@ create  or replace package BODY blng.fwdr as
           max(doc_id) doc_id 
           from 
           blng.v_statement
---          where contract_id = v_contract
-          where email = p_email
+          where contract_id = v_contract
+--          where email = p_email
           and trans_date < to_date(p_date_to,'yyyy-mm-dd')+1-utc_offset/24
         )
---        and contract_id = v_contract
-          and email = p_email
+        and contract_id = v_contract
+--          and email = p_email
         )
         end amount_to,
         1 one
@@ -487,8 +487,8 @@ create  or replace package BODY blng.fwdr as
           st.*
           from 
           blng.v_statement st
---          where contract_id = v_contract
-          where email = p_email
+          where contract_id = v_contract
+--          where email = p_email
           and trans_date >= to_date(p_date_from,'yyyy-mm-dd')-utc_offset/24
           and trans_date < to_date(p_date_to,'yyyy-mm-dd')+1-utc_offset/24
         )

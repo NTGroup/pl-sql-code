@@ -1183,6 +1183,10 @@ $TODO: there must be check for users with ISSUES permission
                                 P_DATE => sysdate,
                                 P_STATUS => 'M', --[M]anaging
                                 P_CONTRACT => v_contract);
+                                
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'OK',
+      P_MSG => 'pnr_id not found',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);                                
                                     
     commit;             
   exception 

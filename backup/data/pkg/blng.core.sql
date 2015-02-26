@@ -769,21 +769,26 @@ end core;
         if r_transaction.trans_type_oid = v_buy then --buy
 -- reverse of buy document
 -- delay will be one. so just find this row, update status and move cash_in's to other delay
-          r_delay := BLNG_API.delay_get_info_r(P_transaction => r_transaction.id);
-          if r_delay.id is not null then 
-            BLNG_API.delay_edit(P_id => r_delay.id, p_status => 'R');
-            for i_cash_in in (
-              select * from blng.delay 
-              where parent_id = r_delay.id
-              and amnd_state = 'A'
-            )
-            loop
--- to move cash_in's delay just start remove_delay for each cash_in amount
-              CORE.delay_remove (  P_CONTRACT => r_delay.contract_oid,
-                P_AMOUNT => i_cash_in.amount,P_TRANSACTION => i_cash_in.transaction_oid);
-              blng_api.delay_edit(P_id => i_cash_in.id, p_status => 'I');
-            end loop;        
-          end if;      
+          begin
+            r_delay := BLNG_API.delay_get_info_r(P_transaction => r_transaction.id);
+            if r_delay.id is not null then 
+              BLNG_API.delay_edit(P_id => r_delay.id, p_status => 'R');
+              for i_cash_in in (
+                select * from blng.delay 
+                where parent_id = r_delay.id
+                and amnd_state = 'A'
+              )
+              loop
+  -- to move cash_in's delay just start remove_delay for each cash_in amount
+                CORE.delay_remove (  P_CONTRACT => r_delay.contract_oid,
+                  P_AMOUNT => i_cash_in.amount,P_TRANSACTION => i_cash_in.transaction_oid);
+                blng_api.delay_edit(P_id => i_cash_in.id, p_status => 'I');
+              end loop;        
+            end if;      
+          exception when NO_DATA_FOUND then 
+-- its mean deposit > document.amount. need not reverse loan delays
+            NULL; 
+          end;
         elsif r_transaction.trans_type_oid = v_cash_in then --cash_in
 -- reverse of cash_in document
 -- there could be any cash_in delays. because big cash_in can close all loan delays.
@@ -808,7 +813,7 @@ end core;
       exception when others then
         CLOSE c_transaction;  --process stop. so, we need to close cursor
         NTG.LOG_API.LOG_ADD(p_proc_name=>'revoke_document.c_transaction', p_msg_type=>'UNHANDLED_ERROR',
-          P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_delay=' || r_transaction.id || ',p_date=' ||
+          P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'r_transaction.id=' || r_transaction.id ||',p_document=' || p_document || ',p_date=' ||
           to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
         raise;
       end;
@@ -864,7 +869,7 @@ end core;
   exception when others then
     rollback;
     NTG.LOG_API.LOG_ADD(p_proc_name=>'revoke_document', p_msg_type=>'UNHANDLED_ERROR',
-    P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_contract=' || p_document || ',p_date=' ||
+    P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_document=' || p_document || ',p_date=' ||
     to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     raise_application_error(-20003,'revoke_document error');
   end revoke_document;
