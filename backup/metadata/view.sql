@@ -262,8 +262,8 @@ order by 2;
 /*  CREATE OR REPLACE  VIEW "NTG"."V_MARKUP" 
   as
   select
-  mkp.id,
-  nvl(mkp.contract_oid,0) tenant_id,
+--  mkp.id,
+--  nvl(mkp.contract_oid,0) tenant_id,
   air.iata validating_carrier,
   mkp.class_of_service,
   case
