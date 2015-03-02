@@ -141,7 +141,7 @@ $obj_name: pnr_list
 $obj_desc: get pnr list whith statuses listed in p_nqt_status_list and with paging by p_rownum count.
 $obj_param: p_nqt_status_list: json[status]
 $obj_param: p_rownum: filter for rows count
-$obj_return: sys_refcursor[nqt_id, nqt_status, po_status, nqt_status_cur, null po_msg, 'avia' item_type, pnr_id]
+$obj_return: sys_refcursor[pnr_id, nqt_status, po_status, nqt_status_cur, null po_msg, 'avia' item_type, pnr_locator, tenant_id]
 
 */
   function pnr_list(p_nqt_status_list in ntg.dtype.t_clob, p_rownum in ntg.dtype.t_id default null)
@@ -479,7 +479,8 @@ END FWDR;
   begin
       OPEN v_results FOR
         SELECT
-        ia.nqt_id, ia.nqt_status, ias.po_status, ias.nqt_status_cur, null po_msg, 'avia' item_type, ia.pnr_id
+        ia.nqt_id pnr_id, ia.nqt_status, ias.po_status, ias.nqt_status_cur, null po_msg, 'avia' item_type, ia.pnr_id pnr_locator,
+        (select contract_oid from ord.bill where order_oid = ia.order_oid and amnd_state = 'A') tenant_id
         from ord.item_avia ia, ord.item_avia_status ias,
         json_table  
           ( p_nqt_status_list,'$[*]' 
