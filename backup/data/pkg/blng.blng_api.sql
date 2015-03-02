@@ -701,7 +701,7 @@ end blng_api;
     from blng.client 
     where id = nvl(p_id,id)
     and email = nvl(lower(p_email), email)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by id;
     return r_obj;
   exception 
@@ -1032,7 +1032,7 @@ end blng_api;
     and contract_oid = nvl(p_contract,contract_oid)
     and code = nvl(p_code,code)
     and account_type_oid = nvl(p_account_type,account_type_oid)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by contract_oid, priority;
     return r_obj;
   exception 
@@ -1165,7 +1165,7 @@ $TODO: all this nullable fields are bad. document_get_info
         * into r_obj
         from blng.document
         where bill_oid = p_bill
-        and amnd_state = 'A'
+        and amnd_state != 'I'
         order by contract_oid, id asc;
     else
         SELECT
@@ -1786,7 +1786,7 @@ $TODO: all this nullable fields are bad. document_get_info
       from blng.trans_type
       where name = nvl(p_name,name)
       and code = nvl(p_code,code)
-      and amnd_state = 'A';
+      and amnd_state != 'I';
     return v_results;
   exception 
     when NO_DATA_FOUND then 
@@ -1840,7 +1840,7 @@ $TODO: all this nullable fields are bad. document_get_info
       from blng.event_type
       where name = nvl(p_name,name)
       and code = nvl(p_code,code)
-      and amnd_state = 'A';
+      and amnd_state != 'I';
     return v_results;
   exception 
     when NO_DATA_FOUND then 
@@ -2160,7 +2160,7 @@ $TODO: all this nullable fields are bad. document_get_info
       from blng.domain
       where id = nvl(p_id,id)
       and name = nvl(p_name,name)
-      and amnd_state = 'A';
+      and amnd_state != 'I';
     return r_obj;
   exception 
     when NO_DATA_FOUND then
@@ -2349,7 +2349,7 @@ $TODO: all this nullable fields are bad. document_get_info
         from blng.client_data 
         where id = nvl(p_id,id)
         and client_oid = nvl(p_client,client_oid)
-        and amnd_state = 'A'
+        and amnd_state != 'I'
         order by id;
     return r_obj;
   exception 

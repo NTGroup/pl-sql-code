@@ -380,7 +380,7 @@ END ORD_API;
     where id = nvl(p_id,id)
     and nqt_id = nvl(p_nqt_id,nqt_id)
     and order_oid = nvl(p_order,order_oid)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by id;
     return r_obj;
   exception 
@@ -564,7 +564,7 @@ END ORD_API;
     from ord.commission 
     where id = nvl(p_id,id)
     and airline = nvl(p_airline,airline)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by id;
     return r_obj;
   exception 
@@ -720,7 +720,7 @@ END ORD_API;
     * into r_obj
     from ord.commission_template 
     where id = nvl(p_id,id)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by id;
     return r_obj;
   exception 
@@ -844,7 +844,7 @@ END ORD_API;
     from ord.commission_details 
     where id = nvl(p_id,id)
     and commission_oid = nvl(p_commission,commission_oid)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by id;
     return r_obj;
   exception 
@@ -870,7 +870,7 @@ END ORD_API;
     SELECT id into v_result        
     from ord.commission_template 
     where template_type = nvl(p_type,template_type)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by id;
     return v_result;
   exception 
@@ -1026,7 +1026,7 @@ END ORD_API;
     from ord.bill 
     where id = nvl(p_id,id)
     and status = nvl(p_status,status)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by id;
     return r_obj;
   exception 
@@ -1145,7 +1145,7 @@ END ORD_API;
     from ord.item_avia_status 
     where id = nvl(p_id,id)
     and item_avia_oid = nvl(p_item_avia,item_avia_oid)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by id;
     return r_obj;
   exception 

@@ -830,13 +830,13 @@ $TODO: there must be check for users with ISSUES permission
 $TODO: there must be check for users with ISSUES permission
 */
       r_client := blng.blng_api.client_get_info_r(p_id=>r_order.client_oid);
-
+dbms_output.put_line(' p_id='||r_client.id);   
 --      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.client_oid);
       if blng.core.pay_contract_by_client(r_client.id)!=v_tenant_id then raise NO_DATA_FOUND; end if;
 
     exception when NO_DATA_FOUND then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_manual', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => 'user_id not found',p_info => 'p_user_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
+        P_MSG => 'tenant_id not found',p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
       RAISE_APPLICATION_ERROR(-20002,'avia_manual error. user_id not found. ');
     end;
