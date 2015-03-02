@@ -456,7 +456,30 @@ create or replace view blng.v_total as
 /
 
         create or replace view blng.v_statement as
-             select * from 
+             select
+        doc_id,
+        contract_id,
+        utc_offset,
+        doc_trans_code,
+        one,
+        trans_date,
+        transaction_date,
+        transaction_time,
+(sum(amount) over (partition by contract_id order by trans_date RANGE UNBOUNDED PRECEDING))
+-
+amount amount_before,
+        amount,
+sum(amount) over (partition by contract_id order by trans_date RANGE UNBOUNDED PRECEDING) amount_after,
+        transaction_type,
+         nqt_id,
+         order_number,
+         last_name,
+        first_name,
+        email              
+             
+             
+             
+             from 
         (select
         document.id doc_id,
         contract.id contract_id,
@@ -467,9 +490,9 @@ create or replace view blng.v_total as
         trans.trans_date,
         to_char(trans.trans_date + client.utc_offset/24,'yyyy-mm-dd') transaction_date,
         to_char(trans.trans_date + client.utc_offset/24,'HH24:mi:ss') transaction_time,
-        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid < trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_before,
+--        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid < trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_before,
         trans.amount,
-        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid <= trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_after,
+--        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid <= trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_after,
         case 
           when delay.id is not null and doc_trans.code = 'b' then 'LOAN'
           when doc_trans.code = 'b' then 'BUY'
@@ -537,9 +560,9 @@ union all
         trans.trans_date,
         to_char(trans.trans_date + contract.utc_offset/24,'yyyy-mm-dd') transaction_date,
         to_char(trans.trans_date + contract.utc_offset/24,'HH24:mi:ss') transaction_time,
-        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid < trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_before,
+--        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid < trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_before,
         trans.amount,
-        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid <= trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_after,
+--        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid <= trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_after,
         case 
           when delay.id is not null and doc_trans.code = 'b' then 'LOAN'
           when doc_trans.code = 'b' then 'BUY'
@@ -586,7 +609,7 @@ union all
         and document.bill_oid is null
         )
       --  where contract_id = 21
-        order by trans_date;
+        order by contract_id, trans_date;
 /
 /*
 grant CREATE MATERIALIZED VIEW to blng;

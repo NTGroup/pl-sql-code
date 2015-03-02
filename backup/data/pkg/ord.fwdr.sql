@@ -780,7 +780,7 @@ $TODO: there must be check for users with ISSUES permission
     v_client_oid number;
     v_order_count number;
   begin
-    select count(*) into v_order_count from ord.ord where client_oid = p_client;
+    select count(*) into v_order_count from ord.ord where client_oid = p_client and amnd_state <> 'I';
     return lpad(p_client,6,'0')||lpad(v_order_count+1,4,'0');
   end;
 
@@ -820,7 +820,7 @@ $TODO: there must be check for users with ISSUES permission
           || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
         RAISE_APPLICATION_ERROR(-20002,'avia_manual error. p_pnr_id does not found.');
     end;
---    dbms_output.put_line(' p_id='||p_pnr_id);          
+    --    dbms_output.put_line(' p_id='||p_pnr_id);          
 
     begin 
 -- check that cliemt with this user_id exist
@@ -830,7 +830,7 @@ $TODO: there must be check for users with ISSUES permission
 $TODO: there must be check for users with ISSUES permission
 */
       r_client := blng.blng_api.client_get_info_r(p_id=>r_order.client_oid);
-dbms_output.put_line(' p_id='||r_client.id);   
+        --dbms_output.put_line(' p_id='||r_client.id);   
 --      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.client_oid);
       if blng.core.pay_contract_by_client(r_client.id)!=v_tenant_id then raise NO_DATA_FOUND; end if;
 
