@@ -1360,3 +1360,15 @@ ALTER TRIGGER ord.iavs_TRGR ENABLE;
 
 end; 
 
+/
+
+
+CREATE bitmap INDEX ord.ord_AS_IDX ON ord.ord (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX ord.bill_AS_IDX ON ord.bill (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX ord.cmn_AS_IDX ON ord.commission (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX ord.cd_AS_IDX ON ord.commission_details (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX ord.ct_AS_IDX ON ord.commission_template (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX ord.iav_AS_IDX ON ord.item_avia (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX ord.iavs_AS_IDX ON ord.item_avia_status (amnd_state) TABLESPACE "USERS" ;
+
+

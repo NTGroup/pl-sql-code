@@ -492,3 +492,10 @@ ALTER TRIGGER ntg.gnt_TRGR ENABLE;
 /
 
 
+CREATE bitmap INDEX ntg.geo_AS_IDX ON ntg.geo (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX ntg.log_AS_IDX ON ntg.log (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX ntg.mkp_AS_IDX ON ntg.markup (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX ntg.al_AS_IDX ON ntg.airline (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX ntg.ap_AS_IDX ON ntg.airplane (amnd_state) TABLESPACE "USERS" ;
+
+
