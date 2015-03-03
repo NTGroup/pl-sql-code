@@ -29,9 +29,8 @@ $obj_type: function
 $obj_name: balance
 $obj_desc: return info of contract for show balance to the client
 $obj_param: P_TENANT_ID: contract id
-$obj_return: SYS_REFCURSOR[CONTRACT_OID, DEPOSIT, LOAN, CREDIT_LIMIT, 
-UNUSED_CREDIT_LIMIT, CREDIT_LIMIT_BLOCK, DEBIT_ONLINE, MAX_LOAN_TRANS_AMOUNT, 
-CREDIT_ONLINE, DELAY_DAYS, AVAILABLE,UNBLOCK_SUM, NEAR_UNBLOCK_SUM,BLOCK_DATE]
+$obj_return: SYS_REFCURSOR[CONTRACT_OID, DEPOSIT, LOAN, CREDIT_LIMIT, UNUSED_CREDIT_LIMIT, 
+$obj_return: AVAILABLE, BLOCK_DATE, UNBLOCK_SUM, NEAR_UNBLOCK_SUM, EXPIRY_DATE, EXPIRY_SUM]
 */
   function balance( P_TENANT_ID in ntg.dtype.t_id  default null
                           )
@@ -87,7 +86,7 @@ $obj_name: loan_list
 $obj_desc: return list of loans with expired flag
 $obj_param: p_email: user email who request loan_list
 $obj_param: p_rownum: cuts rows for paging
-$obj_return: SYS_REFCURSOR[all v_statemen filds + amount_cash_in,amount_buy,amount_from,amount_to]
+$obj_return: SYS_REFCURSOR[ID, CONTRACT_OID, AMOUNT, ORDER_NUMBER, PNR_ID, DATE_TO, IS_OVERDUE]
 */
   function loan_list( p_email  in ntg.dtype.t_name,
                       p_rownum  in ntg.dtype.t_id default null
@@ -217,16 +216,21 @@ create  or replace package BODY blng.fwdr as
       OPEN v_results FOR
         select
         acc.CONTRACT_OID, acc.DEPOSIT, abs(acc.LOAN) loan, acc.CREDIT_LIMIT, 
-        acc.UNUSED_CREDIT_LIMIT, acc.CREDIT_LIMIT_BLOCK, acc.DEBIT_ONLINE, 
-        acc.MAX_LOAN_TRANS_AMOUNT, acc.CREDIT_ONLINE, acc.DELAY_DAYS, acc.AVAILABLE,
-        --acc.*,
+        case when total.expiry_sum<>0 then 0
+        else acc.UNUSED_CREDIT_LIMIT
+        end UNUSED_CREDIT_LIMIT,
+        case when total.expiry_sum<>0 then 0
+        else acc.AVAILABLE
+        end available,
+        to_char(total.BLOCK_DATE,'yyyy-mm-dd') BLOCK_DATE,
         nvl(total.UNBLOCK_SUM,0) UNBLOCK_SUM,
         nvl(total.NEAR_UNBLOCK_SUM,0) NEAR_UNBLOCK_SUM,
-        to_char(total.BLOCK_DATE,'yyyy-mm-dd') BLOCK_DATE
+        to_char(total.expiry_date,'yyyy-mm-dd') expiry_date,
+        total.expiry_sum
         from blng.v_account acc, blng.v_total total 
-        where acc.contract_oid = v_contract
+     --   where acc.contract_oid = v_contract
+        where acc.contract_oid = 21
         and acc.contract_oid = total.contract_oid(+)
-    
     ;
     return v_results;
   exception when others then 
@@ -526,7 +530,7 @@ create  or replace package BODY blng.fwdr as
         del.amount - nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = del.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount,
         --nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = d.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount_have,
         item_avia.pnr_id order_number,
-        item_avia.nqt_id,
+        item_avia.nqt_id pnr_id,
         to_char(del.date_to - 1,'yyyy-mm-dd') date_to ,
         case when trunc(date_to) <= sysdate then 'Y' else 'N' end is_overdue
         from blng.delay del,blng.transaction,blng.document, ord.bill, ord.item_avia,

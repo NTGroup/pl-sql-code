@@ -357,14 +357,11 @@ order by 2;
 create or replace view blng.v_total as
   select 
   ddd.contract_oid,
---       sum(ddd.amount),
---     sum(ddd.amount_need),
-  sum(case when ddd.date_to=date_from  then ddd.amount_need else 0 end) unblock_sum,
-  sum(case when ddd.date_to-date_from <= 2 then ddd.amount_need else 0 end) near_unblock_sum,
---      sum(case when ddd.date_to-date_from <= 11 then ddd.amount_need else 0 end) sc,
-  ddd.date_from block_date /*,
-  max(ddd.date_to-date_from),
-  min(ddd.date_to-date_from) m  */
+  block_date,
+  nvl(sum(case when ddd.date_to <= block_date+1  then ddd.amount_need else 0 end),0) unblock_sum,
+  nvl(sum(case when ddd.date_to <= block_date+1+2 then ddd.amount_need else 0 end),0) near_unblock_sum,
+  expiry_date,
+  nvl(sum(case when ddd.date_to <= trunc(sysdate)  then ddd.amount_need else 0 end),0) expiry_sum
   from 
   (
     select 
@@ -373,8 +370,9 @@ create or replace view blng.v_total as
     d.contract_oid,
     nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = d.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount_have,
     amount - nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = d.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount_need,
-    date_to-1 date_to,
-    (MIN(date_to) OVER (PARTITION BY contract_oid))-1 date_from
+    date_to date_to,
+  min(case when date_to-1 >= trunc(sysdate) then date_to-1 else null end)  over (partition by contract_oid) block_date ,
+  min(case when date_to < sysdate then date_to else null end) over (partition by contract_oid) expiry_date
     from blng.delay d
     where d.amnd_state = 'A'
     and parent_id is null
@@ -382,7 +380,7 @@ create or replace view blng.v_total as
     and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'b')
     order by contract_oid asc, date_to asc, id asc  
   ) ddd
-  group by ddd.contract_oid,ddd.date_from;
+  group by ddd.contract_oid,block_date,expiry_date;
 
 
 /
