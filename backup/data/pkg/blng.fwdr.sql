@@ -228,8 +228,7 @@ create  or replace package BODY blng.fwdr as
         to_char(total.expiry_date,'yyyy-mm-dd') expiry_date,
         total.expiry_sum
         from blng.v_account acc, blng.v_total total 
-     --   where acc.contract_oid = v_contract
-        where acc.contract_oid = 21
+        where acc.contract_oid = P_TENANT_ID
         and acc.contract_oid = total.contract_oid(+)
     ;
     return v_results;
