@@ -420,7 +420,7 @@ create  or replace package BODY blng.fwdr as
       select 
       doc_id,
       doc_id transaction_id,
-      TRANSACTION_DATE,TRANSACTION_TIME,AMOUNT_BEFORE,AMOUNT,AMOUNT_AFTER,TRANSACTION_TYPE,NQT_ID,ORDER_NUMBER,LAST_NAME,FIRST_NAME,EMAIL,
+      TRANSACTION_DATE,TRANSACTION_TIME,AMOUNT_BEFORE,AMOUNT,AMOUNT_AFTER,TRANSACTION_TYPE,pnr_id,ORDER_NUMBER,LAST_NAME,FIRST_NAME,EMAIL,
       sum(case when docs.doc_trans_code = 'b' then amount else 0 end)  over (partition by docs.one) amount_buy,
       sum(case when docs.doc_trans_code = 'ci' then amount else 0 end) over (partition by docs.one)  amount_cash_in,
       amount_from,
@@ -529,8 +529,8 @@ create  or replace package BODY blng.fwdr as
         del.contract_oid,
         del.amount - nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = del.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount,
         --nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = d.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount_have,
-        item_avia.pnr_id order_number,
-        item_avia.nqt_id pnr_id,
+        item_avia.pnr_locator order_number,
+        item_avia.pnr_id pnr_id,
         to_char(del.date_to - 1,'yyyy-mm-dd') date_to ,
         case when trunc(date_to) <= sysdate then 'Y' else 'N' end is_overdue
         from blng.delay del,blng.transaction,blng.document, ord.bill, ord.item_avia,

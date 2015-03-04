@@ -38,12 +38,12 @@ $obj_return: id of created item
 */
 
   function item_add(p_order_oid in ntg.dtype.t_id default null,
-                          p_pnr_id in ntg.dtype.t_long_code default null,
+                          p_pnr_locator in ntg.dtype.t_long_code default null,
                           p_time_limit  in ntg.dtype.t_date default null,
                           p_total_amount in ntg.dtype.t_amount default null,
                           p_total_markup in ntg.dtype.t_amount default null,
                           p_pnr_object in ntg.dtype.t_clob default null,
-                          p_nqt_id in ntg.dtype.t_long_code default null
+                          p_pnr_id in ntg.dtype.t_long_code default null
                           )
   return ntg.dtype.t_id;
 
@@ -77,15 +77,15 @@ $obj_param: p_tenant_id: id of contract in text format, for authorization
 
 $obj_type: procedure
 $obj_name: avia_reg_ticket
-$obj_desc: procedure get ticket info by nqt_id.
+$obj_desc: procedure get ticket info by pnr_id.
 $obj_desc: its create row for ticket. later this info will send to managers
-$obj_param: p_nqt_id: id from NQT. search perform by this id
+$obj_param: p_pnr_id: id from NQT. search perform by this id
 $obj_param: p_tenant_id: id of contract in text format, for authorization
 $obj_param: p_ticket: json with ticket info.
 $obj_param: p_ticket: json: id,
 
 */
-  procedure avia_reg_ticket(  p_nqt_id in ntg.dtype.t_long_code default null,
+  procedure avia_reg_ticket(  p_pnr_id in ntg.dtype.t_long_code default null,
                             p_tenant_id  in  ntg.dtype.t_long_code default null,
                             p_ticket in ntg.dtype.t_clob default null
                           );
@@ -212,9 +212,9 @@ $obj_type: procedure
 $obj_name: cash_back
 $obj_desc: perform reverse for order scheme. return bill to Waiting status
 $obj_desc: and call revoke_document from billing
-$obj_param: p_nqt_id: id from NQT. search perform by this id
+$obj_param: p_pnr_id: id from NQT. search perform by this id
 */
-  procedure cash_back(p_nqt_id in ntg.dtype.t_long_code);
+  procedure cash_back(p_pnr_id in ntg.dtype.t_long_code);
 
 /*
 $obj_type: function
@@ -299,12 +299,12 @@ END FWDR;
   end;
 
   function item_add(p_order_oid in ntg.dtype.t_id default null,
-                          p_pnr_id in ntg.dtype.t_long_code default null,
+                          p_pnr_locator in ntg.dtype.t_long_code default null,
                           p_time_limit  in ntg.dtype.t_date default null,
                           p_total_amount in ntg.dtype.t_amount default null,
                           p_total_markup in ntg.dtype.t_amount default null,
                           p_pnr_object in ntg.dtype.t_clob default null,
-                          p_nqt_id in ntg.dtype.t_long_code default null
+                          p_pnr_id in ntg.dtype.t_long_code default null
                           )
   return ntg.dtype.t_id
   is
@@ -312,12 +312,12 @@ END FWDR;
     v_id ntg.dtype.t_id;
   begin
     v_id:=ord_api.item_avia_add(  p_order_oid,
-                                  p_pnr_id,
+                                  p_pnr_locator,
                                   p_time_limit,
                                   p_total_amount,
                                   p_total_markup,
                                   p_pnr_object,
-                                  p_nqt_id);
+                                  p_pnr_id);
     return v_id;
   exception when others then
     rollback;
@@ -328,8 +328,8 @@ END FWDR;
     return null;
   end;
 
-  procedure avia_register( p_nqt_id in ntg.dtype.t_long_code default null,
-                          p_pnr_id in ntg.dtype.t_long_code default null,
+  procedure avia_register( p_pnr_id in ntg.dtype.t_long_code default null,
+                          p_pnr_locator in ntg.dtype.t_long_code default null,
                           p_time_limit  in ntg.dtype.t_date default null,
                           p_total_amount in ntg.dtype.t_amount default null,
                           p_total_markup in ntg.dtype.t_amount default null,
@@ -357,17 +357,17 @@ END FWDR;
       raise VALUE_ERROR;
     end if;
     
-    r_item_avia := ord_api.item_avia_get_info_r(p_nqt_id => p_nqt_id);
+    r_item_avia := ord_api.item_avia_get_info_r(p_pnr_id => p_pnr_id);
         
     if r_item_avia.id is not null then
     -- po_status not nulled when register calls
       ORD_API.item_avia_edit ( 
-        P_PNR_ID => P_PNR_ID,
+        P_PNR_locator => P_PNR_locator,
         P_TIME_LIMIT => P_TIME_LIMIT,
         P_TOTAL_AMOUNT => P_TOTAL_AMOUNT,
         P_TOTAL_MARKUP => P_TOTAL_MARKUP,
         P_PNR_OBJECT => P_PNR_OBJECT,
-        P_NQT_ID => P_NQT_ID,
+        P_pnr_id => P_pnr_id,
         p_nqt_status => p_nqt_status,
         p_po_status => null
         ) ;  
@@ -375,18 +375,17 @@ END FWDR;
         v_order := fwdr.order_create(p_client=> v_client);
         
         v_avia := ORD_API.item_avia_add(P_ORDER_OID => v_ORDER,
-          P_PNR_ID => P_PNR_ID,
+          P_PNR_locator => P_PNR_locator,
           P_TIME_LIMIT => P_TIME_LIMIT,
           P_TOTAL_AMOUNT => P_TOTAL_AMOUNT,
           P_TOTAL_MARKUP => P_TOTAL_MARKUP,
           P_PNR_OBJECT => P_PNR_OBJECT,
-          P_NQT_ID => P_NQT_ID,
+          P_pnr_id => P_pnr_id,
           p_nqt_status => p_nqt_status,
           p_po_status => null
           );        
 
-        --v_item_avia_r := ord_api.item_avia_get_info_r(p_nqt_id=>p_nqt_id);
---        v_order_r:=ord_api.ord_get_info_r(v_order);
+
         v_contract := blng.core.pay_contract_by_client(v_client);
         v_bill := ORD_API.bill_add( P_ORDER => v_order,
                                     P_AMOUNT => P_TOTAL_AMOUNT,
@@ -412,7 +411,7 @@ END FWDR;
       RAISE_APPLICATION_ERROR(-20002,'avia_register error. '||SQLERRM);
   end;
 
-  procedure avia_reg_ticket(  p_nqt_id in ntg.dtype.t_long_code default null,
+  procedure avia_reg_ticket(  p_pnr_id in ntg.dtype.t_long_code default null,
                             p_tenant_id  in  ntg.dtype.t_long_code default null,
                             p_ticket in ntg.dtype.t_clob default null
                           )
@@ -479,7 +478,7 @@ END FWDR;
   begin
       OPEN v_results FOR
         SELECT
-        ia.nqt_id pnr_id, ia.nqt_status, ias.po_status, ias.nqt_status_cur, null po_msg, 'avia' item_type, ia.pnr_id pnr_locator,
+        ia.pnr_id, ia.nqt_status, ias.po_status, ias.nqt_status_cur, null po_msg, 'avia' item_type, ia.pnr_locator,
         (select contract_oid from ord.bill where order_oid = ia.order_oid and amnd_state = 'A') tenant_id
         from ord.item_avia ia, ord.item_avia_status ias,
         json_table  
@@ -509,15 +508,15 @@ END FWDR;
   begin
       OPEN v_results FOR
         SELECT
-        ia.nqt_id pnr_id, ia.nqt_status, ias.po_status, ias.nqt_status_cur, 
-        null po_msg, 'avia' item_type, ia.pnr_id pnr_locator, j.p_tenant_id tenant_id
+        ia.pnr_id, ia.nqt_status, ias.po_status, ias.nqt_status_cur, 
+        null po_msg, 'avia' item_type, ia.pnr_locator, j.p_tenant_id tenant_id
         from ord.item_avia ia, ord.item_avia_status ias, blng.client cl, ord.ord ord, blng.client2contract c2c,
         json_table  
           ( p_pnr_list,'$[*]' 
           columns (p_pnr_id VARCHAR2(250) path '$.p_pnr_id',
           p_tenant_id VARCHAR2(250) path '$.p_tenant_id')
           ) as j
-        where ia.nqt_id = j.p_pnr_id
+        where ia.pnr_id = j.p_pnr_id
         and j.p_pnr_id is not null
         and j.p_tenant_id is not null
         and ia.amnd_state = 'A'
@@ -610,7 +609,7 @@ END FWDR;
     begin 
       if p_pnr_id is null then raise NO_DATA_FOUND; end if;
       -- check that item with this pnr_id exists
-      r_item_avia := ord_api.item_avia_get_info_r(p_nqt_id=>p_pnr_id);
+      r_item_avia := ord_api.item_avia_get_info_r(p_pnr_id=>p_pnr_id);
     exception 
       when NO_DATA_FOUND then 
         NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'NO_DATA_FOUND',
@@ -644,7 +643,7 @@ $TODO: there must be check for users with ISSUES permission
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
         
-    r_item_avia := ord_api.item_avia_get_info_r(p_nqt_id => p_pnr_id);
+    r_item_avia := ord_api.item_avia_get_info_r(p_pnr_id => p_pnr_id);
     if r_item_avia.id is null then
 --      dbms_output.put_line(' p_id='||p_pnr_id);          
       --raise NO_DATA_FOUND;
@@ -812,7 +811,7 @@ $TODO: there must be check for users with ISSUES permission
     begin 
       if p_pnr_id is null then raise NO_DATA_FOUND; end if;
 -- check that item with this pnr_id exists
-      r_item_avia := ord_api.item_avia_get_info_r(p_nqt_id=>p_pnr_id);
+      r_item_avia := ord_api.item_avia_get_info_r(p_pnr_id=>p_pnr_id);
     exception 
       when NO_DATA_FOUND then 
         NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_manual', p_msg_type=>'NO_DATA_FOUND',
@@ -858,14 +857,14 @@ $TODO: there must be check for users with ISSUES permission
     RAISE_APPLICATION_ERROR(-20002,'avia_manual error. '||SQLERRM);
   end;
 
-  procedure cash_back(p_nqt_id in ntg.dtype.t_long_code)
+  procedure cash_back(p_pnr_id in ntg.dtype.t_long_code)
   is
     r_item_avia item_avia%rowtype;
     r_bill bill%rowtype;
     r_document blng.document%rowtype;
     c_bill SYS_REFCURSOR;
   begin
-    r_item_avia:=ord_api.item_avia_get_info_r(p_nqt_id=>p_nqt_id);
+    r_item_avia:=ord_api.item_avia_get_info_r(p_pnr_id=>p_pnr_id);
     c_bill := ord_api.bill_get_info(p_order=>r_item_avia.order_oid,p_status=>'P');
     LOOP
       FETCH c_bill INTO r_bill;
@@ -903,8 +902,7 @@ $TODO: there must be check for users with ISSUES permission
 /*      OPEN v_results FOR  
       SELECT
         ID,
-        NQT_ID,
-        PNR_ID,
+       
         to_char(ISSUED_DATE,'dd.mm.yyyy HH24') ISSUED_DATE,
         PAXTYPE,
         QUANTITY,
@@ -961,7 +959,7 @@ $TODO: there must be check for users with ISSUES permission
       -- check that item with this pnr_id does not exist
       if p_pnr_id is null then raise VALUE_ERROR; end if;
 
-      r_item_avia := ord_api.item_avia_get_info_r(p_nqt_id=>p_pnr_id);
+      r_item_avia := ord_api.item_avia_get_info_r(p_pnr_id=>p_pnr_id);
       if r_item_avia.id is not null then 
         RAISE_APPLICATION_ERROR(-20002,'avia_create error. this item already exists.');       
       end if;
@@ -981,7 +979,7 @@ $TODO: there must be check for users with ISSUES permission
     v_order := fwdr.order_create(p_client => r_client.id);
     
     v_item_avia := ORD_API.item_avia_add(P_ORDER_OID => v_order,
-      P_NQT_ID => P_PNR_ID
+      P_pnr_id => P_PNR_ID
       ); 
     v_item_avia_status := ord_api.item_avia_status_add (  p_item_avia => v_item_avia) ;  
 
@@ -1025,7 +1023,7 @@ $TODO: there must be check for users with ISSUES permission
     begin 
       if p_pnr_id is null then raise NO_DATA_FOUND; end if;
 -- check that item with this pnr_id exists
-      r_item_avia := ord_api.item_avia_get_info_r(p_nqt_id=>p_pnr_id);
+      r_item_avia := ord_api.item_avia_get_info_r(p_pnr_id=>p_pnr_id);
     exception 
       when NO_DATA_FOUND then 
         NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_update', p_msg_type=>'NO_DATA_FOUND',
@@ -1062,12 +1060,12 @@ $TODO: there must be check for users with ISSUES permission
 
     -- po_status not nulled when register calls
       ORD_API.item_avia_edit ( 
-        P_PNR_ID => P_PNR_locator,
+        P_PNR_locator => P_PNR_locator,
         P_TIME_LIMIT => P_TIME_LIMIT,
         P_TOTAL_AMOUNT => P_TOTAL_AMOUNT,
         P_TOTAL_MARKUP => P_TOTAL_MARKUP,
         P_PNR_OBJECT => P_PNR_OBJECT,
-        P_NQT_ID => P_PNR_ID,
+        P_pnr_id => P_PNR_ID,
         p_nqt_status => p_nqt_status
         ) ;  
     
@@ -1111,7 +1109,7 @@ $TODO: there must be check for users with ISSUES permission
 -- check that cliemt with this user_id exists
       if p_pnr_id is null then raise NO_DATA_FOUND; end if;
       
-      r_item_avia := ord_api.item_avia_get_info_r(p_nqt_id=>p_pnr_id);
+      r_item_avia := ord_api.item_avia_get_info_r(p_pnr_id=>p_pnr_id);
     exception when NO_DATA_FOUND then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_pay', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => 'pnr_id not found',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
@@ -1168,7 +1166,7 @@ $TODO: there must be check for users with ISSUES permission
 -- check that cliemt with this user_id exists
       if p_pnr_id is null then raise NO_DATA_FOUND; end if;
       
-      r_item_avia := ord_api.item_avia_get_info_r(p_nqt_id=>p_pnr_id);
+      r_item_avia := ord_api.item_avia_get_info_r(p_pnr_id=>p_pnr_id);
 --     if r_item_avia.order_oid is null then raise NO_DATA_FOUND; end if;
       
     exception when NO_DATA_FOUND then

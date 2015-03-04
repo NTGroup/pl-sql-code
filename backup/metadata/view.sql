@@ -469,7 +469,7 @@ amount amount_before,
         amount,
 sum(amount) over (partition by contract_id order by trans_date RANGE UNBOUNDED PRECEDING) amount_after,
         transaction_type,
-         nqt_id,
+         pnr_id,
          order_number,
          last_name,
         first_name,
@@ -498,8 +498,8 @@ sum(amount) over (partition by contract_id order by trans_date RANGE UNBOUNDED P
           when doc_trans.code = 'cl' then 'CREDIT_LIMIT'
           else 'UNDEFINED'
         end transaction_type,
-        nqt_ID nqt_id,
-        pnr_ID order_number,
+        pnr_id,
+        pnr_locator order_number,
         INITCAP(client.last_name) last_name,
         INITCAP(client.first_name) first_name,
         client.email 
@@ -568,7 +568,7 @@ union all
           when doc_trans.code = 'cl' then 'CREDIT_LIMIT'
           else 'UNDEFINED'
         end transaction_type,
-        null nqt_id,
+        null pnr_id,
         null order_number,
         null last_name,
         null first_name,

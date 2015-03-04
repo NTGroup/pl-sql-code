@@ -23,12 +23,12 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   return ntg.dtype.t_id;
 
   function item_avia_add(p_ORDER_OID in ntg.dtype.t_id default null,
-                          p_PNR_ID in ntg.dtype.t_long_code default null,
+                          p_PNR_locator in ntg.dtype.t_long_code default null,
                           p_TIME_LIMIT  in ntg.dtype.t_date default null,
                           p_TOTAL_AMOUNT in ntg.dtype.t_amount default null,
                           p_TOTAL_MARKUP in ntg.dtype.t_amount default null,
                           p_PNR_OBJECT in ntg.dtype.t_clob default null,
-                          p_nqt_id in  ntg.dtype.t_long_code default null,
+                          p_pnr_id in  ntg.dtype.t_long_code default null,
                           p_nqt_status in ntg.dtype.t_status default null, 
                           p_po_status in ntg.dtype.t_status default null,
                           p_nqt_status_cur in ntg.dtype.t_status default null 
@@ -45,25 +45,25 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   return ord%rowtype;
 
   function item_avia_get_info(p_id in ntg.dtype.t_id default null,
-                              p_nqt_id in ntg.dtype.t_long_code default null,
+                              p_pnr_id in ntg.dtype.t_long_code default null,
                               p_order in ntg.dtype.t_id default null
                               )
   return SYS_REFCURSOR;
 
   function item_avia_get_info_r ( p_id in ntg.dtype.t_id default null,
-                              p_nqt_id in ntg.dtype.t_long_code default null,
+                              p_pnr_id in ntg.dtype.t_long_code default null,
                               p_order in ntg.dtype.t_id default null
                               )
   return item_avia%rowtype;
   
   procedure item_avia_edit( P_ID  in ntg.dtype.t_id default null,
                             p_ORDER_OID in ntg.dtype.t_id default null,
-                          p_PNR_ID in ntg.dtype.t_long_code default null,
+                          p_PNR_locator in ntg.dtype.t_long_code default null,
                           p_TIME_LIMIT  in ntg.dtype.t_date default null,
                           p_TOTAL_AMOUNT in ntg.dtype.t_amount default null,
                           p_TOTAL_MARKUP in ntg.dtype.t_amount default null,
                           p_PNR_OBJECT in ntg.dtype.t_clob default null,
-                          p_nqt_id in ntg.dtype.t_long_code default null,
+                          p_pnr_id in ntg.dtype.t_long_code default null,
                           p_nqt_status in ntg.dtype.t_status default null, 
                           p_po_status in ntg.dtype.t_status default null,
                           p_nqt_status_cur in ntg.dtype.t_status default null);
@@ -256,12 +256,12 @@ END ORD_API;
 
 
   function item_avia_add(p_ORDER_OID in ntg.dtype.t_id default null,
-                          p_PNR_ID in ntg.dtype.t_long_code default null,
+                          p_PNR_locator in ntg.dtype.t_long_code default null,
                           p_TIME_LIMIT  in ntg.dtype.t_date default null,
                           p_TOTAL_AMOUNT in ntg.dtype.t_amount default null,
                           p_TOTAL_MARKUP in ntg.dtype.t_amount default null,
                           p_PNR_OBJECT in ntg.dtype.t_clob  default null,
-                          p_nqt_id in ntg.dtype.t_long_code default null,
+                          p_pnr_id in ntg.dtype.t_long_code default null,
                           p_nqt_status in ntg.dtype.t_status default null, 
                           p_po_status in ntg.dtype.t_status default null,
                           p_nqt_status_cur in ntg.dtype.t_status default null
@@ -272,12 +272,12 @@ END ORD_API;
     v_id ntg.dtype.t_id;
   begin
     v_item_avia_row.ORDER_OID:=  p_ORDER_OID;
-    v_item_avia_row.PNR_ID:=  p_PNR_ID;
+    v_item_avia_row.PNR_locator:=  p_PNR_locator;
     v_item_avia_row.TIME_LIMIT:=  p_TIME_LIMIT;
     v_item_avia_row.TOTAL_AMOUNT:=  p_TOTAL_AMOUNT;
     v_item_avia_row.TOTAL_MARKUP:=  p_TOTAL_MARKUP;
     v_item_avia_row.PNR_OBJECT:=  p_PNR_OBJECT;
-    v_item_avia_row.nqt_id:=  p_nqt_id;
+    v_item_avia_row.pnr_id:=  p_pnr_id;
     v_item_avia_row.nqt_status:=  p_nqt_status;
     v_item_avia_row.po_status:=  p_po_status;
     v_item_avia_row.nqt_status_cur:=  p_nqt_status_cur;
@@ -337,7 +337,7 @@ END ORD_API;
 
 
   function item_avia_get_info(p_id in ntg.dtype.t_id default null,
-                              p_nqt_id in ntg.dtype.t_long_code default null,
+                              p_pnr_id in ntg.dtype.t_long_code default null,
                               p_order in ntg.dtype.t_id default null
   )
   return SYS_REFCURSOR
@@ -349,7 +349,7 @@ END ORD_API;
         *
         from ord.item_avia 
         where id = nvl(p_id,id)
-        and nqt_id = nvl(p_nqt_id,nqt_id)
+        and pnr_id = nvl(p_pnr_id,pnr_id)
         and order_oid = nvl(p_order,order_oid)
         and amnd_state = 'A'
         order by id;
@@ -364,7 +364,7 @@ END ORD_API;
   end;
 
   function item_avia_get_info_r ( p_id in ntg.dtype.t_id default null,
-                              p_nqt_id in ntg.dtype.t_long_code default null,
+                              p_pnr_id in ntg.dtype.t_long_code default null,
                               p_order in ntg.dtype.t_id default null
                               
                             )
@@ -378,7 +378,7 @@ END ORD_API;
     * into r_obj
     from ord.item_avia 
     where id = nvl(p_id,id)
-    and nqt_id = nvl(p_nqt_id,nqt_id)
+    and pnr_id = nvl(p_pnr_id,pnr_id)
     and order_oid = nvl(p_order,order_oid)
     and amnd_state != 'I'
     order by id;
@@ -397,12 +397,12 @@ END ORD_API;
 
   procedure item_avia_edit( P_ID  in ntg.dtype.t_id default null,
                             p_ORDER_OID in ntg.dtype.t_id default null,
-                          p_PNR_ID in ntg.dtype.t_long_code default null,
+                          p_PNR_locator in ntg.dtype.t_long_code default null,
                           p_TIME_LIMIT  in ntg.dtype.t_date default null,
                           p_TOTAL_AMOUNT in ntg.dtype.t_amount default null,
                           p_TOTAL_MARKUP in ntg.dtype.t_amount default null,
                           p_PNR_OBJECT in ntg.dtype.t_clob default null,
-                          p_nqt_id in ntg.dtype.t_long_code default null,
+                          p_pnr_id in ntg.dtype.t_long_code default null,
                           p_nqt_status in ntg.dtype.t_status default null, 
                           p_po_status in ntg.dtype.t_status default null,
                           p_nqt_status_cur in ntg.dtype.t_status default null
@@ -412,11 +412,11 @@ END ORD_API;
     v_obj_row_old item_avia%rowtype;
   begin
 
-    if p_id is null and p_nqt_id is null then raise NO_DATA_FOUND; end if;
+    if p_id is null and p_pnr_id is null then raise NO_DATA_FOUND; end if;
     
     select * into v_obj_row_old from item_avia 
         where id = nvl(p_id,id)
-        and nqt_id = nvl(p_nqt_id,nqt_id)
+        and pnr_id = nvl(p_pnr_id,pnr_id)
         and amnd_state = 'A'
     ;
     v_obj_row_new := v_obj_row_old;
@@ -428,7 +428,7 @@ END ORD_API;
 
     v_obj_row_new.amnd_date:=sysdate;
     v_obj_row_new.amnd_user:=user;
-    v_obj_row_new.PNR_ID := nvl(p_PNR_ID,v_obj_row_new.PNR_ID);
+    v_obj_row_new.PNR_locator := nvl(p_PNR_locator,v_obj_row_new.PNR_locator);
     v_obj_row_new.TIME_LIMIT := nvl(p_TIME_LIMIT,v_obj_row_new.TIME_LIMIT);
     v_obj_row_new.TOTAL_AMOUNT := nvl(p_TOTAL_AMOUNT,v_obj_row_new.TOTAL_AMOUNT);
     v_obj_row_new.TOTAL_MARKUP := nvl(p_TOTAL_MARKUP,v_obj_row_new.TOTAL_MARKUP);
