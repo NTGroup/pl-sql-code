@@ -219,6 +219,40 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   return item_avia_status%rowtype;
 
 
+  function ticket_add( 
+                    p_item_avia in ntg.dtype.t_id default null,
+                    p_pnr_locator in ntg.dtype.t_code default null,
+                    p_ticket_number in  ntg.dtype.t_long_code default null,
+                    p_passenger_name in  ntg.dtype.t_name default null,
+                    p_passenger_type in  ntg.dtype.t_code default null,
+                    p_fare_amount in  ntg.dtype.t_amount default null,
+                    p_taxes_amount in  ntg.dtype.t_amount default null,
+                    p_service_fee_amount in  ntg.dtype.t_amount default null
+                  )
+  return ntg.dtype.t_id;
+
+  procedure ticket_edit(  P_ID  in ntg.dtype.t_id default null,
+                          p_item_avia in ntg.dtype.t_id default null,
+                          p_pnr_locator in ntg.dtype.t_code default null,
+                          p_ticket_number in  ntg.dtype.t_long_code default null,
+                          p_passenger_name in  ntg.dtype.t_name default null,
+                          p_passenger_type in  ntg.dtype.t_code default null,
+                          p_fare_amount in  ntg.dtype.t_amount default null,
+                          p_taxes_amount in  ntg.dtype.t_amount default null,
+                          p_service_fee_amount in  ntg.dtype.t_amount default null
+                      );
+                    
+  function ticket_get_info(   P_ID  in ntg.dtype.t_id default null,
+                          p_item_avia in ntg.dtype.t_id default null,
+                          p_pnr_locator in ntg.dtype.t_code default null,
+                          p_ticket_number in  ntg.dtype.t_long_code default null
+                          )
+  return SYS_REFCURSOR;
+
+  function ticket_get_info_r (    P_ID  in ntg.dtype.t_id default null,
+                          p_ticket_number in  ntg.dtype.t_long_code default null
+                          )
+  return ticket%rowtype;
 
   
 
@@ -1158,6 +1192,158 @@ END ORD_API;
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=item_avia_status,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into item_avia_status error. '||SQLERRM);
+  end;
+
+
+  function ticket_add( 
+                    p_item_avia in ntg.dtype.t_id default null,
+                    p_pnr_locator in ntg.dtype.t_code default null,
+                    p_ticket_number in  ntg.dtype.t_long_code default null,
+                    p_passenger_name in  ntg.dtype.t_name default null,
+                    p_passenger_type in  ntg.dtype.t_code default null,
+                    p_fare_amount in  ntg.dtype.t_amount default null,
+                    p_taxes_amount in  ntg.dtype.t_amount default null,
+                    p_service_fee_amount in  ntg.dtype.t_amount default null
+                  )
+  return ntg.dtype.t_id
+  is
+    v_obj_row ticket%rowtype;
+    v_id ntg.dtype.t_id;
+  begin
+    v_obj_row.item_avia_oid:=  p_item_avia;
+    v_obj_row.pnr_locator:=  p_pnr_locator;
+    v_obj_row.ticket_number:=  p_ticket_number;
+    v_obj_row.passenger_name:=  p_passenger_name;
+    v_obj_row.passenger_type:=  p_passenger_type;
+    v_obj_row.fare_amount:=  p_fare_amount;
+    v_obj_row.taxes_amount:=  p_taxes_amount;
+    v_obj_row.service_fee_amount:=  p_service_fee_amount;
+
+    insert into ord.ticket values v_obj_row returning id into v_id;
+    return v_id;
+  exception when others then
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'ticket_add', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=ticket,p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'insert row into ticket error. '||SQLERRM);
+  end;
+
+
+  procedure ticket_edit(  P_ID  in ntg.dtype.t_id default null,
+                          p_item_avia in ntg.dtype.t_id default null,
+                          p_pnr_locator in ntg.dtype.t_code default null,
+                          p_ticket_number in  ntg.dtype.t_long_code default null,
+                          p_passenger_name in  ntg.dtype.t_name default null,
+                          p_passenger_type in  ntg.dtype.t_code default null,
+                          p_fare_amount in  ntg.dtype.t_amount default null,
+                          p_taxes_amount in  ntg.dtype.t_amount default null,
+                          p_service_fee_amount in  ntg.dtype.t_amount default null
+                      )
+  is
+    v_obj_row_new ticket%rowtype;
+    v_obj_row_old ticket%rowtype;
+  begin
+    if p_id is null and p_ticket_number is null then raise NO_DATA_FOUND; end if;   
+  
+    select * into v_obj_row_old from ticket 
+        where id = nvl(p_id,id)
+        and ticket_number = nvl(p_ticket_number,ticket_number)
+        and amnd_state = 'A'
+    ;
+    v_obj_row_new := v_obj_row_old;
+
+    v_obj_row_old.amnd_state:='I';
+    v_obj_row_old.id:=null;
+    insert into ticket values v_obj_row_old;
+
+
+    v_obj_row_new.amnd_date:=sysdate;
+    v_obj_row_new.amnd_user:=user;
+    v_obj_row_new.pnr_locator := nvl(p_pnr_locator,v_obj_row_new.pnr_locator);
+    v_obj_row_new.passenger_name := nvl(p_passenger_name,v_obj_row_new.passenger_name);
+    v_obj_row_new.passenger_type := nvl(p_passenger_type,v_obj_row_new.passenger_type);
+    v_obj_row_new.fare_amount := nvl(p_fare_amount,v_obj_row_new.fare_amount);
+    v_obj_row_new.taxes_amount := nvl(p_taxes_amount,v_obj_row_new.taxes_amount);
+    v_obj_row_new.service_fee_amount := nvl(p_service_fee_amount,v_obj_row_new.service_fee_amount);
+
+    if v_obj_row_new.pnr_locator = v_obj_row_old.pnr_locator
+      and v_obj_row_new.passenger_name = v_obj_row_old.passenger_name
+      and v_obj_row_new.passenger_type = v_obj_row_old.passenger_type
+      and v_obj_row_new.fare_amount = v_obj_row_old.fare_amount
+      and v_obj_row_new.taxes_amount = v_obj_row_old.taxes_amount
+      and v_obj_row_new.service_fee_amount = v_obj_row_old.service_fee_amount
+      then return;
+    end if;
+
+    update ticket set row = v_obj_row_new where id = v_obj_row_new.id;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'ticket_edit', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=ticket,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'update row into ticket error. '||SQLERRM);
+  end;
+
+
+  function ticket_get_info(   P_ID  in ntg.dtype.t_id default null,
+                          p_item_avia in ntg.dtype.t_id default null,
+                          p_pnr_locator in ntg.dtype.t_code default null,
+                          p_ticket_number in  ntg.dtype.t_long_code default null
+                          )
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR;
+  begin
+      OPEN v_results FOR
+        SELECT
+        *
+        from ord.ticket 
+        where id = nvl(p_id,id)
+        and item_avia_oid = nvl(p_item_avia,item_avia_oid)
+        and pnr_locator = nvl(p_pnr_locator,pnr_locator)
+        and ticket_number = nvl(p_ticket_number,ticket_number)
+        and amnd_state = 'A'
+        order by id;
+    return v_results;
+  exception when others then
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'ticket_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=ticket,p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'select row into ticket error. '||SQLERRM);
+  end;
+
+
+  function ticket_get_info_r (    P_ID  in ntg.dtype.t_id default null,
+                          p_ticket_number in  ntg.dtype.t_long_code default null
+                          )
+  return ticket%rowtype
+  is
+    r_obj ticket%rowtype;
+  begin
+    if p_id is null and p_ticket_number is null then raise NO_DATA_FOUND; end if;   
+    
+    SELECT
+    * into r_obj
+    from ord.ticket 
+    where id = nvl(p_id,id)
+    and ticket_number = nvl(p_ticket_number,ticket_number)
+    and amnd_state != 'I'
+    order by id;
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'ticket_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=ticket,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into ticket error. '||SQLERRM);
   end;
 
 

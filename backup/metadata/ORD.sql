@@ -474,18 +474,21 @@ end;
 /* ticket */
 begin
 
---------------------------------------------------------
---  DDL for Table MARKUP
---------------------------------------------------------
-/*
   CREATE TABLE ord.ticket
    (	ID NUMBER(18,0), 
    amnd_date date,
    amnd_user VARCHAR2(50),
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
-   pnr_oid NUMBER(18,0), 
-   status VARCHAR2(1)
+   item_avia_oid NUMBER(18,0), 
+   status VARCHAR2(1),
+    pnr_locator varchar2(10),
+    ticket_number varchar2(50),
+    passenger_name varchar2(255),
+    passenger_type varchar2(10),
+    fare_amount number(20,2),
+    taxes_amount number(20,2),
+    service_fee_amount number(20,2)   
    ) SEGMENT CREATION IMMEDIATE
   TABLESPACE "USERS" ;
 --------------------------------------------------------
@@ -511,8 +514,8 @@ ALTER TABLE ord.ticket  MODIFY (AMND_STATE DEFAULT  on null  'A' );
  
  
   
-  ALTER TABLE ord.ticket ADD CONSTRAINT tkt_pnr_OID_FK FOREIGN KEY (pnr_oid)
-  REFERENCES ord.pnr ("ID") ENABLE;
+  ALTER TABLE ord.ticket ADD CONSTRAINT tkt_iav_OID_FK FOREIGN KEY (item_avia_oid)
+  REFERENCES ord.item_avia ("ID") ENABLE;
  
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
@@ -1370,5 +1373,6 @@ CREATE bitmap INDEX ord.cd_AS_IDX ON ord.commission_details (amnd_state) TABLESP
 CREATE bitmap INDEX ord.ct_AS_IDX ON ord.commission_template (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX ord.iav_AS_IDX ON ord.item_avia (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX ord.iavs_AS_IDX ON ord.item_avia_status (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX ord.tkt_AS_IDX ON ord.ticket (amnd_state) TABLESPACE "USERS" ;
 
 

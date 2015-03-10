@@ -1,17 +1,24 @@
 
+--drop view ntg.v_markup
 
-ALTER TABLE ORD.ITEM_AVIA RENAME COLUMN PNR_ID TO PNR_LOCATOR;
-ALTER TABLE ORD.ITEM_AVIA RENAME COLUMN NQT_ID TO PNR_ID;
 
-/*
-ALTER TABLE ORD.ITEM_AVIA add pnr_id_temp varchar2(50);
-update ORD.ITEM_AVIA set pnr_id_temp = nqt_id;
-commit;
+ALTER TABLE ORD.ticket RENAME COLUMN PNR_OID TO item_avia_oid;
 
-ALTER TABLE ORD.ITEM_AVIA drop column nqt_id;
-ALTER TABLE ORD.ITEM_AVIA RENAME COLUMN pnr_id_temp TO PNR_ID;
+ALTER TABLE ORD.ticket add pnr_locator varchar2(10);
+ALTER TABLE ORD.ticket add ticket_number varchar2(50);
+ALTER TABLE ORD.ticket add passenger_name varchar2(255);
+ALTER TABLE ORD.ticket add passenger_type varchar2(10);
+ALTER TABLE ORD.ticket add fare_amount number(20,2);
+ALTER TABLE ORD.ticket add taxes_amount number(20,2);
+ALTER TABLE ORD.ticket add service_fee_amount number(20,2);
 
-*/
+ALTER TABLE ord.ticket drop CONSTRAINT tkt_pnr_OID_FK;
+
+ ALTER TABLE ord.ticket ADD CONSTRAINT tkt_iav_OID_FK FOREIGN KEY (item_avia_oid)
+  REFERENCES ord.item_avia ("ID") ENABLE;
+  
+CREATE bitmap INDEX ord.tkt_AS_IDX ON ord.ticket (amnd_state) TABLESPACE "USERS" ;
+
 
 @metadata/view.sql;
 @data/pkg/blng.blng_api.sql;

@@ -348,8 +348,7 @@ end;
         (select max(id) from ntg.markup)  version,
         decode(mkp.amnd_state, 'A','Y','C','N','E') is_active 
         from markup mkp, airline air
-        where mkp.amnd_state = 'A'
-        AND air.amnd_state = 'A'
+        where air.amnd_state = 'A'
         and air.id = mkp.validating_carrier
         and mkp.amnd_state in ('C','A') 
         and mkp.id in (select amnd_prev from markup where id > p_version)

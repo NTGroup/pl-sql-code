@@ -81,8 +81,7 @@ $obj_desc: procedure get ticket info by pnr_id.
 $obj_desc: its create row for ticket. later this info will send to managers
 $obj_param: p_pnr_id: id from NQT. search perform by this id
 $obj_param: p_tenant_id: id of contract in text format, for authorization
-$obj_param: p_ticket: json with ticket info.
-$obj_param: p_ticket: json: id,
+$obj_param: p_ticket: json[p_number,p_name,p_fare_amount,p_tax_amount,p_markup_amount,p_type]
 
 */
   procedure avia_reg_ticket(  p_pnr_id in ntg.dtype.t_long_code default null,
@@ -416,8 +415,6 @@ END FWDR;
                             p_ticket in ntg.dtype.t_clob default null
                           )
   is
---    v_order_r ord%rowtype;
---    v_item_avia_r item_avia%rowtype;
     v_id ntg.dtype.t_id;
     v_order ntg.dtype.t_id;
     v_avia ntg.dtype.t_id;
@@ -425,24 +422,129 @@ END FWDR;
     v_client ntg.dtype.t_id;
     v_contract ntg.dtype.t_id;
     r_item_avia item_avia%rowtype;
+    r_order ord%rowtype;
+    r_ticket ticket%rowtype;
+    r_client blng.client%rowtype;
+    r_item_avia_status item_avia_status%rowtype;
+    v_tenant_id ntg.dtype.t_id;
+    v_ticket ntg.dtype.t_id;
   begin
     
-    if p_tenant_id is null then
-      raise VALUE_ERROR;
-    end if;
-    
-      commit;          
-  exception 
-    when VALUE_ERROR then
-      rollback;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'VALUE_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=ticket,p_date='
+    v_tenant_id := to_number(p_tenant_id);
+  
+    begin 
+      if p_pnr_id is null then raise NO_DATA_FOUND; end if;
+-- check that item with this pnr_id exists
+      r_item_avia := ord_api.item_avia_get_info_r(p_pnr_id=>p_pnr_id);
+    exception 
+      when NO_DATA_FOUND then 
+        NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'NO_DATA_FOUND',
+          P_MSG => 'p_pnr_id does not exists',p_info => 'p_pnr_id='||p_pnr_id||',p_date='
+          || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
+        RAISE_APPLICATION_ERROR(-20002,'avia_reg_ticket error. p_pnr_id does not found.');
+    end;
+    --    dbms_output.put_line(' p_id='||p_pnr_id);          
+
+    begin 
+-- check that cliemt with this user_id exist
+      if v_tenant_id is null then raise NO_DATA_FOUND; end if;
+      r_order := ord_api.ord_get_info_r(p_id=>r_item_avia.order_oid);
+/* 
+$TODO: there must be check for users with ISSUES permission
+*/
+      r_client := blng.blng_api.client_get_info_r(p_id=>r_order.client_oid);
+        --dbms_output.put_line(' p_id='||r_client.id);   
+--      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.client_oid);
+      if blng.core.pay_contract_by_client(r_client.id)!=v_tenant_id then raise NO_DATA_FOUND; end if;
+
+    exception when NO_DATA_FOUND then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'NO_DATA_FOUND',
+        P_MSG => 'tenant_id not found',p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
+      RAISE_APPLICATION_ERROR(-20002,'avia_manual error. user_id not found. ');
+    end;
+
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'OK',
+        P_MSG => p_ticket,
+        p_info => 'p_pnr_id='||p_pnr_id||',p_tenant_id='||p_tenant_id||',p_table=ticket,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'avia_reg_ticket error. put wrong value. '||SQLERRM);
+
+  
+
+  for i in (
+    select * from 
+    json_table  
+      ( p_ticket,'$[*]' 
+      columns (p_number VARCHAR2(250) path '$.p_number',
+              p_name VARCHAR2(250) path '$.p_name',
+              p_type VARCHAR2(250) path '$.p_type',
+              p_fare_amount number(20,2) path '$.p_fare_amount',
+              p_tax_amount number(20,2) path '$.p_tax_amount',
+              p_markup_amount number(20,2) path '$.p_markup_amount'
+              )
+      ) as j
+  )
+  loop
+    begin
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'1',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
+        p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+
+
+    
+      r_ticket:= ord_api.ticket_get_info_r(
+                            p_ticket_number       => i.p_number
+                          );
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'2',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
+        p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+
+      ord_api.ticket_edit( p_id => r_ticket.id,
+                              --p_item_avia           => r_item_avia.id,
+                              p_pnr_locator         => r_item_avia.pnr_locator,
+                              p_ticket_number       => i.p_number,
+                              p_passenger_name      => i.p_name,
+                              p_passenger_type      => i.p_type,
+                              p_fare_amount         => i.p_fare_amount,
+                              p_taxes_amount        => i.p_tax_amount,
+                              p_service_fee_amount  => i.p_markup_amount
+                            );    
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'3',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
+        p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    exception when NO_DATA_FOUND then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'4',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
+        p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      v_ticket:=ord_api.ticket_add( p_item_avia           => r_item_avia.id,
+                              p_pnr_locator         => r_item_avia.pnr_locator,
+                              p_ticket_number       => i.p_number,
+                              p_passenger_name      => i.p_name,
+                              p_passenger_type      => i.p_type,
+                              p_fare_amount         => i.p_fare_amount,
+                              p_taxes_amount        => i.p_tax_amount,
+                              p_service_fee_amount  => i.p_markup_amount
+                            );
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'5',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
+        p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    end;
+    
+  end loop;
+  
+  commit;    
+  
+  exception 
     when others then    
       rollback;
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=ticket,p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
+        p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'avia_reg_ticket error. '||SQLERRM);
   end;
