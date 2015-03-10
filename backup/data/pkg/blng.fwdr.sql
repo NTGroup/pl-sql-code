@@ -70,13 +70,15 @@ $obj_desc: return list of transactions between dates in client timezone format
 $obj_param: p_email: user email which request statement
 $obj_param: p_date_from: date filter.
 $obj_param: p_date_to: date filter.
-$obj_param: p_rownum: cuts rows for paging
-$obj_return: SYS_REFCURSOR[all v_statemen filds + amount_cash_in,amount_buy,amount_from,amount_to]
+$obj_param: p_row_count: count rows per page
+$obj_param: p_page_number: page number to show
+$obj_return: SYS_REFCURSOR[all v_statemen filds + amount_cash_in,amount_buy,amount_from,amount_to,page_count]
 */
   function statement(p_email  in ntg.dtype.t_name,
                       p_date_from in ntg.dtype.t_code,
                       p_date_to in ntg.dtype.t_code,
-                      p_rownum  in ntg.dtype.t_id default null
+                      p_row_count  in ntg.dtype.t_id default null,
+                      p_page_number  in ntg.dtype.t_id default null
                     )
   return SYS_REFCURSOR;
 
@@ -399,7 +401,8 @@ create  or replace package BODY blng.fwdr as
   function statement(p_email  in ntg.dtype.t_name,
                       p_date_from in ntg.dtype.t_code,
                       p_date_to in ntg.dtype.t_code,
-                      p_rownum  in ntg.dtype.t_id default null
+                      p_row_count  in ntg.dtype.t_id default null,
+                      p_page_number  in ntg.dtype.t_id default null
                     )
   return SYS_REFCURSOR
   is
@@ -423,7 +426,8 @@ create  or replace package BODY blng.fwdr as
       sum(case when docs.doc_trans_code = 'b' then amount else 0 end)  over (partition by docs.one) amount_buy,
       sum(case when docs.doc_trans_code = 'ci' then amount else 0 end) over (partition by docs.one)  amount_cash_in,
       amount_from,
-      amount_to
+      amount_to,
+      page_count
       from
       (
       select 
@@ -484,18 +488,21 @@ create  or replace package BODY blng.fwdr as
         1 one
         from dual) amount,
         (
-        select * from (
-          select
-          row_number() over (order by trans_date) rn,
-          st.*
-          from 
-          blng.v_statement st
-          where contract_id = v_contract
---          where email = p_email
-          and trans_date >= to_date(p_date_from,'yyyy-mm-dd')-utc_offset/24
-          and trans_date < to_date(p_date_to,'yyyy-mm-dd')+1-utc_offset/24
-        )
-        where  rn <= nvl(p_rownum,rn)
+          select * from (
+            select
+            row_number() over (order by trans_date) rn,
+            st.*,
+            ceil((count(*) over()) / nvl(p_row_count,1)  ) page_count
+            from 
+            blng.v_statement st
+            where contract_id = v_contract
+  --          where email = p_email
+            and trans_date >= to_date(p_date_from,'yyyy-mm-dd')-utc_offset/24
+            and trans_date < to_date(p_date_to,'yyyy-mm-dd')+1-utc_offset/24
+          )
+          where rn >= case when p_row_count*(p_page_number-1)+1 is null then 1 
+            when p_page_number > page_count then 1 else p_row_count*(p_page_number-1)+1 end -- p_row_count*(p_page_number-1)+1
+          and rn <= nvl(p_row_count*p_page_number,rn) -- p_row_count*p_page_number
         ) docs
         where 
         amount.one = docs.one(+)
@@ -566,7 +573,7 @@ create  or replace package BODY blng.fwdr as
         
     return v_results;
   exception when others then 
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'statement', p_msg_type=>'UNHANDLED_ERROR', 
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'loan_list', p_msg_type=>'UNHANDLED_ERROR', 
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date=' 
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
     RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
