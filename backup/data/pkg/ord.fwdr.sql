@@ -898,24 +898,13 @@ $TODO: there must be check for users with ISSUES permission
   is
     v_results SYS_REFCURSOR; 
   begin
-  
-/*      OPEN v_results FOR  
+    OPEN v_results FOR  
       SELECT
-        ID,
-       
-        to_char(ISSUED_DATE,'dd.mm.yyyy HH24') ISSUED_DATE,
-        PAXTYPE,
-        QUANTITY,
-        SEATS,
-        FAREAMOUNT,
-        TAXESAMOUNT,
-        TOTALAMOUNT,
-        MARKUPVALUE
+      to_char(AMND_DATE,'yyyy-mm-dd hh24') issue_date, PNR_LOCATOR, TICKET_NUMBER, PASSENGER_NAME, PASSENGER_TYPE, FARE_AMOUNT, TAXES_AMOUNT, SERVICE_FEE_AMOUNT
       FROM
-        ORD.V_SALES_JSON 
-        where ISSUED_DATE >= to_date(p_datetime_from,'DD.MM.YYYY HH24') 
-        and ISSUED_DATE < to_date(p_datetime_to ,'DD.MM.YYYY HH24') ;*/
-
+      ord.ticket
+      where AMND_DATE >= to_date(p_datetime_from,'YYYY-MM-DD HH24') 
+      and AMND_DATE < to_date(p_datetime_to ,'YYYY-MM-DD HH24');
     return v_results;
   end;
 
