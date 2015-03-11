@@ -72,13 +72,13 @@ $obj_param: p_row_count: count rows per page
 $obj_param: p_page_number: page number to show
 $obj_param: p_date_from: date filter.
 $obj_param: p_date_to: date filter.
-$obj_return: SYS_REFCURSOR[all v_statemen filds + amount_cash_in,amount_buy,amount_from,amount_to,page_count,row_count]
+$obj_return: SYS_REFCURSOR[rn(row_number),all v_statemen filds + amount_cash_in,amount_buy,amount_from,amount_to,page_count,row_count]
 */
   function statement(p_email  in ntg.dtype.t_name, 
                       p_row_count  in ntg.dtype.t_id, 
                       p_page_number  in ntg.dtype.t_id, 
-                      p_date_from  in ntg.dtype.t_code default null,
-                      p_date_to in ntg.dtype.t_code default null
+                      p_date_from  in ntg.dtype.t_code,
+                      p_date_to in ntg.dtype.t_code
                     )
   return SYS_REFCURSOR;
 
@@ -89,7 +89,7 @@ $obj_desc: return list of transactions in client timezone format by pages
 $obj_param: p_email: user email which request statement
 $obj_param: p_row_count: count rows per page
 $obj_param: p_page_number: page number to show
-$obj_return: SYS_REFCURSOR[all v_statemen filds + amount_cash_in,amount_buy,amount_from,amount_to,page_count,row_count]
+$obj_return: SYS_REFCURSOR[rn(row_number),all v_statemen filds + amount_cash_in,amount_buy,amount_from,amount_to,page_count,row_count]
 */
   function statement(p_email  in ntg.dtype.t_name, 
                       p_row_count  in ntg.dtype.t_id, 
@@ -433,6 +433,7 @@ create  or replace package BODY blng.fwdr as
       OPEN v_results FOR
               
       select 
+      rn,
       doc_id,
       doc_id transaction_id,
       TRANSACTION_DATE,TRANSACTION_TIME,AMOUNT_BEFORE,AMOUNT,AMOUNT_AFTER,TRANSACTION_TYPE,pnr_id,ORDER_NUMBER,LAST_NAME,FIRST_NAME,EMAIL,
@@ -473,8 +474,8 @@ create  or replace package BODY blng.fwdr as
   function statement(p_email  in ntg.dtype.t_name, 
                       p_row_count  in ntg.dtype.t_id, 
                       p_page_number  in ntg.dtype.t_id, 
-                      p_date_from  in ntg.dtype.t_code default null,
-                      p_date_to in ntg.dtype.t_code default null
+                      p_date_from  in ntg.dtype.t_code,
+                      p_date_to in ntg.dtype.t_code
                     )
   return SYS_REFCURSOR
   is
@@ -489,6 +490,7 @@ create  or replace package BODY blng.fwdr as
       OPEN v_results FOR
               
       select 
+      rn,
       doc_id,
       doc_id transaction_id,
       TRANSACTION_DATE,TRANSACTION_TIME,AMOUNT_BEFORE,AMOUNT,AMOUNT_AFTER,TRANSACTION_TYPE,pnr_id,ORDER_NUMBER,LAST_NAME,FIRST_NAME,EMAIL,
@@ -558,7 +560,7 @@ create  or replace package BODY blng.fwdr as
         (
           select * from (
             select
-            --row_number() over (order by trans_date desc) rn,
+            row_number() over (order by trans_date desc) rn,
             st.*, 
             --ceil((count(*) over()) / nvl(p_row_count,1)  ) page_count,
             1 page_count,
@@ -566,8 +568,10 @@ create  or replace package BODY blng.fwdr as
             from 
             blng.v_statement st
             where contract_id = v_contract
-            and (trans_date >= to_date(p_date_from,'yyyy-mm-dd')-utc_offset/24 or (p_page_number=0 and p_row_count=0))
-            and (trans_date < to_date(p_date_to,'yyyy-mm-dd')+1-utc_offset/24 or (p_page_number=0 and p_row_count=0))
+            --and (trans_date >= to_date(p_date_from,'yyyy-mm-dd')-utc_offset/24 or (p_page_number=0 and p_row_count=0))
+            --and (trans_date < to_date(p_date_to,'yyyy-mm-dd')+1-utc_offset/24 or (p_page_number=0 and p_row_count=0))
+            and trans_date >= to_date(p_date_from,'yyyy-mm-dd')-utc_offset/24
+            and trans_date < to_date(p_date_to,'yyyy-mm-dd')+1-utc_offset/24 
           )
           /*
           where rn >= p_row_count*(p_page_number-1)+1 -- p_row_count*(p_page_number-1)+1
