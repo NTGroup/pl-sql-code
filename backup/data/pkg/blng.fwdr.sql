@@ -68,17 +68,32 @@ $obj_type: function
 $obj_name: statement
 $obj_desc: return list of transactions between dates in client timezone format
 $obj_param: p_email: user email which request statement
-$obj_param: p_date_from: date filter.
-$obj_param: p_date_to: date filter.
 $obj_param: p_row_count: count rows per page
 $obj_param: p_page_number: page number to show
-$obj_return: SYS_REFCURSOR[all v_statemen filds + amount_cash_in,amount_buy,amount_from,amount_to,page_count]
+$obj_param: p_date_from: date filter.
+$obj_param: p_date_to: date filter.
+$obj_return: SYS_REFCURSOR[all v_statemen filds + amount_cash_in,amount_buy,amount_from,amount_to,page_count,row_count]
 */
-  function statement(p_email  in ntg.dtype.t_name,
-                      p_date_from in ntg.dtype.t_code,
-                      p_date_to in ntg.dtype.t_code,
-                      p_row_count  in ntg.dtype.t_id default null,
-                      p_page_number  in ntg.dtype.t_id default null
+  function statement(p_email  in ntg.dtype.t_name, 
+                      p_row_count  in ntg.dtype.t_id, 
+                      p_page_number  in ntg.dtype.t_id, 
+                      p_date_from  in ntg.dtype.t_code default null,
+                      p_date_to in ntg.dtype.t_code default null
+                    )
+  return SYS_REFCURSOR;
+
+/*
+$obj_type: function
+$obj_name: statement
+$obj_desc: return list of transactions in client timezone format by pages
+$obj_param: p_email: user email which request statement
+$obj_param: p_row_count: count rows per page
+$obj_param: p_page_number: page number to show
+$obj_return: SYS_REFCURSOR[all v_statemen filds + amount_cash_in,amount_buy,amount_from,amount_to,page_count,row_count]
+*/
+  function statement(p_email  in ntg.dtype.t_name, 
+                      p_row_count  in ntg.dtype.t_id, 
+                      p_page_number  in ntg.dtype.t_id
                     )
   return SYS_REFCURSOR;
 
@@ -399,10 +414,8 @@ create  or replace package BODY blng.fwdr as
 
 
   function statement(p_email  in ntg.dtype.t_name,
-                      p_date_from in ntg.dtype.t_code,
-                      p_date_to in ntg.dtype.t_code,
-                      p_row_count  in ntg.dtype.t_id default null,
-                      p_page_number  in ntg.dtype.t_id default null
+                      p_row_count  in ntg.dtype.t_id,
+                      p_page_number  in ntg.dtype.t_id
                     )
   return SYS_REFCURSOR
   is
@@ -423,11 +436,68 @@ create  or replace package BODY blng.fwdr as
       doc_id,
       doc_id transaction_id,
       TRANSACTION_DATE,TRANSACTION_TIME,AMOUNT_BEFORE,AMOUNT,AMOUNT_AFTER,TRANSACTION_TYPE,pnr_id,ORDER_NUMBER,LAST_NAME,FIRST_NAME,EMAIL,
+      sum(case when doc_trans_code = 'b' then amount else 0 end)  over (partition by one) amount_buy,
+      sum(case when doc_trans_code = 'ci' then amount else 0 end) over (partition by one) amount_cash_in,
+      MAX(amount_before) KEEP (DENSE_RANK LAST ORDER BY trans_date desc) over (partition by one) amount_from,
+      MIN(amount_after) KEEP (DENSE_RANK FIRST ORDER BY trans_date desc) over (partition by one) amount_to,
+      page_count,
+      row_count
+      from (
+        select
+        row_number() over (order by trans_date desc) rn,
+        st.*,
+        ceil((count(*) over()) / nvl(p_row_count,1)  ) page_count,
+        count(*) over() row_count
+        from 
+        blng.v_statement st
+        where contract_id = v_contract
+        order by trans_date desc 
+      )
+      where /*rn >= p_row_count*(p_page_number-1)+1 -- p_row_count*(p_page_number-1)+1
+      and*/ rn <= case  when p_row_count=0 and p_page_number=1 then rn
+                      when p_row_count*p_page_number is null then 0
+                      else p_row_count*p_page_number
+                end -- p_row_count*p_page_number
+
+      order by trans_date desc
+        ;
+        
+    return v_results;
+  exception when others then 
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'statement', p_msg_type=>'UNHANDLED_ERROR', 
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date=' 
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+    RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+  end;
+
+  function statement(p_email  in ntg.dtype.t_name, 
+                      p_row_count  in ntg.dtype.t_id, 
+                      p_page_number  in ntg.dtype.t_id, 
+                      p_date_from  in ntg.dtype.t_code default null,
+                      p_date_to in ntg.dtype.t_code default null
+                    )
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    v_contract ntg.dtype.t_id;
+    r_client blng.client%rowtype;
+  begin
+  
+      r_client:=blng.blng_api.client_get_info_r(p_email => p_email);
+      v_contract:=blng.core.pay_contract_by_client(r_client.id);        
+
+      OPEN v_results FOR
+              
+      select 
+      doc_id,
+      doc_id transaction_id,
+      TRANSACTION_DATE,TRANSACTION_TIME,AMOUNT_BEFORE,AMOUNT,AMOUNT_AFTER,TRANSACTION_TYPE,pnr_id,ORDER_NUMBER,LAST_NAME,FIRST_NAME,EMAIL,
       sum(case when docs.doc_trans_code = 'b' then amount else 0 end)  over (partition by docs.one) amount_buy,
       sum(case when docs.doc_trans_code = 'ci' then amount else 0 end) over (partition by docs.one)  amount_cash_in,
       amount_from,
       amount_to,
-      page_count
+      page_count,
+      row_count
       from
       (
       select 
@@ -438,8 +508,8 @@ create  or replace package BODY blng.fwdr as
           from 
           blng.v_statement
           where contract_id = v_contract
---          where email = p_email
-          and trans_date < to_date(p_date_from,'yyyy-mm-dd')-utc_offset/24
+          --and ( trans_date < to_date(p_date_from,'yyyy-mm-dd')-utc_offset/24 or (p_page_number=0 and p_row_count=0))
+          and  trans_date < to_date(p_date_from,'yyyy-mm-dd')-utc_offset/24
         ) is null 
        then 0
       else 
@@ -451,11 +521,10 @@ create  or replace package BODY blng.fwdr as
           from 
           blng.v_statement
           where contract_id = v_contract
---          where email = p_email
-          and trans_date < to_date(p_date_from,'yyyy-mm-dd')-utc_offset/24
+          --and (trans_date < to_date(p_date_from,'yyyy-mm-dd')-utc_offset/24 or (p_page_number=0 and p_row_count=0))
+          and trans_date < to_date(p_date_from,'yyyy-mm-dd')-utc_offset/24 
         )
           and contract_id = v_contract
---          and email = p_email
         )
       end amount_from,
       case  
@@ -465,7 +534,7 @@ create  or replace package BODY blng.fwdr as
           from 
           blng.v_statement
           where contract_id = v_contract
---          where email = p_email
+          --and (trans_date < to_date(p_date_to,'yyyy-mm-dd')+1-utc_offset/24 or (p_page_number=0 and p_row_count=0))
           and trans_date < to_date(p_date_to,'yyyy-mm-dd')+1-utc_offset/24
         ) is null 
        then 0
@@ -478,11 +547,10 @@ create  or replace package BODY blng.fwdr as
           from 
           blng.v_statement
           where contract_id = v_contract
---          where email = p_email
+          --and (trans_date < to_date(p_date_to,'yyyy-mm-dd')+1-utc_offset/24 or (p_page_number=0 and p_row_count=0))
           and trans_date < to_date(p_date_to,'yyyy-mm-dd')+1-utc_offset/24
         )
         and contract_id = v_contract
---          and email = p_email
         )
         end amount_to,
         1 one
@@ -490,23 +558,27 @@ create  or replace package BODY blng.fwdr as
         (
           select * from (
             select
-            row_number() over (order by trans_date) rn,
-            st.*,
-            ceil((count(*) over()) / nvl(p_row_count,1)  ) page_count
+            --row_number() over (order by trans_date desc) rn,
+            st.*, 
+            --ceil((count(*) over()) / nvl(p_row_count,1)  ) page_count,
+            1 page_count,
+            count(*) over() row_count
             from 
             blng.v_statement st
             where contract_id = v_contract
-  --          where email = p_email
-            and trans_date >= to_date(p_date_from,'yyyy-mm-dd')-utc_offset/24
-            and trans_date < to_date(p_date_to,'yyyy-mm-dd')+1-utc_offset/24
+            and (trans_date >= to_date(p_date_from,'yyyy-mm-dd')-utc_offset/24 or (p_page_number=0 and p_row_count=0))
+            and (trans_date < to_date(p_date_to,'yyyy-mm-dd')+1-utc_offset/24 or (p_page_number=0 and p_row_count=0))
           )
-          where rn >= case when p_row_count*(p_page_number-1)+1 is null then 1 
-            when p_page_number > page_count then 1 else p_row_count*(p_page_number-1)+1 end -- p_row_count*(p_page_number-1)+1
-          and rn <= nvl(p_row_count*p_page_number,rn) -- p_row_count*p_page_number
+          /*
+          where rn >= p_row_count*(p_page_number-1)+1 -- p_row_count*(p_page_number-1)+1
+          and rn <= case  when p_row_count=0 and p_page_number=0 then rn
+                          when p_row_count*p_page_number is null then 0
+                          else p_row_count*p_page_number
+                    end -- p_row_count*p_page_number */
         ) docs
         where 
         amount.one = docs.one(+)
-        order by trans_date
+        order by trans_date desc
         ;
         
     return v_results;
@@ -515,8 +587,8 @@ create  or replace package BODY blng.fwdr as
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date=' 
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
     RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
---    return null;
   end;
+
 
   function loan_list(p_email  in ntg.dtype.t_name,
                       p_rownum  in ntg.dtype.t_id default null
@@ -526,8 +598,6 @@ create  or replace package BODY blng.fwdr as
     v_results SYS_REFCURSOR; 
     v_contract ntg.dtype.t_id;
   begin
-
---    v_results:=blng.blng_api.client_get_info(p_email=>p_user);
       OPEN v_results FOR
   
         select
