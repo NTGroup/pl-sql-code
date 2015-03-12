@@ -456,6 +456,7 @@ create or replace view blng.v_total as
         create or replace view blng.v_statement as
              select
         doc_id,
+        transaction_id,
         contract_id,
         utc_offset,
         doc_trans_code,
@@ -480,6 +481,7 @@ sum(amount) over (partition by contract_id order by trans_date RANGE UNBOUNDED P
              from 
         (select
         document.id doc_id,
+        trans.id transaction_id,
         contract.id contract_id,
         client.utc_offset,
         doc_trans.code doc_trans_code,
@@ -551,6 +553,7 @@ union all
 
         select
         document.id doc_id,
+        trans.id transaction_id,
         contract.id contract_id,
         contract.utc_offset,
         doc_trans.code doc_trans_code,

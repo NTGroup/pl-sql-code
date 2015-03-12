@@ -435,7 +435,7 @@ create  or replace package BODY blng.fwdr as
       select 
       rn,
       doc_id,
-      --doc_id transaction_id,
+      transaction_id,
       TRANSACTION_DATE,TRANSACTION_TIME,AMOUNT_BEFORE,AMOUNT,AMOUNT_AFTER,TRANSACTION_TYPE,pnr_id,ORDER_NUMBER,LAST_NAME,FIRST_NAME,EMAIL,
       sum(case when doc_trans_code = 'b' then amount else 0 end)  over (partition by one) amount_buy,
       sum(case when doc_trans_code = 'ci' then amount else 0 end) over (partition by one) amount_cash_in,
@@ -492,7 +492,7 @@ create  or replace package BODY blng.fwdr as
       select 
       rn,
       doc_id,
-      --doc_id transaction_id,
+      transaction_id,
       TRANSACTION_DATE,TRANSACTION_TIME,AMOUNT_BEFORE,AMOUNT,AMOUNT_AFTER,TRANSACTION_TYPE,pnr_id,ORDER_NUMBER,LAST_NAME,FIRST_NAME,EMAIL,
       sum(case when docs.doc_trans_code = 'b' then amount else 0 end)  over (partition by docs.one) amount_buy,
       sum(case when docs.doc_trans_code = 'ci' then amount else 0 end) over (partition by docs.one)  amount_cash_in,
