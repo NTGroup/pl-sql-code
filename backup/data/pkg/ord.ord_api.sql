@@ -73,7 +73,9 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                           p_fix  in ntg.dtype.t_amount default null,
                           p_percent in ntg.dtype.t_amount default null,
                           P_DATE_FROM IN ntg.dtype.T_DATE DEFAULT NULL,
-                          P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL
+                          P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL,
+                            P_PRIORITY IN ntg.dtype.t_id DEFAULT NULL,
+                            P_contract_type IN ntg.dtype.t_id DEFAULT NULL
                           )
   return ntg.dtype.t_id;
   
@@ -83,7 +85,10 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                           p_fix  in ntg.dtype.t_amount default null,
                           p_percent in ntg.dtype.t_amount default null,
                           P_DATE_FROM IN ntg.dtype.T_DATE DEFAULT NULL,
-                          P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL);
+                          P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL,
+                            P_PRIORITY IN ntg.dtype.t_id DEFAULT NULL,
+                            P_contract_type IN ntg.dtype.t_id DEFAULT NULL,
+                            p_status in ntg.dtype.t_status DEFAULT NULL);
 
   function commission_get_info(p_id in ntg.dtype.t_id default null,
                               p_airline in ntg.dtype.t_id default null
@@ -146,7 +151,8 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   procedure commission_details_edit( P_ID  in ntg.dtype.t_id default null,
                                     p_commission in ntg.dtype.t_id default null,
                                     p_commission_template in ntg.dtype.t_id default null,
-                                    p_value in  ntg.dtype.t_name default null);
+                                    p_value in  ntg.dtype.t_name default null,
+                                    p_status in  ntg.dtype.t_status default null);
                                 
 
   function commission_details_get_info( p_id in ntg.dtype.t_id default null, p_commission in ntg.dtype.t_id default null )
@@ -520,7 +526,9 @@ END ORD_API;
                           p_fix  in ntg.dtype.t_amount default null,
                           p_percent in ntg.dtype.t_amount default null,
                           P_DATE_FROM IN ntg.dtype.T_DATE DEFAULT NULL,
-                          P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL
+                          P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL,
+                          P_PRIORITY IN ntg.dtype.t_id DEFAULT NULL,
+                          P_contract_type IN ntg.dtype.t_id DEFAULT NULL
                           )
   return ntg.dtype.t_id
   is
@@ -533,6 +541,8 @@ END ORD_API;
     v_obj_row.percent:=  p_percent;
     v_obj_row.DATE_FROM:=  P_DATE_FROM;
     v_obj_row.DATE_TO:=  P_DATE_TO;
+    v_obj_row.PRIORITY:=  P_PRIORITY;
+    v_obj_row.contract_type:=  P_contract_type;
 
     insert into ord.commission values v_obj_row returning id into v_id;
     return v_id;
@@ -547,11 +557,15 @@ END ORD_API;
 
   procedure commission_edit( P_ID  in ntg.dtype.t_id default null,
                             p_airline in ntg.dtype.t_id default null,
-                          p_details in ntg.dtype.t_name default null,
-                          p_fix  in ntg.dtype.t_amount default null,
-                          p_percent in ntg.dtype.t_amount default null,
-                          P_DATE_FROM IN ntg.dtype.T_DATE DEFAULT NULL,
-                          P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL)
+                            p_details in ntg.dtype.t_name default null,
+                            p_fix  in ntg.dtype.t_amount default null,
+                            p_percent in ntg.dtype.t_amount default null,
+                            P_DATE_FROM IN ntg.dtype.T_DATE DEFAULT NULL,
+                            P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL,
+                            P_PRIORITY IN ntg.dtype.t_id DEFAULT NULL,
+                            P_contract_type IN ntg.dtype.t_id DEFAULT NULL,
+                            p_status in ntg.dtype.t_status DEFAULT NULL
+                          )
   is
     v_obj_row_new commission%rowtype;
     v_obj_row_old commission%rowtype;
@@ -571,12 +585,27 @@ END ORD_API;
 
     v_obj_row_new.amnd_date:=sysdate;
     v_obj_row_new.amnd_user:=user;
-    v_obj_row_new.airline := nvl(p_airline,v_obj_row_new.airline);
+--    v_obj_row_new.airline := nvl(p_airline,v_obj_row_new.airline);
     v_obj_row_new.details := nvl(p_details,v_obj_row_new.details);
     v_obj_row_new.fix := nvl(p_fix,v_obj_row_new.fix);
     v_obj_row_new.percent := nvl(p_percent,v_obj_row_new.percent);
     v_obj_row_new.date_from := nvl(p_date_from,v_obj_row_new.date_from);
     v_obj_row_new.date_to := nvl(p_date_to,v_obj_row_new.date_to);
+    v_obj_row_new.PRIORITY := nvl(P_PRIORITY,v_obj_row_new.PRIORITY);
+    v_obj_row_new.contract_type := nvl(P_contract_type,v_obj_row_new.contract_type);
+    if p_status in ('C','D') then  v_obj_row_new.amnd_state := 'C'; end if;
+
+    if nvl(v_obj_row_new.details,'X') = nvl(v_obj_row_old.details,'X')
+      and nvl(v_obj_row_new.fix,-1) = nvl(v_obj_row_old.fix,-1)
+      and nvl(v_obj_row_new.percent,-1) = nvl(v_obj_row_old.percent,-1)
+      and nvl(to_char(v_obj_row_new.date_from,'ddmmyyyy'),'X')  = nvl(to_char(v_obj_row_old.date_from,'ddmmyyyy'),'X')     
+      and nvl(to_char(v_obj_row_new.date_to,'ddmmyyyy'),'X')  = nvl(to_char(v_obj_row_old.date_to,'ddmmyyyy'),'X') 
+      and nvl(v_obj_row_new.PRIORITY,-1) = nvl(v_obj_row_old.PRIORITY,-1)
+      and nvl(v_obj_row_new.contract_type,-1) = nvl(v_obj_row_old.contract_type,-1)
+      and v_obj_row_new.amnd_state <> 'C'
+      then return;
+    end if;
+
 
     update commission set row = v_obj_row_new where id = v_obj_row_new.id;
   exception 
@@ -829,7 +858,8 @@ END ORD_API;
   procedure commission_details_edit( P_ID  in ntg.dtype.t_id default null,
                                     p_commission in ntg.dtype.t_id default null,
                                     p_commission_template in ntg.dtype.t_id default null,
-                                    p_value in  ntg.dtype.t_name default null)
+                                    p_value in  ntg.dtype.t_name default null,
+                                    p_status in  ntg.dtype.t_status default null)
   is
     v_obj_row_new commission_details%rowtype;
     v_obj_row_old commission_details%rowtype;
@@ -851,6 +881,14 @@ END ORD_API;
     v_obj_row_new.commission_oid := nvl(p_commission,v_obj_row_new.commission_oid);
     v_obj_row_new.commission_template_oid := nvl(p_commission_template,v_obj_row_new.commission_template_oid);
     v_obj_row_new.value := nvl(p_value,v_obj_row_new.value);
+    if p_status in ('C','D') then  v_obj_row_new.amnd_state:='C'; end if;
+
+    if nvl(v_obj_row_new.value,'_X_') = nvl(v_obj_row_old.value,'_X_')  --there could be value X
+      and nvl(v_obj_row_new.commission_oid,-1) = nvl(v_obj_row_old.commission_oid,-1)
+      and nvl(v_obj_row_new.commission_template_oid,-1) = nvl(v_obj_row_old.commission_template_oid,-1)
+      and v_obj_row_new.amnd_state <> 'C'
+      then return;
+    end if;
 
     update commission_details set row = v_obj_row_new where id = v_obj_row_new.id;
   exception 
@@ -1447,12 +1485,13 @@ END ORD_API;
     v_obj_row_new.printer := nvl(p_printer,v_obj_row_new.printer);
     if p_status in ('C','D') then  v_obj_row_new.amnd_state := 'C'; end if;
 
-    if v_obj_row_new.contract_oid = v_obj_row_old.contract_oid
-      and v_obj_row_new.airline_oid = v_obj_row_old.airline_oid
-      and v_obj_row_new.booking_pos = v_obj_row_old.booking_pos
-      and v_obj_row_new.ticketing_pos = v_obj_row_old.ticketing_pos
-      and v_obj_row_new.stock = v_obj_row_old.stock
-      and v_obj_row_new.printer = v_obj_row_old.printer
+    if nvl(v_obj_row_new.contract_oid,-1) = nvl(v_obj_row_old.contract_oid,-1)
+      and nvl(v_obj_row_new.airline_oid,-1) = nvl(v_obj_row_old.airline_oid,-1)
+      and nvl(v_obj_row_new.booking_pos,'X') = nvl(v_obj_row_old.booking_pos,'X')
+      and nvl(v_obj_row_new.ticketing_pos,'X') = nvl(v_obj_row_old.ticketing_pos,'X')
+      and nvl(v_obj_row_new.stock,'X') = nvl(v_obj_row_old.stock,'X')
+      and nvl(v_obj_row_new.printer,'X') = nvl(v_obj_row_old.printer,'X')
+      and v_obj_row_new.amnd_state <> 'C'
       then return;
     end if;
 

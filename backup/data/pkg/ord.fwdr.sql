@@ -268,6 +268,7 @@ $obj_type: function
 $obj_name: issue_rule_get
 $obj_desc: when p_version is null then return all active rows. if not null then  
 $obj_desc: get all active and deleted rows that changed after p_version id
+$obj_param: p_version: id
 $obj_return: SYS_REFCURSOR[ID, TENANT_ID, VALIDATING_CARRIER,booking_pos,ticketing_pos,stock,printer,VERSION, IS_ACTIVE]
 */  
   function issue_rule_get(p_version in ntg.dtype.t_id default null)
@@ -1424,6 +1425,96 @@ $TODO: there must be check for users with ISSUES permission
       return v_results;
   end;
 
+
+  function commission_edit(p_data in ntg.dtype.t_clob)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    v_id ntg.dtype.t_id; 
+    v_issue_rule ntg.dtype.t_id; 
+    r_client issue_rule%rowtype;
+    v_commission ntg.dtype.t_id:=null;
+  begin
+-- first update client info. then if doc_number is not null then update client_data 
+    for i in (
+        select *
+        from 
+        json_table (p_data,'$' columns(
+          airline_id number(20,2) path '$.airline_id',
+    --      airline_name VARCHAR2(250) path '$.airline_name',
+    --      airline_iata VARCHAR2(250) path '$.airline_iata',
+          NESTED PATH '$.contracts[*]' COLUMNS (
+            contract_id number(20,2) path '$.contract_id',
+    --        contract_type VARCHAR2(250) path '$.contract_type',
+            NESTED PATH '$.rules[*]' COLUMNS (
+              rule_id number(20,2) path '$.rule_id',
+              rule_description VARCHAR2(250) path '$.rule_description',
+              rule_life_from VARCHAR2(250) path '$.rule_life_from',
+              rule_life_to VARCHAR2(250) path '$.rule_life_to',
+              rule_amount number(20,2) path '$.rule_amount',
+              rule_amount_measure VARCHAR2(250) path '$.rule_amount_measure',
+              rule_priority number(20,2) path '$.rule_priority',
+              NESTED PATH '$.conditions[*]' COLUMNS (
+                condition_id number(20,2) path '$.condition_id',
+                template_type_id number(20,2) path '$.template_type_id',
+                template_name_nls VARCHAR2(250) path '$.template_name_nls',
+                template_value VARCHAR2(250) path '$.template_value'
+              )          
+            )
+          )
+        ))
+    )
+    loop
+      if i.rule_id is not null then v_commission:= i.rule_id; end if;
+
+      if v_commission is is null then
+        v_commission:=ord_api.commission_add( 
+                          p_airline => airline_id,
+                          p_details => ,
+                          p_fix => ,
+                          p_percent => ,
+                          P_DATE_FROM => ,
+                          P_DATE_TO => 
+                          )
+
+                                  
+      else
+        ord_api.issue_rule_edit(  P_ID => i.id,
+                                    p_contract => i.tenant_id,
+                                    p_airline => i.validating_carrier,
+                                    p_booking_pos => i.booking_pos,
+                                    p_ticketing_pos => i.ticketing_pos,
+                                    p_stock => i.stock,
+                                    p_printer => i.printer,
+                                    p_status => i.status
+                                  ); 
+      end if;
+    end loop;
+    
+    commit;
+      open v_results for
+        select 'true' res from dual;
+      return v_results;
+  exception 
+    when NO_DATA_FOUND then
+      ROLLBACK;
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'NO_DATA_FOUND',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+--      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      open v_results for
+        select 'false' res from dual;
+      return v_results;
+    when others then
+      ROLLBACK;
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'UNHANDLED_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+--      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      open v_results for
+        select 'false' res from dual;
+      return v_results;
+  end;
 
 
 END FWDR;

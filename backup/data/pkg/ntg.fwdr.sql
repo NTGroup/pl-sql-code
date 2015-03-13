@@ -80,6 +80,7 @@ $obj_type: function
 $obj_name: markup_get
 $obj_desc: when p_version is null then return all active rows. if not null then  
 $obj_desc: get all active and deleted rows that changed after p_version id
+$obj_param: p_version: id
 $obj_return: SYS_REFCURSOR[ID, TENANT_ID, VALIDATING_CARRIER, CLASS_OF_SERVICE, 
 $obj_return: SEGMENT, V_FROM, V_TO, ABSOLUT_AMOUNT, PERCENT_AMOUNT, MIN_ABSOLUT, VERSION, IS_ACTIVE]
 */  
