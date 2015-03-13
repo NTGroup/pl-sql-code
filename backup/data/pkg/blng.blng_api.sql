@@ -1,6 +1,3 @@
-grant select on ord.bill to blng;
-grant select on ord.ord to blng;
-
 
   CREATE OR REPLACE EDITIONABLE PACKAGE "BLNG"."BLNG_API" as
 

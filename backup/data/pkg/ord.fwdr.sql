@@ -1,6 +1,4 @@
-grant select on blng.client to ord;
-grant select on blng.company to ord;
-grant select on blng.client2contract to ord;
+
 /
 CREATE OR REPLACE PACKAGE "ORD"."FWDR" AS 
 
@@ -262,6 +260,31 @@ $obj_param: p_user_id: user identifire. at this moment email
   procedure avia_booked(
                       p_pnr_id in ntg.dtype.t_long_code default null,
                        p_user_id in ntg.dtype.t_long_code default null);
+
+
+
+/*
+$obj_type: function
+$obj_name: issue_rule_get
+$obj_desc: when p_version is null then return all active rows. if not null then  
+$obj_desc: get all active and deleted rows that changed after p_version id
+$obj_return: SYS_REFCURSOR[ID, TENANT_ID, VALIDATING_CARRIER,booking_pos,ticketing_pos,stock,printer,VERSION, IS_ACTIVE]
+*/  
+  function issue_rule_get(p_version in ntg.dtype.t_id default null)
+  return SYS_REFCURSOR;
+
+
+/*
+$obj_type: function
+$obj_name: issue_rule_edit
+$obj_desc: update issue_rules or create new issue_rules. if success return true else false.
+$obj_desc: if status equals [C]lose or [D]elete then delete issue_rule.
+$obj_param: p_data: data for update. format json[id, tenant_id, validating_carrier, 
+$obj_param: p_data: booking_pos, ticketing_pos, stock, printer, status]
+$obj_return: SYS_REFCURSOR[res:true/false]
+*/
+  function issue_rule_edit(p_data in ntg.dtype.t_clob)
+  return SYS_REFCURSOR;
 
 
 
@@ -1287,6 +1310,120 @@ $TODO: there must be check for users with ISSUES permission
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'avia_booked error. '||SQLERRM);
   end;
+
+
+
+  function issue_rule_get(p_version in ntg.dtype.t_id default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+  begin
+
+    OPEN v_results FOR
+      select
+      isr.id,
+      nvl(isr.contract_oid,0) tenant_id,
+      air.iata validating_carrier,
+      isr.booking_pos,
+      isr.ticketing_pos,
+      isr.stock,
+      isr.printer,
+      (select max(id) from issue_rule)  version,
+      decode(isr.amnd_state, 'A','Y','C','N','E') is_active
+      from issue_rule isr, ntg.airline air
+      where air.amnd_state = 'A'
+      and air.id = isr.airline_oid
+      and ((isr.amnd_state in ('C','A') 
+            and isr.id in (select amnd_prev from issue_rule where id > p_version)
+            and p_version is not null)
+        or
+          (isr.amnd_state = 'A'
+          and p_version is null)
+          );
+    return v_results;
+  exception when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'get_full', p_msg_type=>'UNHANDLED_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select,p_table=markup,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      RAISE_APPLICATION_ERROR(-20002,'select row into markup error. '||SQLERRM);
+    return null;  
+  end;
+
+  function issue_rule_edit(p_data in ntg.dtype.t_clob)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    v_id ntg.dtype.t_id; 
+    v_issue_rule ntg.dtype.t_id; 
+    r_client issue_rule%rowtype;
+  begin
+-- first update client info. then if doc_number is not null then update client_data 
+    for i in (
+      select 
+      dd.*
+      from
+      json_table(p_data, '$'
+        COLUMNS 
+          (
+           id number(20,2) PATH '$.id',
+           tenant_id number(20,2) PATH '$.tenant_id',
+           validating_carrier number(20,2) PATH '$.validating_carrier',
+           booking_pos VARCHAR2(10 CHAR) PATH '$.booking_pos',
+           ticketing_pos VARCHAR2(10 CHAR) PATH '$.ticketing_pos',
+           stock VARCHAR2(10 CHAR) PATH '$.stock',
+           printer VARCHAR2(10 CHAR) PATH '$.printer',      
+           status VARCHAR2(10 CHAR) PATH '$.status'       
+          )
+        ) dd
+    )
+    loop
+      if i.id is null then 
+        v_issue_rule:=ord_api.issue_rule_add( 
+                                    p_contract => i.tenant_id,
+                                    p_airline => i.validating_carrier,
+                                    p_booking_pos => i.booking_pos,
+                                    p_ticketing_pos => i.ticketing_pos,
+                                    p_stock => i.stock,
+                                    p_printer => i.printer
+                                  );
+      else
+        ord_api.issue_rule_edit(  P_ID => i.id,
+                                    p_contract => i.tenant_id,
+                                    p_airline => i.validating_carrier,
+                                    p_booking_pos => i.booking_pos,
+                                    p_ticketing_pos => i.ticketing_pos,
+                                    p_stock => i.stock,
+                                    p_printer => i.printer,
+                                    p_status => i.status
+                                  ); 
+      end if;
+    end loop;
+    
+    commit;
+      open v_results for
+        select 'true' res from dual;
+      return v_results;
+  exception 
+    when NO_DATA_FOUND then
+      ROLLBACK;
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'NO_DATA_FOUND',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+--      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      open v_results for
+        select 'false' res from dual;
+      return v_results;
+    when others then
+      ROLLBACK;
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'UNHANDLED_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+--      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      open v_results for
+        select 'false' res from dual;
+      return v_results;
+  end;
+
 
 
 END FWDR;

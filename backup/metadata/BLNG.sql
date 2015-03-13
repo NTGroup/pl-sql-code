@@ -1522,4 +1522,75 @@ CREATE INDEX blng.doc_dd_IDX ON blng.document (doc_date) TABLESPACE "USERS" ;
 CREATE INDEX blng.trn_td_IDX ON blng.transaction (trans_date) TABLESPACE "USERS" ;
 CREATE INDEX blng.dly_dt_IDX ON blng.delay (date_to) TABLESPACE "USERS" ;
 
+--------------------------------------------------------
+--  DDL for Grants
+--------------------------------------------------------
+
+grant select on blng.contract to ord;
+grant select on blng.client to ord;
+grant select on blng.company to ord;
+grant select on blng.domain to ord;
+grant select on blng.client2contract to ord;
+grant select on blng.client_data to ord;
+grant select on blng.account to ord;
+grant select on blng.document to ord;
+grant select on blng.transaction to ord;
+grant select on blng.delay to ord;
+grant select on blng.event to ord;
+grant select on blng.account_type to ord;
+grant select on blng.status_type to ord;
+grant select on blng.trans_type to ord;
+grant select on blng.event_type to ord;
+
+grant select on blng.contract to ntg;
+grant select on blng.client to ntg;
+grant select on blng.company to ntg;
+grant select on blng.domain to ntg;
+grant select on blng.client2contract to ntg;
+grant select on blng.client_data to ntg;
+grant select on blng.account to ntg;
+grant select on blng.document to ntg;
+grant select on blng.transaction to ntg;
+grant select on blng.delay to ntg;
+grant select on blng.event to ntg;
+grant select on blng.account_type to ntg;
+grant select on blng.status_type to ntg;
+grant select on blng.trans_type to ntg;
+grant select on blng.event_type to ntg;
+
+
+--Foreign keys between tables in different schemas
+
+grant references on blng.contract to ord;
+grant references on blng.client to ord;
+grant references on blng.company to ord;
+grant references on blng.domain to ord;
+grant references on blng.client2contract to ord;
+grant references on blng.client_data to ord;
+grant references on blng.account to ord;
+grant references on blng.document to ord;
+grant references on blng.transaction to ord;
+grant references on blng.delay to ord;
+grant references on blng.event to ord;
+grant references on blng.account_type to ord;
+grant references on blng.status_type to ord;
+grant references on blng.trans_type to ord;
+grant references on blng.event_type to ord;
+
+grant references on blng.contract to ntg;
+grant references on blng.client to ntg;
+grant references on blng.company to ntg;
+grant references on blng.domain to ntg;
+grant references on blng.client2contract to ntg;
+grant references on blng.client_data to ntg;
+grant references on blng.account to ntg;
+grant references on blng.document to ntg;
+grant references on blng.transaction to ntg;
+grant references on blng.delay to ntg;
+grant references on blng.event to ntg;
+grant references on blng.account_type to ntg;
+grant references on blng.status_type to ntg;
+grant references on blng.trans_type to ntg;
+grant references on blng.event_type to ntg;
+
 

@@ -1,3 +1,4 @@
+
 /* ord */
 begin
 
@@ -1300,9 +1301,10 @@ begin
    amnd_user VARCHAR2(50),
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
-	item_avia_OID NUMBER(18,0), 
-	PO_STATUS VARCHAR2(50 BYTE), 
-	NQT_STATUS_CUR VARCHAR2(50 BYTE)
+    item_avia_OID NUMBER(18,0), 
+    PO_STATUS VARCHAR2(50 BYTE), 
+    NQT_STATUS_CUR VARCHAR2(50 BYTE)
+    
    ) SEGMENT CREATION IMMEDIATE
   TABLESPACE "USERS" ;
 --------------------------------------------------------
@@ -1366,6 +1368,88 @@ end;
 /
 
 
+/* issue_rule */
+
+
+--------------------------------------------------------
+--  DDL for Table MARKUP
+--------------------------------------------------------
+
+  CREATE TABLE ord.issue_rule 
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+   contract_OID NUMBER(18,0),
+   airline_OID NUMBER(18,0),
+   booking_pos varchar2(10),
+   ticketing_pos  varchar2(10),
+   stock VARCHAR2(10),
+   printer VARCHAR2(10)  
+   ) SEGMENT CREATION IMMEDIATE
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index MKP_ID_IDX
+--------------------------------------------------------
+
+  CREATE INDEX ord.isr_ID_IDX ON ord.issue_rule ("ID") 
+  TABLESPACE "USERS" ;
+  
+--------------------------------------------------------
+--  Constraints for Table MARKUP
+--------------------------------------------------------
+
+  ALTER TABLE ord.issue_rule MODIFY ("ID" CONSTRAINT isr_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.issue_rule MODIFY (AMND_DATE CONSTRAINT "isr_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.issue_rule MODIFY (AMND_USER CONSTRAINT "isr_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.issue_rule MODIFY (AMND_STATE CONSTRAINT "isr_AST_NN" NOT NULL ENABLE);
+ALTER TABLE ord.issue_rule  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE ord.issue_rule  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE ord.issue_rule  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE ord.issue_rule ADD CONSTRAINT isr_ID_PK PRIMARY KEY (ID)
+  USING INDEX ord.isr_ID_IDX ENABLE;
+ 
+ 
+  
+  ALTER TABLE ord.issue_rule ADD CONSTRAINT isr_cntr_OID_FK FOREIGN KEY (contract_oid)
+  REFERENCES blng.contract ("ID") ENABLE;
+
+  ALTER TABLE ord.issue_rule ADD CONSTRAINT isr_al_OID_FK FOREIGN KEY (airline_oid)
+  REFERENCES ntg.airline ("ID") ENABLE;
+
+--------------------------------------------------------
+--  DDL for Secuence MKP_SEQ
+--------------------------------------------------------
+ 
+  create sequence  ORD.isr_SEQ
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+--------------------------------------------------------
+--  DDL for Trigger MKP_TRGR
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER ord.isr_TRGR 
+BEFORE
+INSERT
+ON ord.issue_rule
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select isr_SEQ.NEXTVAL into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
+end;
+/
+
+ALTER TRIGGER ord.isr_TRGR ENABLE;
+
+
+/
+
 CREATE bitmap INDEX ord.ord_AS_IDX ON ord.ord (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX ord.bill_AS_IDX ON ord.bill (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX ord.cmn_AS_IDX ON ord.commission (amnd_state) TABLESPACE "USERS" ;
@@ -1374,5 +1458,50 @@ CREATE bitmap INDEX ord.ct_AS_IDX ON ord.commission_template (amnd_state) TABLES
 CREATE bitmap INDEX ord.iav_AS_IDX ON ord.item_avia (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX ord.iavs_AS_IDX ON ord.item_avia_status (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX ord.tkt_AS_IDX ON ord.ticket (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX ord.isr_AS_IDX ON ord.issue_rule (amnd_state) TABLESPACE "USERS" ;
 
+--------------------------------------------------------
+--  DDL for Grants
+--------------------------------------------------------
+
+grant select on ord.bill to blng;
+grant select on ord.ord to blng;
+grant select on ord.ticket to blng;
+grant select on ord.item_avia to blng;
+grant select on ord.item_avia_status to blng;
+grant select on ord.commission to blng;
+grant select on ord.commission_details to blng;
+grant select on ord.commission_template to blng;
+grant select on ord.issue_rule to blng;
+
+grant select on ord.bill to ntg;
+grant select on ord.ord to ntg;
+grant select on ord.ticket to ntg;
+grant select on ord.item_avia to ntg;
+grant select on ord.item_avia_status to ntg;
+grant select on ord.commission to ntg;
+grant select on ord.commission_details to ntg;
+grant select on ord.commission_template to ntg;
+grant select on ord.issue_rule to ntg;
+
+--Foreign keys between tables in different schemas
+grant references on ord.bill to blng;
+grant references on ord.ord to blng;
+grant references on ord.ticket to blng;
+grant references on ord.item_avia to blng;
+grant references on ord.item_avia_status to blng;
+grant references on ord.commission to blng;
+grant references on ord.commission_details to blng;
+grant references on ord.commission_template to blng;
+grant references on ord.issue_rule to blng;
+
+grant references on ord.bill to ntg;
+grant references on ord.ord to ntg;
+grant references on ord.ticket to ntg;
+grant references on ord.item_avia to ntg;
+grant references on ord.item_avia_status to ntg;
+grant references on ord.commission to ntg;
+grant references on ord.commission_details to ntg;
+grant references on ord.commission_template to ntg;
+grant references on ord.issue_rule to ntg;
 

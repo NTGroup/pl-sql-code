@@ -1,6 +1,3 @@
-grant execute on ntg.ntg_api to blng;
-grant execute on ntg.ntg_api to ord;
-grant execute on ntg.ntg_api to po_fwdr;
 
 /
 
@@ -128,3 +125,12 @@ create or replace package body ntg.ntg_api as
 end;
 /
 
+--------------------------------------------------------
+--  DDL for Grants
+--------------------------------------------------------
+
+grant execute on ntg.ntg_api to blng;
+grant execute on ntg.ntg_api to ord;
+grant execute on ntg.ntg_api to po_fwdr;
+
+/

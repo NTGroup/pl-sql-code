@@ -498,4 +498,30 @@ CREATE bitmap INDEX ntg.mkp_AS_IDX ON ntg.markup (amnd_state) TABLESPACE "USERS"
 CREATE bitmap INDEX ntg.al_AS_IDX ON ntg.airline (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX ntg.ap_AS_IDX ON ntg.airplane (amnd_state) TABLESPACE "USERS" ;
 
+--------------------------------------------------------
+--  DDL for Grants
+--------------------------------------------------------
+
+grant select on ntg.airline to ord;
+grant select on ntg.airplane to ord;
+grant select on ntg.geo to ord;
+grant select on ntg.markup to ord;
+grant select on ntg.gds_nationality to ord;
+grant select on ntg.airline to blng;
+grant select on ntg.airplane to blng;
+grant select on ntg.geo to blng;
+grant select on ntg.markup to blng;
+grant select on ntg.gds_nationality to blng;
+
+--Foreign keys between tables in different schemas
+grant references on ntg.airline to ord;
+grant references on ntg.airplane to ord;
+grant references on ntg.geo to ord;
+grant references on ntg.markup to ord;
+grant references on ntg.gds_nationality to ord;
+grant references on ntg.airline to blng;
+grant references on ntg.airplane to blng;
+grant references on ntg.geo to blng;
+grant references on ntg.markup to blng;
+grant references on ntg.gds_nationality to blng;
 
