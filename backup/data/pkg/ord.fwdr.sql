@@ -287,6 +287,21 @@ $obj_return: SYS_REFCURSOR[res:true/false]
   function issue_rule_edit(p_data in ntg.dtype.t_clob)
   return SYS_REFCURSOR;
 
+/*
+$obj_type: function
+$obj_name: commission_edit
+$obj_desc: update commission rules or create new commission rules. if success return true else false.
+$obj_desc: if status equals [C]lose or [D]elete then delete commission rule.
+$obj_param: p_data: data for update. format json[AIRLINE_ID, CONTRACT_ID, RULE_ID, 
+$obj_param: p_data: RULE_DESCRIPTION, RULE_LIFE_FROM, RULE_LIFE_TO, RULE_AMOUNT, 
+$obj_param: p_data: RULE_AMOUNT_MEASURE, RULE_PRIORITY, CONDITION_ID, TEMPLATE_TYPE_ID, 
+$obj_param: p_data: TEMPLATE_NAME_NLS, TEMPLATE_VALUE]
+$obj_return: SYS_REFCURSOR[res:true/false]
+*/
+
+  function commission_edit(p_data in ntg.dtype.t_clob)
+  return SYS_REFCURSOR;
+  
 
 
 END FWDR;
@@ -1434,6 +1449,7 @@ $TODO: there must be check for users with ISSUES permission
     v_issue_rule ntg.dtype.t_id; 
     r_client issue_rule%rowtype;
     v_commission ntg.dtype.t_id:=null;
+    v_commission_details ntg.dtype.t_id:=null;
   begin
 -- first update client info. then if doc_number is not null then update client_data 
     for i in (
@@ -1467,28 +1483,49 @@ $TODO: there must be check for users with ISSUES permission
     loop
       if i.rule_id is not null then v_commission:= i.rule_id; end if;
 
-      if v_commission is is null then
+      if v_commission is null then
         v_commission:=ord_api.commission_add( 
-                          p_airline => airline_id,
-                          p_details => ,
-                          p_fix => ,
-                          p_percent => ,
-                          P_DATE_FROM => ,
-                          P_DATE_TO => 
-                          )
+                          p_airline => i.airline_id,
+                          p_details => i.rule_description,
+                          p_fix => case when i.rule_amount_measure = 'PERCENT' then null else  i.rule_amount end,
+                          p_percent => case when i.rule_amount_measure = 'PERCENT' then i.rule_amount else  null end,
+                          P_DATE_FROM => to_date(i.rule_life_from,'yyyy-mm-dd'),
+                          P_DATE_TO => to_date(i.rule_life_to,'yyyy-mm-dd'),
+                          p_priority => i.rule_priority,
+                          p_contract_type => i.contract_id --its contract_type of commission (self/interline/code-share)                          
+                          );
 
                                   
       else
-        ord_api.issue_rule_edit(  P_ID => i.id,
-                                    p_contract => i.tenant_id,
-                                    p_airline => i.validating_carrier,
-                                    p_booking_pos => i.booking_pos,
-                                    p_ticketing_pos => i.ticketing_pos,
-                                    p_stock => i.stock,
-                                    p_printer => i.printer,
-                                    p_status => i.status
-                                  ); 
+        ord_api.commission_edit( 
+                          p_id => v_commission,
+                          p_airline => i.airline_id,
+                          p_details => i.rule_description,
+                          p_fix => case when i.rule_amount_measure = 'PERCENT' then null else  i.rule_amount end,
+                          p_percent => case when i.rule_amount_measure = 'PERCENT' then i.rule_amount else  null end,
+                          P_DATE_FROM => to_date(i.rule_life_from,'yyyy-mm-dd'),
+                          P_DATE_TO => to_date(i.rule_life_to,'yyyy-mm-dd'),
+                          p_priority => i.rule_priority,
+                          p_contract_type => i.contract_id --its contract_type of commission (self/interline/code-share)                          
+                          );
       end if;
+
+      if i.condition_id is null and i.template_name_nls <> 'default' then
+        v_commission_details:=ord_api.commission_details_add( 
+                                    p_commission => v_commission,
+                                    p_commission_template => i.template_type_id,
+                                    p_value => i.template_value               
+                          );
+
+                                  
+      elsif i.condition_id is not null and i.template_name_nls <> 'default' then
+        ord_api.commission_details_edit( p_id => i.condition_id,
+                                    p_commission => v_commission,
+                                    p_commission_template => i.template_type_id,
+                                    p_value => i.template_value      
+                          );
+      end if;
+      
     end loop;
     
     commit;
