@@ -69,8 +69,10 @@ $obj_name: get_full
 $obj_desc: return all from v_markup
 $obj_return: SYS_REFCURSOR
 */
-  function get_full
+/*  
+function get_full
   return SYS_REFCURSOR;
+*/
   
 
 /*
@@ -78,6 +80,7 @@ $obj_type: function
 $obj_name: markup_get
 $obj_desc: when p_version is null then return all active rows. if not null then  
 $obj_desc: get all active and deleted rows that changed after p_version id
+$obj_param: p_version: id
 $obj_return: SYS_REFCURSOR[ID, TENANT_ID, VALIDATING_CARRIER, CLASS_OF_SERVICE, 
 $obj_return: SEGMENT, V_FROM, V_TO, ABSOLUT_AMOUNT, PERCENT_AMOUNT, MIN_ABSOLUT, VERSION, IS_ACTIVE]
 */  
@@ -117,7 +120,7 @@ create or replace package body ntg.fwdr as
   end;
 
 
-  function get_full
+/*  function get_full
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -132,7 +135,7 @@ create or replace package body ntg.fwdr as
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
       RAISE_APPLICATION_ERROR(-20002,'select row into markup error. '||SQLERRM);
     return null;  
-  end;
+  end;*/
 
 function get_utc_offset(p_iata in iata_array)
 return SYS_REFCURSOR
@@ -289,73 +292,42 @@ end;
   is
     v_results SYS_REFCURSOR; 
   begin
-    if p_version is null then 
-      OPEN v_results FOR
-        select
-        mkp.id,
-        nvl(mkp.contract_oid,0) tenant_id,
-        air.iata validating_carrier,
-        mkp.class_of_service,
-        case
-        when mkp.segment is not null and mkp.segment = 'Y' then 'Y' 
-        else 'N'
-        end segment,
-        nvl(mkp.v_from,0) v_from,
-        nvl(mkp.v_to,0) v_to,
-        case
-        when mkp.absolut = 'Y'  then mkp.absolut_amount 
-        else null
-        end absolut_amount,
-        case
-        when mkp.percent = 'Y'  then mkp.percent_amount 
-        else null
-        end percent_amount,
-        case
-        when mkp.percent = 'Y'  then mkp.min_absolut 
-        else null
-        end min_absolut,
-        (select max(id) from ntg.markup)  version,
-        decode(mkp.amnd_state, 'A','Y','C','N','E') is_active
-        from markup mkp, airline air
-        where mkp.amnd_state = 'A'
-        AND air.amnd_state = 'A'
-        and air.id = mkp.validating_carrier;
-    else 
-      OPEN v_results FOR
-        select
-        mkp.id,
-        nvl(mkp.contract_oid,0) tenant_id,
-        air.iata validating_carrier,
-        mkp.class_of_service,
-        case
-        when mkp.segment is not null and mkp.segment = 'Y' then 'Y' 
-        else 'N'
-        end segment,
-        nvl(mkp.v_from,0) v_from,
-        nvl(mkp.v_to,0) v_to,
-        case
-        when mkp.absolut = 'Y'  then mkp.absolut_amount 
-        else null
-        end absolut_amount,
-        case
-        when mkp.percent = 'Y'  then mkp.percent_amount 
-        else null
-        end percent_amount,
-        case
-        when mkp.percent = 'Y'  then mkp.min_absolut 
-        else null
-        end min_absolut,
-        (select max(id) from ntg.markup)  version,
-        decode(mkp.amnd_state, 'A','Y','C','N','E') is_active 
-        from markup mkp, airline air
-        where mkp.amnd_state = 'A'
-        AND air.amnd_state = 'A'
-        and air.id = mkp.validating_carrier
-        and mkp.amnd_state in ('C','A') 
-        and mkp.id in (select amnd_prev from markup where id > p_version)
---        and mkp.id in (select id from markup where amnd_state in ('C','A') and id in (select amnd_prev from markup where id > p_version))
-        ;
-    end if;    
+    OPEN v_results FOR
+      select
+      mkp.id,
+      nvl(mkp.contract_oid,0) tenant_id,
+      air.iata validating_carrier,
+      mkp.class_of_service,
+      case
+      when mkp.segment is not null and mkp.segment = 'Y' then 'Y' 
+      else 'N'
+      end segment,
+      nvl(mkp.v_from,0) v_from,
+      nvl(mkp.v_to,0) v_to,
+      case
+      when mkp.absolut = 'Y'  then mkp.absolut_amount 
+      else null
+      end absolut_amount,
+      case
+      when mkp.percent = 'Y'  then mkp.percent_amount 
+      else null
+      end percent_amount,
+      case
+      when mkp.percent = 'Y'  then mkp.min_absolut 
+      else null
+      end min_absolut,
+      (select max(id) from ntg.markup)  version,
+      decode(mkp.amnd_state, 'A','Y','C','N','E') is_active 
+      from markup mkp, airline air
+      where air.amnd_state = 'A'
+      and air.id = mkp.validating_carrier
+    and ((mkp.amnd_state in ('C','A') 
+          and mkp.id in (select amnd_prev from markup where id > p_version)
+          and p_version is not null)
+      or
+        (mkp.amnd_state = 'A'
+        and p_version is null)
+        );
     return v_results;
   exception when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'get_full', p_msg_type=>'UNHANDLED_ERROR', 

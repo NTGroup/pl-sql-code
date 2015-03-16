@@ -23,12 +23,12 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   return ntg.dtype.t_id;
 
   function item_avia_add(p_ORDER_OID in ntg.dtype.t_id default null,
-                          p_PNR_ID in ntg.dtype.t_long_code default null,
+                          p_PNR_locator in ntg.dtype.t_long_code default null,
                           p_TIME_LIMIT  in ntg.dtype.t_date default null,
                           p_TOTAL_AMOUNT in ntg.dtype.t_amount default null,
                           p_TOTAL_MARKUP in ntg.dtype.t_amount default null,
                           p_PNR_OBJECT in ntg.dtype.t_clob default null,
-                          p_nqt_id in  ntg.dtype.t_long_code default null,
+                          p_pnr_id in  ntg.dtype.t_long_code default null,
                           p_nqt_status in ntg.dtype.t_status default null, 
                           p_po_status in ntg.dtype.t_status default null,
                           p_nqt_status_cur in ntg.dtype.t_status default null 
@@ -45,25 +45,25 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   return ord%rowtype;
 
   function item_avia_get_info(p_id in ntg.dtype.t_id default null,
-                              p_nqt_id in ntg.dtype.t_long_code default null,
+                              p_pnr_id in ntg.dtype.t_long_code default null,
                               p_order in ntg.dtype.t_id default null
                               )
   return SYS_REFCURSOR;
 
   function item_avia_get_info_r ( p_id in ntg.dtype.t_id default null,
-                              p_nqt_id in ntg.dtype.t_long_code default null,
+                              p_pnr_id in ntg.dtype.t_long_code default null,
                               p_order in ntg.dtype.t_id default null
                               )
   return item_avia%rowtype;
   
   procedure item_avia_edit( P_ID  in ntg.dtype.t_id default null,
                             p_ORDER_OID in ntg.dtype.t_id default null,
-                          p_PNR_ID in ntg.dtype.t_long_code default null,
+                          p_PNR_locator in ntg.dtype.t_long_code default null,
                           p_TIME_LIMIT  in ntg.dtype.t_date default null,
                           p_TOTAL_AMOUNT in ntg.dtype.t_amount default null,
                           p_TOTAL_MARKUP in ntg.dtype.t_amount default null,
                           p_PNR_OBJECT in ntg.dtype.t_clob default null,
-                          p_nqt_id in ntg.dtype.t_long_code default null,
+                          p_pnr_id in ntg.dtype.t_long_code default null,
                           p_nqt_status in ntg.dtype.t_status default null, 
                           p_po_status in ntg.dtype.t_status default null,
                           p_nqt_status_cur in ntg.dtype.t_status default null);
@@ -73,7 +73,9 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                           p_fix  in ntg.dtype.t_amount default null,
                           p_percent in ntg.dtype.t_amount default null,
                           P_DATE_FROM IN ntg.dtype.T_DATE DEFAULT NULL,
-                          P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL
+                          P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL,
+                            P_PRIORITY IN ntg.dtype.t_id DEFAULT NULL,
+                            P_contract_type IN ntg.dtype.t_id DEFAULT NULL
                           )
   return ntg.dtype.t_id;
   
@@ -83,7 +85,10 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                           p_fix  in ntg.dtype.t_amount default null,
                           p_percent in ntg.dtype.t_amount default null,
                           P_DATE_FROM IN ntg.dtype.T_DATE DEFAULT NULL,
-                          P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL);
+                          P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL,
+                            P_PRIORITY IN ntg.dtype.t_id DEFAULT NULL,
+                            P_contract_type IN ntg.dtype.t_id DEFAULT NULL,
+                            p_status in ntg.dtype.t_status DEFAULT NULL);
 
   function commission_get_info(p_id in ntg.dtype.t_id default null,
                               p_airline in ntg.dtype.t_id default null
@@ -146,7 +151,8 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   procedure commission_details_edit( P_ID  in ntg.dtype.t_id default null,
                                     p_commission in ntg.dtype.t_id default null,
                                     p_commission_template in ntg.dtype.t_id default null,
-                                    p_value in  ntg.dtype.t_name default null);
+                                    p_value in  ntg.dtype.t_name default null,
+                                    p_status in  ntg.dtype.t_status default null);
                                 
 
   function commission_details_get_info( p_id in ntg.dtype.t_id default null, p_commission in ntg.dtype.t_id default null )
@@ -219,8 +225,73 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   return item_avia_status%rowtype;
 
 
+  function ticket_add( 
+                    p_item_avia in ntg.dtype.t_id default null,
+                    p_pnr_locator in ntg.dtype.t_code default null,
+                    p_ticket_number in  ntg.dtype.t_long_code default null,
+                    p_passenger_name in  ntg.dtype.t_name default null,
+                    p_passenger_type in  ntg.dtype.t_code default null,
+                    p_fare_amount in  ntg.dtype.t_amount default null,
+                    p_taxes_amount in  ntg.dtype.t_amount default null,
+                    p_service_fee_amount in  ntg.dtype.t_amount default null
+                  )
+  return ntg.dtype.t_id;
 
-  
+  procedure ticket_edit(  P_ID  in ntg.dtype.t_id default null,
+                          p_item_avia in ntg.dtype.t_id default null,
+                          p_pnr_locator in ntg.dtype.t_code default null,
+                          p_ticket_number in  ntg.dtype.t_long_code default null,
+                          p_passenger_name in  ntg.dtype.t_name default null,
+                          p_passenger_type in  ntg.dtype.t_code default null,
+                          p_fare_amount in  ntg.dtype.t_amount default null,
+                          p_taxes_amount in  ntg.dtype.t_amount default null,
+                          p_service_fee_amount in  ntg.dtype.t_amount default null
+                      );
+                    
+  function ticket_get_info(   P_ID  in ntg.dtype.t_id default null,
+                          p_item_avia in ntg.dtype.t_id default null,
+                          p_pnr_locator in ntg.dtype.t_code default null,
+                          p_ticket_number in  ntg.dtype.t_long_code default null
+                          )
+  return SYS_REFCURSOR;
+
+  function ticket_get_info_r (    P_ID  in ntg.dtype.t_id default null,
+                          p_ticket_number in  ntg.dtype.t_long_code default null
+                          )
+  return ticket%rowtype;
+
+  function issue_rule_add( 
+                    p_contract in ntg.dtype.t_id default null,
+                    p_airline in ntg.dtype.t_id default null,
+                    p_booking_pos in ntg.dtype.t_code default null,
+                    p_ticketing_pos in ntg.dtype.t_code default null,
+                    p_stock in ntg.dtype.t_code default null,
+                    p_printer in ntg.dtype.t_code default null
+                  )
+  return ntg.dtype.t_id;
+
+  procedure issue_rule_edit(  P_ID  in ntg.dtype.t_id default null,
+                              p_contract in ntg.dtype.t_id default null,
+                              p_airline in ntg.dtype.t_id default null,
+                              p_booking_pos in ntg.dtype.t_code default null,
+                              p_ticketing_pos in ntg.dtype.t_code default null,
+                              p_stock in ntg.dtype.t_code default null,
+                              p_printer in ntg.dtype.t_code default null,
+                              p_status in  ntg.dtype.t_status default null
+                      );
+
+  function issue_rule_get_info(   P_ID  in ntg.dtype.t_id default null,
+                                  p_contract in ntg.dtype.t_id default null,
+                                  p_airline in ntg.dtype.t_id default null
+                          )
+  return SYS_REFCURSOR;
+
+  function issue_rule_get_info_r (    P_ID  in ntg.dtype.t_id default null,
+                                      p_contract in ntg.dtype.t_id default null,
+                                      p_airline in ntg.dtype.t_id default null
+                          )
+  return issue_rule%rowtype;
+
 
   
 END ORD_API;
@@ -256,12 +327,12 @@ END ORD_API;
 
 
   function item_avia_add(p_ORDER_OID in ntg.dtype.t_id default null,
-                          p_PNR_ID in ntg.dtype.t_long_code default null,
+                          p_PNR_locator in ntg.dtype.t_long_code default null,
                           p_TIME_LIMIT  in ntg.dtype.t_date default null,
                           p_TOTAL_AMOUNT in ntg.dtype.t_amount default null,
                           p_TOTAL_MARKUP in ntg.dtype.t_amount default null,
                           p_PNR_OBJECT in ntg.dtype.t_clob  default null,
-                          p_nqt_id in ntg.dtype.t_long_code default null,
+                          p_pnr_id in ntg.dtype.t_long_code default null,
                           p_nqt_status in ntg.dtype.t_status default null, 
                           p_po_status in ntg.dtype.t_status default null,
                           p_nqt_status_cur in ntg.dtype.t_status default null
@@ -272,12 +343,12 @@ END ORD_API;
     v_id ntg.dtype.t_id;
   begin
     v_item_avia_row.ORDER_OID:=  p_ORDER_OID;
-    v_item_avia_row.PNR_ID:=  p_PNR_ID;
+    v_item_avia_row.PNR_locator:=  p_PNR_locator;
     v_item_avia_row.TIME_LIMIT:=  p_TIME_LIMIT;
     v_item_avia_row.TOTAL_AMOUNT:=  p_TOTAL_AMOUNT;
     v_item_avia_row.TOTAL_MARKUP:=  p_TOTAL_MARKUP;
     v_item_avia_row.PNR_OBJECT:=  p_PNR_OBJECT;
-    v_item_avia_row.nqt_id:=  p_nqt_id;
+    v_item_avia_row.pnr_id:=  p_pnr_id;
     v_item_avia_row.nqt_status:=  p_nqt_status;
     v_item_avia_row.po_status:=  p_po_status;
     v_item_avia_row.nqt_status_cur:=  p_nqt_status_cur;
@@ -337,7 +408,7 @@ END ORD_API;
 
 
   function item_avia_get_info(p_id in ntg.dtype.t_id default null,
-                              p_nqt_id in ntg.dtype.t_long_code default null,
+                              p_pnr_id in ntg.dtype.t_long_code default null,
                               p_order in ntg.dtype.t_id default null
   )
   return SYS_REFCURSOR
@@ -349,7 +420,7 @@ END ORD_API;
         *
         from ord.item_avia 
         where id = nvl(p_id,id)
-        and nqt_id = nvl(p_nqt_id,nqt_id)
+        and pnr_id = nvl(p_pnr_id,pnr_id)
         and order_oid = nvl(p_order,order_oid)
         and amnd_state = 'A'
         order by id;
@@ -364,7 +435,7 @@ END ORD_API;
   end;
 
   function item_avia_get_info_r ( p_id in ntg.dtype.t_id default null,
-                              p_nqt_id in ntg.dtype.t_long_code default null,
+                              p_pnr_id in ntg.dtype.t_long_code default null,
                               p_order in ntg.dtype.t_id default null
                               
                             )
@@ -378,9 +449,9 @@ END ORD_API;
     * into r_obj
     from ord.item_avia 
     where id = nvl(p_id,id)
-    and nqt_id = nvl(p_nqt_id,nqt_id)
+    and pnr_id = nvl(p_pnr_id,pnr_id)
     and order_oid = nvl(p_order,order_oid)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by id;
     return r_obj;
   exception 
@@ -397,12 +468,12 @@ END ORD_API;
 
   procedure item_avia_edit( P_ID  in ntg.dtype.t_id default null,
                             p_ORDER_OID in ntg.dtype.t_id default null,
-                          p_PNR_ID in ntg.dtype.t_long_code default null,
+                          p_PNR_locator in ntg.dtype.t_long_code default null,
                           p_TIME_LIMIT  in ntg.dtype.t_date default null,
                           p_TOTAL_AMOUNT in ntg.dtype.t_amount default null,
                           p_TOTAL_MARKUP in ntg.dtype.t_amount default null,
                           p_PNR_OBJECT in ntg.dtype.t_clob default null,
-                          p_nqt_id in ntg.dtype.t_long_code default null,
+                          p_pnr_id in ntg.dtype.t_long_code default null,
                           p_nqt_status in ntg.dtype.t_status default null, 
                           p_po_status in ntg.dtype.t_status default null,
                           p_nqt_status_cur in ntg.dtype.t_status default null
@@ -412,11 +483,11 @@ END ORD_API;
     v_obj_row_old item_avia%rowtype;
   begin
 
-    if p_id is null and p_nqt_id is null then raise NO_DATA_FOUND; end if;
+    if p_id is null and p_pnr_id is null then raise NO_DATA_FOUND; end if;
     
     select * into v_obj_row_old from item_avia 
         where id = nvl(p_id,id)
-        and nqt_id = nvl(p_nqt_id,nqt_id)
+        and pnr_id = nvl(p_pnr_id,pnr_id)
         and amnd_state = 'A'
     ;
     v_obj_row_new := v_obj_row_old;
@@ -428,7 +499,7 @@ END ORD_API;
 
     v_obj_row_new.amnd_date:=sysdate;
     v_obj_row_new.amnd_user:=user;
-    v_obj_row_new.PNR_ID := nvl(p_PNR_ID,v_obj_row_new.PNR_ID);
+    v_obj_row_new.PNR_locator := nvl(p_PNR_locator,v_obj_row_new.PNR_locator);
     v_obj_row_new.TIME_LIMIT := nvl(p_TIME_LIMIT,v_obj_row_new.TIME_LIMIT);
     v_obj_row_new.TOTAL_AMOUNT := nvl(p_TOTAL_AMOUNT,v_obj_row_new.TOTAL_AMOUNT);
     v_obj_row_new.TOTAL_MARKUP := nvl(p_TOTAL_MARKUP,v_obj_row_new.TOTAL_MARKUP);
@@ -455,7 +526,9 @@ END ORD_API;
                           p_fix  in ntg.dtype.t_amount default null,
                           p_percent in ntg.dtype.t_amount default null,
                           P_DATE_FROM IN ntg.dtype.T_DATE DEFAULT NULL,
-                          P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL
+                          P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL,
+                          P_PRIORITY IN ntg.dtype.t_id DEFAULT NULL,
+                          P_contract_type IN ntg.dtype.t_id DEFAULT NULL
                           )
   return ntg.dtype.t_id
   is
@@ -468,6 +541,8 @@ END ORD_API;
     v_obj_row.percent:=  p_percent;
     v_obj_row.DATE_FROM:=  P_DATE_FROM;
     v_obj_row.DATE_TO:=  P_DATE_TO;
+    v_obj_row.PRIORITY:=  P_PRIORITY;
+    v_obj_row.contract_type:=  P_contract_type;
 
     insert into ord.commission values v_obj_row returning id into v_id;
     return v_id;
@@ -482,11 +557,15 @@ END ORD_API;
 
   procedure commission_edit( P_ID  in ntg.dtype.t_id default null,
                             p_airline in ntg.dtype.t_id default null,
-                          p_details in ntg.dtype.t_name default null,
-                          p_fix  in ntg.dtype.t_amount default null,
-                          p_percent in ntg.dtype.t_amount default null,
-                          P_DATE_FROM IN ntg.dtype.T_DATE DEFAULT NULL,
-                          P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL)
+                            p_details in ntg.dtype.t_name default null,
+                            p_fix  in ntg.dtype.t_amount default null,
+                            p_percent in ntg.dtype.t_amount default null,
+                            P_DATE_FROM IN ntg.dtype.T_DATE DEFAULT NULL,
+                            P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL,
+                            P_PRIORITY IN ntg.dtype.t_id DEFAULT NULL,
+                            P_contract_type IN ntg.dtype.t_id DEFAULT NULL,
+                            p_status in ntg.dtype.t_status DEFAULT NULL
+                          )
   is
     v_obj_row_new commission%rowtype;
     v_obj_row_old commission%rowtype;
@@ -499,19 +578,34 @@ END ORD_API;
         
     v_obj_row_new := v_obj_row_old;
 
-    v_obj_row_old.amnd_state:='I';
-    v_obj_row_old.id:=null;
-    insert into commission values v_obj_row_old;
 
 
     v_obj_row_new.amnd_date:=sysdate;
     v_obj_row_new.amnd_user:=user;
-    v_obj_row_new.airline := nvl(p_airline,v_obj_row_new.airline);
+--    v_obj_row_new.airline := nvl(p_airline,v_obj_row_new.airline);
     v_obj_row_new.details := nvl(p_details,v_obj_row_new.details);
     v_obj_row_new.fix := nvl(p_fix,v_obj_row_new.fix);
     v_obj_row_new.percent := nvl(p_percent,v_obj_row_new.percent);
     v_obj_row_new.date_from := nvl(p_date_from,v_obj_row_new.date_from);
     v_obj_row_new.date_to := nvl(p_date_to,v_obj_row_new.date_to);
+    v_obj_row_new.PRIORITY := nvl(P_PRIORITY,v_obj_row_new.PRIORITY);
+    v_obj_row_new.contract_type := nvl(P_contract_type,v_obj_row_new.contract_type);
+    if p_status in ('C','D') then  v_obj_row_new.amnd_state := 'C'; end if;
+
+    if nvl(v_obj_row_new.details,'X') = nvl(v_obj_row_old.details,'X')
+      and nvl(v_obj_row_new.fix,-1) = nvl(v_obj_row_old.fix,-1)
+      and nvl(v_obj_row_new.percent,-1) = nvl(v_obj_row_old.percent,-1)
+      and nvl(to_char(v_obj_row_new.date_from,'ddmmyyyy'),'X')  = nvl(to_char(v_obj_row_old.date_from,'ddmmyyyy'),'X')     
+      and nvl(to_char(v_obj_row_new.date_to,'ddmmyyyy'),'X')  = nvl(to_char(v_obj_row_old.date_to,'ddmmyyyy'),'X') 
+      and nvl(v_obj_row_new.PRIORITY,-1) = nvl(v_obj_row_old.PRIORITY,-1)
+      and nvl(v_obj_row_new.contract_type,-1) = nvl(v_obj_row_old.contract_type,-1)
+      and v_obj_row_new.amnd_state <> 'C'
+      then return;
+    end if;
+
+    v_obj_row_old.amnd_state:='I';
+    v_obj_row_old.id:=null;
+    insert into commission values v_obj_row_old;
 
     update commission set row = v_obj_row_new where id = v_obj_row_new.id;
   exception 
@@ -564,7 +658,7 @@ END ORD_API;
     from ord.commission 
     where id = nvl(p_id,id)
     and airline = nvl(p_airline,airline)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by id;
     return r_obj;
   exception 
@@ -720,7 +814,7 @@ END ORD_API;
     * into r_obj
     from ord.commission_template 
     where id = nvl(p_id,id)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by id;
     return r_obj;
   exception 
@@ -764,7 +858,8 @@ END ORD_API;
   procedure commission_details_edit( P_ID  in ntg.dtype.t_id default null,
                                     p_commission in ntg.dtype.t_id default null,
                                     p_commission_template in ntg.dtype.t_id default null,
-                                    p_value in  ntg.dtype.t_name default null)
+                                    p_value in  ntg.dtype.t_name default null,
+                                    p_status in  ntg.dtype.t_status default null)
   is
     v_obj_row_new commission_details%rowtype;
     v_obj_row_old commission_details%rowtype;
@@ -777,15 +872,24 @@ END ORD_API;
     ;
     v_obj_row_new := v_obj_row_old;
 
-    v_obj_row_old.amnd_state:='I';
-    v_obj_row_old.id:=null;
-    insert into commission_details values v_obj_row_old;
 
     v_obj_row_new.amnd_date:=sysdate;
     v_obj_row_new.amnd_user:=user;
     v_obj_row_new.commission_oid := nvl(p_commission,v_obj_row_new.commission_oid);
     v_obj_row_new.commission_template_oid := nvl(p_commission_template,v_obj_row_new.commission_template_oid);
     v_obj_row_new.value := nvl(p_value,v_obj_row_new.value);
+    if p_status in ('C','D') then  v_obj_row_new.amnd_state:='C'; end if;
+
+    if nvl(v_obj_row_new.value,'_X_') = nvl(v_obj_row_old.value,'_X_')  --there could be value X
+      and nvl(v_obj_row_new.commission_oid,-1) = nvl(v_obj_row_old.commission_oid,-1)
+      and nvl(v_obj_row_new.commission_template_oid,-1) = nvl(v_obj_row_old.commission_template_oid,-1)
+      and v_obj_row_new.amnd_state <> 'C'
+      then return;
+    end if;
+
+    v_obj_row_old.amnd_state:='I';
+    v_obj_row_old.id:=null;
+    insert into commission_details values v_obj_row_old;
 
     update commission_details set row = v_obj_row_new where id = v_obj_row_new.id;
   exception 
@@ -844,7 +948,7 @@ END ORD_API;
     from ord.commission_details 
     where id = nvl(p_id,id)
     and commission_oid = nvl(p_commission,commission_oid)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by id;
     return r_obj;
   exception 
@@ -870,7 +974,7 @@ END ORD_API;
     SELECT id into v_result        
     from ord.commission_template 
     where template_type = nvl(p_type,template_type)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by id;
     return v_result;
   exception 
@@ -1026,7 +1130,7 @@ END ORD_API;
     from ord.bill 
     where id = nvl(p_id,id)
     and status = nvl(p_status,status)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by id;
     return r_obj;
   exception 
@@ -1145,7 +1249,7 @@ END ORD_API;
     from ord.item_avia_status 
     where id = nvl(p_id,id)
     and item_avia_oid = nvl(p_item_avia,item_avia_oid)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by id;
     return r_obj;
   exception 
@@ -1158,6 +1262,310 @@ END ORD_API;
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=item_avia_status,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into item_avia_status error. '||SQLERRM);
+  end;
+
+
+  function ticket_add( 
+                    p_item_avia in ntg.dtype.t_id default null,
+                    p_pnr_locator in ntg.dtype.t_code default null,
+                    p_ticket_number in  ntg.dtype.t_long_code default null,
+                    p_passenger_name in  ntg.dtype.t_name default null,
+                    p_passenger_type in  ntg.dtype.t_code default null,
+                    p_fare_amount in  ntg.dtype.t_amount default null,
+                    p_taxes_amount in  ntg.dtype.t_amount default null,
+                    p_service_fee_amount in  ntg.dtype.t_amount default null
+                  )
+  return ntg.dtype.t_id
+  is
+    v_obj_row ticket%rowtype;
+    v_id ntg.dtype.t_id;
+  begin
+    v_obj_row.item_avia_oid:=  p_item_avia;
+    v_obj_row.pnr_locator:=  p_pnr_locator;
+    v_obj_row.ticket_number:=  p_ticket_number;
+    v_obj_row.passenger_name:=  p_passenger_name;
+    v_obj_row.passenger_type:=  p_passenger_type;
+    v_obj_row.fare_amount:=  p_fare_amount;
+    v_obj_row.taxes_amount:=  p_taxes_amount;
+    v_obj_row.service_fee_amount:=  p_service_fee_amount;
+
+    insert into ord.ticket values v_obj_row returning id into v_id;
+    return v_id;
+  exception when others then
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'ticket_add', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=ticket,p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'insert row into ticket error. '||SQLERRM);
+  end;
+
+
+  procedure ticket_edit(  P_ID  in ntg.dtype.t_id default null,
+                          p_item_avia in ntg.dtype.t_id default null,
+                          p_pnr_locator in ntg.dtype.t_code default null,
+                          p_ticket_number in  ntg.dtype.t_long_code default null,
+                          p_passenger_name in  ntg.dtype.t_name default null,
+                          p_passenger_type in  ntg.dtype.t_code default null,
+                          p_fare_amount in  ntg.dtype.t_amount default null,
+                          p_taxes_amount in  ntg.dtype.t_amount default null,
+                          p_service_fee_amount in  ntg.dtype.t_amount default null
+                      )
+  is
+    v_obj_row_new ticket%rowtype;
+    v_obj_row_old ticket%rowtype;
+  begin
+    if p_id is null and p_ticket_number is null then raise NO_DATA_FOUND; end if;   
+  
+    select * into v_obj_row_old from ticket 
+        where id = nvl(p_id,id)
+        and ticket_number = nvl(p_ticket_number,ticket_number)
+        and amnd_state = 'A'
+    ;
+    v_obj_row_new := v_obj_row_old;
+
+    v_obj_row_old.amnd_state:='I';
+    v_obj_row_old.id:=null;
+    insert into ticket values v_obj_row_old;
+
+
+    v_obj_row_new.amnd_date:=sysdate;
+    v_obj_row_new.amnd_user:=user;
+    v_obj_row_new.pnr_locator := nvl(p_pnr_locator,v_obj_row_new.pnr_locator);
+    v_obj_row_new.passenger_name := nvl(p_passenger_name,v_obj_row_new.passenger_name);
+    v_obj_row_new.passenger_type := nvl(p_passenger_type,v_obj_row_new.passenger_type);
+    v_obj_row_new.fare_amount := nvl(p_fare_amount,v_obj_row_new.fare_amount);
+    v_obj_row_new.taxes_amount := nvl(p_taxes_amount,v_obj_row_new.taxes_amount);
+    v_obj_row_new.service_fee_amount := nvl(p_service_fee_amount,v_obj_row_new.service_fee_amount);
+
+    if v_obj_row_new.pnr_locator = v_obj_row_old.pnr_locator
+      and v_obj_row_new.passenger_name = v_obj_row_old.passenger_name
+      and v_obj_row_new.passenger_type = v_obj_row_old.passenger_type
+      and v_obj_row_new.fare_amount = v_obj_row_old.fare_amount
+      and v_obj_row_new.taxes_amount = v_obj_row_old.taxes_amount
+      and v_obj_row_new.service_fee_amount = v_obj_row_old.service_fee_amount
+      then return;
+    end if;
+
+    update ticket set row = v_obj_row_new where id = v_obj_row_new.id;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'ticket_edit', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=ticket,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'update row into ticket error. '||SQLERRM);
+  end;
+
+
+  function ticket_get_info(   P_ID  in ntg.dtype.t_id default null,
+                          p_item_avia in ntg.dtype.t_id default null,
+                          p_pnr_locator in ntg.dtype.t_code default null,
+                          p_ticket_number in  ntg.dtype.t_long_code default null
+                          )
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR;
+  begin
+      OPEN v_results FOR
+        SELECT
+        *
+        from ord.ticket 
+        where id = nvl(p_id,id)
+        and item_avia_oid = nvl(p_item_avia,item_avia_oid)
+        and pnr_locator = nvl(p_pnr_locator,pnr_locator)
+        and ticket_number = nvl(p_ticket_number,ticket_number)
+        and amnd_state = 'A'
+        order by id;
+    return v_results;
+  exception when others then
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'ticket_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=ticket,p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'select row into ticket error. '||SQLERRM);
+  end;
+
+
+  function ticket_get_info_r (    P_ID  in ntg.dtype.t_id default null,
+                          p_ticket_number in  ntg.dtype.t_long_code default null
+                          )
+  return ticket%rowtype
+  is
+    r_obj ticket%rowtype;
+  begin
+    if p_id is null and p_ticket_number is null then raise NO_DATA_FOUND; end if;   
+    
+    SELECT
+    * into r_obj
+    from ord.ticket 
+    where id = nvl(p_id,id)
+    and ticket_number = nvl(p_ticket_number,ticket_number)
+    and amnd_state != 'I'
+    order by id;
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'ticket_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=ticket,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into ticket error. '||SQLERRM);
+  end;
+
+
+
+  function issue_rule_add( 
+                    p_contract in ntg.dtype.t_id default null,
+                    p_airline in ntg.dtype.t_id default null,
+                    p_booking_pos in ntg.dtype.t_code default null,
+                    p_ticketing_pos in ntg.dtype.t_code default null,
+                    p_stock in ntg.dtype.t_code default null,
+                    p_printer in ntg.dtype.t_code default null
+                  )
+  return ntg.dtype.t_id
+  is
+    v_obj_row issue_rule%rowtype;
+    v_id ntg.dtype.t_id;
+  begin
+    v_obj_row.contract_oid:=  p_contract;
+    v_obj_row.airline_oid:=  p_airline;
+    v_obj_row.booking_pos:=  p_booking_pos;
+    v_obj_row.ticketing_pos:=  p_ticketing_pos;
+    v_obj_row.stock:=  p_stock;
+    v_obj_row.printer:=  p_printer;
+
+    insert into ord.issue_rule values v_obj_row returning id into v_id;
+    return v_id;
+  exception when others then
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'issue_rule_add', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=issue_rule,p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'insert row into issue_rule error. '||SQLERRM);
+  end;
+
+
+  procedure issue_rule_edit(  P_ID  in ntg.dtype.t_id default null,
+                              p_contract in ntg.dtype.t_id default null,
+                              p_airline in ntg.dtype.t_id default null,
+                              p_booking_pos in ntg.dtype.t_code default null,
+                              p_ticketing_pos in ntg.dtype.t_code default null,
+                              p_stock in ntg.dtype.t_code default null,
+                              p_printer in ntg.dtype.t_code default null,
+                              p_status in  ntg.dtype.t_status default null
+                      )
+  is
+    v_obj_row_new issue_rule%rowtype;
+    v_obj_row_old issue_rule%rowtype;
+  begin
+    if p_id is null and p_contract is null and p_airline is null then raise NO_DATA_FOUND; end if;   
+  
+    select * into v_obj_row_old from issue_rule 
+        where id = nvl(p_id,id)
+        and contract_oid = nvl(p_contract,contract_oid)
+        and airline_oid = nvl(p_airline,airline_oid)
+        and amnd_state = 'A'
+    ;
+    v_obj_row_new := v_obj_row_old;
+
+
+
+    v_obj_row_new.amnd_date:=sysdate;
+    v_obj_row_new.amnd_user:=user;
+    v_obj_row_new.contract_oid := nvl(p_contract,v_obj_row_new.contract_oid);
+    v_obj_row_new.airline_oid := nvl(p_airline,v_obj_row_new.airline_oid);
+    v_obj_row_new.booking_pos := nvl(p_booking_pos,v_obj_row_new.booking_pos);
+    v_obj_row_new.ticketing_pos := nvl(p_ticketing_pos,v_obj_row_new.ticketing_pos);
+    v_obj_row_new.stock := nvl(p_stock,v_obj_row_new.stock);
+    v_obj_row_new.printer := nvl(p_printer,v_obj_row_new.printer);
+    if p_status in ('C','D') then  v_obj_row_new.amnd_state := 'C'; end if;
+
+    if nvl(v_obj_row_new.contract_oid,-1) = nvl(v_obj_row_old.contract_oid,-1)
+      and nvl(v_obj_row_new.airline_oid,-1) = nvl(v_obj_row_old.airline_oid,-1)
+      and nvl(v_obj_row_new.booking_pos,'X') = nvl(v_obj_row_old.booking_pos,'X')
+      and nvl(v_obj_row_new.ticketing_pos,'X') = nvl(v_obj_row_old.ticketing_pos,'X')
+      and nvl(v_obj_row_new.stock,'X') = nvl(v_obj_row_old.stock,'X')
+      and nvl(v_obj_row_new.printer,'X') = nvl(v_obj_row_old.printer,'X')
+      and v_obj_row_new.amnd_state <> 'C'
+      then return;
+    end if;
+
+    v_obj_row_old.amnd_state:='I';
+    v_obj_row_old.id:=null;
+    insert into issue_rule values v_obj_row_old;
+
+    update issue_rule set row = v_obj_row_new where id = v_obj_row_new.id;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'issue_rule_edit', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=issue_rule,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'update row into issue_rule error. '||SQLERRM);
+  end;
+
+
+  function issue_rule_get_info(   P_ID  in ntg.dtype.t_id default null,
+                                  p_contract in ntg.dtype.t_id default null,
+                                  p_airline in ntg.dtype.t_id default null
+                          )
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR;
+  begin
+      OPEN v_results FOR
+        SELECT
+        *
+        from ord.issue_rule 
+        where id = nvl(p_id,id)
+        and contract_oid = nvl(p_contract,contract_oid)
+        and airline_oid = nvl(p_airline,airline_oid)
+        and amnd_state = 'A'
+        order by id;
+    return v_results;
+  exception when others then
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'issue_rule_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=issue_rule,p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'select row into issue_rule error. '||SQLERRM);
+  end;
+
+
+  function issue_rule_get_info_r (    P_ID  in ntg.dtype.t_id default null,
+                                      p_contract in ntg.dtype.t_id default null,
+                                      p_airline in ntg.dtype.t_id default null
+                          )
+  return issue_rule%rowtype
+  is
+    r_obj issue_rule%rowtype;
+  begin
+    if p_id is null and p_contract is null and p_airline is null then raise NO_DATA_FOUND; end if;   
+    
+    SELECT
+    * into r_obj
+    from ord.issue_rule 
+    where id = nvl(p_id,id)
+    and contract_oid = nvl(p_contract,contract_oid)
+    and airline_oid = nvl(p_airline,airline_oid)
+    and amnd_state != 'I'
+    order by id;
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'issue_rule_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=issue_rule,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into issue_rule error. '||SQLERRM);
   end;
 
 

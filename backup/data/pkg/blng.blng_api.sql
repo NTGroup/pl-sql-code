@@ -1,6 +1,3 @@
-grant select on ord.bill to blng;
-grant select on ord.ord to blng;
-
 
   CREATE OR REPLACE EDITIONABLE PACKAGE "BLNG"."BLNG_API" as
 
@@ -409,7 +406,9 @@ $obj_param: p_contract: contract id
                   p_open_date in ntg.dtype.t_date default null, 
                   p_expiry_date in ntg.dtype.t_date default null, 
                   p_owner in ntg.dtype.t_status default null,
-                  p_phone in ntg.dtype.t_name default null
+                  p_phone in ntg.dtype.t_name default null,
+                  p_status in ntg.dtype.t_status default null
+                  
   );
 
   function client_data_get_info( p_id in ntg.dtype.t_id  default null,
@@ -701,7 +700,7 @@ end blng_api;
     from blng.client 
     where id = nvl(p_id,id)
     and email = nvl(lower(p_email), email)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by id;
     return r_obj;
   exception 
@@ -1032,7 +1031,7 @@ end blng_api;
     and contract_oid = nvl(p_contract,contract_oid)
     and code = nvl(p_code,code)
     and account_type_oid = nvl(p_account_type,account_type_oid)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by contract_oid, priority;
     return r_obj;
   exception 
@@ -1165,7 +1164,7 @@ $TODO: all this nullable fields are bad. document_get_info
         * into r_obj
         from blng.document
         where bill_oid = p_bill
-        and amnd_state = 'A'
+        and amnd_state != 'I'
         order by contract_oid, id asc;
     else
         SELECT
@@ -1786,7 +1785,7 @@ $TODO: all this nullable fields are bad. document_get_info
       from blng.trans_type
       where name = nvl(p_name,name)
       and code = nvl(p_code,code)
-      and amnd_state = 'A';
+      and amnd_state != 'I';
     return v_results;
   exception 
     when NO_DATA_FOUND then 
@@ -1840,7 +1839,7 @@ $TODO: all this nullable fields are bad. document_get_info
       from blng.event_type
       where name = nvl(p_name,name)
       and code = nvl(p_code,code)
-      and amnd_state = 'A';
+      and amnd_state != 'I';
     return v_results;
   exception 
     when NO_DATA_FOUND then 
@@ -2160,7 +2159,7 @@ $TODO: all this nullable fields are bad. document_get_info
       from blng.domain
       where id = nvl(p_id,id)
       and name = nvl(p_name,name)
-      and amnd_state = 'A';
+      and amnd_state != 'I';
     return r_obj;
   exception 
     when NO_DATA_FOUND then
@@ -2231,7 +2230,8 @@ $TODO: all this nullable fields are bad. document_get_info
                           p_open_date in ntg.dtype.t_date default null, 
                           p_expiry_date in ntg.dtype.t_date default null, 
                           p_owner in ntg.dtype.t_status default null,
-                        p_phone in ntg.dtype.t_name default null)
+                        p_phone in ntg.dtype.t_name default null,
+                        p_status in ntg.dtype.t_status default null)
   is
     v_obj_row_new blng.client_data%rowtype;
     v_obj_row_old blng.client_data%rowtype;
@@ -2252,6 +2252,7 @@ $TODO: all this nullable fields are bad. document_get_info
     v_obj_row_new.expiry_date:=nvl(p_expiry_date, v_obj_row_new.expiry_date);
     v_obj_row_new.owner:=nvl(upper(p_owner), v_obj_row_new.owner);
     v_obj_row_new.phone:=nvl(p_phone, v_obj_row_new.phone);
+    if p_status in ('C','D') then  v_obj_row_new.amnd_state := 'C'; end if;
 
     if  
       nvl(v_obj_row_new.last_name,'X') = nvl(v_obj_row_old.last_name,'X') AND
@@ -2265,7 +2266,8 @@ $TODO: all this nullable fields are bad. document_get_info
       nvl(to_char(v_obj_row_new.open_date,'ddmmyyyy'),'X') = nvl(to_char(v_obj_row_old.open_date,'ddmmyyyy'),'X') and
       nvl(to_char(v_obj_row_new.expiry_date,'ddmmyyyy'),'X') = nvl(to_char(v_obj_row_old.expiry_date,'ddmmyyyy'),'X') and
       nvl(v_obj_row_new.owner,'X') = nvl(v_obj_row_old.owner,'X') and  
-      nvl(v_obj_row_new.phone,'X') = nvl(v_obj_row_old.phone,'X')   
+      nvl(v_obj_row_new.phone,'X') = nvl(v_obj_row_old.phone,'X')  
+      and v_obj_row_new.amnd_state <> 'C'
     then return; 
     else
       v_obj_row_new.amnd_date:=sysdate;
@@ -2349,7 +2351,7 @@ $TODO: all this nullable fields are bad. document_get_info
         from blng.client_data 
         where id = nvl(p_id,id)
         and client_oid = nvl(p_client,client_oid)
-        and amnd_state = 'A'
+        and amnd_state != 'I'
         order by id;
     return r_obj;
   exception 

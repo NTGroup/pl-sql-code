@@ -33,53 +33,6 @@ order by iata,cmn.priority desc, cmn.id, ct.priority desc;
 /
 
 
-  CREATE OR REPLACE  VIEW "ORD"."V_COMMISSION_BAK"
-  AS 
-  select 
-al.id al_oid,
-al.name,
-al.IATA,
-
-max(ct.priority) over (partition by cmn.id) priority,
-cmn.id cmn_oid,
-ct.id template_type_oid,
-cmn.details,
-ct.template_type template_type,
-cd.value,
--- LISTAGG(cd.value, ',') WITHIN GROUP (ORDER BY ct.template_type) assa,
-cmn.fix,
-cmn.percent
-from 
-ord.commission cmn,
-ord.commission_template ct,
-ord.commission_details cd,
-ntg.airline al
-where 
-al.amnd_state = 'A'
-and cmn.amnd_state = 'A'
-and cd.amnd_state = 'A'
-and ct.amnd_state = 'A'
-and cmn.id= cd.commission_oid
-and ct.id = cd.commission_template_oid
-and cmn.airline = al.id
-and trunc(sysdate) between NVL(cmn.date_from,trunc(sysdate)) and NVL(date_to,trunc(sysdate))
-/*group by al.id ,ct.id,
-al.name,
-al.IATA,
-cmn.id ,
-cmn.details,
-ct.template_type,
-ct.flight_oc,
-flight_segment,
-cmn.priority,
-cmn.fix,
-cmn.percent*/
-order by iata,4 desc, cmn.id, ct.priority desc;
-
-
-/
-
-
 
   CREATE OR REPLACE VIEW "ORD"."V_JSON" 
   AS 
@@ -257,41 +210,6 @@ from
   ) d_i_n
 --where iata in ('MOW','SVO','QPP','DAC','EBU','LED','PIE')
 order by 2;
-/
-
-/*  CREATE OR REPLACE  VIEW "NTG"."V_MARKUP" 
-  as
-  select
---  mkp.id,
---  nvl(mkp.contract_oid,0) tenant_id,
-  air.iata validating_carrier,
-  mkp.class_of_service,
-  case
-  when mkp.segment is not null and mkp.segment = 'Y' then 'Y' 
-  else 'N'
-  end segment,
-  nvl(mkp.v_from,0) v_from,
-  nvl(mkp.v_to,0) v_to,
-  case
-  when mkp.absolut = 'Y'  then mkp.absolut_amount 
-  else null
-  end absolut_amount,
-  case
-  when mkp.percent = 'Y'  then mkp.percent_amount 
-  else null
-  end percent_amount,
-  case
-  when mkp.percent = 'Y'  then mkp.min_absolut 
-  else null
-  end min_absolut,
-  (select max(id) from ntg.markup)  version
-  
-  from markup mkp, airline air
-  where mkp.amnd_state = 'A'
-  AND air.amnd_state = 'A'
-  and air.id = mkp.validating_carrier;
-
-*/
 
 /
 
@@ -357,14 +275,11 @@ order by 2;
 create or replace view blng.v_total as
   select 
   ddd.contract_oid,
---       sum(ddd.amount),
---     sum(ddd.amount_need),
-  sum(case when ddd.date_to=date_from  then ddd.amount_need else 0 end) unblock_sum,
-  sum(case when ddd.date_to-date_from <= 2 then ddd.amount_need else 0 end) near_unblock_sum,
---      sum(case when ddd.date_to-date_from <= 11 then ddd.amount_need else 0 end) sc,
-  ddd.date_from block_date /*,
-  max(ddd.date_to-date_from),
-  min(ddd.date_to-date_from) m  */
+  block_date,
+  nvl(sum(case when ddd.date_to <= block_date+1  then ddd.amount_need else 0 end),0) unblock_sum,
+  nvl(sum(case when ddd.date_to <= block_date+1+2 then ddd.amount_need else 0 end),0) near_unblock_sum,
+  expiry_date,
+  nvl(sum(case when ddd.date_to <= trunc(sysdate)  then ddd.amount_need else 0 end),0) expiry_sum
   from 
   (
     select 
@@ -373,8 +288,9 @@ create or replace view blng.v_total as
     d.contract_oid,
     nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = d.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount_have,
     amount - nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = d.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount_need,
-    date_to-1 date_to,
-    (MIN(date_to) OVER (PARTITION BY contract_oid))-1 date_from
+    date_to date_to,
+  min(case when date_to-1 >= trunc(sysdate) then date_to-1 else null end)  over (partition by contract_oid) block_date ,
+  min(case when date_to < sysdate then date_to else null end) over (partition by contract_oid) expiry_date
     from blng.delay d
     where d.amnd_state = 'A'
     and parent_id is null
@@ -382,83 +298,40 @@ create or replace view blng.v_total as
     and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'b')
     order by contract_oid asc, date_to asc, id asc  
   ) ddd
-  group by ddd.contract_oid,ddd.date_from;
+  group by ddd.contract_oid,block_date,expiry_date;
 
-
-/
-
-
- /*       create or replace view blng.v_statement as
-        select
-        document.id doc_id,
-        client.utc_offset,
-        doc_trans.code doc_trans_code,
-        1 one,
-     --   row_number() over (order by trans.trans_date) rn,
-        trans.trans_date,
-        to_char(trans.trans_date + client.utc_offset/24,'yyyy-mm-dd') transaction_date,
-        to_char(trans.trans_date + client.utc_offset/24,'HH24:mi:ss') transaction_time,
-        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid < trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_before,
-        trans.amount,
-        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid <= trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_after,
-        case 
-          when delay.id is not null and doc_trans.code = 'b' then 'LOAN'
-          when doc_trans.code = 'b' then 'BUY'
-          when doc_trans.code = 'ci' then 'CASH_IN'
-          when doc_trans.code = 'cl' then 'CREDIT_LIMIT'
-          else 'UNDEFINED'
-        end transaction_type,
-        (select nqt_ID FROM ord.item_avia where amnd_state = 'A' and order_oid = (select order_oid from ord.bill where amnd_state = 'A' and id = document.bill_oid and document.bill_oid is not null)) nqt_id,
-        (select pnr_ID FROM ord.item_avia where amnd_state = 'A' and order_oid = (select order_oid from ord.bill where amnd_state = 'A' and id = document.bill_oid and document.bill_oid is not null)) order_number,
-        INITCAP(client.last_name) last_name,
-        INITCAP(client.first_name) first_name,
---        (select INITCAP(last_name) from blng.client where id =  (select client_oid from ord.ord where id = (select order_oid from ord.bill where amnd_state = 'A' and id = document.bill_oid and document.bill_oid is not null))) last_name,
---        (select INITCAP(first_name) from blng.client where id =  (select client_oid from ord.ord where id = (select order_oid from ord.bill where amnd_state = 'A' and id = document.bill_oid and document.bill_oid is not null))) first_name,
-        
-        client.email 
-        from 
-        blng.client,
-        --ord.bill,
-        blng.contract,
-        blng.client2contract,
-        --ord.item_avia,
-        blng.document,
-        blng.transaction trans,
-        blng.trans_type doc_trans,
-        blng.trans_type trans_trans,
-        blng.delay
-        
-        where 
-       client2contract.client_oid = client.id
-        and client2contract.amnd_state = 'A'
-        and client.amnd_state = 'A'
-        and contract.amnd_state = 'A'
-        and document.amnd_state = 'A'
-        and client2contract.contract_oid = contract.id
-        and client2contract.permission = 'B'
-        and nvl((select nqt_status FROM ord.item_avia where amnd_state = 'A' and order_oid = (select order_oid from ord.bill where amnd_state = 'A' and id = document.bill_oid and document.bill_oid is not null)),'ISSUED') in ('ISSUED','INMANUAL')
-        and document.status = 'P'
-        and document.contract_oid = contract.id
-        and doc_trans.amnd_state = 'A'
-        and doc_trans.id = document.trans_type_oid
-        and doc_trans.code in ('b','ci','cl')
-        and trans.amnd_state = 'A'
-        and document.id = trans.doc_oid
-        and trans_trans.amnd_state = 'A'
-        and trans_trans.id = trans.trans_type_oid
-        and trans_trans.code in ('b','ci','cl')
-        and (delay.amnd_state(+) = 'A' or delay.amnd_state(+) = 'C')
-        and delay.transaction_oid(+) = trans.id
-        and delay.event_type_oid(+) = 6 -- buy
-        order by trans.trans_date;
-*/
 
 /
 
         create or replace view blng.v_statement as
-             select * from 
+             select
+        doc_id,
+        transaction_id,
+        contract_id,
+        utc_offset,
+        doc_trans_code,
+        one,
+        trans_date,
+        transaction_date,
+        transaction_time,
+(sum(amount) over (partition by contract_id order by trans_date RANGE UNBOUNDED PRECEDING))
+-
+amount amount_before,
+        amount,
+sum(amount) over (partition by contract_id order by trans_date RANGE UNBOUNDED PRECEDING) amount_after,
+        transaction_type,
+         pnr_id,
+         order_number,
+         last_name,
+        first_name,
+        email              
+             
+             
+             
+             from 
         (select
         document.id doc_id,
+        trans.id transaction_id,
         contract.id contract_id,
         client.utc_offset,
         doc_trans.code doc_trans_code,
@@ -467,9 +340,9 @@ create or replace view blng.v_total as
         trans.trans_date,
         to_char(trans.trans_date + client.utc_offset/24,'yyyy-mm-dd') transaction_date,
         to_char(trans.trans_date + client.utc_offset/24,'HH24:mi:ss') transaction_time,
-        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid < trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_before,
+--        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid < trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_before,
         trans.amount,
-        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid <= trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_after,
+--        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid <= trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_after,
         case 
           when delay.id is not null and doc_trans.code = 'b' then 'LOAN'
           when doc_trans.code = 'b' then 'BUY'
@@ -477,8 +350,8 @@ create or replace view blng.v_total as
           when doc_trans.code = 'cl' then 'CREDIT_LIMIT'
           else 'UNDEFINED'
         end transaction_type,
-        nqt_ID nqt_id,
-        pnr_ID order_number,
+        pnr_id,
+        pnr_locator order_number,
         INITCAP(client.last_name) last_name,
         INITCAP(client.first_name) first_name,
         client.email 
@@ -530,6 +403,7 @@ union all
 
         select
         document.id doc_id,
+        trans.id transaction_id,
         contract.id contract_id,
         contract.utc_offset,
         doc_trans.code doc_trans_code,
@@ -537,9 +411,9 @@ union all
         trans.trans_date,
         to_char(trans.trans_date + contract.utc_offset/24,'yyyy-mm-dd') transaction_date,
         to_char(trans.trans_date + contract.utc_offset/24,'HH24:mi:ss') transaction_time,
-        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid < trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_before,
+--        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid < trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_before,
         trans.amount,
-        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid <= trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_after,
+--        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid <= trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_after,
         case 
           when delay.id is not null and doc_trans.code = 'b' then 'LOAN'
           when doc_trans.code = 'b' then 'BUY'
@@ -547,7 +421,7 @@ union all
           when doc_trans.code = 'cl' then 'CREDIT_LIMIT'
           else 'UNDEFINED'
         end transaction_type,
-        null nqt_id,
+        null pnr_id,
         null order_number,
         null last_name,
         null first_name,
@@ -586,7 +460,7 @@ union all
         and document.bill_oid is null
         )
       --  where contract_id = 21
-        order by trans_date;
+        order by contract_id, trans_date;
 /
 /*
 grant CREATE MATERIALIZED VIEW to blng;

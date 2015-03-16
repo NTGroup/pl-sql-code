@@ -14,10 +14,10 @@ $obj_name: bill_pay
 $obj_desc: procedure perform transit bills with status [W]aiting to billing system. 
 $obj_desc: that means bill requested for pay. after that bill marked as [T]ransported
 $obj_desc: this procedure executed from job scheduler
-$obj_param: p_nqt_id: id from NQT. search perform by this id
+$obj_param: p_pnr_id: id from NQT. search perform by this id
 */
 
-  procedure bill_pay( p_nqt_id in ntg.dtype.t_long_code default null
+  procedure bill_pay( p_pnr_id in ntg.dtype.t_long_code default null
                     );
 END CORE;
 
@@ -29,7 +29,7 @@ END CORE;
 
   CREATE OR REPLACE  PACKAGE BODY "ORD"."CORE" AS
 
-  procedure bill_pay( p_nqt_id in ntg.dtype.t_long_code default null
+  procedure bill_pay( p_pnr_id in ntg.dtype.t_long_code default null
                     )
   is
 --    v_ord_row ord%rowtype;
