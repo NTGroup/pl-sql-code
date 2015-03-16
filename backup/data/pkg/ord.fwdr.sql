@@ -270,6 +270,7 @@ $obj_desc: when p_version is null then return all active rows. if not null then
 $obj_desc: get all active and deleted rows that changed after p_version id
 $obj_param: p_version: id
 $obj_return: SYS_REFCURSOR[ID, TENANT_ID, VALIDATING_CARRIER,booking_pos,ticketing_pos,stock,printer,VERSION, IS_ACTIVE]
+$obj_return: default tenant_id = 0, default validating_carrier = 'YY'
 */  
   function issue_rule_get(p_version in ntg.dtype.t_id default null)
   return SYS_REFCURSOR;
@@ -295,7 +296,7 @@ $obj_desc: if status equals [C]lose or [D]elete then delete commission rule.
 $obj_param: p_data: data for update. format json[AIRLINE_ID, CONTRACT_ID, RULE_ID, 
 $obj_param: p_data: RULE_DESCRIPTION, RULE_LIFE_FROM, RULE_LIFE_TO, RULE_AMOUNT, 
 $obj_param: p_data: RULE_AMOUNT_MEASURE, RULE_PRIORITY, CONDITION_ID, TEMPLATE_TYPE_ID, 
-$obj_param: p_data: TEMPLATE_NAME_NLS, TEMPLATE_VALUE]
+$obj_param: p_data: TEMPLATE_NAME_NLS, TEMPLATE_VALUE, status!!!]
 $obj_return: SYS_REFCURSOR[res:true/false]
 */
 
@@ -1506,7 +1507,8 @@ $TODO: there must be check for users with ISSUES permission
                           P_DATE_FROM => to_date(i.rule_life_from,'yyyy-mm-dd'),
                           P_DATE_TO => to_date(i.rule_life_to,'yyyy-mm-dd'),
                           p_priority => i.rule_priority,
-                          p_contract_type => i.contract_id --its contract_type of commission (self/interline/code-share)                          
+                          p_contract_type => i.contract_id /*, --its contract_type of commission (self/interline/code-share)                          
+                          p_status =>*/
                           );
       end if;
 
@@ -1522,7 +1524,8 @@ $TODO: there must be check for users with ISSUES permission
         ord_api.commission_details_edit( p_id => i.condition_id,
                                     p_commission => v_commission,
                                     p_commission_template => i.template_type_id,
-                                    p_value => i.template_value      
+                                    p_value => i.template_value/*,
+                                    p_status =>*/
                           );
       end if;
       

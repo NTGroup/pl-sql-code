@@ -578,9 +578,6 @@ END ORD_API;
         
     v_obj_row_new := v_obj_row_old;
 
-    v_obj_row_old.amnd_state:='I';
-    v_obj_row_old.id:=null;
-    insert into commission values v_obj_row_old;
 
 
     v_obj_row_new.amnd_date:=sysdate;
@@ -606,6 +603,9 @@ END ORD_API;
       then return;
     end if;
 
+    v_obj_row_old.amnd_state:='I';
+    v_obj_row_old.id:=null;
+    insert into commission values v_obj_row_old;
 
     update commission set row = v_obj_row_new where id = v_obj_row_new.id;
   exception 
@@ -872,9 +872,6 @@ END ORD_API;
     ;
     v_obj_row_new := v_obj_row_old;
 
-    v_obj_row_old.amnd_state:='I';
-    v_obj_row_old.id:=null;
-    insert into commission_details values v_obj_row_old;
 
     v_obj_row_new.amnd_date:=sysdate;
     v_obj_row_new.amnd_user:=user;
@@ -889,6 +886,10 @@ END ORD_API;
       and v_obj_row_new.amnd_state <> 'C'
       then return;
     end if;
+
+    v_obj_row_old.amnd_state:='I';
+    v_obj_row_old.id:=null;
+    insert into commission_details values v_obj_row_old;
 
     update commission_details set row = v_obj_row_new where id = v_obj_row_new.id;
   exception 
@@ -1470,9 +1471,6 @@ END ORD_API;
     ;
     v_obj_row_new := v_obj_row_old;
 
-    v_obj_row_old.amnd_state:='I';
-    v_obj_row_old.id:=null;
-    insert into issue_rule values v_obj_row_old;
 
 
     v_obj_row_new.amnd_date:=sysdate;
@@ -1494,6 +1492,10 @@ END ORD_API;
       and v_obj_row_new.amnd_state <> 'C'
       then return;
     end if;
+
+    v_obj_row_old.amnd_state:='I';
+    v_obj_row_old.id:=null;
+    insert into issue_rule values v_obj_row_old;
 
     update issue_rule set row = v_obj_row_new where id = v_obj_row_new.id;
   exception 
