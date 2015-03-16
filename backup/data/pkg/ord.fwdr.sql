@@ -265,27 +265,27 @@ $obj_param: p_user_id: user identifire. at this moment email
 
 /*
 $obj_type: function
-$obj_name: issue_rule_get
+$obj_name: pos_rule_get
 $obj_desc: when p_version is null then return all active rows. if not null then  
 $obj_desc: get all active and deleted rows that changed after p_version id
 $obj_param: p_version: id
 $obj_return: SYS_REFCURSOR[ID, TENANT_ID, VALIDATING_CARRIER,booking_pos,ticketing_pos,stock,printer,VERSION, IS_ACTIVE]
 $obj_return: default tenant_id = 0, default validating_carrier = 'YY'
 */  
-  function issue_rule_get(p_version in ntg.dtype.t_id default null)
+  function pos_rule_get(p_version in ntg.dtype.t_id default null)
   return SYS_REFCURSOR;
 
 
 /*
 $obj_type: function
-$obj_name: issue_rule_edit
-$obj_desc: update issue_rules or create new issue_rules. if success return true else false.
-$obj_desc: if status equals [C]lose or [D]elete then delete issue_rule.
+$obj_name: pos_rule_edit
+$obj_desc: update pos_rules or create new pos_rules. if success return true else false.
+$obj_desc: if status equals [C]lose or [D]elete then delete pos_rule.
 $obj_param: p_data: data for update. format json[id, tenant_id, validating_carrier, 
 $obj_param: p_data: booking_pos, ticketing_pos, stock, printer, status]
 $obj_return: SYS_REFCURSOR[res:true/false]
 */
-  function issue_rule_edit(p_data in ntg.dtype.t_clob)
+  function pos_rule_edit(p_data in ntg.dtype.t_clob)
   return SYS_REFCURSOR;
 
 /*
@@ -295,8 +295,8 @@ $obj_desc: update commission rules or create new commission rules. if success re
 $obj_desc: if status equals [C]lose or [D]elete then delete commission rule.
 $obj_param: p_data: data for update. format json[AIRLINE_ID, CONTRACT_ID, RULE_ID, 
 $obj_param: p_data: RULE_DESCRIPTION, RULE_LIFE_FROM, RULE_LIFE_TO, RULE_AMOUNT, 
-$obj_param: p_data: RULE_AMOUNT_MEASURE, RULE_PRIORITY, CONDITION_ID, TEMPLATE_TYPE_ID, 
-$obj_param: p_data: TEMPLATE_NAME_NLS, TEMPLATE_VALUE, status!!!]
+$obj_param: p_data: RULE_AMOUNT_MEASURE, RULE_PRIORITY, CONDITION_ID,condition_status, TEMPLATE_TYPE_ID, 
+$obj_param: p_data: TEMPLATE_NAME_NLS, TEMPLATE_VALUE]
 $obj_return: SYS_REFCURSOR[res:true/false]
 */
 
@@ -1330,7 +1330,7 @@ $TODO: there must be check for users with ISSUES permission
 
 
 
-  function issue_rule_get(p_version in ntg.dtype.t_id default null)
+  function pos_rule_get(p_version in ntg.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -1345,13 +1345,13 @@ $TODO: there must be check for users with ISSUES permission
       isr.ticketing_pos,
       isr.stock,
       isr.printer,
-      (select max(id) from issue_rule)  version,
+      (select max(id) from pos_rule)  version,
       decode(isr.amnd_state, 'A','Y','C','N','E') is_active
-      from issue_rule isr, ntg.airline air
+      from pos_rule isr, ntg.airline air
       where air.amnd_state = 'A'
       and air.id = isr.airline_oid
       and ((isr.amnd_state in ('C','A') 
-            and isr.id in (select amnd_prev from issue_rule where id > p_version)
+            and isr.id in (select amnd_prev from pos_rule where id > p_version)
             and p_version is not null)
         or
           (isr.amnd_state = 'A'
@@ -1366,13 +1366,13 @@ $TODO: there must be check for users with ISSUES permission
     return null;  
   end;
 
-  function issue_rule_edit(p_data in ntg.dtype.t_clob)
+  function pos_rule_edit(p_data in ntg.dtype.t_clob)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
     v_id ntg.dtype.t_id; 
-    v_issue_rule ntg.dtype.t_id; 
-    r_client issue_rule%rowtype;
+    v_pos_rule ntg.dtype.t_id; 
+    r_client pos_rule%rowtype;
   begin
 -- first update client info. then if doc_number is not null then update client_data 
     for i in (
@@ -1395,7 +1395,7 @@ $TODO: there must be check for users with ISSUES permission
     )
     loop
       if i.id is null then 
-        v_issue_rule:=ord_api.issue_rule_add( 
+        v_pos_rule:=ord_api.pos_rule_add( 
                                     p_contract => i.tenant_id,
                                     p_airline => i.validating_carrier,
                                     p_booking_pos => i.booking_pos,
@@ -1404,7 +1404,7 @@ $TODO: there must be check for users with ISSUES permission
                                     p_printer => i.printer
                                   );
       else
-        ord_api.issue_rule_edit(  P_ID => i.id,
+        ord_api.pos_rule_edit(  P_ID => i.id,
                                     p_contract => i.tenant_id,
                                     p_airline => i.validating_carrier,
                                     p_booking_pos => i.booking_pos,
@@ -1447,8 +1447,8 @@ $TODO: there must be check for users with ISSUES permission
   is
     v_results SYS_REFCURSOR; 
     v_id ntg.dtype.t_id; 
-    v_issue_rule ntg.dtype.t_id; 
-    r_client issue_rule%rowtype;
+    v_pos_rule ntg.dtype.t_id; 
+    r_client pos_rule%rowtype;
     v_commission ntg.dtype.t_id:=null;
     v_commission_details ntg.dtype.t_id:=null;
   begin
@@ -1473,6 +1473,7 @@ $TODO: there must be check for users with ISSUES permission
               rule_priority number(20,2) path '$.rule_priority',
               NESTED PATH '$.conditions[*]' COLUMNS (
                 condition_id number(20,2) path '$.condition_id',
+                condition_status number(20,2) path '$.condition_status',
                 template_type_id number(20,2) path '$.template_type_id',
                 template_name_nls VARCHAR2(250) path '$.template_name_nls',
                 template_value VARCHAR2(250) path '$.template_value'
@@ -1524,8 +1525,8 @@ $TODO: there must be check for users with ISSUES permission
         ord_api.commission_details_edit( p_id => i.condition_id,
                                     p_commission => v_commission,
                                     p_commission_template => i.template_type_id,
-                                    p_value => i.template_value/*,
-                                    p_status =>*/
+                                    p_value => i.template_value,
+                                    p_status => i.condition_status
                           );
       end if;
       
