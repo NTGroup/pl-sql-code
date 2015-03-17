@@ -304,6 +304,17 @@ $obj_return: SYS_REFCURSOR[res:true/false]
   return SYS_REFCURSOR;
   
 
+/*
+$obj_type: function
+$obj_name: commission_template_list
+$obj_desc: p_is_contract_type: if 'Y' then return all contract_types else all template_types
+$obj_param: p_data: data for update. format json[AIRLINE_ID, CONTRACT_ID, RULE_ID, 
+$obj_return: SYS_REFCURSOR[ID, TEMPLATE_TYPE, PRIORITY, DETAILS, IS_CONTRACT_TYPE, NAME, NLS_NAME, IS_VALUE]
+*/  
+  function commission_template_list(p_is_contract_type in ntg.dtype.t_status default null)
+  return SYS_REFCURSOR;
+
+
 
 END FWDR;
 
@@ -1555,6 +1566,41 @@ $TODO: there must be check for users with ISSUES permission
       open v_results for
         select 'false' res from dual;
       return v_results;
+  end;
+
+
+  function commission_template_list(p_is_contract_type in ntg.dtype.t_status default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+  begin
+    if p_is_contract_type = 'Y' then  
+      OPEN v_results FOR
+          SELECT
+          decode(ID,1,null,id) id, TEMPLATE_TYPE, PRIORITY, DETAILS, IS_CONTRACT_TYPE, NAME, NLS_NAME, IS_VALUE
+          from ord.commission_template 
+          where /*id = nvl(p_id,id)
+          and*/ amnd_state = 'A'
+          and is_contract_type = 'Y'
+          order by id;
+    else
+      OPEN v_results FOR
+          SELECT
+          decode(ID,1,null,id) id, TEMPLATE_TYPE, PRIORITY, DETAILS, IS_CONTRACT_TYPE, NAME, NLS_NAME, IS_VALUE
+          from ord.commission_template 
+          where /*id = nvl(p_id,id)
+          and*/ amnd_state = 'A'
+          and is_contract_type = 'N'
+          order by id;
+    end if;    
+
+    return v_results;
+  exception when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_template_get', p_msg_type=>'UNHANDLED_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select,p_table=commission_template,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      RAISE_APPLICATION_ERROR(-20002,'select row into commission_template_get error. '||SQLERRM);
+    return null;  
   end;
 
 
