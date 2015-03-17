@@ -159,20 +159,21 @@ create  or replace package BODY blng.fwdr as
     exception 
       when NO_DATA_FOUND then
         begin
-          r_domain:=blng.blng_api.domain_get_info_r(p_name => REGEXP_SUBSTR ( lower(p_email), '[^@]*$' ));
+--dbms_output.put_line(sysdate||'1');
+          r_domain:=blng.blng_api.domain_get_info_r(p_name => lower(p_email) );
+          blng.blng_api.domain_edit(p_id=>r_domain.id, p_status=>'C' );                
         exception 
           when NO_DATA_FOUND then
             begin
---dbms_output.put_line(sysdate||'1');
-              r_domain:=blng.blng_api.domain_get_info_r(p_name => lower(p_email) );
-              blng.blng_api.domain_edit(p_id=>r_domain.id, p_status=>'C' );                
 --dbms_output.put_line(sysdate||'2');
+              r_domain:=blng.blng_api.domain_get_info_r(p_name => REGEXP_SUBSTR ( lower(p_email), '[^@]*$' ));
             exception when NO_DATA_FOUND then raise;
             end;
         end;
 --dbms_output.put_line(sysdate||'3');
-        r_company:=blng.blng_api.company_get_info_r(p_id=>r_domain.company_oid);        
-        r_contract:=blng.blng_api.contract_get_info_r(p_company=>r_company.id);
+        r_contract:=blng.blng_api.contract_get_info_r(p_id=>r_domain.contract_oid);
+        r_company:=blng.blng_api.company_get_info_r(p_id=>r_contract.company_oid);  
+
         v_contract:=r_contract.id;
 --dbms_output.put_line(sysdate||'4');
         select count(*) into v_client_count from blng.client where amnd_state = 'A' and company_oid = r_company.id and amnd_date > sysdate-1/24/60;
