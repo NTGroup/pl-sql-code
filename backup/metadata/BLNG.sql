@@ -3,7 +3,7 @@
 begin
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE blng.company 
@@ -21,13 +21,13 @@ begin
  NOCOMPRESS LOGGING
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  DDL for Index MKP_ID_IDX
+--  DDL for Index 
 --------------------------------------------------------
 
   CREATE INDEX blng.cmp_ID_IDX ON blng.company ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE blng.company MODIFY ("ID" CONSTRAINT "cmp_ID_NN" NOT NULL ENABLE);
@@ -43,7 +43,7 @@ begin
 
 
 --------------------------------------------------------
---  DDL for Secuence MKP_SEQ
+--  DDL for Secuence 
 --------------------------------------------------------
  
   create sequence  BLNG.cmp_seq
@@ -55,7 +55,7 @@ begin
   order;
   
 --------------------------------------------------------
---  DDL for Trigger MKP_TRGR
+--  DDL for Trigger 
 --------------------------------------------------------
 
 CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.cmp_TRGR 
@@ -82,7 +82,7 @@ end;
 begin
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE blng.client 
@@ -100,20 +100,21 @@ begin
    nationality VARCHAR2(255),
    status VARCHAR2(1),
    phone VARCHAR2(255),
-   utc_offset number
+   utc_offset number,
+   is_tester varchar2(1)
    
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  DDL for Index MKP_ID_IDX
+--  DDL for Index 
 --------------------------------------------------------
 
   CREATE INDEX blng.CLT_ID_IDX ON blng.client ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE blng.client MODIFY ("ID" CONSTRAINT "CLT_ID_NN" NOT NULL ENABLE);
@@ -131,7 +132,7 @@ ALTER TABLE BLNG.client ADD CONSTRAINT clt_cmp_OID_FK FOREIGN KEY (company_oid)
   REFERENCES BLNG.company ("ID") ENABLE;
 
 --------------------------------------------------------
---  DDL for Secuence MKP_SEQ
+--  DDL for Secuence 
 --------------------------------------------------------
  
   create sequence  BLNG.clt_seq
@@ -143,7 +144,7 @@ ALTER TABLE BLNG.client ADD CONSTRAINT clt_cmp_OID_FK FOREIGN KEY (company_oid)
   order;
   
 --------------------------------------------------------
---  DDL for Trigger MKP_TRGR
+--  DDL for Trigger 
 --------------------------------------------------------
 
 CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.CLT_TRGR 
@@ -168,7 +169,7 @@ end;
 begin
 /*
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE blng.permission 
@@ -185,13 +186,13 @@ begin
  NOCOMPRESS LOGGING
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  DDL for Index MKP_ID_IDX
+--  DDL for Index 
 --------------------------------------------------------
 
   CREATE INDEX blng.prm_ID_IDX ON blng.permission ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE blng.permission MODIFY ("ID" CONSTRAINT "prm_ID_NN" NOT NULL ENABLE);
@@ -204,7 +205,7 @@ begin
 
 
 --------------------------------------------------------
---  DDL for Secuence MKP_SEQ
+--  DDL for Secuence 
 --------------------------------------------------------
  
   create sequence  BLNG.prm_seq
@@ -216,7 +217,7 @@ begin
   order;
   
 --------------------------------------------------------
---  DDL for Trigger MKP_TRGR
+--  DDL for Trigger 
 --------------------------------------------------------
 
 CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.prm_TRGR 
@@ -242,7 +243,7 @@ end;
 begin
 /*
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE blng.client2permission 
@@ -258,13 +259,13 @@ begin
  NOCOMPRESS LOGGING
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  DDL for Index MKP_ID_IDX
+--  DDL for Index 
 --------------------------------------------------------
 
   CREATE INDEX blng.cl2p_ID_IDX ON blng.client2permission ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE blng.client2permission MODIFY ("ID" CONSTRAINT "cl2p_ID_NN" NOT NULL ENABLE);
@@ -282,7 +283,7 @@ ALTER TABLE BLNG.client2permission ADD CONSTRAINT cl2p_prm_OID_FK FOREIGN KEY (p
   REFERENCES BLNG.permission ("ID") ENABLE;
 
 --------------------------------------------------------
---  DDL for Secuence MKP_SEQ
+--  DDL for Secuence 
 --------------------------------------------------------
  
   create sequence  BLNG.cl2p_seq
@@ -294,7 +295,7 @@ ALTER TABLE BLNG.client2permission ADD CONSTRAINT cl2p_prm_OID_FK FOREIGN KEY (p
   order;
   
 --------------------------------------------------------
---  DDL for Trigger MKP_TRGR
+--  DDL for Trigger 
 --------------------------------------------------------
 
 CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.cl2p_TRGR 
@@ -320,7 +321,7 @@ end;
 begin
 /*
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE blng.permission2contract 
@@ -337,13 +338,13 @@ begin
  NOCOMPRESS LOGGING
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  DDL for Index MKP_ID_IDX
+--  DDL for Index 
 --------------------------------------------------------
 
   CREATE INDEX blng.p2cntr_ID_IDX ON blng.permission2contract ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE blng.permission2contract MODIFY ("ID" CONSTRAINT "p2cntr_ID_NN" NOT NULL ENABLE);
@@ -363,7 +364,7 @@ ALTER TABLE BLNG.permission2contract ADD CONSTRAINT p2cntr_prm_OID_FK FOREIGN KE
 
 
 --------------------------------------------------------
---  DDL for Secuence MKP_SEQ
+--  DDL for Secuence 
 --------------------------------------------------------
  
   create sequence  BLNG.p2cntr_seq
@@ -375,7 +376,7 @@ ALTER TABLE BLNG.permission2contract ADD CONSTRAINT p2cntr_prm_OID_FK FOREIGN KE
   order;
   
 --------------------------------------------------------
---  DDL for Trigger MKP_TRGR
+--  DDL for Trigger 
 --------------------------------------------------------
 
 CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.p2cntr_TRGR 
@@ -418,13 +419,13 @@ begin
  NOCOMPRESS LOGGING
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  DDL for Index MKP_ID_IDX
+--  DDL for Index 
 --------------------------------------------------------
 
   CREATE INDEX blng.cl2cntr_ID_IDX ON blng.client2contract ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE blng.client2contract MODIFY ("ID" CONSTRAINT "cl2cntr_ID_NN" NOT NULL ENABLE);
@@ -447,7 +448,7 @@ ALTER TABLE BLNG.client2contract ADD CONSTRAINT cl2cntr_clt_OID_FK FOREIGN KEY (
 
 
 --------------------------------------------------------
---  DDL for Secuence MKP_SEQ
+--  DDL for Secuence 
 --------------------------------------------------------
  
   create sequence  BLNG.cl2cntr_seq
@@ -459,7 +460,7 @@ ALTER TABLE BLNG.client2contract ADD CONSTRAINT cl2cntr_clt_OID_FK FOREIGN KEY (
   order;
   
 --------------------------------------------------------
---  DDL for Trigger MKP_TRGR
+--  DDL for Trigger 
 --------------------------------------------------------
 
 CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.cl2cntr_TRGR 
@@ -484,7 +485,7 @@ end;
 begin
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE blng.contract 
@@ -503,13 +504,13 @@ begin
   TABLESPACE "USERS" ;
   
 --------------------------------------------------------
---  DDL for Index MKP_ID_IDX
+--  DDL for Index 
 --------------------------------------------------------
 
   CREATE INDEX blng.CNTR_ID_IDX ON blng.contract ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
 ALTER TABLE blng.contract MODIFY ("ID" CONSTRAINT "CNTR_ID_NN" NOT NULL ENABLE);
@@ -534,7 +535,7 @@ ALTER TABLE BLNG.contract ADD CONSTRAINT cntr_cmp_OID_FK FOREIGN KEY (company_oi
 --  REFERENCES BLNG.client ("ID") ENABLE;
 
 --------------------------------------------------------
---  DDL for Secuence MKP_SEQ
+--  DDL for Secuence 
 --------------------------------------------------------
  
   create sequence  BLNG.cntr_seq
@@ -546,7 +547,7 @@ ALTER TABLE BLNG.contract ADD CONSTRAINT cntr_cmp_OID_FK FOREIGN KEY (company_oi
   order;
   
 --------------------------------------------------------
---  DDL for Trigger MKP_TRGR
+--  DDL for Trigger 
 --------------------------------------------------------
 
 create or replace TRIGGER BLNG.cntr_TRGR 
@@ -570,7 +571,7 @@ end;
 begin
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE blng.account_type 
@@ -590,13 +591,13 @@ begin
   
   --drop table  blng.account 
 --------------------------------------------------------
---  DDL for Index MKP_ID_IDX
+--  DDL for Index 
 --------------------------------------------------------
 
   CREATE INDEX blng.ACCT_ID_IDX ON blng.account_type ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE blng.account_type MODIFY ("ID" CONSTRAINT "ACCT_ID_NN" NOT NULL ENABLE);
@@ -614,7 +615,7 @@ ALTER TABLE BLNG.account_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 
 
 --------------------------------------------------------
---  DDL for Secuence MKP_SEQ
+--  DDL for Secuence 
 --------------------------------------------------------
  
   create sequence  BLNG.acct_seq
@@ -626,7 +627,7 @@ ALTER TABLE BLNG.account_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   order;
   
 --------------------------------------------------------
---  DDL for Trigger MKP_TRGR
+--  DDL for Trigger 
 --------------------------------------------------------
 
 CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.ACCT_TRGR 
@@ -652,7 +653,7 @@ end;
 begin
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE blng.account
@@ -674,13 +675,13 @@ begin
   
   --drop table  blng.account 
 --------------------------------------------------------
---  DDL for Index MKP_ID_IDX
+--  DDL for Index 
 --------------------------------------------------------
 
   CREATE INDEX blng.ACC_ID_IDX ON blng.account ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE blng.account MODIFY ("ID" CONSTRAINT "ACC_ID_NN" NOT NULL ENABLE);
@@ -702,7 +703,7 @@ ALTER TABLE BLNG.account ADD CONSTRAINT ACC_ACCT_OID_FK FOREIGN KEY (account_typ
   REFERENCES BLNG.account_type ("ID") ENABLE;
   
 --------------------------------------------------------
---  DDL for Secuence MKP_SEQ
+--  DDL for Secuence 
 --------------------------------------------------------
  
   create sequence  BLNG.acc_seq
@@ -714,7 +715,7 @@ ALTER TABLE BLNG.account ADD CONSTRAINT ACC_ACCT_OID_FK FOREIGN KEY (account_typ
   order;
   
 --------------------------------------------------------
---  DDL for Trigger MKP_TRGR
+--  DDL for Trigger 
 --------------------------------------------------------
 
 CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.ACC_TRGR 
@@ -737,7 +738,7 @@ end;
 begin
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE blng.trans_type 
@@ -756,13 +757,13 @@ begin
   
   --drop table  blng.account 
 --------------------------------------------------------
---  DDL for Index MKP_ID_IDX
+--  DDL for Index 
 --------------------------------------------------------
 
   CREATE INDEX blng.TRT_ID_IDX ON blng.trans_type ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE blng.trans_type MODIFY ("ID" CONSTRAINT "TRT_ID_NN" NOT NULL ENABLE);
@@ -777,7 +778,7 @@ ALTER TABLE BLNG.trans_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   USING INDEX BLNG.TRT_ID_IDX ENABLE;
 
 --------------------------------------------------------
---  DDL for Secuence MKP_SEQ
+--  DDL for Secuence 
 --------------------------------------------------------
  
   create sequence  BLNG.trt_seq
@@ -789,7 +790,7 @@ ALTER TABLE BLNG.trans_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   order;
   
 --------------------------------------------------------
---  DDL for Trigger MKP_TRGR
+--  DDL for Trigger 
 --------------------------------------------------------
 
 CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.trt_TRGR 
@@ -812,7 +813,7 @@ end;
 begin
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE blng.document
@@ -836,13 +837,13 @@ begin
   
   --drop table  blng.account 
 --------------------------------------------------------
---  DDL for Index MKP_ID_IDX
+--  DDL for Index 
 --------------------------------------------------------
 
   CREATE INDEX blng.doc_ID_IDX ON blng.document ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE blng.document MODIFY ("ID" CONSTRAINT "DOC_ID_NN" NOT NULL ENABLE);
@@ -871,7 +872,7 @@ ALTER TABLE BLNG.document ADD CONSTRAINT DOC_TRT_OID_FK FOREIGN KEY (trans_type_
 ALTER TABLE BLNG.document ADD CONSTRAINT DOC_BILL_OID_FK FOREIGN KEY (bill_oid)
   REFERENCES ord.bill ("ID") ENABLE;
 --------------------------------------------------------
---  DDL for Secuence MKP_SEQ
+--  DDL for Secuence 
 --------------------------------------------------------
  
   create sequence  BLNG.doc_seq
@@ -883,7 +884,7 @@ ALTER TABLE BLNG.document ADD CONSTRAINT DOC_BILL_OID_FK FOREIGN KEY (bill_oid)
   order;
   
 --------------------------------------------------------
---  DDL for Trigger MKP_TRGR
+--  DDL for Trigger 
 --------------------------------------------------------
 
 CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.doc_TRGR 
@@ -907,7 +908,7 @@ end;
 begin
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE blng.transaction
@@ -930,13 +931,13 @@ begin
   
   --drop table  blng.account 
 --------------------------------------------------------
---  DDL for Index MKP_ID_IDX
+--  DDL for Index 
 --------------------------------------------------------
 
   CREATE INDEX blng.trn_ID_IDX ON blng.transaction ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE blng.transaction MODIFY ("ID" CONSTRAINT "TRN_ID_NN" NOT NULL ENABLE);
@@ -960,7 +961,7 @@ ALTER TABLE BLNG.transaction ADD CONSTRAINT TRN_DOC_OID_FK FOREIGN KEY (doc_oid)
   REFERENCES BLNG.document ("ID") ENABLE;
 
 --------------------------------------------------------
---  DDL for Secuence MKP_SEQ
+--  DDL for Secuence 
 --------------------------------------------------------
  
   create sequence  BLNG.trn_seq
@@ -972,7 +973,7 @@ ALTER TABLE BLNG.transaction ADD CONSTRAINT TRN_DOC_OID_FK FOREIGN KEY (doc_oid)
   order;
   
 --------------------------------------------------------
---  DDL for Trigger MKP_TRGR
+--  DDL for Trigger 
 --------------------------------------------------------
 
 CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.trn_TRGR 
@@ -997,7 +998,7 @@ end;
 begin
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE blng.event
@@ -1020,13 +1021,13 @@ begin
   
   --drop table  blng.account 
 --------------------------------------------------------
---  DDL for Index MKP_ID_IDX
+--  DDL for Index 
 --------------------------------------------------------
 
   CREATE INDEX blng.evnt_ID_IDX ON blng.event ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE blng.event MODIFY ("ID" CONSTRAINT "EVNT_ID_NN" NOT NULL ENABLE);
@@ -1048,7 +1049,7 @@ ALTER TABLE BLNG.event ADD CONSTRAINT EVNT_CNTR_OID_FK FOREIGN KEY (contract_oid
 
 
 --------------------------------------------------------
---  DDL for Secuence MKP_SEQ
+--  DDL for Secuence 
 --------------------------------------------------------
  
   create sequence  BLNG.evnt_seq
@@ -1060,7 +1061,7 @@ ALTER TABLE BLNG.event ADD CONSTRAINT EVNT_CNTR_OID_FK FOREIGN KEY (contract_oid
   order;
   
 --------------------------------------------------------
---  DDL for Trigger MKP_TRGR
+--  DDL for Trigger 
 --------------------------------------------------------
 
 CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.evnt_TRGR 
@@ -1084,7 +1085,7 @@ end;
 begin
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE blng.event_type 
@@ -1103,13 +1104,13 @@ begin
   
   --drop table  blng.account 
 --------------------------------------------------------
---  DDL for Index MKP_ID_IDX
+--  DDL for Index 
 --------------------------------------------------------
 
   CREATE INDEX blng.ETT_ID_IDX ON blng.event_type ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE blng.event_type MODIFY ("ID" CONSTRAINT "ETT_ID_NN" NOT NULL ENABLE);
@@ -1123,7 +1124,7 @@ ALTER TABLE BLNG.event_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   USING INDEX BLNG.ETT_ID_IDX ENABLE;
 
 --------------------------------------------------------
---  DDL for Secuence MKP_SEQ
+--  DDL for Secuence 
 --------------------------------------------------------
  
   create sequence  BLNG.ett_seq
@@ -1135,7 +1136,7 @@ ALTER TABLE BLNG.event_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   order;
   
 --------------------------------------------------------
---  DDL for Trigger MKP_TRGR
+--  DDL for Trigger 
 --------------------------------------------------------
 
 
@@ -1156,14 +1157,14 @@ ALTER TRIGGER BLNG.ett_TRGR ENABLE;
 
 end;
 
-
+/
 
 
 /* status_type */
-begin
+
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE blng.status_type 
@@ -1182,13 +1183,13 @@ begin
   
   --drop table  blng.account 
 --------------------------------------------------------
---  DDL for Index MKP_ID_IDX
+--  DDL for Index 
 --------------------------------------------------------
 
   CREATE INDEX blng.STT_ID_IDX ON blng.status_type ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE blng.status_type MODIFY ("ID" CONSTRAINT "STT_ID_NN" NOT NULL ENABLE);
@@ -1202,7 +1203,7 @@ ALTER TABLE BLNG.status_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   USING INDEX BLNG.STT_ID_IDX ENABLE;
 
 --------------------------------------------------------
---  DDL for Secuence MKP_SEQ
+--  DDL for Secuence 
 --------------------------------------------------------
  
   create sequence  BLNG.stt_seq
@@ -1214,7 +1215,7 @@ ALTER TABLE BLNG.status_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   order;
   
 --------------------------------------------------------
---  DDL for Trigger MKP_TRGR
+--  DDL for Trigger 
 --------------------------------------------------------
 
 
@@ -1233,7 +1234,7 @@ end;
 ALTER TRIGGER BLNG.stt_TRGR ENABLE;
 
 
-end;
+
 
 
 
@@ -1242,7 +1243,7 @@ end;
 begin
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE blng.delay
@@ -1267,13 +1268,13 @@ begin
   
   --drop table  blng.account 
 --------------------------------------------------------
---  DDL for Index MKP_ID_IDX
+--  DDL for Index 
 --------------------------------------------------------
 
   CREATE INDEX blng.dly_ID_IDX ON blng.delay ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE blng.delay MODIFY ("ID" CONSTRAINT dly_ID_NN NOT NULL ENABLE);
@@ -1295,7 +1296,7 @@ ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_CNTR_OID_FK FOREIGN KEY (contract_oid)
 
 
 --------------------------------------------------------
---  DDL for Secuence MKP_SEQ
+--  DDL for Secuence 
 --------------------------------------------------------
  
   create sequence  BLNG.DLY_seq
@@ -1307,7 +1308,7 @@ ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_CNTR_OID_FK FOREIGN KEY (contract_oid)
   order;
   
 --------------------------------------------------------
---  DDL for Trigger MKP_TRGR
+--  DDL for Trigger 
 --------------------------------------------------------
 
 CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.DLY_TRGR 
@@ -1332,7 +1333,7 @@ end;
 begin
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE blng.domain
@@ -1342,7 +1343,7 @@ begin
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
    name VARCHAR2(255),
-   company_oid NUMBER(18,0),
+   contract_oid NUMBER(18,0),
    status VARCHAR2(1),
    is_domain VARCHAR2(1)
    ) SEGMENT CREATION IMMEDIATE 
@@ -1352,13 +1353,13 @@ begin
   
   --drop table  blng.account 
 --------------------------------------------------------
---  DDL for Index MKP_ID_IDX
+--  DDL for Index 
 --------------------------------------------------------
 
   CREATE INDEX blng.dmn_ID_IDX ON blng.domain ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE blng.domain MODIFY ("ID" CONSTRAINT dmn_ID_NN NOT NULL ENABLE);
@@ -1372,12 +1373,12 @@ ALTER TABLE BLNG.domain  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   USING INDEX BLNG.dmn_ID_IDX ENABLE;
 
 
-ALTER TABLE BLNG.domain ADD CONSTRAINT dmn_cmp_OID_FK FOREIGN KEY (company_oid)
-  REFERENCES BLNG.company ("ID") ENABLE;
+ALTER TABLE BLNG.domain ADD CONSTRAINT dmn_cntr_OID_FK FOREIGN KEY (contract_oid)
+  REFERENCES BLNG.contract ("ID") ENABLE;
 
 
 --------------------------------------------------------
---  DDL for Secuence MKP_SEQ
+--  DDL for Secuence 
 --------------------------------------------------------
  
   create sequence  BLNG.dmn_seq
@@ -1389,7 +1390,7 @@ ALTER TABLE BLNG.domain ADD CONSTRAINT dmn_cmp_OID_FK FOREIGN KEY (company_oid)
   order;
   
 --------------------------------------------------------
---  DDL for Trigger MKP_TRGR
+--  DDL for Trigger 
 --------------------------------------------------------
 
 CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.dmn_TRGR 
@@ -1440,13 +1441,13 @@ end;
  NOCOMPRESS LOGGING
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  DDL for Index MKP_ID_IDX
+--  DDL for Index 
 --------------------------------------------------------
 
   CREATE INDEX blng.cld_ID_IDX ON blng.client_data ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
 
@@ -1470,7 +1471,7 @@ ALTER TABLE BLNG.client_data ADD CONSTRAINT cld_clt_OID_FK FOREIGN KEY (client_o
 
 
 --------------------------------------------------------
---  DDL for Secuence MKP_SEQ
+--  DDL for Secuence 
 --------------------------------------------------------
  
   create sequence  BLNG.cld_seq
@@ -1482,7 +1483,7 @@ ALTER TABLE BLNG.client_data ADD CONSTRAINT cld_clt_OID_FK FOREIGN KEY (client_o
   order;
   
 --------------------------------------------------------
---  DDL for Trigger MKP_TRGR
+--  DDL for Trigger 
 --------------------------------------------------------
 
 CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.cld_TRGR 

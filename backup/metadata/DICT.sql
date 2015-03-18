@@ -1,11 +1,11 @@
-/* ntg.airline  */
+/* dict.airline  */
 
 
 --------------------------------------------------------
 --  DDL for Table
 --------------------------------------------------------
 
-  CREATE TABLE ntg.airline 
+  CREATE TABLE dict.airline 
    (		ID NUMBER(18,0), 
 	AMND_DATE DATE, 
 	AMND_USER VARCHAR2(50 BYTE), 
@@ -28,32 +28,32 @@
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX ntg.al_ID_IDX ON ntg.airline ("ID") 
+  CREATE INDEX dict.al_ID_IDX ON dict.airline ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
 --  Constraints
 --------------------------------------------------------
 
-  ALTER TABLE ntg.airline MODIFY ("ID" CONSTRAINT al_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ntg.airline MODIFY (AMND_DATE CONSTRAINT "al_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ntg.airline MODIFY (AMND_USER CONSTRAINT "al_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ntg.airline MODIFY (AMND_STATE CONSTRAINT "al_AST_NN" NOT NULL ENABLE);
-ALTER TABLE ntg.airline  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
-ALTER TABLE ntg.airline  MODIFY (AMND_USER DEFAULT  on null  user );
-ALTER TABLE ntg.airline  MODIFY (AMND_STATE DEFAULT  on null  'A' );
-  ALTER TABLE ntg.airline ADD CONSTRAINT al_ID_PK PRIMARY KEY (ID)
-  USING INDEX ntg.al_ID_IDX ENABLE;
+  ALTER TABLE dict.airline MODIFY ("ID" CONSTRAINT al_ID_NN NOT NULL ENABLE);
+  ALTER TABLE dict.airline MODIFY (AMND_DATE CONSTRAINT "al_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE dict.airline MODIFY (AMND_USER CONSTRAINT "al_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE dict.airline MODIFY (AMND_STATE CONSTRAINT "al_AST_NN" NOT NULL ENABLE);
+ALTER TABLE dict.airline  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE dict.airline  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE dict.airline  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE dict.airline ADD CONSTRAINT al_ID_PK PRIMARY KEY (ID)
+  USING INDEX dict.al_ID_IDX ENABLE;
   
 
   /*
-  ALTER TABLE ntg.airline ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
+  ALTER TABLE dict.airline ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
   REFERENCES blng.client ("ID") ENABLE;
    */
 --------------------------------------------------------
 --  DDL for Secuence 
 --------------------------------------------------------
  
-  create sequence  ntg.al_seq
+  create sequence  dict.al_seq
   increment by 1
   start with 1
   nomaxvalue
@@ -64,10 +64,10 @@ ALTER TABLE ntg.airline  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 --  DDL for Trigger 
 --------------------------------------------------------
 
-CREATE OR REPLACE EDITIONABLE TRIGGER ntg.al_TRGR 
+CREATE OR REPLACE EDITIONABLE TRIGGER dict.al_TRGR 
 BEFORE
 INSERT
-ON ntg.airline
+ON dict.airline
 REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
@@ -75,21 +75,21 @@ FOR EACH ROW
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
 /
-ALTER TRIGGER ntg.al_TRGR ENABLE;
+ALTER TRIGGER dict.al_TRGR ENABLE;
 
 /
 
 
 
 
-/* ntg.airplane */
+/* dict.airplane */
 
 
 --------------------------------------------------------
 --  DDL for Table 
 --------------------------------------------------------
 
-  CREATE TABLE ntg.airplane
+  CREATE TABLE dict.airplane
    (	   ID NUMBER(18,0), 
    amnd_date date,
    amnd_user VARCHAR2(50),
@@ -111,29 +111,29 @@ ALTER TRIGGER ntg.al_TRGR ENABLE;
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX ntg.AP_ID_IDX ON ntg.airplane ("ID") 
+  CREATE INDEX dict.AP_ID_IDX ON dict.airplane ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE ntg.airplane MODIFY ("ID" CONSTRAINT AP_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ntg.airplane MODIFY (AMND_DATE CONSTRAINT "AP_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ntg.airplane MODIFY (AMND_USER CONSTRAINT "AP_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ntg.airplane MODIFY (AMND_STATE CONSTRAINT "AP_AST_NN" NOT NULL ENABLE);
-ALTER TABLE ntg.airplane  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
-ALTER TABLE ntg.airplane  MODIFY (AMND_USER DEFAULT  on null  user );
-ALTER TABLE ntg.airplane  MODIFY (AMND_STATE DEFAULT  on null  'A' );
-  ALTER TABLE ntg.airplane ADD CONSTRAINT AP_ID_PK PRIMARY KEY (ID)
-  USING INDEX ntg.AP_ID_IDX ENABLE;
+  ALTER TABLE dict.airplane MODIFY ("ID" CONSTRAINT AP_ID_NN NOT NULL ENABLE);
+  ALTER TABLE dict.airplane MODIFY (AMND_DATE CONSTRAINT "AP_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE dict.airplane MODIFY (AMND_USER CONSTRAINT "AP_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE dict.airplane MODIFY (AMND_STATE CONSTRAINT "AP_AST_NN" NOT NULL ENABLE);
+ALTER TABLE dict.airplane  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE dict.airplane  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE dict.airplane  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE dict.airplane ADD CONSTRAINT AP_ID_PK PRIMARY KEY (ID)
+  USING INDEX dict.AP_ID_IDX ENABLE;
 
 
 /*
-ALTER TABLE ntg.airplane ADD CONSTRAINT AP_ETT_OID_FK FOREIGN KEY (event_type_oid)
+ALTER TABLE dict.airplane ADD CONSTRAINT AP_ETT_OID_FK FOREIGN KEY (event_type_oid)
   REFERENCES BLNG.event_type ("ID") ENABLE;
-ALTER TABLE ntg.airplane ADD CONSTRAINT AP_TRN_OID_FK FOREIGN KEY (transaction_oid)
+ALTER TABLE dict.airplane ADD CONSTRAINT AP_TRN_OID_FK FOREIGN KEY (transaction_oid)
   REFERENCES BLNG.transaction ("ID") ENABLE;
-ALTER TABLE ntg.airplane ADD CONSTRAINT AP_CNTR_OID_FK FOREIGN KEY (contract_oid)
+ALTER TABLE dict.airplane ADD CONSTRAINT AP_CNTR_OID_FK FOREIGN KEY (contract_oid)
   REFERENCES BLNG.contract ("ID") ENABLE;
 */
 
@@ -141,7 +141,7 @@ ALTER TABLE ntg.airplane ADD CONSTRAINT AP_CNTR_OID_FK FOREIGN KEY (contract_oid
 --  DDL for Secuence 
 --------------------------------------------------------
  
-  create sequence  ntg.AP_seq
+  create sequence  dict.AP_seq
   increment by 1
   start with 1
   nomaxvalue
@@ -153,30 +153,30 @@ ALTER TABLE ntg.airplane ADD CONSTRAINT AP_CNTR_OID_FK FOREIGN KEY (contract_oid
 --  DDL for Trigger 
 --------------------------------------------------------
 
-CREATE OR REPLACE EDITIONABLE TRIGGER ntg.AP_TRGR 
+CREATE OR REPLACE EDITIONABLE TRIGGER dict.AP_TRGR 
 BEFORE
 INSERT
-ON ntg.airplane
+ON dict.airplane
 REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
-  select ntg.AP_seq.nextval into :new.id from dual; 
+  select AP_seq.nextval into :new.id from dual; 
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
 /
-ALTER TRIGGER ntg.AP_TRGR ENABLE;
+ALTER TRIGGER dict.AP_TRGR ENABLE;
 
 /
 
 
-/* ntg.geo  */
+/* dict.geo  */
 
 
 --------------------------------------------------------
 --  DDL for Table 
 --------------------------------------------------------
 
-  CREATE TABLE ntg.geo 
+  CREATE TABLE dict.geo 
    (ID NUMBER, 
   amnd_date date,
    amnd_user VARCHAR2(50),
@@ -206,34 +206,34 @@ ALTER TRIGGER ntg.AP_TRGR ENABLE;
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX ntg.geo_ID_IDX ON ntg.geo ("ID") 
+  CREATE INDEX dict.geo_ID_IDX ON dict.geo ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE ntg.geo MODIFY ("ID" CONSTRAINT geo_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ntg.geo MODIFY (AMND_DATE CONSTRAINT "geo_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ntg.geo MODIFY (AMND_USER CONSTRAINT "geo_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ntg.geo MODIFY (AMND_STATE CONSTRAINT "geo_AST_NN" NOT NULL ENABLE);
-ALTER TABLE ntg.geo  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
-ALTER TABLE ntg.geo  MODIFY (AMND_USER DEFAULT  on null  user );
-ALTER TABLE ntg.geo  MODIFY (AMND_STATE DEFAULT  on null  'A' );
-  ALTER TABLE ntg.geo ADD CONSTRAINT geo_ID_PK PRIMARY KEY (ID)
-  USING INDEX ntg.geo_ID_IDX ENABLE;
-ALTER TABLE ntg.geo MODIFY (UTC_OFFSET CONSTRAINT "geo_UOF_NN" NOT NULL ENABLE);
-ALTER TABLE ntg.geo  MODIFY (UTC_OFFSET DEFAULT  on null  '0' );
+  ALTER TABLE dict.geo MODIFY ("ID" CONSTRAINT geo_ID_NN NOT NULL ENABLE);
+  ALTER TABLE dict.geo MODIFY (AMND_DATE CONSTRAINT "geo_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE dict.geo MODIFY (AMND_USER CONSTRAINT "geo_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE dict.geo MODIFY (AMND_STATE CONSTRAINT "geo_AST_NN" NOT NULL ENABLE);
+ALTER TABLE dict.geo  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE dict.geo  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE dict.geo  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE dict.geo ADD CONSTRAINT geo_ID_PK PRIMARY KEY (ID)
+  USING INDEX dict.geo_ID_IDX ENABLE;
+ALTER TABLE dict.geo MODIFY (UTC_OFFSET CONSTRAINT "geo_UOF_NN" NOT NULL ENABLE);
+ALTER TABLE dict.geo  MODIFY (UTC_OFFSET DEFAULT  on null  '0' );
   
 
   /*
-  ALTER TABLE ntg.geo ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
+  ALTER TABLE dict.geo ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
   REFERENCES blng.client ("ID") ENABLE;
    */
 --------------------------------------------------------
 --  DDL for Secuence 
 --------------------------------------------------------
  
-  create sequence  ntg.geo_seq
+  create sequence  dict.geo_seq
   increment by 1
   start with 1
   nomaxvalue
@@ -244,10 +244,10 @@ ALTER TABLE ntg.geo  MODIFY (UTC_OFFSET DEFAULT  on null  '0' );
 --  DDL for Trigger 
 --------------------------------------------------------
 
-CREATE OR REPLACE EDITIONABLE TRIGGER ntg.geo_TRGR 
+CREATE OR REPLACE EDITIONABLE TRIGGER dict.geo_TRGR 
 BEFORE
 INSERT
-ON ntg.geo
+ON dict.geo
 REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
@@ -255,20 +255,20 @@ FOR EACH ROW
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
 /
-ALTER TRIGGER ntg.geo_TRGR ENABLE;
+ALTER TRIGGER dict.geo_TRGR ENABLE;
 
 
 
 
 
-/* ntg.log  */
+/* dict.log  */
 
 
 --------------------------------------------------------
 --  DDL for Table 
 --------------------------------------------------------
 
-  CREATE TABLE ntg.log 
+  CREATE TABLE dict.log 
    (ID NUMBER, 
   amnd_date date,
    amnd_user VARCHAR2(50),
@@ -285,33 +285,33 @@ ALTER TRIGGER ntg.geo_TRGR ENABLE;
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX ntg.log_ID_IDX ON ntg.log ("ID") 
+  CREATE INDEX dict.log_ID_IDX ON dict.log ("ID") 
   TABLESPACE "USERS" ;
  
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE ntg.log MODIFY ("ID" CONSTRAINT log_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ntg.log MODIFY (AMND_DATE CONSTRAINT "log_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ntg.log MODIFY (AMND_USER CONSTRAINT "log_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ntg.log MODIFY (AMND_STATE CONSTRAINT "log_AST_NN" NOT NULL ENABLE);
-ALTER TABLE ntg.log  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
-ALTER TABLE ntg.log  MODIFY (AMND_USER DEFAULT  on null  user );
-ALTER TABLE ntg.log  MODIFY (AMND_STATE DEFAULT  on null  'A' );
-  ALTER TABLE ntg.log ADD CONSTRAINT log_ID_PK PRIMARY KEY (ID)
-  USING INDEX ntg.log_ID_IDX ENABLE;
+  ALTER TABLE dict.log MODIFY ("ID" CONSTRAINT log_ID_NN NOT NULL ENABLE);
+  ALTER TABLE dict.log MODIFY (AMND_DATE CONSTRAINT "log_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE dict.log MODIFY (AMND_USER CONSTRAINT "log_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE dict.log MODIFY (AMND_STATE CONSTRAINT "log_AST_NN" NOT NULL ENABLE);
+ALTER TABLE dict.log  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE dict.log  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE dict.log  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE dict.log ADD CONSTRAINT log_ID_PK PRIMARY KEY (ID)
+  USING INDEX dict.log_ID_IDX ENABLE;
 
 
   /*
-  ALTER TABLE ntg.log ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
+  ALTER TABLE dict.log ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
   REFERENCES blng.client ("ID") ENABLE;
    */
 --------------------------------------------------------
 --  DDL for Secuence 
 --------------------------------------------------------
  
-  create sequence  ntg.log_seq
+  create sequence  dict.log_seq
   increment by 1
   start with 1
   nomaxvalue
@@ -322,10 +322,10 @@ ALTER TABLE ntg.log  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 --  DDL for Trigger 
 --------------------------------------------------------
 
-CREATE OR REPLACE EDITIONABLE TRIGGER ntg.log_TRGR 
+CREATE OR REPLACE EDITIONABLE TRIGGER dict.log_TRGR 
 BEFORE
 INSERT
-ON ntg.log
+ON dict.log
 REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
@@ -333,27 +333,27 @@ FOR EACH ROW
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
 /
-ALTER TRIGGER ntg.log_TRGR ENABLE;
+ALTER TRIGGER dict.log_TRGR ENABLE;
 
 /
 
 
 
 
-/* ntg.markup  */
+/* dict.markup  */
 
 
 --------------------------------------------------------
 --  DDL for Table 
 --------------------------------------------------------
 
-  CREATE TABLE ntg.markup 
+  CREATE TABLE dict.markup 
    (ID NUMBER, 
   amnd_date date,
    amnd_user VARCHAR2(50),
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
-	CLIENT VARCHAR2(255 BYTE), 
+	contract_oid number(18,0), 
 	GDS VARCHAR2(50 BYTE), 
 	POS VARCHAR2(50 BYTE), 
 	VALIDATING_CARRIER NUMBER, 
@@ -375,32 +375,32 @@ ALTER TRIGGER ntg.log_TRGR ENABLE;
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX ntg.mkp_ID_IDX ON ntg.markup ("ID") 
+  CREATE INDEX dict.mkp_ID_IDX ON dict.markup ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE ntg.markup MODIFY ("ID" CONSTRAINT mkp_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ntg.markup MODIFY (AMND_DATE CONSTRAINT "mkp_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ntg.markup MODIFY (AMND_USER CONSTRAINT "mkp_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ntg.markup MODIFY (AMND_STATE CONSTRAINT "mkp_AST_NN" NOT NULL ENABLE);
-  ALTER TABLE ntg.markup  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
-  ALTER TABLE ntg.markup  MODIFY (AMND_USER DEFAULT  on null  user );
-  ALTER TABLE ntg.markup  MODIFY (AMND_STATE DEFAULT  on null  'A' );
-  ALTER TABLE ntg.markup ADD CONSTRAINT mkp_ID_PK PRIMARY KEY (ID)
-  USING INDEX ntg.mkp_ID_IDX ENABLE;
+  ALTER TABLE dict.markup MODIFY ("ID" CONSTRAINT mkp_ID_NN NOT NULL ENABLE);
+  ALTER TABLE dict.markup MODIFY (AMND_DATE CONSTRAINT "mkp_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE dict.markup MODIFY (AMND_USER CONSTRAINT "mkp_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE dict.markup MODIFY (AMND_STATE CONSTRAINT "mkp_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE dict.markup  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+  ALTER TABLE dict.markup  MODIFY (AMND_USER DEFAULT  on null  user );
+  ALTER TABLE dict.markup  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE dict.markup ADD CONSTRAINT mkp_ID_PK PRIMARY KEY (ID)
+  USING INDEX dict.mkp_ID_IDX ENABLE;
 
 
   /*
-  ALTER TABLE ntg.markup ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
+  ALTER TABLE dict.markup ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
   REFERENCES blng.client ("ID") ENABLE;
    */
 --------------------------------------------------------
 --  DDL for Secuence 
 --------------------------------------------------------
  
-  create sequence  ntg.mkp_seq
+  create sequence  dict.mkp_seq
   increment by 1
   start with 1
   nomaxvalue
@@ -411,10 +411,10 @@ ALTER TRIGGER ntg.log_TRGR ENABLE;
 --  DDL for Trigger 
 --------------------------------------------------------
 
-CREATE OR REPLACE EDITIONABLE TRIGGER ntg.mkp_TRGR 
+CREATE OR REPLACE EDITIONABLE TRIGGER dict.mkp_TRGR 
 BEFORE
 INSERT
-ON ntg.markup
+ON dict.markup
 REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
@@ -422,19 +422,19 @@ FOR EACH ROW
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
 /
-ALTER TRIGGER ntg.mkp_TRGR ENABLE;
+ALTER TRIGGER dict.mkp_TRGR ENABLE;
 
 
 
 /
 
-/* ntg.gds_nationality  */
+/* dict.gds_nationality  */
 
 --------------------------------------------------------
 --  DDL for Table 
 --------------------------------------------------------
 
-  CREATE TABLE ntg.gds_nationality 
+  CREATE TABLE dict.gds_nationality 
    (
 id number(18,0),
 code varchar2(10),
@@ -445,28 +445,28 @@ nls_name varchar2(255)
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX ntg.gnt_ID_IDX ON ntg.gds_nationality ("ID") 
+  CREATE INDEX dict.gnt_ID_IDX ON dict.gds_nationality ("ID") 
   TABLESPACE "USERS" ;
-  CREATE INDEX ntg.gnt_CD_IDX ON ntg.gds_nationality (code) 
+  CREATE INDEX dict.gnt_CD_IDX ON dict.gds_nationality (code) 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE ntg.gds_nationality MODIFY ("ID" CONSTRAINT gnt_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ntg.gds_nationality ADD CONSTRAINT gnt_ID_PK PRIMARY KEY (ID)
-  USING INDEX ntg.gnt_ID_IDX ENABLE;
+  ALTER TABLE dict.gds_nationality MODIFY ("ID" CONSTRAINT gnt_ID_NN NOT NULL ENABLE);
+  ALTER TABLE dict.gds_nationality ADD CONSTRAINT gnt_ID_PK PRIMARY KEY (ID)
+  USING INDEX dict.gnt_ID_IDX ENABLE;
 
 
   /*
-  ALTER TABLE ntg.markup ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
+  ALTER TABLE dict.markup ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
   REFERENCES blng.client ("ID") ENABLE;
    */
 --------------------------------------------------------
 --  DDL for Secuence 
 --------------------------------------------------------
  
-  create sequence  ntg.gnt_seq
+  create sequence  dict.gnt_seq
   increment by 1
   start with 1
   nomaxvalue
@@ -477,10 +477,10 @@ nls_name varchar2(255)
 --  DDL for Trigger 
 --------------------------------------------------------
 
-CREATE OR REPLACE EDITIONABLE TRIGGER ntg.gnt_TRGR 
+CREATE OR REPLACE EDITIONABLE TRIGGER dict.gnt_TRGR 
 BEFORE
 INSERT
-ON ntg.gds_nationality
+ON dict.gds_nationality
 REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
@@ -488,7 +488,7 @@ FOR EACH ROW
 --  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
 /
-ALTER TRIGGER ntg.gnt_TRGR ENABLE;
+ALTER TRIGGER dict.gnt_TRGR ENABLE;
 
 /
 
@@ -500,7 +500,7 @@ ALTER TRIGGER ntg.gnt_TRGR ENABLE;
 --  DDL for Table 
 --------------------------------------------------------
 
-  CREATE TABLE ntg.markup_type 
+  CREATE TABLE dict.markup_type 
    (	ID NUMBER(18,0), 
    amnd_date date,
    amnd_user VARCHAR2(50),
@@ -516,27 +516,27 @@ ALTER TRIGGER ntg.gnt_TRGR ENABLE;
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX ntg.MKPT_ID_IDX ON ntg.markup_type ("ID") 
+  CREATE INDEX dict.MKPT_ID_IDX ON dict.markup_type ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE ntg.markup_type MODIFY ("ID" CONSTRAINT "MKPT_ID_NN" NOT NULL ENABLE);
-  ALTER TABLE ntg.markup_type MODIFY (AMND_DATE CONSTRAINT "MKPT_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ntg.markup_type MODIFY (AMND_USER CONSTRAINT "MKPT_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ntg.markup_type MODIFY (AMND_STATE CONSTRAINT "MKPT_AST_NN" NOT NULL ENABLE);
-ALTER TABLE ntg.markup_type  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
-ALTER TABLE ntg.markup_type  MODIFY (AMND_USER DEFAULT  on null  user );
-ALTER TABLE ntg.markup_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
-  ALTER TABLE ntg.markup_type ADD CONSTRAINT MKPT_ID_PK PRIMARY KEY (ID)
-  USING INDEX ntg.MKPT_ID_IDX ENABLE;
+  ALTER TABLE dict.markup_type MODIFY ("ID" CONSTRAINT "MKPT_ID_NN" NOT NULL ENABLE);
+  ALTER TABLE dict.markup_type MODIFY (AMND_DATE CONSTRAINT "MKPT_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE dict.markup_type MODIFY (AMND_USER CONSTRAINT "MKPT_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE dict.markup_type MODIFY (AMND_STATE CONSTRAINT "MKPT_AST_NN" NOT NULL ENABLE);
+ALTER TABLE dict.markup_type  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE dict.markup_type  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE dict.markup_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE dict.markup_type ADD CONSTRAINT MKPT_ID_PK PRIMARY KEY (ID)
+  USING INDEX dict.MKPT_ID_IDX ENABLE;
 
 --------------------------------------------------------
 --  DDL for Secuence 
 --------------------------------------------------------
  
-  create sequence  ntg.MKPT_seq
+  create sequence  dict.MKPT_seq
   increment by 1
   start with 1
   nomaxvalue
@@ -549,52 +549,52 @@ ALTER TABLE ntg.markup_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 --------------------------------------------------------
 
 
-CREATE OR REPLACE EDITIONABLE TRIGGER ntg.MKPT_TRGR 
+CREATE OR REPLACE EDITIONABLE TRIGGER dict.MKPT_TRGR 
 BEFORE
 INSERT
-ON ntg.markup_type
+ON dict.markup_type
 REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
-  select ntg.MKPT_seq.nextval into :new.id from dual; 
+  select MKPT_seq.nextval into :new.id from dual; 
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
 
 /
-ALTER TRIGGER ntg.MKPT_TRGR ENABLE;
+ALTER TRIGGER dict.MKPT_TRGR ENABLE;
 
 /
 
-CREATE bitmap INDEX ntg.geo_AS_IDX ON ntg.geo (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX ntg.log_AS_IDX ON ntg.log (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX ntg.mkp_AS_IDX ON ntg.markup (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX ntg.al_AS_IDX ON ntg.airline (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX ntg.ap_AS_IDX ON ntg.airplane (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX dict.geo_AS_IDX ON dict.geo (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX dict.log_AS_IDX ON dict.log (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX dict.mkp_AS_IDX ON dict.markup (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX dict.al_AS_IDX ON dict.airline (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX dict.ap_AS_IDX ON dict.airplane (amnd_state) TABLESPACE "USERS" ;
 
 --------------------------------------------------------
 --  DDL for Grants
 --------------------------------------------------------
 
-grant select on ntg.airline to ord;
-grant select on ntg.airplane to ord;
-grant select on ntg.geo to ord;
-grant select on ntg.markup to ord;
-grant select on ntg.gds_nationality to ord;
-grant select on ntg.airline to blng;
-grant select on ntg.airplane to blng;
-grant select on ntg.geo to blng;
-grant select on ntg.markup to blng;
-grant select on ntg.gds_nationality to blng;
+grant select on dict.airline to ord;
+grant select on dict.airplane to ord;
+grant select on dict.geo to ord;
+grant select on dict.markup to ord;
+grant select on dict.gds_nationality to ord;
+grant select on dict.airline to blng;
+grant select on dict.airplane to blng;
+grant select on dict.geo to blng;
+grant select on dict.markup to blng;
+grant select on dict.gds_nationality to blng;
 
 --Foreign keys between tables in different schemas
-grant references on ntg.airline to ord;
-grant references on ntg.airplane to ord;
-grant references on ntg.geo to ord;
-grant references on ntg.markup to ord;
-grant references on ntg.gds_nationality to ord;
-grant references on ntg.airline to blng;
-grant references on ntg.airplane to blng;
-grant references on ntg.geo to blng;
-grant references on ntg.markup to blng;
-grant references on ntg.gds_nationality to blng;
+grant references on dict.airline to ord;
+grant references on dict.airplane to ord;
+grant references on dict.geo to ord;
+grant references on dict.markup to ord;
+grant references on dict.gds_nationality to ord;
+grant references on dict.airline to blng;
+grant references on dict.airplane to blng;
+grant references on dict.geo to blng;
+grant references on dict.markup to blng;
+grant references on dict.gds_nationality to blng;
 

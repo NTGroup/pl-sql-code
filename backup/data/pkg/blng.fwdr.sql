@@ -44,7 +44,7 @@ $obj_param: p_user: email
 $obj_return: SYS_REFCURSOR[CLIENT_ID, LAST_NAME, FIRST_NAME, EMAIL, PHONE, --TENANT_ID, 
 $obj_return: BIRTH_DATE, GENDER, NATIONALITY, NLS_NATIONALITY, DOC_ID, DOC_EXPIRY_DATE, 
 $obj_return: DOC_NUMBER, DOC_LAST_NAME, DOC_FIRST_NAME, DOC_OWNER, DOC_GENDER, 
-$obj_return: DOC_BIRTH_DATE, DOC_NATIONALITY, DOC_NLS_NATIONALITY, DOC_PHONE, COMPANY_NAME]
+$obj_return: DOC_BIRTH_DATE, DOC_NATIONALITY, DOC_NLS_NATIONALITY, DOC_PHONE, COMPANY_NAME,is_tester]
 */
   function whoami(p_user in ntg.dtype.t_name)
   return SYS_REFCURSOR;
@@ -282,7 +282,8 @@ create  or replace package BODY blng.fwdr as
       to_char(cld.birth_date,'yyyy-mm-dd') doc_birth_date,
       cld.nationality doc_nationality,
       ntg.ntg_api.gds_nationality_get_info_name(cld.nationality) doc_nls_nationality,cld.phone doc_phone,
-      company.name company_name
+      company.name company_name,
+      clt.is_tester
       from blng.client clt, blng.client_data cld, blng.company
       where 
       clt.amnd_state = 'A' 

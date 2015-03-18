@@ -39,7 +39,8 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                   p_nationality in ntg.dtype.t_code default null, 
                   p_email in ntg.dtype.t_name default null,
                   p_phone in ntg.dtype.t_name default null,
-                  p_utc_offset in ntg.dtype.t_id default null
+                  p_utc_offset in ntg.dtype.t_id default null,
+                        p_is_tester in ntg.dtype.t_status default null
                   )
   return ntg.dtype.t_id;
 
@@ -52,7 +53,8 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                           p_nationality in ntg.dtype.t_code default null, 
                           p_email in ntg.dtype.t_name default null,
                   p_phone in ntg.dtype.t_name default null,
-                  p_utc_offset in ntg.dtype.t_id default null
+                  p_utc_offset in ntg.dtype.t_id default null,
+                        p_is_tester in ntg.dtype.t_status default null
   );
 
   function client_get_info( p_id in ntg.dtype.t_id  default null,
@@ -64,7 +66,8 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                             p_nationality in ntg.dtype.t_code default null, 
                             p_email in ntg.dtype.t_name default null,
                   p_phone in ntg.dtype.t_name default null,
-                  p_utc_offset in ntg.dtype.t_id default null
+                  p_utc_offset in ntg.dtype.t_id default null,
+                        p_is_tester in ntg.dtype.t_status default null
   )
   return SYS_REFCURSOR;
 
@@ -77,7 +80,8 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                                 p_nationality in ntg.dtype.t_code default null, 
                                 p_email in ntg.dtype.t_name default null,
                   p_phone in ntg.dtype.t_name default null,
-                  p_utc_offset in ntg.dtype.t_id default null
+                  p_utc_offset in ntg.dtype.t_id default null,
+                        p_is_tester in ntg.dtype.t_status default null
                             )
   return blng.client%rowtype;
 
@@ -553,7 +557,8 @@ end blng_api;
                         p_nationality in ntg.dtype.t_code default null, 
                         p_email in ntg.dtype.t_name default null,
                         p_phone in ntg.dtype.t_name default null,
-                  p_utc_offset in ntg.dtype.t_id default null
+                        p_utc_offset in ntg.dtype.t_id default null,
+                        p_is_tester in ntg.dtype.t_status default null
                         )
   return ntg.dtype.t_id
   is
@@ -569,6 +574,7 @@ end blng_api;
     v_obj_row.nationality := p_nationality;
     v_obj_row.gender := upper(p_gender);
     v_obj_row.utc_offset := nvl(p_utc_offset,3);
+    v_obj_row.is_tester := nvl(p_is_tester,'N');
     v_obj_row.status := 'A';
     insert into blng.client values v_obj_row returning id into v_id;
 
@@ -589,7 +595,8 @@ end blng_api;
                         p_nationality in ntg.dtype.t_code default null, 
                         p_email in ntg.dtype.t_name default null,
                         p_phone in ntg.dtype.t_name default null,
-                  p_utc_offset in ntg.dtype.t_id default null)
+                        p_utc_offset in ntg.dtype.t_id default null,
+                        p_is_tester in ntg.dtype.t_status default null)
   is
     v_obj_row_new blng.client%rowtype;
     v_obj_row_old blng.client%rowtype;
@@ -608,6 +615,7 @@ end blng_api;
     v_obj_row_new.email:=nvl(lower(p_email), v_obj_row_new.email);
     v_obj_row_new.phone:=nvl(lower(p_phone), v_obj_row_new.phone);
     v_obj_row_new.utc_offset:=nvl(p_utc_offset, v_obj_row_new.utc_offset);
+    v_obj_row_new.is_tester:=nvl(p_is_tester, v_obj_row_new.is_tester);
     --v_obj_row_new.amnd_user:=null;
     
     if 
@@ -619,6 +627,7 @@ end blng_api;
       nvl(v_obj_row_new.nationality,'X') = nvl(v_obj_row_old.nationality,'X') and
       nvl(v_obj_row_new.email,'X') = nvl(v_obj_row_old.email,'X') and
       v_obj_row_new.utc_offset = v_obj_row_old.utc_offset
+      and v_obj_row_new.is_tester = v_obj_row_old.is_tester
 
     then return; 
     else     
@@ -651,7 +660,8 @@ end blng_api;
                         p_nationality in ntg.dtype.t_code default null, 
                         p_email in ntg.dtype.t_name default null,
                         p_phone in ntg.dtype.t_name default null,
-                  p_utc_offset in ntg.dtype.t_id default null)
+                        p_utc_offset in ntg.dtype.t_id default null,
+                        p_is_tester in ntg.dtype.t_status default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
@@ -687,7 +697,8 @@ end blng_api;
                         p_nationality in ntg.dtype.t_code default null, 
                         p_email in ntg.dtype.t_name default null,
                         p_phone in ntg.dtype.t_name default null,
-                  p_utc_offset in ntg.dtype.t_id default null
+                        p_utc_offset in ntg.dtype.t_id default null,
+                        p_is_tester in ntg.dtype.t_status default null
                             )
   return blng.client%rowtype
   is

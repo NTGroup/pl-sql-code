@@ -2,11 +2,13 @@
 /
 CREATE OR REPLACE PACKAGE "ORD"."FWDR" AS 
 
+
 /*
 
 pkg: ord.fwdr
 
 */
+
 
 /*
 
@@ -1484,7 +1486,7 @@ $TODO: there must be check for users with ISSUES permission
               rule_priority number(20,2) path '$.rule_priority',
               NESTED PATH '$.conditions[*]' COLUMNS (
                 condition_id number(20,2) path '$.condition_id',
-                condition_status number(20,2) path '$.condition_status',
+                condition_status VARCHAR2(10) path '$.condition_status',
                 template_type_id number(20,2) path '$.template_type_id',
                 template_name_nls VARCHAR2(250) path '$.template_name_nls',
                 template_value VARCHAR2(250) path '$.template_value'
@@ -1502,8 +1504,8 @@ $TODO: there must be check for users with ISSUES permission
                           p_details => i.rule_description,
                           p_fix => case when i.rule_amount_measure = 'PERCENT' then null else  i.rule_amount end,
                           p_percent => case when i.rule_amount_measure = 'PERCENT' then i.rule_amount else  null end,
-                          P_DATE_FROM => to_date(i.rule_life_from,'yyyy-mm-dd'),
-                          P_DATE_TO => to_date(i.rule_life_to,'yyyy-mm-dd'),
+                          P_DATE_FROM => to_date(i.rule_life_from,'yyyy-mm-dd')-ntg.fwdr.utc_offset_mow/24,
+                          P_DATE_TO => to_date(i.rule_life_to,'yyyy-mm-dd')-ntg.fwdr.utc_offset_mow/24,
                           p_priority => i.rule_priority,
                           p_contract_type => i.contract_id --its contract_type of commission (self/interline/code-share)                          
                           );
@@ -1516,8 +1518,8 @@ $TODO: there must be check for users with ISSUES permission
                           p_details => i.rule_description,
                           p_fix => case when i.rule_amount_measure = 'PERCENT' then null else  i.rule_amount end,
                           p_percent => case when i.rule_amount_measure = 'PERCENT' then i.rule_amount else  null end,
-                          P_DATE_FROM => to_date(i.rule_life_from,'yyyy-mm-dd'),
-                          P_DATE_TO => to_date(i.rule_life_to,'yyyy-mm-dd'),
+                          P_DATE_FROM => to_date(i.rule_life_from,'yyyy-mm-dd')-ntg.fwdr.utc_offset_mow/24,
+                          P_DATE_TO => to_date(i.rule_life_to,'yyyy-mm-dd')-ntg.fwdr.utc_offset_mow/24,
                           p_priority => i.rule_priority,
                           p_contract_type => i.contract_id /*, --its contract_type of commission (self/interline/code-share)                          
                           p_status =>*/
@@ -1606,4 +1608,3 @@ $TODO: there must be check for users with ISSUES permission
 
 END FWDR;
 /
-
