@@ -245,6 +245,29 @@ drop sequence dict.gnt_seq;
 
 
 
+grant references on ord.bill to dict;
+grant references on ord.ord to dict;
+grant references on ord.ticket to dict;
+grant references on ord.item_avia to dict;
+grant references on ord.item_avia_status to dict;
+grant references on ord.commission to dict;
+grant references on ord.commission_details to dict;
+grant references on ord.commission_template to dict;
+grant references on ord.pos_rule to dict;
+
+grant select on ord.bill to dict;
+grant select on ord.ord to dict;
+grant select on ord.ticket to dict;
+grant select on ord.item_avia to dict;
+grant select on ord.item_avia_status to dict;
+grant select on ord.commission to dict;
+grant select on ord.commission_details to dict;
+grant select on ord.commission_template to dict;
+grant select on ord.pos_rule to dict;
+
+
+/
+
 
 @metadata/view.sql;
 @data/pkg/blng.blng_api.sql;
@@ -258,4 +281,8 @@ drop sequence dict.gnt_seq;
 @data/pkg/ord.core.sql;
 @data/pkg/ord.fwdr.sql;
 
+@data/pkg/dict.dtype.sql;
+@data/pkg/dict.dict_api.sql;
+@data/pkg/dict.fwdr.sql;
+@data/pkg/dict.log_api.sql;
 

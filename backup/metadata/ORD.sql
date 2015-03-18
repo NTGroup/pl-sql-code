@@ -1484,6 +1484,16 @@ grant select on ord.commission_details to ntg;
 grant select on ord.commission_template to ntg;
 grant select on ord.pos_rule to ntg;
 
+grant select on ord.bill to dict;
+grant select on ord.ord to dict;
+grant select on ord.ticket to dict;
+grant select on ord.item_avia to dict;
+grant select on ord.item_avia_status to dict;
+grant select on ord.commission to dict;
+grant select on ord.commission_details to dict;
+grant select on ord.commission_template to dict;
+grant select on ord.pos_rule to dict;
+
 --Foreign keys between tables in different schemas
 grant references on ord.bill to blng;
 grant references on ord.ord to blng;
@@ -1505,3 +1515,12 @@ grant references on ord.commission_details to ntg;
 grant references on ord.commission_template to ntg;
 grant references on ord.pos_rule to ntg;
 
+grant references on ord.bill to dict;
+grant references on ord.ord to dict;
+grant references on ord.ticket to dict;
+grant references on ord.item_avia to dict;
+grant references on ord.item_avia_status to dict;
+grant references on ord.commission to dict;
+grant references on ord.commission_details to dict;
+grant references on ord.commission_template to dict;
+grant references on ord.pos_rule to dict;

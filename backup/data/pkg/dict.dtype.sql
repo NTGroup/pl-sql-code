@@ -1,8 +1,8 @@
-  CREATE OR REPLACE PACKAGE "NTG"."DTYPE" as 
+  CREATE OR REPLACE PACKAGE "DICT"."DTYPE" as 
 
   
 /*
- pkg: NTG.DTYPE
+ pkg: dict.DTYPE
  */
 
 

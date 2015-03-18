@@ -51,11 +51,12 @@ end log_api;
     P_ALERT_LEVEL in dtype.t_id default 0)
   is
     pragma autonomous_transaction;
-    v_log_row DICT.log%rowtype;
+    v_log_row loger%rowtype;
     v_id dtype.t_id;
   begin
-    insert into DICT.log values v_log_row returning id into v_id;
-    update DICT.log set amnd_prev = v_id, amnd_date = sysdate, amnd_user = user, 
+  v_log_row.msg := p_msg;
+    insert into loger values v_log_row returning id into v_id;
+    update loger set amnd_prev = v_id, amnd_date = sysdate, amnd_user = user, 
       amnd_state = 'A',
       PROC_NAME = P_PROC_NAME,
       MSG = P_MSG,

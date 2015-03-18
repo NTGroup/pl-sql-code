@@ -1,7 +1,7 @@
-create or replace package ntg.fwdr as
+create or replace package dict.fwdr as
 
 /*
-pkg: ntg.fwdr
+pkg: dict.fwdr
 */
 
 function utc_offset_mow return number;
@@ -85,12 +85,12 @@ $obj_param: p_version: id
 $obj_return: SYS_REFCURSOR[ID, TENANT_ID, VALIDATING_CARRIER, CLASS_OF_SERVICE, 
 $obj_return: SEGMENT, V_FROM, V_TO, ABSOLUT_AMOUNT, PERCENT_AMOUNT, MIN_ABSOLUT, VERSION, IS_ACTIVE, markup_type]
 */  
-  function markup_get(p_version in ntg.dtype.t_id default null)
+  function markup_get(p_version in dtype.t_id default null)
   return SYS_REFCURSOR;
 
 end;
 /
-create or replace package body ntg.fwdr as
+create or replace package body dict.fwdr as
   function utc_offset_mow 
   return number
   is
@@ -111,7 +111,7 @@ create or replace package body ntg.fwdr as
       al.IATA,
       case when cmn.airline is null then 'N' else 'Y' end commission
       from 
-      ntg.airline al,
+      dict.airline al,
       (
         select airline from ord.commission 
         where amnd_state = 'A'
@@ -137,7 +137,7 @@ create or replace package body ntg.fwdr as
         FROM v_markup;
     return v_results;
   exception when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'get_full', p_msg_type=>'UNHANDLED_ERROR', 
+      dict.LOG_API.LOG_ADD(p_proc_name=>'get_full', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select,p_table=markup,p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
       RAISE_APPLICATION_ERROR(-20002,'select row into markup error. '||SQLERRM);
@@ -176,7 +176,7 @@ begin
 --      and g.iata = iata_list.IATA
       group by g.iata;    
   end if;  
-  NTG.LOG_API.LOG_ADD(p_proc_name=>'client_set_name', p_msg_type=>'Error');
+  LOG_API.LOG_ADD(p_proc_name=>'client_set_name', p_msg_type=>'Error');
   return v_results;
 end;
 
@@ -294,7 +294,7 @@ end;
 
 
 
-  function markup_get(p_version in ntg.dtype.t_id default null)
+  function markup_get(p_version in dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -323,9 +323,9 @@ end;
       when mkp.percent = 'Y'  then mkp.min_absolut 
       else null
       end min_absolut,
-      (select max(id) from ntg.markup)  version,
+      (select max(id) from dict.markup)  version,
       decode(mkp.amnd_state, 'A','Y','C','N','E') is_active,
-      (select name from ntg.markup_type where id = markup_type_oid) markup_type
+      (select name from dict.markup_type where id = markup_type_oid) markup_type
       from markup mkp, airline air
       where air.amnd_state = 'A'
       and air.id = mkp.validating_carrier
@@ -338,7 +338,7 @@ end;
         );
     return v_results;
   exception when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'get_full', p_msg_type=>'UNHANDLED_ERROR', 
+      LOG_API.LOG_ADD(p_proc_name=>'get_full', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select,p_table=markup,p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
       RAISE_APPLICATION_ERROR(-20002,'select row into markup error. '||SQLERRM);
@@ -349,7 +349,8 @@ end;
 end;
 /
 
-grant execute on ntg.fwdr to ord ;
-grant execute on ntg.fwdr to blng ;
+grant execute on dict.fwdr to ord ;
+grant execute on dict.fwdr to blng ;
+grant execute on dict.fwdr to po_fwdr ;
 
 /

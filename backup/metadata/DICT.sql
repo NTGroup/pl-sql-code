@@ -97,8 +97,8 @@ ALTER TRIGGER dict.al_TRGR ENABLE;
    amnd_prev NUMBER(18,0), 
   name VARCHAR2(255), 
  nls_name VARCHAR2(255),
- code VARCHAR2(10),
- code_nls VARCHAR2(10),
+ iata VARCHAR2(10),
+ nls_iata VARCHAR2(10),
  ru number(1,0),
  t_doc_id	 number
    ) SEGMENT CREATION IMMEDIATE 
@@ -261,14 +261,13 @@ ALTER TRIGGER dict.geo_TRGR ENABLE;
 
 
 
-/* dict.log  */
+/* dict.loger  */
 
 
 --------------------------------------------------------
 --  DDL for Table 
 --------------------------------------------------------
-
-  CREATE TABLE dict.log 
+  CREATE TABLE dict.loger 
    (ID NUMBER, 
   amnd_date date,
    amnd_user VARCHAR2(50),
@@ -285,21 +284,21 @@ ALTER TRIGGER dict.geo_TRGR ENABLE;
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX dict.log_ID_IDX ON dict.log ("ID") 
+  CREATE INDEX dict.log_ID_IDX ON dict.loger ("ID") 
   TABLESPACE "USERS" ;
  
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE dict.log MODIFY ("ID" CONSTRAINT log_ID_NN NOT NULL ENABLE);
-  ALTER TABLE dict.log MODIFY (AMND_DATE CONSTRAINT "log_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE dict.log MODIFY (AMND_USER CONSTRAINT "log_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE dict.log MODIFY (AMND_STATE CONSTRAINT "log_AST_NN" NOT NULL ENABLE);
-ALTER TABLE dict.log  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
-ALTER TABLE dict.log  MODIFY (AMND_USER DEFAULT  on null  user );
-ALTER TABLE dict.log  MODIFY (AMND_STATE DEFAULT  on null  'A' );
-  ALTER TABLE dict.log ADD CONSTRAINT log_ID_PK PRIMARY KEY (ID)
+  ALTER TABLE dict.loger MODIFY ("ID" CONSTRAINT log_ID_NN NOT NULL ENABLE);
+  ALTER TABLE dict.loger MODIFY (AMND_DATE CONSTRAINT "log_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE dict.loger MODIFY (AMND_USER CONSTRAINT "log_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE dict.loger MODIFY (AMND_STATE CONSTRAINT "log_AST_NN" NOT NULL ENABLE);
+ALTER TABLE dict.loger  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE dict.loger  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE dict.loger  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE dict.loger ADD CONSTRAINT log_ID_PK PRIMARY KEY (ID)
   USING INDEX dict.log_ID_IDX ENABLE;
 
 
@@ -325,7 +324,7 @@ ALTER TABLE dict.log  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 CREATE OR REPLACE EDITIONABLE TRIGGER dict.log_TRGR 
 BEFORE
 INSERT
-ON dict.log
+ON dict.loger
 REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
@@ -336,9 +335,6 @@ end;
 ALTER TRIGGER dict.log_TRGR ENABLE;
 
 /
-
-
-
 
 /* dict.markup  */
 
@@ -585,6 +581,13 @@ grant select on dict.airplane to blng;
 grant select on dict.geo to blng;
 grant select on dict.markup to blng;
 grant select on dict.gds_nationality to blng;
+/*
+grant select on dict.airline to po_fwdr;
+grant select on dict.airplane to blng;
+grant select on dict.geo to blng;
+grant select on dict.markup to blng;
+grant select on dict.gds_nationality to blng;
+*/
 
 --Foreign keys between tables in different schemas
 grant references on dict.airline to ord;
