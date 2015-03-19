@@ -96,6 +96,8 @@ UPDATE BLNG.CLIENT SET IS_TESTER = 'N' where IS_TESTER is null;
 commit;
 /
 
+INSERT INTO "ORD"."POS_RULE" (CONTRACT_OID, AIRLINE_OID, BOOKING_POS, TICKETING_POS, STOCK, PRINTER) VALUES ('0', '1597', 'LH4H', 'NE7H', 'RU', '0F15BF');
+commit;
 
 @metadata/view.sql;
 @data/pkg/blng.blng_api.sql;
