@@ -76,6 +76,7 @@ DEFAULT TABLESPACE users
 TEMPORARY TABLESPACE temp
 QUOTA UNLIMITED ON users
 ACCOUNT LOCK ;
+GRANT create session TO dict;
 
 CREATE PLUGGABLE DATABASE ntg1 FROM ntg 
 --  PATH_PREFIX = '/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/ntg1/'

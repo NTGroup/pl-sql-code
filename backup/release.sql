@@ -106,9 +106,11 @@ TEMPORARY TABLESPACE temp
 QUOTA UNLIMITED ON users
 ACCOUNT LOCK ;
 
+GRANT create session TO dict;
 /
 
 @metadata/DICT.sql;
+
 /
 
 
@@ -264,7 +266,6 @@ grant select on ord.commission to dict;
 grant select on ord.commission_details to dict;
 grant select on ord.commission_template to dict;
 grant select on ord.pos_rule to dict;
-
 
 /
 
