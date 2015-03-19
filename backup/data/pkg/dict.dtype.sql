@@ -126,4 +126,5 @@ grant execute on dict.fwdr to blng;
 
 grant execute on dict.dtype to public;
 
+grant select on dict.geo to ntg;
 /
