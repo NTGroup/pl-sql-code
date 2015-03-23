@@ -233,7 +233,8 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                     p_passenger_type in  ntg.dtype.t_code default null,
                     p_fare_amount in  ntg.dtype.t_amount default null,
                     p_taxes_amount in  ntg.dtype.t_amount default null,
-                    p_service_fee_amount in  ntg.dtype.t_amount default null
+                    p_service_fee_amount in  ntg.dtype.t_amount default null,
+                    p_partner_fee_amount in  ntg.dtype.t_amount default null
                   )
   return ntg.dtype.t_id;
 
@@ -245,7 +246,8 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                           p_passenger_type in  ntg.dtype.t_code default null,
                           p_fare_amount in  ntg.dtype.t_amount default null,
                           p_taxes_amount in  ntg.dtype.t_amount default null,
-                          p_service_fee_amount in  ntg.dtype.t_amount default null
+                          p_service_fee_amount in  ntg.dtype.t_amount default null,
+                          p_partner_fee_amount in  ntg.dtype.t_amount default null
                       );
                     
   function ticket_get_info(   P_ID  in ntg.dtype.t_id default null,
@@ -1273,7 +1275,9 @@ END ORD_API;
                     p_passenger_type in  ntg.dtype.t_code default null,
                     p_fare_amount in  ntg.dtype.t_amount default null,
                     p_taxes_amount in  ntg.dtype.t_amount default null,
-                    p_service_fee_amount in  ntg.dtype.t_amount default null
+                    p_service_fee_amount in  ntg.dtype.t_amount default null,
+                    p_partner_fee_amount in  ntg.dtype.t_amount default null
+                    
                   )
   return ntg.dtype.t_id
   is
@@ -1288,6 +1292,7 @@ END ORD_API;
     v_obj_row.fare_amount:=  p_fare_amount;
     v_obj_row.taxes_amount:=  p_taxes_amount;
     v_obj_row.service_fee_amount:=  p_service_fee_amount;
+    v_obj_row.partner_fee_amount:=  p_partner_fee_amount;
 
     insert into ord.ticket values v_obj_row returning id into v_id;
     return v_id;
@@ -1307,7 +1312,8 @@ END ORD_API;
                           p_passenger_type in  ntg.dtype.t_code default null,
                           p_fare_amount in  ntg.dtype.t_amount default null,
                           p_taxes_amount in  ntg.dtype.t_amount default null,
-                          p_service_fee_amount in  ntg.dtype.t_amount default null
+                          p_service_fee_amount in  ntg.dtype.t_amount default null,
+                          p_partner_fee_amount in  ntg.dtype.t_amount default null
                       )
   is
     v_obj_row_new ticket%rowtype;
@@ -1324,7 +1330,6 @@ END ORD_API;
 
     v_obj_row_old.amnd_state:='I';
     v_obj_row_old.id:=null;
-    insert into ticket values v_obj_row_old;
 
 
     v_obj_row_new.amnd_date:=sysdate;
@@ -1335,16 +1340,19 @@ END ORD_API;
     v_obj_row_new.fare_amount := nvl(p_fare_amount,v_obj_row_new.fare_amount);
     v_obj_row_new.taxes_amount := nvl(p_taxes_amount,v_obj_row_new.taxes_amount);
     v_obj_row_new.service_fee_amount := nvl(p_service_fee_amount,v_obj_row_new.service_fee_amount);
+    v_obj_row_new.partner_fee_amount := nvl(p_partner_fee_amount,v_obj_row_new.partner_fee_amount);
 
-    if v_obj_row_new.pnr_locator = v_obj_row_old.pnr_locator
-      and v_obj_row_new.passenger_name = v_obj_row_old.passenger_name
-      and v_obj_row_new.passenger_type = v_obj_row_old.passenger_type
-      and v_obj_row_new.fare_amount = v_obj_row_old.fare_amount
-      and v_obj_row_new.taxes_amount = v_obj_row_old.taxes_amount
-      and v_obj_row_new.service_fee_amount = v_obj_row_old.service_fee_amount
+    if nvl(v_obj_row_new.pnr_locator,'X') = nvl(v_obj_row_old.pnr_locator,'X')
+      and nvl(v_obj_row_new.passenger_name,'X') = nvl(v_obj_row_old.passenger_name,'X')
+      and nvl(v_obj_row_new.passenger_type,'X') = nvl(v_obj_row_old.passenger_type,'X')
+      and nvl(v_obj_row_new.fare_amount,-1) = nvl(v_obj_row_old.fare_amount,-1)
+      and nvl(v_obj_row_new.taxes_amount,-1) = nvl(v_obj_row_old.taxes_amount,-1)
+      and nvl(v_obj_row_new.service_fee_amount,-1) = nvl(v_obj_row_old.service_fee_amount,-1)
+      and nvl(v_obj_row_new.partner_fee_amount,-1) = nvl(v_obj_row_old.partner_fee_amount,-1)
       then return;
     end if;
 
+    insert into ticket values v_obj_row_old;
     update ticket set row = v_obj_row_new where id = v_obj_row_new.id;
   exception 
     when NO_DATA_FOUND then 

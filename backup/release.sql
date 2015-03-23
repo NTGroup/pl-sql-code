@@ -1,4 +1,6 @@
 
+alter table ord.ticket add partner_FEE_AMOUNT NUMBER(20,2);
+
 
 @metadata/view.sql;
 @data/pkg/blng.blng_api.sql;

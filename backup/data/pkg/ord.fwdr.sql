@@ -563,7 +563,9 @@ $TODO: there must be check for users with ISSUES permission
                               p_passenger_type      => i.p_type,
                               p_fare_amount         => i.p_fare_amount,
                               p_taxes_amount        => i.p_tax_amount,
-                              p_service_fee_amount  => i.p_markup_base
+                              p_service_fee_amount  => i.p_markup_base,
+                              p_partner_fee_amount  => i.p_markup_partner
+                              
                             );    
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'3',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
@@ -581,7 +583,8 @@ $TODO: there must be check for users with ISSUES permission
                               p_passenger_type      => i.p_type,
                               p_fare_amount         => i.p_fare_amount,
                               p_taxes_amount        => i.p_tax_amount,
-                              p_service_fee_amount  => i.p_markup_base
+                              p_service_fee_amount  => i.p_markup_base,
+                              p_partner_fee_amount  => i.p_markup_partner
                             );
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'5',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,

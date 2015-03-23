@@ -489,7 +489,8 @@ begin
     passenger_type varchar2(10),
     fare_amount number(20,2),
     taxes_amount number(20,2),
-    service_fee_amount number(20,2)   
+    service_fee_amount number(20,2),
+    partner_fee_amount number(20,2)   
    ) SEGMENT CREATION IMMEDIATE
   TABLESPACE "USERS" ;
 --------------------------------------------------------
