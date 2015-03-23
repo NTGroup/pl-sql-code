@@ -124,6 +124,18 @@ $obj_return: SYS_REFCURSOR[all v_statemen fields]
   return blng.v_account%rowtype;
 
 
+/*
+$obj_type: function
+$obj_name: contract_get
+$obj_desc: return list of contract with company
+$obj_param: p_contract: contract id
+$obj_return: SYS_REFCURSOR[COMPANY_ID, CONTRACT_ID, COMPANY_NAME, CONTRACT_NUMBER]
+*/
+  function contract_get(
+                        p_contract  in ntg.dtype.t_id default null
+                        )
+  return SYS_REFCURSOR;
+
 
 end;
 /
@@ -676,6 +688,39 @@ create  or replace package BODY blng.fwdr as
     RAISE_APPLICATION_ERROR(-20002,'insert row into client error. '||SQLERRM);
     return null;
   end v_account_get_info_r;
+
+
+  function contract_get(
+                        p_contract  in ntg.dtype.t_id default null
+                        )
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    v_contract ntg.dtype.t_id;
+  begin
+      OPEN v_results FOR
+  
+        select 
+        company.id company_id,
+        contract.id contract_id,
+        company.name company_name,
+        contract.contract_number contract_number
+        from blng.contract, blng.company
+        where contract.amnd_state = 'A'
+        and company.amnd_state = 'A'
+        and company.id = contract.company_oid
+        and contract.id = nvl(p_contract, contract.id)
+        ;
+        
+    return v_results;
+  exception when others then 
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'contract_get', p_msg_type=>'UNHANDLED_ERROR', 
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+    RAISE_APPLICATION_ERROR(-20002,'select row into contract error. '||SQLERRM);
+    return null;
+  end;
+
 
 
 end;
