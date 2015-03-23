@@ -232,8 +232,8 @@ order by 2;
         else ''
         end rule_amount_measure,
         cmn.priority,
-        to_char(cmn.date_from,'yyyy-mm-dd') rule_life_from,
-        to_char(cmn.date_to,'yyyy-mm-dd') rule_life_to,
+        to_char(cmn.date_from + ntg.fwdr.utc_offset_mow / 24 ,'yyyy-mm-dd') rule_life_from,
+        to_char(cmn.date_to + ntg.fwdr.utc_offset_mow / 24 ,'yyyy-mm-dd') rule_life_to,
         dtl.condition_oid,
         dtl.template_type_oid,
         nvl(dtl.template_type,'default') template_type,

@@ -1,8 +1,8 @@
-  CREATE OR REPLACE PACKAGE "NTG"."DTYPE" as 
+  CREATE OR REPLACE PACKAGE "DICT"."DTYPE" as 
 
   
 /*
- pkg: NTG.DTYPE
+ pkg: dict.DTYPE
  */
 
 
@@ -111,4 +111,20 @@ $obj_desc: -20005
 
 end dtype;
 
+/
+
+grant execute on dict.dtype to ord;
+grant execute on dict.dict_api to ord;
+grant execute on dict.log_api to ord;
+grant execute on dict.fwdr to ord;
+
+grant execute on dict.dtype to blng;
+grant execute on dict.dict_api to blng;
+grant execute on dict.log_api to blng;
+grant execute on dict.fwdr to blng;
+
+
+grant execute on dict.dtype to public;
+
+grant select on dict.geo to ntg;
 /

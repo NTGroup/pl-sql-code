@@ -260,7 +260,7 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                           )
   return ticket%rowtype;
 
-  function issue_rule_add( 
+  function pos_rule_add( 
                     p_contract in ntg.dtype.t_id default null,
                     p_airline in ntg.dtype.t_id default null,
                     p_booking_pos in ntg.dtype.t_code default null,
@@ -270,7 +270,7 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                   )
   return ntg.dtype.t_id;
 
-  procedure issue_rule_edit(  P_ID  in ntg.dtype.t_id default null,
+  procedure pos_rule_edit(  P_ID  in ntg.dtype.t_id default null,
                               p_contract in ntg.dtype.t_id default null,
                               p_airline in ntg.dtype.t_id default null,
                               p_booking_pos in ntg.dtype.t_code default null,
@@ -280,17 +280,17 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                               p_status in  ntg.dtype.t_status default null
                       );
 
-  function issue_rule_get_info(   P_ID  in ntg.dtype.t_id default null,
+  function pos_rule_get_info(   P_ID  in ntg.dtype.t_id default null,
                                   p_contract in ntg.dtype.t_id default null,
                                   p_airline in ntg.dtype.t_id default null
                           )
   return SYS_REFCURSOR;
 
-  function issue_rule_get_info_r (    P_ID  in ntg.dtype.t_id default null,
+  function pos_rule_get_info_r (    P_ID  in ntg.dtype.t_id default null,
                                       p_contract in ntg.dtype.t_id default null,
                                       p_airline in ntg.dtype.t_id default null
                           )
-  return issue_rule%rowtype;
+  return pos_rule%rowtype;
 
 
   
@@ -1418,7 +1418,7 @@ END ORD_API;
 
 
 
-  function issue_rule_add( 
+  function pos_rule_add( 
                     p_contract in ntg.dtype.t_id default null,
                     p_airline in ntg.dtype.t_id default null,
                     p_booking_pos in ntg.dtype.t_code default null,
@@ -1428,7 +1428,7 @@ END ORD_API;
                   )
   return ntg.dtype.t_id
   is
-    v_obj_row issue_rule%rowtype;
+    v_obj_row pos_rule%rowtype;
     v_id ntg.dtype.t_id;
   begin
     v_obj_row.contract_oid:=  p_contract;
@@ -1438,17 +1438,17 @@ END ORD_API;
     v_obj_row.stock:=  p_stock;
     v_obj_row.printer:=  p_printer;
 
-    insert into ord.issue_rule values v_obj_row returning id into v_id;
+    insert into ord.pos_rule values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'issue_rule_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=issue_rule,p_date='
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'pos_rule_add', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=pos_rule,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'insert row into issue_rule error. '||SQLERRM);
+    RAISE_APPLICATION_ERROR(-20002,'insert row into pos_rule error. '||SQLERRM);
   end;
 
 
-  procedure issue_rule_edit(  P_ID  in ntg.dtype.t_id default null,
+  procedure pos_rule_edit(  P_ID  in ntg.dtype.t_id default null,
                               p_contract in ntg.dtype.t_id default null,
                               p_airline in ntg.dtype.t_id default null,
                               p_booking_pos in ntg.dtype.t_code default null,
@@ -1458,12 +1458,12 @@ END ORD_API;
                               p_status in  ntg.dtype.t_status default null
                       )
   is
-    v_obj_row_new issue_rule%rowtype;
-    v_obj_row_old issue_rule%rowtype;
+    v_obj_row_new pos_rule%rowtype;
+    v_obj_row_old pos_rule%rowtype;
   begin
     if p_id is null and p_contract is null and p_airline is null then raise NO_DATA_FOUND; end if;   
   
-    select * into v_obj_row_old from issue_rule 
+    select * into v_obj_row_old from pos_rule 
         where id = nvl(p_id,id)
         and contract_oid = nvl(p_contract,contract_oid)
         and airline_oid = nvl(p_airline,airline_oid)
@@ -1495,23 +1495,23 @@ END ORD_API;
 
     v_obj_row_old.amnd_state:='I';
     v_obj_row_old.id:=null;
-    insert into issue_rule values v_obj_row_old;
+    insert into pos_rule values v_obj_row_old;
 
-    update issue_rule set row = v_obj_row_new where id = v_obj_row_new.id;
+    update pos_rule set row = v_obj_row_new where id = v_obj_row_new.id;
   exception 
     when NO_DATA_FOUND then 
       raise NO_DATA_FOUND;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'issue_rule_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=issue_rule,p_date='
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'pos_rule_edit', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=pos_rule,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'update row into issue_rule error. '||SQLERRM);
+      RAISE_APPLICATION_ERROR(-20002,'update row into pos_rule error. '||SQLERRM);
   end;
 
 
-  function issue_rule_get_info(   P_ID  in ntg.dtype.t_id default null,
+  function pos_rule_get_info(   P_ID  in ntg.dtype.t_id default null,
                                   p_contract in ntg.dtype.t_id default null,
                                   p_airline in ntg.dtype.t_id default null
                           )
@@ -1522,7 +1522,7 @@ END ORD_API;
       OPEN v_results FOR
         SELECT
         *
-        from ord.issue_rule 
+        from ord.pos_rule 
         where id = nvl(p_id,id)
         and contract_oid = nvl(p_contract,contract_oid)
         and airline_oid = nvl(p_airline,airline_oid)
@@ -1530,26 +1530,26 @@ END ORD_API;
         order by id;
     return v_results;
   exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'issue_rule_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=issue_rule,p_date='
+    NTG.LOG_API.LOG_ADD(p_proc_name=>'pos_rule_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=pos_rule,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into issue_rule error. '||SQLERRM);
+    RAISE_APPLICATION_ERROR(-20002,'select row into pos_rule error. '||SQLERRM);
   end;
 
 
-  function issue_rule_get_info_r (    P_ID  in ntg.dtype.t_id default null,
+  function pos_rule_get_info_r (    P_ID  in ntg.dtype.t_id default null,
                                       p_contract in ntg.dtype.t_id default null,
                                       p_airline in ntg.dtype.t_id default null
                           )
-  return issue_rule%rowtype
+  return pos_rule%rowtype
   is
-    r_obj issue_rule%rowtype;
+    r_obj pos_rule%rowtype;
   begin
     if p_id is null and p_contract is null and p_airline is null then raise NO_DATA_FOUND; end if;   
     
     SELECT
     * into r_obj
-    from ord.issue_rule 
+    from ord.pos_rule 
     where id = nvl(p_id,id)
     and contract_oid = nvl(p_contract,contract_oid)
     and airline_oid = nvl(p_airline,airline_oid)
@@ -1562,10 +1562,10 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'issue_rule_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=issue_rule,p_date='
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'pos_rule_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=pos_rule,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'select row into issue_rule error. '||SQLERRM);
+      RAISE_APPLICATION_ERROR(-20002,'select row into pos_rule error. '||SQLERRM);
   end;
 
 

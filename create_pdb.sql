@@ -67,6 +67,17 @@ TEMPORARY TABLESPACE temp
 QUOTA UNLIMITED ON users
 /*ACCOUNT UNLOCK*/ ;
 
+/* create new user shcheme inside pdb */
+create user dict identified by DICTasdf1234;
+     
+/* inside pdb */ 
+alter user dict 
+DEFAULT TABLESPACE users
+TEMPORARY TABLESPACE temp
+QUOTA UNLIMITED ON users
+ACCOUNT LOCK ;
+GRANT create session TO dict;
+
 CREATE PLUGGABLE DATABASE ntg1 FROM ntg 
 --  PATH_PREFIX = '/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/ntg1/'
 --  FILE_NAME_CONVERT = ('/home/oracle/app/oracle/oradata/ORCL/datafile/pdb/', '/home/oracle/app/oracle/oradata/ORCL/datafile/pdb')

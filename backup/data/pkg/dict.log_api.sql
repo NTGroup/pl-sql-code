@@ -2,14 +2,14 @@
 --  DDL for Package LOG_API
 --------------------------------------------------------
 
-  CREATE OR REPLACE PACKAGE "NTG"."LOG_API" as 
+  CREATE OR REPLACE PACKAGE "DICT"."LOG_API" as 
 
  /*
  
- pkg: NTG.LOG_API 
+ pkg: DICT.LOG_API 
  
  */
-  
+
 
   
 /*
@@ -41,7 +41,7 @@ end log_api;
 --  DDL for Package Body LOG_API
 --------------------------------------------------------
 
-  CREATE OR REPLACE PACKAGE BODY "NTG"."LOG_API" as
+  CREATE OR REPLACE PACKAGE BODY "DICT"."LOG_API" as
 
   procedure log_add(
     P_PROC_NAME   in dtype.t_long_code default null,
@@ -51,11 +51,12 @@ end log_api;
     P_ALERT_LEVEL in dtype.t_id default 0)
   is
     pragma autonomous_transaction;
-    v_log_row ntg.log%rowtype;
+    v_log_row loger%rowtype;
     v_id dtype.t_id;
   begin
-    insert into ntg.log values v_log_row returning id into v_id;
-    update ntg.log set amnd_prev = v_id, amnd_date = sysdate, amnd_user = user, 
+  v_log_row.msg := p_msg;
+    insert into loger values v_log_row returning id into v_id;
+    update loger set amnd_prev = v_id, amnd_date = sysdate, amnd_user = user, 
       amnd_state = 'A',
       PROC_NAME = P_PROC_NAME,
       MSG = P_MSG,

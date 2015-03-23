@@ -1368,14 +1368,14 @@ end;
 /
 
 
-/* issue_rule */
+/* pos_rule */
 
 
 --------------------------------------------------------
 --  DDL for Table MARKUP
 --------------------------------------------------------
 
-  CREATE TABLE ord.issue_rule 
+  CREATE TABLE ord.pos_rule 
    (	ID NUMBER(18,0), 
    amnd_date date,
    amnd_user VARCHAR2(50),
@@ -1393,36 +1393,36 @@ end;
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX ord.isr_ID_IDX ON ord.issue_rule ("ID") 
+  CREATE INDEX ord.posr_ID_IDX ON ord.pos_rule ("ID") 
   TABLESPACE "USERS" ;
   
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE ord.issue_rule MODIFY ("ID" CONSTRAINT isr_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ord.issue_rule MODIFY (AMND_DATE CONSTRAINT "isr_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.issue_rule MODIFY (AMND_USER CONSTRAINT "isr_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.issue_rule MODIFY (AMND_STATE CONSTRAINT "isr_AST_NN" NOT NULL ENABLE);
-ALTER TABLE ord.issue_rule  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
-ALTER TABLE ord.issue_rule  MODIFY (AMND_USER DEFAULT  on null  user );
-ALTER TABLE ord.issue_rule  MODIFY (AMND_STATE DEFAULT  on null  'A' );
-  ALTER TABLE ord.issue_rule ADD CONSTRAINT isr_ID_PK PRIMARY KEY (ID)
-  USING INDEX ord.isr_ID_IDX ENABLE;
+  ALTER TABLE ord.pos_rule MODIFY ("ID" CONSTRAINT posr_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.pos_rule MODIFY (AMND_DATE CONSTRAINT "posr_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.pos_rule MODIFY (AMND_USER CONSTRAINT "posr_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.pos_rule MODIFY (AMND_STATE CONSTRAINT "posr_AST_NN" NOT NULL ENABLE);
+ALTER TABLE ord.pos_rule  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE ord.pos_rule  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE ord.pos_rule  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE ord.pos_rule ADD CONSTRAINT posr_ID_PK PRIMARY KEY (ID)
+  USING INDEX ord.posr_ID_IDX ENABLE;
  
  
   
-  ALTER TABLE ord.issue_rule ADD CONSTRAINT isr_cntr_OID_FK FOREIGN KEY (contract_oid)
+  ALTER TABLE ord.pos_rule ADD CONSTRAINT posr_cntr_OID_FK FOREIGN KEY (contract_oid)
   REFERENCES blng.contract ("ID") ENABLE;
 
-  ALTER TABLE ord.issue_rule ADD CONSTRAINT isr_al_OID_FK FOREIGN KEY (airline_oid)
+  ALTER TABLE ord.pos_rule ADD CONSTRAINT posr_al_OID_FK FOREIGN KEY (airline_oid)
   REFERENCES ntg.airline ("ID") ENABLE;
 
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
 --------------------------------------------------------
  
-  create sequence  ORD.isr_SEQ
+  create sequence  ORD.posr_SEQ
   increment by 1
   start with 1
   nomaxvalue
@@ -1433,19 +1433,19 @@ ALTER TABLE ord.issue_rule  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 --  DDL for Trigger MKP_TRGR
 --------------------------------------------------------
 
-CREATE OR REPLACE EDITIONABLE TRIGGER ord.isr_TRGR 
+CREATE OR REPLACE EDITIONABLE TRIGGER ord.posr_TRGR 
 BEFORE
 INSERT
-ON ord.issue_rule
+ON ord.pos_rule
 REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
-  select isr_SEQ.NEXTVAL into :new.id from dual; 
+  select posr_SEQ.NEXTVAL into :new.id from dual; 
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
 /
 
-ALTER TRIGGER ord.isr_TRGR ENABLE;
+ALTER TRIGGER ord.posr_TRGR ENABLE;
 
 
 /
@@ -1458,7 +1458,7 @@ CREATE bitmap INDEX ord.ct_AS_IDX ON ord.commission_template (amnd_state) TABLES
 CREATE bitmap INDEX ord.iav_AS_IDX ON ord.item_avia (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX ord.iavs_AS_IDX ON ord.item_avia_status (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX ord.tkt_AS_IDX ON ord.ticket (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX ord.isr_AS_IDX ON ord.issue_rule (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX ord.posr_AS_IDX ON ord.pos_rule (amnd_state) TABLESPACE "USERS" ;
 
 --------------------------------------------------------
 --  DDL for Grants
@@ -1472,7 +1472,7 @@ grant select on ord.item_avia_status to blng;
 grant select on ord.commission to blng;
 grant select on ord.commission_details to blng;
 grant select on ord.commission_template to blng;
-grant select on ord.issue_rule to blng;
+grant select on ord.pos_rule to blng;
 
 grant select on ord.bill to ntg;
 grant select on ord.ord to ntg;
@@ -1482,7 +1482,17 @@ grant select on ord.item_avia_status to ntg;
 grant select on ord.commission to ntg;
 grant select on ord.commission_details to ntg;
 grant select on ord.commission_template to ntg;
-grant select on ord.issue_rule to ntg;
+grant select on ord.pos_rule to ntg;
+
+grant select on ord.bill to dict;
+grant select on ord.ord to dict;
+grant select on ord.ticket to dict;
+grant select on ord.item_avia to dict;
+grant select on ord.item_avia_status to dict;
+grant select on ord.commission to dict;
+grant select on ord.commission_details to dict;
+grant select on ord.commission_template to dict;
+grant select on ord.pos_rule to dict;
 
 --Foreign keys between tables in different schemas
 grant references on ord.bill to blng;
@@ -1493,7 +1503,7 @@ grant references on ord.item_avia_status to blng;
 grant references on ord.commission to blng;
 grant references on ord.commission_details to blng;
 grant references on ord.commission_template to blng;
-grant references on ord.issue_rule to blng;
+grant references on ord.pos_rule to blng;
 
 grant references on ord.bill to ntg;
 grant references on ord.ord to ntg;
@@ -1503,5 +1513,14 @@ grant references on ord.item_avia_status to ntg;
 grant references on ord.commission to ntg;
 grant references on ord.commission_details to ntg;
 grant references on ord.commission_template to ntg;
-grant references on ord.issue_rule to ntg;
+grant references on ord.pos_rule to ntg;
 
+grant references on ord.bill to dict;
+grant references on ord.ord to dict;
+grant references on ord.ticket to dict;
+grant references on ord.item_avia to dict;
+grant references on ord.item_avia_status to dict;
+grant references on ord.commission to dict;
+grant references on ord.commission_details to dict;
+grant references on ord.commission_template to dict;
+grant references on ord.pos_rule to dict;

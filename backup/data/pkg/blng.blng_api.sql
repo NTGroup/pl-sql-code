@@ -39,7 +39,8 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                   p_nationality in ntg.dtype.t_code default null, 
                   p_email in ntg.dtype.t_name default null,
                   p_phone in ntg.dtype.t_name default null,
-                  p_utc_offset in ntg.dtype.t_id default null
+                  p_utc_offset in ntg.dtype.t_id default null,
+                        p_is_tester in ntg.dtype.t_status default null
                   )
   return ntg.dtype.t_id;
 
@@ -52,7 +53,8 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                           p_nationality in ntg.dtype.t_code default null, 
                           p_email in ntg.dtype.t_name default null,
                   p_phone in ntg.dtype.t_name default null,
-                  p_utc_offset in ntg.dtype.t_id default null
+                  p_utc_offset in ntg.dtype.t_id default null,
+                        p_is_tester in ntg.dtype.t_status default null
   );
 
   function client_get_info( p_id in ntg.dtype.t_id  default null,
@@ -64,7 +66,8 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                             p_nationality in ntg.dtype.t_code default null, 
                             p_email in ntg.dtype.t_name default null,
                   p_phone in ntg.dtype.t_name default null,
-                  p_utc_offset in ntg.dtype.t_id default null
+                  p_utc_offset in ntg.dtype.t_id default null,
+                        p_is_tester in ntg.dtype.t_status default null
   )
   return SYS_REFCURSOR;
 
@@ -77,7 +80,8 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                                 p_nationality in ntg.dtype.t_code default null, 
                                 p_email in ntg.dtype.t_name default null,
                   p_phone in ntg.dtype.t_name default null,
-                  p_utc_offset in ntg.dtype.t_id default null
+                  p_utc_offset in ntg.dtype.t_id default null,
+                        p_is_tester in ntg.dtype.t_status default null
                             )
   return blng.client%rowtype;
 
@@ -352,21 +356,21 @@ $obj_param: p_contract: contract id
   return blng.delay%rowtype;
   
   procedure domain_add( p_name in ntg.dtype.t_name default null,
-                      p_company in ntg.dtype.t_id default null,
+                      p_contract in ntg.dtype.t_id default null,
 --                      p_status in ntg.dtype.t_id default null,
                       p_is_domain in ntg.dtype.t_status default null
                     );
 
   procedure domain_edit ( p_id in ntg.dtype.t_id default null,
                         p_name in ntg.dtype.t_name default null,
-                      p_company in ntg.dtype.t_id default null,
+                      p_contract in ntg.dtype.t_id default null,
                       p_status in ntg.dtype.t_status default null,
                       p_is_domain in ntg.dtype.t_status default null
                       );
 
   function domain_get_info (p_id in ntg.dtype.t_id default null,
                             p_name in ntg.dtype.t_name default null,
-                          p_company in ntg.dtype.t_id default null,
+                          p_contract in ntg.dtype.t_id default null,
                           p_status in ntg.dtype.t_status default null,
                           p_is_domain in ntg.dtype.t_status default null
                             
@@ -375,7 +379,7 @@ $obj_param: p_contract: contract id
 
   function domain_get_info_r (p_id in ntg.dtype.t_id default null,
                             p_name in ntg.dtype.t_name default null,
-                          p_company in ntg.dtype.t_id default null,
+                          p_contract in ntg.dtype.t_id default null,
                           p_status in ntg.dtype.t_status default null,
                           p_is_domain in ntg.dtype.t_status default null
                             
@@ -553,7 +557,8 @@ end blng_api;
                         p_nationality in ntg.dtype.t_code default null, 
                         p_email in ntg.dtype.t_name default null,
                         p_phone in ntg.dtype.t_name default null,
-                  p_utc_offset in ntg.dtype.t_id default null
+                        p_utc_offset in ntg.dtype.t_id default null,
+                        p_is_tester in ntg.dtype.t_status default null
                         )
   return ntg.dtype.t_id
   is
@@ -569,6 +574,7 @@ end blng_api;
     v_obj_row.nationality := p_nationality;
     v_obj_row.gender := upper(p_gender);
     v_obj_row.utc_offset := nvl(p_utc_offset,3);
+    v_obj_row.is_tester := nvl(p_is_tester,'N');
     v_obj_row.status := 'A';
     insert into blng.client values v_obj_row returning id into v_id;
 
@@ -589,7 +595,8 @@ end blng_api;
                         p_nationality in ntg.dtype.t_code default null, 
                         p_email in ntg.dtype.t_name default null,
                         p_phone in ntg.dtype.t_name default null,
-                  p_utc_offset in ntg.dtype.t_id default null)
+                        p_utc_offset in ntg.dtype.t_id default null,
+                        p_is_tester in ntg.dtype.t_status default null)
   is
     v_obj_row_new blng.client%rowtype;
     v_obj_row_old blng.client%rowtype;
@@ -608,6 +615,7 @@ end blng_api;
     v_obj_row_new.email:=nvl(lower(p_email), v_obj_row_new.email);
     v_obj_row_new.phone:=nvl(lower(p_phone), v_obj_row_new.phone);
     v_obj_row_new.utc_offset:=nvl(p_utc_offset, v_obj_row_new.utc_offset);
+    v_obj_row_new.is_tester:=nvl(p_is_tester, v_obj_row_new.is_tester);
     --v_obj_row_new.amnd_user:=null;
     
     if 
@@ -619,6 +627,7 @@ end blng_api;
       nvl(v_obj_row_new.nationality,'X') = nvl(v_obj_row_old.nationality,'X') and
       nvl(v_obj_row_new.email,'X') = nvl(v_obj_row_old.email,'X') and
       v_obj_row_new.utc_offset = v_obj_row_old.utc_offset
+      and v_obj_row_new.is_tester = v_obj_row_old.is_tester
 
     then return; 
     else     
@@ -651,7 +660,8 @@ end blng_api;
                         p_nationality in ntg.dtype.t_code default null, 
                         p_email in ntg.dtype.t_name default null,
                         p_phone in ntg.dtype.t_name default null,
-                  p_utc_offset in ntg.dtype.t_id default null)
+                        p_utc_offset in ntg.dtype.t_id default null,
+                        p_is_tester in ntg.dtype.t_status default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
@@ -687,7 +697,8 @@ end blng_api;
                         p_nationality in ntg.dtype.t_code default null, 
                         p_email in ntg.dtype.t_name default null,
                         p_phone in ntg.dtype.t_name default null,
-                  p_utc_offset in ntg.dtype.t_id default null
+                        p_utc_offset in ntg.dtype.t_id default null,
+                        p_is_tester in ntg.dtype.t_status default null
                             )
   return blng.client%rowtype
   is
@@ -2040,7 +2051,7 @@ $TODO: all this nullable fields are bad. document_get_info
 
 
   procedure domain_add( p_name in ntg.dtype.t_name default null,
-                      p_company in ntg.dtype.t_id default null,
+                      p_contract in ntg.dtype.t_id default null,
 --                      p_status in ntg.dtype.t_id default null,
                       p_is_domain in ntg.dtype.t_status default null
                     )
@@ -2049,7 +2060,7 @@ $TODO: all this nullable fields are bad. document_get_info
     v_id ntg.dtype.t_id;
   begin
     v_obj_row.name := p_name;
-    v_obj_row.company_oid := p_company;
+    v_obj_row.contract_oid := p_contract;
     v_obj_row.is_domain := p_is_domain;
     v_obj_row.status := 'A';
     insert into blng.domain values v_obj_row;
@@ -2063,7 +2074,7 @@ $TODO: all this nullable fields are bad. document_get_info
 
   procedure domain_edit ( p_id in ntg.dtype.t_id default null,
                         p_name in ntg.dtype.t_name default null,
-                      p_company in ntg.dtype.t_id default null,
+                      p_contract in ntg.dtype.t_id default null,
                       p_status in ntg.dtype.t_status default null,
                       p_is_domain in ntg.dtype.t_status default null
                       )
@@ -2086,7 +2097,7 @@ $TODO: all this nullable fields are bad. document_get_info
     v_obj_row_new.amnd_date:=sysdate;
     v_obj_row_new.amnd_user:=user;
     v_obj_row_new.name:=nvl(p_name, v_obj_row_new.name);
-    v_obj_row_new.company_oid := nvl(p_company, v_obj_row_new.company_oid);
+    v_obj_row_new.contract_oid := nvl(p_contract, v_obj_row_new.contract_oid);
     v_obj_row_new.is_domain := nvl(p_is_domain, v_obj_row_new.is_domain);
 
     if p_status in ('C') then v_obj_row_new.amnd_state :='C'; v_obj_row_new.status :='C'; end if;
@@ -2111,7 +2122,7 @@ $TODO: all this nullable fields are bad. document_get_info
 
   function domain_get_info (p_id in ntg.dtype.t_id default null,
                             p_name in ntg.dtype.t_name default null,
-                          p_company in ntg.dtype.t_id default null,
+                          p_contract in ntg.dtype.t_id default null,
                           p_status in ntg.dtype.t_status default null,
                           p_is_domain in ntg.dtype.t_status default null
                             
@@ -2125,7 +2136,7 @@ $TODO: all this nullable fields are bad. document_get_info
       *
       from blng.domain
       where id = nvl(p_id,id)
-      and company_oid = nvl(p_company,company_oid)
+      and contract_oid = nvl(p_contract,contract_oid)
       and name = nvl(p_name,name)
       and status = nvl(p_status,'A')
       and is_domain = nvl(p_is_domain,is_domain)
@@ -2145,7 +2156,7 @@ $TODO: all this nullable fields are bad. document_get_info
 
   function domain_get_info_r (p_id in ntg.dtype.t_id default null,
                             p_name in ntg.dtype.t_name default null,
-                          p_company in ntg.dtype.t_id default null,
+                          p_contract in ntg.dtype.t_id default null,
                           p_status in ntg.dtype.t_status default null,
                           p_is_domain in ntg.dtype.t_status default null
                             

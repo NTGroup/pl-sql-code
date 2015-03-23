@@ -44,7 +44,7 @@ $obj_param: p_user: email
 $obj_return: SYS_REFCURSOR[CLIENT_ID, LAST_NAME, FIRST_NAME, EMAIL, PHONE, --TENANT_ID, 
 $obj_return: BIRTH_DATE, GENDER, NATIONALITY, NLS_NATIONALITY, DOC_ID, DOC_EXPIRY_DATE, 
 $obj_return: DOC_NUMBER, DOC_LAST_NAME, DOC_FIRST_NAME, DOC_OWNER, DOC_GENDER, 
-$obj_return: DOC_BIRTH_DATE, DOC_NATIONALITY, DOC_NLS_NATIONALITY, DOC_PHONE, COMPANY_NAME]
+$obj_return: DOC_BIRTH_DATE, DOC_NATIONALITY, DOC_NLS_NATIONALITY, DOC_PHONE, COMPANY_NAME,is_tester]
 */
   function whoami(p_user in ntg.dtype.t_name)
   return SYS_REFCURSOR;
@@ -159,20 +159,21 @@ create  or replace package BODY blng.fwdr as
     exception 
       when NO_DATA_FOUND then
         begin
-          r_domain:=blng.blng_api.domain_get_info_r(p_name => REGEXP_SUBSTR ( lower(p_email), '[^@]*$' ));
+--dbms_output.put_line(sysdate||'1');
+          r_domain:=blng.blng_api.domain_get_info_r(p_name => lower(p_email) );
+          blng.blng_api.domain_edit(p_id=>r_domain.id, p_status=>'C' );                
         exception 
           when NO_DATA_FOUND then
             begin
---dbms_output.put_line(sysdate||'1');
-              r_domain:=blng.blng_api.domain_get_info_r(p_name => lower(p_email) );
-              blng.blng_api.domain_edit(p_id=>r_domain.id, p_status=>'C' );                
 --dbms_output.put_line(sysdate||'2');
+              r_domain:=blng.blng_api.domain_get_info_r(p_name => REGEXP_SUBSTR ( lower(p_email), '[^@]*$' ));
             exception when NO_DATA_FOUND then raise;
             end;
         end;
 --dbms_output.put_line(sysdate||'3');
-        r_company:=blng.blng_api.company_get_info_r(p_id=>r_domain.company_oid);        
-        r_contract:=blng.blng_api.contract_get_info_r(p_company=>r_company.id);
+        r_contract:=blng.blng_api.contract_get_info_r(p_id=>r_domain.contract_oid);
+        r_company:=blng.blng_api.company_get_info_r(p_id=>r_contract.company_oid);  
+
         v_contract:=r_contract.id;
 --dbms_output.put_line(sysdate||'4');
         select count(*) into v_client_count from blng.client where amnd_state = 'A' and company_oid = r_company.id and amnd_date > sysdate-1/24/60;
@@ -281,7 +282,8 @@ create  or replace package BODY blng.fwdr as
       to_char(cld.birth_date,'yyyy-mm-dd') doc_birth_date,
       cld.nationality doc_nationality,
       ntg.ntg_api.gds_nationality_get_info_name(cld.nationality) doc_nls_nationality,cld.phone doc_phone,
-      company.name company_name
+      company.name company_name,
+      clt.is_tester
       from blng.client clt, blng.client_data cld, blng.company
       where 
       clt.amnd_state = 'A' 
