@@ -468,8 +468,8 @@ create  or replace package BODY blng.fwdr as
         where contract_id = v_contract
         order by trans_date desc 
       )
-      where /*rn >= p_row_count*(p_page_number-1)+1 -- p_row_count*(p_page_number-1)+1
-      and*/ rn <= case  when p_row_count=0 and p_page_number=1 then rn
+      where rn >= p_row_count*(p_page_number-1)+1 -- p_row_count*(p_page_number-1)+1
+      and rn <= case  when p_row_count=0 and p_page_number=1 then rn
                       when p_row_count*p_page_number is null then 0
                       else p_row_count*p_page_number
                 end -- p_row_count*p_page_number

@@ -309,11 +309,20 @@ $obj_return: SYS_REFCURSOR[res:true/false]
 /*
 $obj_type: function
 $obj_name: commission_template_list
-$obj_desc: p_is_contract_type: if 'Y' then return all contract_types else all template_types
-$obj_param: p_data: data for update. format json[AIRLINE_ID, CONTRACT_ID, RULE_ID, 
+$obj_desc: return all commission templates
+$obj_param: p_is_contract_type: if 'Y' then return all contract_types else all template_types
 $obj_return: SYS_REFCURSOR[ID, TEMPLATE_TYPE, PRIORITY, DETAILS, IS_CONTRACT_TYPE, NAME, NLS_NAME, IS_VALUE]
 */  
   function commission_template_list(p_is_contract_type in ntg.dtype.t_status default null)
+  return SYS_REFCURSOR;
+
+/*
+$obj_type: function
+$obj_name: bill_import_list
+$obj_desc: return all bills info for import into 1C
+$obj_return: SYS_REFCURSOR[BILL_OID, ITEM, IS_NDS, FLIGHT_FROM, FLIGHT_TO, FARE_AMOUNT, CONTRACT_NUMBER, PASSENGER_NAME]
+*/  
+  function bill_import_list
   return SYS_REFCURSOR;
 
 
@@ -1606,6 +1615,66 @@ $TODO: there must be check for users with ISSUES permission
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select,p_table=commission_template,p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
       RAISE_APPLICATION_ERROR(-20002,'select row into commission_template_get error. '||SQLERRM);
+    return null;  
+  end;
+
+  function bill_import_list
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+  begin
+    OPEN v_results FOR
+      select
+      bill.id bill_oid,
+      'fare' item,
+      (select decode(code,'РФ','Y','N') from ntg.geo where amnd_state = 'A' and id = (select country_id from ntg.geo where iata = 'MOW' and amnd_state = 'A')) is_nds,
+      'MOW' flight_from,
+      'LON' flight_to,
+      ticket.fare_amount,
+      contract.contract_number,
+      ticket.passenger_name
+      from ord.ticket,
+      ord.item_avia,
+      ord.bill,
+      blng.contract
+      where bill.order_oid = item_avia.order_oid
+      and ticket.item_avia_oid = item_avia.id
+      and ticket.amnd_state = 'A'
+      and item_avia.amnd_state = 'A'
+      and bill.amnd_state = 'A'
+      and contract.amnd_state = 'A'
+      and bill.contract_oid = contract.id
+      
+      union all
+      
+      select
+      bill.id bill_oid,
+      'fee' item,
+      (select decode(code,'РФ','Y','N') from ntg.geo where amnd_state = 'A' and id = (select country_id from ntg.geo where iata = 'MOW' and amnd_state = 'A')) is_nds,
+      'MOW' flight_from,
+      'LON' flight_to,
+      ticket.service_fee_amount + nvl(ticket.partner_fee_amount,0),
+      contract.contract_number,
+      ticket.passenger_name
+      from ord.ticket,
+      ord.item_avia,
+      ord.bill,
+      blng.contract
+      where bill.order_oid = item_avia.order_oid
+      and ticket.item_avia_oid = item_avia.id
+      and ticket.amnd_state = 'A'
+      and item_avia.amnd_state = 'A'
+      and bill.amnd_state = 'A'
+      and contract.amnd_state = 'A'
+      and bill.contract_oid = contract.id
+      order by 1,2  desc;
+
+    return v_results;
+  exception when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'bill_import_list', p_msg_type=>'UNHANDLED_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      RAISE_APPLICATION_ERROR(-20002,'select row error. '||SQLERRM);
     return null;  
   end;
 
