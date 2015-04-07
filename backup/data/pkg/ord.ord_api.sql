@@ -74,8 +74,14 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                           p_percent in ntg.dtype.t_amount default null,
                           P_DATE_FROM IN ntg.dtype.T_DATE DEFAULT NULL,
                           P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL,
-                            P_PRIORITY IN ntg.dtype.t_id DEFAULT NULL,
-                            P_contract_type IN ntg.dtype.t_id DEFAULT NULL
+                          P_PRIORITY IN ntg.dtype.t_id DEFAULT NULL,
+                          P_contract_type IN ntg.dtype.t_id DEFAULT NULL,
+                          P_contract IN ntg.dtype.t_id DEFAULT NULL,
+                          P_min_absolut IN ntg.dtype.t_amount DEFAULT NULL,
+                          P_markup_type IN ntg.dtype.t_id DEFAULT NULL,
+                          P_per_segment IN ntg.dtype.t_status DEFAULT NULL,
+                          p_currency in ntg.dtype.t_id DEFAULT NULL,
+                          P_per_fare IN ntg.dtype.t_status DEFAULT NULL
                           )
   return ntg.dtype.t_id;
   
@@ -86,9 +92,15 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                           p_percent in ntg.dtype.t_amount default null,
                           P_DATE_FROM IN ntg.dtype.T_DATE DEFAULT NULL,
                           P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL,
-                            P_PRIORITY IN ntg.dtype.t_id DEFAULT NULL,
-                            P_contract_type IN ntg.dtype.t_id DEFAULT NULL,
-                            p_status in ntg.dtype.t_status DEFAULT NULL);
+                          P_PRIORITY IN ntg.dtype.t_id DEFAULT NULL,
+                          P_contract_type IN ntg.dtype.t_id DEFAULT NULL,
+                          p_status in ntg.dtype.t_status DEFAULT NULL,
+                          P_contract IN ntg.dtype.t_id DEFAULT NULL,
+                          P_min_absolut IN ntg.dtype.t_amount DEFAULT NULL,
+                          P_markup_type IN ntg.dtype.t_id DEFAULT NULL,
+                          P_per_segment IN ntg.dtype.t_status DEFAULT NULL,
+                          p_currency in ntg.dtype.t_id DEFAULT NULL,
+                          P_per_fare IN ntg.dtype.t_status DEFAULT NULL);
 
   function commission_get_info(p_id in ntg.dtype.t_id default null,
                               p_airline in ntg.dtype.t_id default null
@@ -530,7 +542,13 @@ END ORD_API;
                           P_DATE_FROM IN ntg.dtype.T_DATE DEFAULT NULL,
                           P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL,
                           P_PRIORITY IN ntg.dtype.t_id DEFAULT NULL,
-                          P_contract_type IN ntg.dtype.t_id DEFAULT NULL
+                          P_contract_type IN ntg.dtype.t_id DEFAULT NULL,
+                          P_contract IN ntg.dtype.t_id DEFAULT NULL,
+                          P_min_absolut IN ntg.dtype.t_amount DEFAULT NULL,
+                          P_markup_type IN ntg.dtype.t_id DEFAULT NULL,
+                          P_per_segment IN ntg.dtype.t_status DEFAULT NULL,
+                          p_currency in ntg.dtype.t_id DEFAULT NULL,
+                          P_per_fare IN ntg.dtype.t_status DEFAULT NULL
                           )
   return ntg.dtype.t_id
   is
@@ -545,6 +563,12 @@ END ORD_API;
     v_obj_row.DATE_TO:=  P_DATE_TO;
     v_obj_row.PRIORITY:=  P_PRIORITY;
     v_obj_row.contract_type:=  P_contract_type;
+    v_obj_row.contract_oid:=  P_contract;
+    v_obj_row.min_absolut:=  P_min_absolut;
+    v_obj_row.markup_type:=  P_markup_type;
+    v_obj_row.per_segment:=  P_per_segment;
+    v_obj_row.currency:=  p_currency;
+    v_obj_row.per_fare:=  P_per_fare;
 
     insert into ord.commission values v_obj_row returning id into v_id;
     return v_id;
@@ -566,7 +590,13 @@ END ORD_API;
                             P_DATE_TO IN ntg.dtype.T_DATE DEFAULT NULL,
                             P_PRIORITY IN ntg.dtype.t_id DEFAULT NULL,
                             P_contract_type IN ntg.dtype.t_id DEFAULT NULL,
-                            p_status in ntg.dtype.t_status DEFAULT NULL
+                            p_status in ntg.dtype.t_status DEFAULT NULL,
+                            P_contract IN ntg.dtype.t_id DEFAULT NULL,
+                            P_min_absolut IN ntg.dtype.t_amount DEFAULT NULL,
+                            P_markup_type IN ntg.dtype.t_id DEFAULT NULL,
+                            P_per_segment IN ntg.dtype.t_status DEFAULT NULL,
+                            p_currency in ntg.dtype.t_id DEFAULT NULL,
+                            P_per_fare IN ntg.dtype.t_status DEFAULT NULL
                           )
   is
     v_obj_row_new commission%rowtype;
@@ -593,6 +623,13 @@ END ORD_API;
     v_obj_row_new.PRIORITY := nvl(P_PRIORITY,v_obj_row_new.PRIORITY);
     v_obj_row_new.contract_type := nvl(P_contract_type,v_obj_row_new.contract_type);
     if p_status in ('C','D') then  v_obj_row_new.amnd_state := 'C'; end if;
+    v_obj_row_new.contract_oid := nvl(P_contract,v_obj_row_new.contract_oid);
+    v_obj_row_new.min_absolut := nvl(P_min_absolut,v_obj_row_new.min_absolut);
+    v_obj_row_new.markup_type := nvl(P_markup_type,v_obj_row_new.markup_type);
+    v_obj_row_new.per_segment := nvl(P_per_segment,v_obj_row_new.per_segment);
+    v_obj_row_new.currency := nvl(p_currency,v_obj_row_new.currency);
+    v_obj_row_new.per_fare := nvl(P_per_fare,v_obj_row_new.per_fare);
+
 
     if nvl(v_obj_row_new.details,'X') = nvl(v_obj_row_old.details,'X')
       and nvl(v_obj_row_new.fix,-1) = nvl(v_obj_row_old.fix,-1)
@@ -601,6 +638,12 @@ END ORD_API;
       and nvl(to_char(v_obj_row_new.date_to,'ddmmyyyy'),'X')  = nvl(to_char(v_obj_row_old.date_to,'ddmmyyyy'),'X') 
       and nvl(v_obj_row_new.PRIORITY,-1) = nvl(v_obj_row_old.PRIORITY,-1)
       and nvl(v_obj_row_new.contract_type,-1) = nvl(v_obj_row_old.contract_type,-1)
+      and nvl(v_obj_row_new.contract_oid,-1) = nvl(v_obj_row_old.contract_oid,-1)
+      and nvl(v_obj_row_new.min_absolut,-1) = nvl(v_obj_row_old.min_absolut,-1)
+      and nvl(v_obj_row_new.markup_type,-1) = nvl(v_obj_row_old.markup_type,-1)
+      and nvl(v_obj_row_new.per_segment,'X') = nvl(v_obj_row_old.per_segment,'X')
+      and nvl(v_obj_row_new.currency,-1) = nvl(v_obj_row_old.currency,-1)
+      and nvl(v_obj_row_new.per_fare,'X') = nvl(v_obj_row_old.per_fare,'X')
       and v_obj_row_new.amnd_state <> 'C'
       then return;
     end if;

@@ -88,6 +88,50 @@ $obj_return: SEGMENT, V_FROM, V_TO, ABSOLUT_AMOUNT, PERCENT_AMOUNT, MIN_ABSOLUT,
   function markup_get(p_version in ntg.dtype.t_id default null)
   return SYS_REFCURSOR;
 
+
+
+  function note_add(p_client in ntg.dtype.t_name default null,
+                    p_name in ntg.dtype.t_clob default null)
+  return SYS_REFCURSOR;
+
+  function note_edit(   p_id  in ntg.dtype.t_id default null,
+                        p_client in ntg.dtype.t_name default null,
+                        p_name in ntg.dtype.t_clob default null)
+  return SYS_REFCURSOR;
+
+  function note_delete(   p_id  in ntg.dtype.t_id default null,
+                        p_client in ntg.dtype.t_name default null)
+  return SYS_REFCURSOR;
+
+  function note_recovery(   p_id  in ntg.dtype.t_id default null,
+                        p_client in ntg.dtype.t_name default null)
+  return SYS_REFCURSOR;
+
+  function note_ticket_add(   p_note  in ntg.dtype.t_id default null,
+                        p_client in ntg.dtype.t_name default null,
+                        p_tickets in ntg.dtype.t_clob default null)
+  return SYS_REFCURSOR;
+
+  function note_ticket_delete(   p_note  in ntg.dtype.t_id default null,
+                                p_client in ntg.dtype.t_name default null,
+                                p_ticket in ntg.dtype.t_id default null)
+  return SYS_REFCURSOR;
+
+  function note_ticket_recovery(   p_note  in ntg.dtype.t_id default null,
+                                p_client in ntg.dtype.t_name default null,
+                                p_ticket in ntg.dtype.t_id default null)
+  return SYS_REFCURSOR;
+
+  function note_list(     p_client in ntg.dtype.t_name default null)
+  return SYS_REFCURSOR;
+
+  function note_ticket_list(p_note in ntg.dtype.t_id default null)
+  return SYS_REFCURSOR;
+
+  function punto_switcher(p_text in ntg.dtype.t_msg)
+  return ntg.dtype.t_msg;
+
+
 end;
 /
 create or replace package body ntg.fwdr as
@@ -345,6 +389,255 @@ end;
     return null;  
   end;
 
+
+  function note_add(p_client in ntg.dtype.t_name default null,
+                    p_name in ntg.dtype.t_clob default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    r_client blng.client%rowtype; 
+    v_note ntg.dtype.t_id; 
+    note_count ntg.dtype.t_id; 
+    OVER_LIMIT exception;
+  begin
+    r_client := blng.blng_api.client_get_info_r(p_email => p_client);
+    
+    select count(*) into note_count from ntg.note where amnd_state = 'A' and client_oid = r_client.id;
+    if note_count >= 3 then raise OVER_LIMIT; end if;
+    
+    v_note := ntg.ntg_api.note_add(p_client=>r_client.id, p_name=>p_name);    
+    
+    commit;   
+    open v_results FOR
+      select 'SUCCESS' res, v_note note_id  from dual;
+    return v_results; 
+  exception 
+    when OVER_LIMIT then
+      rollback;  
+      open v_results FOR
+        select 'OVER_LIMIT' res, null note_id from dual;
+      return v_results;    
+    when others then
+      rollback;  
+      open v_results FOR
+        select 'NO_DATA_FOUND' res, null note_id from dual;
+      return v_results;  
+  end;
+
+  function note_edit(   p_id  in ntg.dtype.t_id default null,
+                        p_client in ntg.dtype.t_name default null,
+                        p_name in ntg.dtype.t_clob default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    r_client blng.client%rowtype; 
+    r_note note%rowtype; 
+    v_note ntg.dtype.t_id; 
+  begin
+        
+    r_note := ntg.ntg_api.note_get_info_r(p_id => p_id);
+    r_client := blng.blng_api.client_get_info_r(p_email => p_client);
+    if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
+    ntg.ntg_api.note_edit(p_id=>r_note.id, p_name=>p_name);   
+    commit;
+    open v_results FOR
+      select 'SUCCESS' res from dual;
+    return v_results;  
+  exception when others then
+    rollback;
+    open v_results FOR
+      select 'NO_DATA_FOUND' res from dual;
+    return v_results;  
+  end;
+
+  function note_delete(   p_id  in ntg.dtype.t_id default null,
+                        p_client in ntg.dtype.t_name default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    r_client blng.client%rowtype; 
+    r_note note%rowtype; 
+    v_note ntg.dtype.t_id; 
+  begin
+        
+    r_note := ntg.ntg_api.note_get_info_r(p_id => p_id);
+    r_client := blng.blng_api.client_get_info_r(p_email => p_client);
+    if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
+    ntg.ntg_api.note_edit(p_id=>r_note.id, p_status=>'D');     
+    commit;
+    open v_results FOR
+      select 'SUCCESS' res from dual;
+    return v_results;  
+  exception when others then
+    rollback;
+    open v_results FOR
+      select 'NO_DATA_FOUND' res from dual;
+    return v_results;  
+  end;
+
+  function note_recovery(   p_id  in ntg.dtype.t_id default null,
+                        p_client in ntg.dtype.t_name default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    r_client blng.client%rowtype; 
+    r_note note%rowtype; 
+    v_note ntg.dtype.t_id; 
+  begin
+        
+    r_note := ntg.ntg_api.note_get_info_r(p_id => p_id);
+    r_client := blng.blng_api.client_get_info_r(p_email => p_client);
+    if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
+    ntg.ntg_api.note_edit(p_id=>r_note.id, p_status=>'A');        
+    commit;
+    open v_results FOR
+      select 'SUCCESS' res from dual;
+    return v_results;  
+  exception when others then
+    rollback;
+    open v_results FOR
+      select 'NO_DATA_FOUND' res from dual;
+    return v_results;  
+  end;
+
+  function note_ticket_add(   p_note  in ntg.dtype.t_id default null,
+                        p_client in ntg.dtype.t_name default null,
+                        p_tickets in ntg.dtype.t_clob default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    r_client blng.client%rowtype; 
+    r_note note%rowtype; 
+    v_note_ticket ntg.dtype.t_id; 
+  begin
+        
+    r_note := ntg.ntg_api.note_get_info_r(p_id => p_note);
+    r_client := blng.blng_api.client_get_info_r(p_email => p_client);
+    if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
+    v_note_ticket := ntg.ntg_api.note_ticket_add(p_note=>r_note.id, p_tickets=>p_tickets);        
+    commit;
+    open v_results FOR
+      select 'SUCCESS' res, v_note_ticket note_ticket_id from dual;
+    return v_results;  
+  exception when others then
+    rollback;
+    open v_results FOR
+      select 'NO_DATA_FOUND' res, null note_ticket_id from dual;
+    return v_results;  
+  end;
+
+  function note_ticket_delete(   p_note  in ntg.dtype.t_id default null,
+                                p_client in ntg.dtype.t_name default null,
+                                p_ticket in ntg.dtype.t_id default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    r_client blng.client%rowtype; 
+    r_note note%rowtype; 
+    r_note_ticket note_ticket%rowtype; 
+    v_note_ticket ntg.dtype.t_id; 
+  begin
+        
+    r_note := ntg.ntg_api.note_get_info_r(p_id => p_note);
+    r_note_ticket := ntg.ntg_api.note_ticket_get_info_r(p_id => p_ticket);
+    r_client := blng.blng_api.client_get_info_r(p_email => p_client);
+    if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
+    ntg.ntg_api.note_ticket_edit(p_note=>r_note_ticket.id, p_status=>'D');       
+    commit;
+    open v_results FOR
+      select 'SUCCESS' res from dual;
+    return v_results;  
+  exception when others then
+    rollback;
+    open v_results FOR
+      select 'NO_DATA_FOUND' res from dual;
+    return v_results;  
+  end;
+
+  function note_ticket_recovery(   p_note  in ntg.dtype.t_id default null,
+                                p_client in ntg.dtype.t_name default null,
+                                p_ticket in ntg.dtype.t_id default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    r_client blng.client%rowtype; 
+    r_note note%rowtype; 
+    r_note_ticket note_ticket%rowtype; 
+    v_note_ticket ntg.dtype.t_id; 
+  begin
+        
+    r_note := ntg.ntg_api.note_get_info_r(p_id => p_note);
+    r_note_ticket := ntg.ntg_api.note_ticket_get_info_r(p_id => p_ticket);
+    r_client := blng.blng_api.client_get_info_r(p_email => p_client);
+    if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
+    ntg.ntg_api.note_ticket_edit(p_note=>r_note_ticket.id, p_status=>'A');        
+    commit;
+    open v_results FOR
+      select 'SUCCESS' res from dual;
+    return v_results;  
+  exception when others then
+    rollback;
+    open v_results FOR
+      select 'NO_DATA_FOUND' res from dual;
+    return v_results;  
+  end;
+
+  function note_list(     p_client in ntg.dtype.t_name default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    r_client blng.client%rowtype; 
+    r_note note%rowtype; 
+    r_note_ticket note_ticket%rowtype; 
+    v_note_ticket ntg.dtype.t_id; 
+  begin
+        
+    r_client := blng.blng_api.client_get_info_r(p_email => p_client);
+    if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
+    open v_results FOR
+      select id note_id, name from ntg.note where amnd_state = 'A' and client_oid = r_client.id order by id desc;
+    return v_results;  
+  exception when others then
+    open v_results FOR
+      select 'NO_DATA_FOUND' res from dual;
+    return v_results;  
+  end;
+
+  function note_ticket_list(p_note in ntg.dtype.t_id default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    r_client blng.client%rowtype; 
+    r_note note%rowtype; 
+    r_note_ticket note_ticket%rowtype; 
+    v_note_ticket ntg.dtype.t_id; 
+  begin
+        
+    r_note := ntg.ntg_api.note_get_info_r(p_id => p_note);
+    open v_results FOR
+      select note.id note_id, note_ticket.id note_ticket_id, note.name, note_ticket.tickets from ntg.note, ntg.note_ticket
+      where note.id = p_note
+      and note.id = note_ticket.note_oid(+)
+      and note.amnd_state = 'A'
+      and note_ticket.amnd_state(+) = 'A'
+      ;
+    return v_results;  
+  exception when others then
+    open v_results FOR
+      select 'NO_DATA_FOUND' res from dual;
+    return v_results;  
+  end;
+
+  function punto_switcher(p_text in ntg.dtype.t_msg)
+  return ntg.dtype.t_msg
+  is
+    v_out ntg.dtype.t_msg;
+  begin
+    v_out := p_text;
+    select translate(v_out,'QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>~qwertyuiop[]asdfghjkl;''zxcvbnm,.`','ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮЁйцукенгшщзхъфывапролджэячсмитьбюё') into v_out from dual;
+    select translate(v_out,'ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮЁйцукенгшщзхъфывапролджэячсмитьбюё','QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>~qwertyuiop[]asdfghjkl;''zxcvbnm,.`') into v_out from dual;
+    return v_out;
+  end;
 
 end;
 /

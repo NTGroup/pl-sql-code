@@ -1,6 +1,5 @@
 
 /* ord */
-begin
 
 --------------------------------------------------------
 --  DDL for Table MARKUP
@@ -71,12 +70,9 @@ end;
 /
 ALTER TRIGGER ord.ord_TRGR ENABLE;
 
-end;
-
-
+/
 
 /* bill */
-begin
 
 --------------------------------------------------------
 --  DDL for Table MARKUP
@@ -155,12 +151,11 @@ end;
 ALTER TRIGGER ord.bill_TRGR ENABLE;
 
 
-end;
 
-
+/
 
 /* item_avia */
-begin
+
 
 --------------------------------------------------------
 --  DDL for Table MARKUP
@@ -1004,13 +999,10 @@ end;
 
 ALTER TRIGGER ord.stop_TRGR ENABLE;
 */
-end; 
 
-
-
+/
 
 /* commission */
-begin
 
 --------------------------------------------------------
 --  DDL for Table MARKUP
@@ -1029,7 +1021,15 @@ begin
     DATE_FROM DATE, 
     DATE_TO DATE, 
     PRIORITY NUMBER,
-    contract_type number(18,0)
+    contract_type number(18,0),
+    contract_oid number(18,0),
+    min_absolut number(20,2),
+    commission_type number(18,0),
+    per_segment VARCHAR2(1),
+    currency  number(18,0),
+    per_fare VARCHAR2(1)
+    
+    
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
@@ -1066,6 +1066,9 @@ ALTER TABLE ord.commission ADD CONSTRAINT CMN_CNTR_OID_FK FOREIGN KEY (contraCMN
   REFERENCES BLNG.contract ("ID") ENABLE;
 */
 
+ALTER TABLE ord.commission ADD CONSTRAINT CMN_CNTR_OID_FK FOREIGN KEY (contract_oid)
+  REFERENCES BLNG.contract ("ID") ENABLE;
+
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
 --------------------------------------------------------
@@ -1095,14 +1098,10 @@ end;
 /
 ALTER TRIGGER ord.CMN_TRGR ENABLE;
 
-end;
-
-
-
-
+/
 
 /* commission_template */
-begin
+
 
 --------------------------------------------------------
 --  DDL for Table MARKUP
@@ -1447,9 +1446,82 @@ end;
 /
 
 ALTER TRIGGER ord.posr_TRGR ENABLE;
-
-
 /
+
+
+
+/* ord.currency */
+
+--------------------------------------------------------
+--  DDL for Table MARKUP
+--------------------------------------------------------
+
+  CREATE TABLE ord.currency 
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+   code varchar2(10),
+   name varchar2(50),
+   nls_name varchar2(50),
+   is_currency varchar2(1)
+   ) SEGMENT CREATION IMMEDIATE
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index MKP_ID_IDX
+--------------------------------------------------------
+
+  CREATE INDEX ord.curr_ID_IDX ON ord.currency ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table MARKUP
+--------------------------------------------------------
+
+  ALTER TABLE ord.currency MODIFY ("ID" CONSTRAINT curr_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.currency MODIFY (AMND_DATE CONSTRAINT "curr_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.currency MODIFY (AMND_USER CONSTRAINT "curr_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.currency MODIFY (AMND_STATE CONSTRAINT "curr_AST_NN" NOT NULL ENABLE);
+ALTER TABLE ord.currency  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE ord.currency  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE ord.currency  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE ord.currency ADD CONSTRAINT curr_ID_PK PRIMARY KEY (ID)
+  USING INDEX ord.curr_ID_IDX ENABLE;
+  
+
+  
+/*  ALTER TABLE ord.currency ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
+  REFERENCES blng.client ("ID") ENABLE;*/
+   
+--------------------------------------------------------
+--  DDL for Secuence MKP_SEQ
+--------------------------------------------------------
+ 
+/*  create sequence  ord.curr_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache 
+  nocycle
+  order;*/
+--------------------------------------------------------
+--  DDL for Trigger MKP_TRGR
+--------------------------------------------------------
+
+/*CREATE OR REPLACE EDITIONABLE TRIGGER ord.curr_TRGR 
+BEFORE
+INSERT
+ON ord.currency
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select curr_SEQ.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
+end;
+/
+ALTER TRIGGER ord.curr_TRGR ENABLE;*/
+/
+
 
 CREATE bitmap INDEX ord.ord_AS_IDX ON ord.ord (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX ord.bill_AS_IDX ON ord.bill (amnd_state) TABLESPACE "USERS" ;

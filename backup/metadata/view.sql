@@ -389,7 +389,7 @@ sum(amount) over (partition by contract_id order by trans_date RANGE UNBOUNDED P
         and document.bill_oid = bill.id
         and bill.contract_oid = contract.id
         and item_avia.order_oid = bill.order_oid
-        and item_avia.nqt_status in ('ISSUED','INMANUAL')
+        and item_avia.nqt_status in ('ISSUED'/*,'INMANUAL'*/)
         and item_avia.amnd_state = 'A'
         and bill.amnd_state = 'A'
         and ord.client_oid = client.id

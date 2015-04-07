@@ -1,5 +1,6 @@
 
 /
+
 CREATE OR REPLACE PACKAGE "ORD"."FWDR" AS 
 
 
@@ -325,6 +326,26 @@ $obj_return: SYS_REFCURSOR[BILL_OID, ITEM, IS_NDS, FLIGHT_FROM, FLIGHT_TO, FARE_
   function bill_import_list
   return SYS_REFCURSOR;
 
+/*
+$obj_type: function
+$obj_name: markup_rule_get
+$obj_desc: return all markup rules
+$obj_param: p_version: version id. filter new changes
+$obj_return: SYS_REFCURSOR[ID, IS_ACTIVE, VERSION, TENANT_ID, IATA, MARKUP_TYPE, RULE_AMOUNT, RULE_AMOUNT_MEASURE, MIN_ABSOLUT, PRIORITY, PER_SEGMENT,CONTRACT_TYPE,CONDITION_COUNT]
+*/
+  function markup_rule_get(p_version in ntg.dtype.t_id default null)
+  return SYS_REFCURSOR;
+
+/*
+$obj_type: function
+$obj_name: markup_templ_get
+$obj_desc: return all markup templates for rule id
+$obj_param: p_rule_id: id of rule
+$obj_return: SYS_REFCURSOR[ID, TEMPLATE_TYPE_CODE, TEMPLATE_VALUE]
+*/  
+  function markup_templ_get(p_rule_id in ntg.dtype.t_id default null)
+  return SYS_REFCURSOR;
+  
 
 
 END FWDR;
@@ -523,7 +544,7 @@ $TODO: there must be check for users with ISSUES permission
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => 'tenant_id not found',p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
-      RAISE_APPLICATION_ERROR(-20002,'avia_manual error. user_id not found. ');
+      RAISE_APPLICATION_ERROR(-20002,'avia_register error. user_id not found. ');
     end;
 
       NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'OK',
@@ -653,7 +674,7 @@ $TODO: there must be check for users with ISSUES permission
           ( p_nqt_status_list,'$[*]' 
           columns (status VARCHAR2(250) path '$.status')
           ) as j
-        where ia.nqt_status = upper(j.status) 
+        where ias.po_status = upper(j.status) 
         and ia.amnd_state = 'A'
         and ias.amnd_state = 'A'
         and ia.id = ias.item_avia_oid
@@ -1008,7 +1029,7 @@ $TODO: there must be check for users with ISSUES permission
       RAISE_APPLICATION_ERROR(-20002,'avia_manual error. user_id not found. ');
     end;
     
-    ord_api.item_avia_status_edit (  p_item_avia => r_item_avia.id, p_po_status => nvl(p_result,'INPROGRESS'),
+    ord_api.item_avia_status_edit (  p_item_avia => r_item_avia.id, p_po_status => nvl(p_result,'INMANUAL'),
                               p_nqt_status_cur => r_item_avia.nqt_status) ;  
     
     if p_result = 'ERROR' then 
@@ -1487,7 +1508,7 @@ $TODO: there must be check for users with ISSUES permission
     --      airline_name VARCHAR2(250) path '$.airline_name',
     --      airline_iata VARCHAR2(250) path '$.airline_iata',
           NESTED PATH '$.contracts[*]' COLUMNS (
-            contract_id number(20,2) path '$.contract_id',
+            contract_type_id number(20,2) path '$.contract_id',
     --        contract_type VARCHAR2(250) path '$.contract_type',
             NESTED PATH '$.rules[*]' COLUMNS (
               rule_id number(20,2) path '$.rule_id',
@@ -1497,6 +1518,12 @@ $TODO: there must be check for users with ISSUES permission
               rule_amount number(20,2) path '$.rule_amount',
               rule_amount_measure VARCHAR2(250) path '$.rule_amount_measure',
               rule_priority number(20,2) path '$.rule_priority',
+              contract number(20,2) path '$.contract',
+              min_absolut number(20,2) path '$.min_absolut',
+              markup_type number(20,2) path '$.markup_type',
+              per_segment  VARCHAR2(250) path '$.per_segment',
+              currency  number(20,2) path '$.currency',
+              per_fare  VARCHAR2(250) path '$.per_fare',
               NESTED PATH '$.conditions[*]' COLUMNS (
                 condition_id number(20,2) path '$.condition_id',
                 condition_status VARCHAR2(10) path '$.condition_status',
@@ -1520,7 +1547,13 @@ $TODO: there must be check for users with ISSUES permission
                           P_DATE_FROM => to_date(i.rule_life_from,'yyyy-mm-dd')-ntg.fwdr.utc_offset_mow/24,
                           P_DATE_TO => to_date(i.rule_life_to,'yyyy-mm-dd')-ntg.fwdr.utc_offset_mow/24,
                           p_priority => i.rule_priority,
-                          p_contract_type => i.contract_id --its contract_type of commission (self/interline/code-share)                          
+                          p_contract_type => i.contract_type_id, --its contract_type of commission (self/interline/code-share)                          
+                          p_contract => i.contract,
+                          p_min_absolut => i.min_absolut,
+                          p_markup_type => nvl(i.markup_type,4), /*$TODO*/
+                          p_per_segment => i.per_segment,
+                          p_currency => i.currency,
+                          p_per_fare => i.per_fare
                           );
 
                                   
@@ -1534,8 +1567,15 @@ $TODO: there must be check for users with ISSUES permission
                           P_DATE_FROM => to_date(i.rule_life_from,'yyyy-mm-dd')-ntg.fwdr.utc_offset_mow/24,
                           P_DATE_TO => to_date(i.rule_life_to,'yyyy-mm-dd')-ntg.fwdr.utc_offset_mow/24,
                           p_priority => i.rule_priority,
-                          p_contract_type => i.contract_id /*, --its contract_type of commission (self/interline/code-share)                          
+                          p_contract_type => i.contract_type_id, /*, --its contract_type of commission (self/interline/code-share)                          
                           p_status =>*/
+                          p_contract => i.contract,
+                          p_min_absolut => i.min_absolut,
+                          p_markup_type => nvl(i.markup_type,4), /*$TODO*/
+                          p_per_segment => i.per_segment,
+                          p_currency => i.currency,
+                          p_per_fare => i.per_fare
+                          
                           );
       end if;
 
@@ -1672,6 +1712,133 @@ $TODO: there must be check for users with ISSUES permission
     return v_results;
   exception when others then
       NTG.LOG_API.LOG_ADD(p_proc_name=>'bill_import_list', p_msg_type=>'UNHANDLED_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      RAISE_APPLICATION_ERROR(-20002,'select row error. '||SQLERRM);
+    return null;  
+  end;
+
+
+  function markup_rule_get(p_version in ntg.dtype.t_id default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+  begin
+    OPEN v_results FOR
+      select 
+      cmn.id,
+      case 
+      when cmn.amnd_state <> 'A' then 'N'
+      when cmn.date_to is not null and cmn.date_to < sysdate then 'N'
+      else 'Y'
+      end is_active,
+      max(case
+      when cmn.date_from is null and cmn.date_to is null then to_char(cmn.amnd_date,'yyyymmddhh24')*1
+      when cmn.amnd_state <> 'A' then to_char(cmn.amnd_date,'yyyymmddhh24')*1
+      when cmn.date_from is not null and cmn.date_to is null then to_char(greatest(cmn.amnd_date,cmn.date_from),'yyyymmddhh24')*1
+      when cmn.date_from is null and cmn.date_to is not null then to_char(least(cmn.amnd_date,cmn.date_to),'yyyymmddhh24')*1
+      else to_char(greatest(cmn.amnd_date,cmn.date_from),'yyyymmddhh24')*1
+      end) over () version,
+      nvl(cmn.contract_oid,0) tenant_id,
+      nvl(al.IATA,'YY') iata,
+      upper(decode(cmn.markup_type,3,'SUPPLIER',1,'BASE',2,'PARTNER','ERROR')) markup_type,
+      -------------------------------
+      nvl(nvl(cmn.percent,cmn.fix),0) rule_amount,
+      case 
+      when cmn.percent is not null then 'PERCENT'
+      when cmn.fix is not null then 'RUB'
+      else 'ERROR'
+      end rule_amount_measure,
+      nvl(min_absolut,0) min_absolut,
+      cmn.priority,
+      nvl(cmn.per_segment,'N') per_segment,
+      nvl(cmn.per_fare,'N') per_fare,
+      nvl(upper((select name from 
+      ORD.commission_template 
+      where id = cmn.contract_type)),'DEFAULT') contract_type,
+      (select count(*) from ord.commission_details where commission_oid = cmn.id and amnd_state = 'A') condition_count
+      from 
+      ord.commission cmn ,
+      ntg.airline al
+      where
+      al.amnd_state = 'A'
+      and al.IATA is not null
+      and cmn.amnd_state = 'A'
+      and cmn.airline = al.id
+      and cmn.id in 
+            (select
+            amnd_prev
+            from ord.commission 
+            where (date_from is not null or date_to is not null )
+            --and amnd_state = 'A'
+            and nvl(date_to+5 /*$TODO*/ ,sysdate+1) >= sysdate -- filter very old rules
+            and nvl(date_from,sysdate-1) <= trunc(sysdate,'hh24') -- filter not active new
+            and markup_type in (1,2,3)
+            union all 
+            select id from  ord.commission where date_from is null and date_to is null 
+            and ((amnd_date >= to_date(p_version,'yyyymmddhh24') and amnd_state <>'I' and p_version <>0 and p_version is not null) 
+              or (amnd_state ='A' and (p_version =0 or p_version is null)))  
+            and markup_type in (1,2,3)
+            union all 
+            select commission_details.commission_oid 
+              from  ord.commission_details, ord.commission 
+              where commission_details.amnd_date >= to_date(p_version,'yyyymmddhh24') and commission_details.amnd_state <>'I' and p_version <>0 and p_version is not null
+              and commission_details.commission_oid = commission.id and  commission.date_from is null and commission.date_to is null 
+              and markup_type in (1,2,3)
+            )
+      ;      
+    return v_results;
+  exception when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'markup_get', p_msg_type=>'UNHANDLED_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      RAISE_APPLICATION_ERROR(-20002,'select row error. '||SQLERRM);
+    return null;  
+  end;
+
+
+  function markup_templ_get(p_rule_id in ntg.dtype.t_id default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+  begin
+    OPEN v_results FOR
+
+      select 
+      cmn.id,
+      nvl(dtl.template_type_code,'DEFAULT') template_type_code,
+      dtl.template_value
+      from 
+      ord.commission cmn ,
+      ntg.airline al ,
+      (
+        select 
+        cd.commission_oid ,
+        ct.id template_type_oid, 
+        ct.nls_name template_type,
+        ct.name template_type_code,
+        ct.is_value,
+        cd.id condition_oid,
+        cd.value template_value
+        from 
+        ord.commission_details  cd,
+        ORD.commission_template ct
+        where cd.amnd_state = 'A'
+        and ct.amnd_state = 'A'
+        and cd.commission_template_oid = ct.id        
+      ) dtl        
+      where
+      al.amnd_state = 'A'
+      and cmn.amnd_state = 'A'
+      and cmn.airline = al.id
+      and cmn.id = dtl.commission_oid
+      and cmn.id = p_rule_id 
+      ;
+
+
+    return v_results;
+  exception when others then
+      NTG.LOG_API.LOG_ADD(p_proc_name=>'markup_calc_get', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
       RAISE_APPLICATION_ERROR(-20002,'select row error. '||SQLERRM);

@@ -565,6 +565,143 @@ ALTER TRIGGER ntg.MKPT_TRGR ENABLE;
 
 /
 
+
+/* ntg.note  */
+
+
+--------------------------------------------------------
+--  DDL for Table
+--------------------------------------------------------
+
+  CREATE TABLE ntg.note 
+   (		ID NUMBER(18,0), 
+	AMND_DATE DATE, 
+	AMND_USER VARCHAR2(50 BYTE), 
+	AMND_STATE VARCHAR2(1 BYTE), 
+	AMND_PREV NUMBER(18,0), 
+	NAME VARCHAR2(4000 BYTE), 
+	client_oid NUMBER(18,0)
+   ) SEGMENT CREATION IMMEDIATE
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index 
+--------------------------------------------------------
+
+  CREATE INDEX ntg.note_ID_IDX ON ntg.note ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints
+--------------------------------------------------------
+
+  ALTER TABLE ntg.note MODIFY ("ID" CONSTRAINT note_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ntg.note MODIFY (AMND_DATE CONSTRAINT "note_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE ntg.note MODIFY (AMND_USER CONSTRAINT "note_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE ntg.note MODIFY (AMND_STATE CONSTRAINT "note_AST_NN" NOT NULL ENABLE);
+ALTER TABLE ntg.note  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE ntg.note  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE ntg.note  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE ntg.note ADD CONSTRAINT note_ID_PK PRIMARY KEY (ID)
+  USING INDEX ntg.note_ID_IDX ENABLE;
+
+  
+  ALTER TABLE ntg.note ADD CONSTRAINT note_clt_OID_FK FOREIGN KEY (client_oid)
+  REFERENCES blng.client ("ID") ENABLE;
+
+
+  create sequence  ntg.note_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+--------------------------------------------------------
+--  DDL for Trigger 
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER ntg.note_TRGR 
+BEFORE
+INSERT
+ON ntg.note
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select note_SEQ.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
+end;
+/
+ALTER TRIGGER ntg.note_TRGR ENABLE;
+
+/
+
+
+/* ntg.note_ticket  */
+
+--------------------------------------------------------
+--  DDL for Table
+--------------------------------------------------------
+
+  CREATE TABLE ntg.note_ticket 
+   (		ID NUMBER(18,0), 
+	AMND_DATE DATE, 
+	AMND_USER VARCHAR2(50 BYTE), 
+	AMND_STATE VARCHAR2(1 BYTE), 
+	AMND_PREV NUMBER(18,0), 
+	note_oid NUMBER(18,0), 
+	tickets clob
+   ) SEGMENT CREATION IMMEDIATE
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index 
+--------------------------------------------------------
+
+  CREATE INDEX ntg.ntt_ID_IDX ON ntg.note_ticket ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints
+--------------------------------------------------------
+
+  ALTER TABLE ntg.note_ticket MODIFY ("ID" CONSTRAINT ntt_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ntg.note_ticket MODIFY (AMND_DATE CONSTRAINT "ntt_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE ntg.note_ticket MODIFY (AMND_USER CONSTRAINT "ntt_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE ntg.note_ticket MODIFY (AMND_STATE CONSTRAINT "ntt_AST_NN" NOT NULL ENABLE);
+ALTER TABLE ntg.note_ticket  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE ntg.note_ticket  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE ntg.note_ticket  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE ntg.note_ticket ADD CONSTRAINT ntt_ID_PK PRIMARY KEY (ID)
+  USING INDEX ntg.ntt_ID_IDX ENABLE;
+  
+
+  ALTER TABLE ntg.note_ticket ADD CONSTRAINT ntt_note_OID_FK FOREIGN KEY (note_oid)
+  REFERENCES ntg.note ("ID") ENABLE;
+
+  create sequence  ntg.ntt_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+--------------------------------------------------------
+--  DDL for Trigger 
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER ntg.ntt_TRGR 
+BEFORE
+INSERT
+ON ntg.note_ticket
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select ntt_SEQ.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
+end;
+/
+ALTER TRIGGER ntg.ntt_TRGR ENABLE;
+
+/
+
+
 CREATE bitmap INDEX ntg.geo_AS_IDX ON ntg.geo (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX ntg.log_AS_IDX ON ntg.log (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX ntg.mkp_AS_IDX ON ntg.markup (amnd_state) TABLESPACE "USERS" ;
