@@ -78,6 +78,7 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                           P_contract_type IN ntg.dtype.t_id DEFAULT NULL,
                           P_contract IN ntg.dtype.t_id DEFAULT NULL,
                           P_min_absolut IN ntg.dtype.t_amount DEFAULT NULL,
+                          P_rule_type IN ntg.dtype.t_id DEFAULT NULL,
                           P_markup_type IN ntg.dtype.t_id DEFAULT NULL,
                           P_per_segment IN ntg.dtype.t_status DEFAULT NULL,
                           p_currency in ntg.dtype.t_id DEFAULT NULL,
@@ -97,6 +98,7 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                           p_status in ntg.dtype.t_status DEFAULT NULL,
                           P_contract IN ntg.dtype.t_id DEFAULT NULL,
                           P_min_absolut IN ntg.dtype.t_amount DEFAULT NULL,
+                          P_rule_type IN ntg.dtype.t_id DEFAULT NULL,
                           P_markup_type IN ntg.dtype.t_id DEFAULT NULL,
                           P_per_segment IN ntg.dtype.t_status DEFAULT NULL,
                           p_currency in ntg.dtype.t_id DEFAULT NULL,
@@ -545,6 +547,7 @@ END ORD_API;
                           P_contract_type IN ntg.dtype.t_id DEFAULT NULL,
                           P_contract IN ntg.dtype.t_id DEFAULT NULL,
                           P_min_absolut IN ntg.dtype.t_amount DEFAULT NULL,
+                          P_rule_type IN ntg.dtype.t_id DEFAULT NULL,
                           P_markup_type IN ntg.dtype.t_id DEFAULT NULL,
                           P_per_segment IN ntg.dtype.t_status DEFAULT NULL,
                           p_currency in ntg.dtype.t_id DEFAULT NULL,
@@ -565,6 +568,7 @@ END ORD_API;
     v_obj_row.contract_type:=  P_contract_type;
     v_obj_row.contract_oid:=  P_contract;
     v_obj_row.min_absolut:=  P_min_absolut;
+    v_obj_row.rule_type:=  P_rule_type;
     v_obj_row.markup_type:=  P_markup_type;
     v_obj_row.per_segment:=  P_per_segment;
     v_obj_row.currency:=  p_currency;
@@ -593,6 +597,7 @@ END ORD_API;
                             p_status in ntg.dtype.t_status DEFAULT NULL,
                             P_contract IN ntg.dtype.t_id DEFAULT NULL,
                             P_min_absolut IN ntg.dtype.t_amount DEFAULT NULL,
+                            P_rule_type IN ntg.dtype.t_id DEFAULT NULL,
                             P_markup_type IN ntg.dtype.t_id DEFAULT NULL,
                             P_per_segment IN ntg.dtype.t_status DEFAULT NULL,
                             p_currency in ntg.dtype.t_id DEFAULT NULL,
@@ -625,6 +630,7 @@ END ORD_API;
     if p_status in ('C','D') then  v_obj_row_new.amnd_state := 'C'; end if;
     v_obj_row_new.contract_oid := nvl(P_contract,v_obj_row_new.contract_oid);
     v_obj_row_new.min_absolut := nvl(P_min_absolut,v_obj_row_new.min_absolut);
+    v_obj_row_new.rule_type := nvl(P_rule_type,v_obj_row_new.rule_type);
     v_obj_row_new.markup_type := nvl(P_markup_type,v_obj_row_new.markup_type);
     v_obj_row_new.per_segment := nvl(P_per_segment,v_obj_row_new.per_segment);
     v_obj_row_new.currency := nvl(p_currency,v_obj_row_new.currency);
@@ -640,6 +646,7 @@ END ORD_API;
       and nvl(v_obj_row_new.contract_type,-1) = nvl(v_obj_row_old.contract_type,-1)
       and nvl(v_obj_row_new.contract_oid,-1) = nvl(v_obj_row_old.contract_oid,-1)
       and nvl(v_obj_row_new.min_absolut,-1) = nvl(v_obj_row_old.min_absolut,-1)
+      and nvl(v_obj_row_new.rule_type,-1) = nvl(v_obj_row_old.rule_type,-1)
       and nvl(v_obj_row_new.markup_type,-1) = nvl(v_obj_row_old.markup_type,-1)
       and nvl(v_obj_row_new.per_segment,'X') = nvl(v_obj_row_old.per_segment,'X')
       and nvl(v_obj_row_new.currency,-1) = nvl(v_obj_row_old.currency,-1)

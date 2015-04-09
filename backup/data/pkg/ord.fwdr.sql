@@ -1520,6 +1520,7 @@ $TODO: there must be check for users with ISSUES permission
               rule_priority number(20,2) path '$.rule_priority',
               contract number(20,2) path '$.contract',
               min_absolut number(20,2) path '$.min_absolut',
+              rule_type number(20,2) path '$.rule_type',
               markup_type number(20,2) path '$.markup_type',
               per_segment  VARCHAR2(250) path '$.per_segment',
               currency  number(20,2) path '$.currency',
@@ -1550,7 +1551,7 @@ $TODO: there must be check for users with ISSUES permission
                           p_contract_type => i.contract_type_id, --its contract_type of commission (self/interline/code-share)                          
                           p_contract => i.contract,
                           p_min_absolut => i.min_absolut,
-                          p_markup_type => nvl(i.markup_type,4), /*$TODO*/
+                          p_rule_type => nvl(i.rule_type,4), /*$TODO*/
                           p_per_segment => i.per_segment,
                           p_currency => i.currency,
                           p_per_fare => i.per_fare
@@ -1571,7 +1572,7 @@ $TODO: there must be check for users with ISSUES permission
                           p_status =>*/
                           p_contract => i.contract,
                           p_min_absolut => i.min_absolut,
-                          p_markup_type => nvl(i.markup_type,4), /*$TODO*/
+                          p_rule_type => nvl(i.rule_type,4), /*$TODO*/
                           p_per_segment => i.per_segment,
                           p_currency => i.currency,
                           p_per_fare => i.per_fare
@@ -1741,7 +1742,7 @@ $TODO: there must be check for users with ISSUES permission
       end) over () version,
       nvl(cmn.contract_oid,0) tenant_id,
       nvl(al.IATA,'YY') iata,
-      upper(decode(cmn.markup_type,3,'SUPPLIER',1,'BASE',2,'PARTNER','ERROR')) markup_type,
+      upper(nvl((select name from ntg.markup_type where id = cmn.markup_type),'ERROR')) markup_type,
       -------------------------------
       nvl(nvl(cmn.percent,cmn.fix),0) rule_amount,
       case 
@@ -1750,7 +1751,7 @@ $TODO: there must be check for users with ISSUES permission
       else 'ERROR'
       end rule_amount_measure,
       nvl(min_absolut,0) min_absolut,
-      cmn.priority,
+      nvl(cmn.priority,0) priority,
       nvl(cmn.per_segment,'N') per_segment,
       nvl(cmn.per_fare,'N') per_fare,
       nvl(upper((select name from 
@@ -1765,6 +1766,7 @@ $TODO: there must be check for users with ISSUES permission
       and al.IATA is not null
       and cmn.amnd_state = 'A'
       and cmn.airline = al.id
+      and cmn.rule_type = 5
       and cmn.id in 
             (select
             amnd_prev
@@ -1773,18 +1775,18 @@ $TODO: there must be check for users with ISSUES permission
             --and amnd_state = 'A'
             and nvl(date_to+5 /*$TODO*/ ,sysdate+1) >= sysdate -- filter very old rules
             and nvl(date_from,sysdate-1) <= trunc(sysdate,'hh24') -- filter not active new
-            and markup_type in (1,2,3)
+            and rule_type = 5 --in (1,2,3)
             union all 
             select id from  ord.commission where date_from is null and date_to is null 
             and ((amnd_date >= to_date(p_version,'yyyymmddhh24') and amnd_state <>'I' and p_version <>0 and p_version is not null) 
               or (amnd_state ='A' and (p_version =0 or p_version is null)))  
-            and markup_type in (1,2,3)
+            and rule_type = 5
             union all 
             select commission_details.commission_oid 
               from  ord.commission_details, ord.commission 
               where commission_details.amnd_date >= to_date(p_version,'yyyymmddhh24') and commission_details.amnd_state <>'I' and p_version <>0 and p_version is not null
               and commission_details.commission_oid = commission.id and  commission.date_from is null and commission.date_to is null 
-              and markup_type in (1,2,3)
+              and rule_type = 5
             )
       ;      
     return v_results;

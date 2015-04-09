@@ -539,10 +539,16 @@ end;
   begin
         
     r_note := ntg.ntg_api.note_get_info_r(p_id => p_note);
+    --dbms_output.put_line('1');
     r_note_ticket := ntg.ntg_api.note_ticket_get_info_r(p_id => p_ticket);
+    ---dbms_output.put_line('2');
     r_client := blng.blng_api.client_get_info_r(p_email => p_client);
-    if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
-    ntg.ntg_api.note_ticket_edit(p_note=>r_note_ticket.id, p_status=>'D');       
+    --dbms_output.put_line('3');
+    if r_client.id <> r_note.client_oid then     --dbms_output.put_line('NO_DATA_FOUND');
+    raise NO_DATA_FOUND; end if;
+    --dbms_output.put_line('4');
+    ntg.ntg_api.note_ticket_edit(p_id=>r_note_ticket.id, p_status=>'D');       
+    --dbms_output.put_line('5');
     commit;
     open v_results FOR
       select 'SUCCESS' res from dual;
@@ -570,7 +576,7 @@ end;
     r_note_ticket := ntg.ntg_api.note_ticket_get_info_r(p_id => p_ticket);
     r_client := blng.blng_api.client_get_info_r(p_email => p_client);
     if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
-    ntg.ntg_api.note_ticket_edit(p_note=>r_note_ticket.id, p_status=>'A');        
+    ntg.ntg_api.note_ticket_edit(p_id=>r_note_ticket.id, p_status=>'A');        
     commit;
     open v_results FOR
       select 'SUCCESS' res from dual;

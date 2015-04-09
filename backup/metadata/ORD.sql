@@ -1024,11 +1024,11 @@ ALTER TRIGGER ord.stop_TRGR ENABLE;
     contract_type number(18,0),
     contract_oid number(18,0),
     min_absolut number(20,2),
-    commission_type number(18,0),
+    markup_type number(18,0),
     per_segment VARCHAR2(1),
     currency  number(18,0),
-    per_fare VARCHAR2(1)
-    
+    per_fare VARCHAR2(1),
+    rule_type number(18,0)    
     
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 

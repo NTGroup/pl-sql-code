@@ -235,7 +235,7 @@ create or replace package body ntg.ntg_api as
     * into r_obj
     from note 
     where id = nvl(p_id,id)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by id;
     return r_obj;
   exception 
@@ -328,7 +328,7 @@ create or replace package body ntg.ntg_api as
     * into r_obj
     from note_ticket 
     where id = nvl(p_id,id)
-    and amnd_state = 'A'
+    and amnd_state != 'I'
     order by id;
     return r_obj;
   exception 
