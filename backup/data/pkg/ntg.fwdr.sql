@@ -1,14 +1,14 @@
 create or replace package ntg.fwdr as
 
 /*
-pkg: ntg.fwdr
+pkg: hdbk.fwdr
 */
 
 function utc_offset_mow return number;
 
-type iata_record IS record (IATA GEO.IATA%type);
+type iata_record IS record (IATA hdbk.GEO.IATA%type);
 type iata_table is table of iata_record  index by pls_integer;
-type iata_array is table of GEO.IATA%type index by pls_integer;
+type iata_array is table of hdbk.GEO.IATA%type index by pls_integer;
 
 /*
 $obj_type: function
@@ -85,9 +85,9 @@ $obj_param: p_version: id
 $obj_return: SYS_REFCURSOR[ID, TENANT_ID, VALIDATING_CARRIER, CLASS_OF_SERVICE, 
 $obj_return: SEGMENT, V_FROM, V_TO, ABSOLUT_AMOUNT, PERCENT_AMOUNT, MIN_ABSOLUT, VERSION, IS_ACTIVE, markup_type]
 */  
-  function markup_get(p_version in hdbk.dtype.t_id default null)
+/*  function markup_get(p_version in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
-
+*/
 
 
   function note_add(p_client in hdbk.dtype.t_name default null,
@@ -155,7 +155,7 @@ create or replace package body ntg.fwdr as
       al.IATA,
       case when cmn.airline is null then 'N' else 'Y' end commission
       from 
-      ntg.airline al,
+      hdbk.airline al,
       (
         select airline from ord.commission 
         where amnd_state = 'A'
@@ -203,7 +203,7 @@ begin
     OPEN v_results FOR
       SELECT 
       g.iata, max(utc_offset) utc_offset
-      FROM GEO g , table(v_iata_tab) iata_list
+      FROM hdbk.GEO g , table(v_iata_tab) iata_list
       WHERE g.IS_ACTIVE IN ('W','Y')
       and g.iata is not null
       and g.iata not like '%@%'
@@ -213,7 +213,7 @@ begin
     OPEN v_results FOR
       SELECT 
       g.iata, max(utc_offset) utc_offset
-      FROM GEO g --, table(v_iata_tab) iata_list
+      FROM hdbk.GEO g --, table(v_iata_tab) iata_list
       WHERE g.IS_ACTIVE IN ('W','Y')
       and g.iata is not null
       and g.iata not like '%@%'
@@ -234,7 +234,7 @@ begin
     OPEN v_results FOR
       SELECT 
       g.iata, max(utc_offset) utc_offset
-      FROM GEO g --, table(v_iata_tab) iata_list
+      FROM hdbk.GEO g --, table(v_iata_tab) iata_list
       WHERE g.IS_ACTIVE IN ('W','Y')
       and g.iata is not null
       and g.iata not like '%@%'
@@ -281,7 +281,7 @@ from (
       when parents.object_type is null then trim(g.nls_name)
       else trim(parents.nls_name)
       end city_nls_name
-      FROM GEO g, geo parents --, table(v_iata_tab) iata_list
+      FROM hdbk.GEO g, hdbk.geo parents --, table(v_iata_tab) iata_list
       WHERE g.IS_ACTIVE IN ('Y')
       and g.iata is not null
       and g.iata not like '%@%'
@@ -310,7 +310,7 @@ begin
       iata,
       name,
       nls_name
-      from airline
+      from hdbk.airline
       where iata is not null
       and amnd_state = 'A';    
 
@@ -330,14 +330,14 @@ begin
       iata,
       name,
       nls_name
-      from airplane
+      from hdbk.airplane
       ;    
 
   return v_results;
 end;
 
 
-
+/*
   function markup_get(p_version in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR
   is
@@ -367,10 +367,10 @@ end;
       when mkp.percent = 'Y'  then mkp.min_absolut 
       else null
       end min_absolut,
-      (select max(id) from ntg.markup)  version,
+      (select max(id) from markup)  version,
       decode(mkp.amnd_state, 'A','Y','C','N','E') is_active,
-      (select name from ntg.markup_type where id = markup_type_oid) markup_type
-      from markup mkp, airline air
+      (select name from hdbk.markup_type where id = markup_type_oid) markup_type
+      from markup mkp, hdbk.airline air
       where air.amnd_state = 'A'
       and air.id = mkp.validating_carrier
     and ((mkp.amnd_state in ('C','A') 
@@ -388,6 +388,7 @@ end;
       RAISE_APPLICATION_ERROR(-20002,'select row into markup error. '||SQLERRM);
     return null;  
   end;
+*/
 
 
   function note_add(p_client in hdbk.dtype.t_name default null,
@@ -402,10 +403,10 @@ end;
   begin
     r_client := blng.blng_api.client_get_info_r(p_email => p_client);
     
-    select count(*) into note_count from ntg.note where amnd_state = 'A' and client_oid = r_client.id;
+    select count(*) into note_count from hdbk.note where amnd_state = 'A' and client_oid = r_client.id;
     if note_count >= 3 then raise OVER_LIMIT; end if;
     
-    v_note := ntg.ntg_api.note_add(p_client=>r_client.id, p_name=>p_name);    
+    v_note := hdbk.hdbk_api.note_add(p_client=>r_client.id, p_name=>p_name);    
     
     commit;   
     open v_results FOR
@@ -435,10 +436,10 @@ end;
     v_note hdbk.dtype.t_id; 
   begin
         
-    r_note := ntg.ntg_api.note_get_info_r(p_id => p_id);
+    r_note := hdbk.hdbk_api.note_get_info_r(p_id => p_id);
     r_client := blng.blng_api.client_get_info_r(p_email => p_client);
     if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
-    ntg.ntg_api.note_edit(p_id=>r_note.id, p_name=>p_name);   
+    hdbk.hdbk_api.note_edit(p_id=>r_note.id, p_name=>p_name);   
     commit;
     open v_results FOR
       select 'SUCCESS' res from dual;
@@ -460,10 +461,10 @@ end;
     v_note hdbk.dtype.t_id; 
   begin
         
-    r_note := ntg.ntg_api.note_get_info_r(p_id => p_id);
+    r_note := hdbk.hdbk_api.note_get_info_r(p_id => p_id);
     r_client := blng.blng_api.client_get_info_r(p_email => p_client);
     if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
-    ntg.ntg_api.note_edit(p_id=>r_note.id, p_status=>'D');     
+    hdbk.hdbk_api.note_edit(p_id=>r_note.id, p_status=>'D');     
     commit;
     open v_results FOR
       select 'SUCCESS' res from dual;
@@ -485,10 +486,10 @@ end;
     v_note hdbk.dtype.t_id; 
   begin
         
-    r_note := ntg.ntg_api.note_get_info_r(p_id => p_id);
+    r_note := hdbk.hdbk_api.note_get_info_r(p_id => p_id);
     r_client := blng.blng_api.client_get_info_r(p_email => p_client);
     if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
-    ntg.ntg_api.note_edit(p_id=>r_note.id, p_status=>'A');        
+    hdbk.hdbk_api.note_edit(p_id=>r_note.id, p_status=>'A');        
     commit;
     open v_results FOR
       select 'SUCCESS' res from dual;
@@ -511,10 +512,10 @@ end;
     v_note_ticket hdbk.dtype.t_id; 
   begin
         
-    r_note := ntg.ntg_api.note_get_info_r(p_id => p_note);
+    r_note := hdbk.hdbk_api.note_get_info_r(p_id => p_note);
     r_client := blng.blng_api.client_get_info_r(p_email => p_client);
     if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
-    v_note_ticket := ntg.ntg_api.note_ticket_add(p_note=>r_note.id, p_tickets=>p_tickets);        
+    v_note_ticket := hdbk.hdbk_api.note_ticket_add(p_note=>r_note.id, p_tickets=>p_tickets);        
     commit;
     open v_results FOR
       select 'SUCCESS' res, v_note_ticket note_ticket_id from dual;
@@ -538,16 +539,16 @@ end;
     v_note_ticket hdbk.dtype.t_id; 
   begin
         
-    r_note := ntg.ntg_api.note_get_info_r(p_id => p_note);
+    r_note := hdbk.hdbk_api.note_get_info_r(p_id => p_note);
     --dbms_output.put_line('1');
-    r_note_ticket := ntg.ntg_api.note_ticket_get_info_r(p_id => p_ticket);
+    r_note_ticket := hdbk.hdbk_api.note_ticket_get_info_r(p_id => p_ticket);
     ---dbms_output.put_line('2');
     r_client := blng.blng_api.client_get_info_r(p_email => p_client);
     --dbms_output.put_line('3');
     if r_client.id <> r_note.client_oid then     --dbms_output.put_line('NO_DATA_FOUND');
     raise NO_DATA_FOUND; end if;
     --dbms_output.put_line('4');
-    ntg.ntg_api.note_ticket_edit(p_id=>r_note_ticket.id, p_status=>'D');       
+    hdbk.hdbk_api.note_ticket_edit(p_id=>r_note_ticket.id, p_status=>'D');       
     --dbms_output.put_line('5');
     commit;
     open v_results FOR
@@ -572,11 +573,11 @@ end;
     v_note_ticket hdbk.dtype.t_id; 
   begin
         
-    r_note := ntg.ntg_api.note_get_info_r(p_id => p_note);
-    r_note_ticket := ntg.ntg_api.note_ticket_get_info_r(p_id => p_ticket);
+    r_note := hdbk.hdbk_api.note_get_info_r(p_id => p_note);
+    r_note_ticket := hdbk.hdbk_api.note_ticket_get_info_r(p_id => p_ticket);
     r_client := blng.blng_api.client_get_info_r(p_email => p_client);
     if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
-    ntg.ntg_api.note_ticket_edit(p_id=>r_note_ticket.id, p_status=>'A');        
+    hdbk.hdbk_api.note_ticket_edit(p_id=>r_note_ticket.id, p_status=>'A');        
     commit;
     open v_results FOR
       select 'SUCCESS' res from dual;
@@ -601,7 +602,7 @@ end;
     r_client := blng.blng_api.client_get_info_r(p_email => p_client);
     if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
     open v_results FOR
-      select id note_id, name from ntg.note where amnd_state = 'A' and client_oid = r_client.id order by id desc;
+      select id note_id, name from hdbk.note where amnd_state = 'A' and client_oid = r_client.id order by id desc;
     return v_results;  
   exception when others then
     open v_results FOR
@@ -619,9 +620,9 @@ end;
     v_note_ticket hdbk.dtype.t_id; 
   begin
         
-    r_note := ntg.ntg_api.note_get_info_r(p_id => p_note);
+    r_note := hdbk.hdbk_api.note_get_info_r(p_id => p_note);
     open v_results FOR
-      select note.id note_id, note_ticket.id note_ticket_id, note.name, note_ticket.tickets from ntg.note, ntg.note_ticket
+      select note.id note_id, note_ticket.id note_ticket_id, note.name, note_ticket.tickets from hdbk.note, hdbk.note_ticket
       where note.id = p_note
       and note.id = note_ticket.note_oid(+)
       and note.amnd_state = 'A'
@@ -648,7 +649,7 @@ end;
 end;
 /
 
-grant execute on ntg.fwdr to ord ;
-grant execute on ntg.fwdr to blng ;
+--grant execute on hdbk.fwdr to ord ;
+--grant execute on hdbk.fwdr to blng ;
 
 /

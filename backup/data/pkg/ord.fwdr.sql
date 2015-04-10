@@ -841,7 +841,7 @@ $TODO: there must be check for users with ISSUES permission
 --    dbms_output.put_line('NN p_id='||r_item_avia.id);          
     v_id:= r_item_avia.id;
   
-    select distinct al.id, al.iata  into v_airline, v_iata from ord.v_json j, ntg.airline al where j.id = v_id
+    select distinct al.id, al.iata  into v_airline, v_iata from ord.v_json j, hdbk.airline al where j.id = v_id
     and al.AMND_STATE = 'A'
     and j.validatingcarrier = al.iata
     ;
@@ -1394,7 +1394,7 @@ $TODO: there must be check for users with ISSUES permission
       isr.printer,
       (select max(id) from pos_rule)  version,
       decode(isr.amnd_state, 'A','Y','C','N','E') is_active
-      from pos_rule isr, ntg.airline air
+      from pos_rule isr, hdbk.airline air
       where air.amnd_state = 'A'
       and air.id = isr.airline_oid
       and ((isr.amnd_state in ('C','A') 
@@ -1545,8 +1545,8 @@ $TODO: there must be check for users with ISSUES permission
                           p_details => i.rule_description,
                           p_fix => case when i.rule_amount_measure = 'PERCENT' then null else  i.rule_amount end,
                           p_percent => case when i.rule_amount_measure = 'PERCENT' then i.rule_amount else  null end,
-                          P_DATE_FROM => to_date(i.rule_life_from,'yyyy-mm-dd')-ntg.fwdr.utc_offset_mow/24,
-                          P_DATE_TO => to_date(i.rule_life_to,'yyyy-mm-dd')-ntg.fwdr.utc_offset_mow/24,
+                          P_DATE_FROM => to_date(i.rule_life_from,'yyyy-mm-dd')-hdbk.fwdr.utc_offset_mow/24,
+                          P_DATE_TO => to_date(i.rule_life_to,'yyyy-mm-dd')-hdbk.fwdr.utc_offset_mow/24,
                           p_priority => i.rule_priority,
                           p_contract_type => i.contract_type_id, --its contract_type of commission (self/interline/code-share)                          
                           p_contract => i.contract,
@@ -1565,8 +1565,8 @@ $TODO: there must be check for users with ISSUES permission
                           p_details => i.rule_description,
                           p_fix => case when i.rule_amount_measure = 'PERCENT' then null else  i.rule_amount end,
                           p_percent => case when i.rule_amount_measure = 'PERCENT' then i.rule_amount else  null end,
-                          P_DATE_FROM => to_date(i.rule_life_from,'yyyy-mm-dd')-ntg.fwdr.utc_offset_mow/24,
-                          P_DATE_TO => to_date(i.rule_life_to,'yyyy-mm-dd')-ntg.fwdr.utc_offset_mow/24,
+                          P_DATE_FROM => to_date(i.rule_life_from,'yyyy-mm-dd')-hdbk.fwdr.utc_offset_mow/24,
+                          P_DATE_TO => to_date(i.rule_life_to,'yyyy-mm-dd')-hdbk.fwdr.utc_offset_mow/24,
                           p_priority => i.rule_priority,
                           p_contract_type => i.contract_type_id, /*, --its contract_type of commission (self/interline/code-share)                          
                           p_status =>*/
@@ -1668,7 +1668,7 @@ $TODO: there must be check for users with ISSUES permission
       select
       bill.id bill_oid,
       'fare' item,
-      (select decode(code,'РФ','Y','N') from ntg.geo where amnd_state = 'A' and id = (select country_id from ntg.geo where iata = 'MOW' and amnd_state = 'A')) is_nds,
+      (select decode(code,'РФ','Y','N') from hdbk.geo where amnd_state = 'A' and id = (select country_id from hdbk.geo where iata = 'MOW' and amnd_state = 'A')) is_nds,
       'MOW' flight_from,
       'LON' flight_to,
       ticket.fare_amount,
@@ -1691,7 +1691,7 @@ $TODO: there must be check for users with ISSUES permission
       select
       bill.id bill_oid,
       'fee' item,
-      (select decode(code,'РФ','Y','N') from ntg.geo where amnd_state = 'A' and id = (select country_id from ntg.geo where iata = 'MOW' and amnd_state = 'A')) is_nds,
+      (select decode(code,'РФ','Y','N') from hdbk.geo where amnd_state = 'A' and id = (select country_id from hdbk.geo where iata = 'MOW' and amnd_state = 'A')) is_nds,
       'MOW' flight_from,
       'LON' flight_to,
       ticket.service_fee_amount + nvl(ticket.partner_fee_amount,0),
@@ -1742,7 +1742,7 @@ $TODO: there must be check for users with ISSUES permission
       end) over () version,
       nvl(cmn.contract_oid,0) tenant_id,
       nvl(al.IATA,'YY') iata,
-      upper(nvl((select name from ntg.markup_type where id = cmn.markup_type),'ERROR')) markup_type,
+      upper(nvl((select name from hdbk.markup_type where id = cmn.markup_type),'ERROR')) markup_type,
       -------------------------------
       nvl(nvl(cmn.percent,cmn.fix),0) rule_amount,
       case 
@@ -1760,7 +1760,7 @@ $TODO: there must be check for users with ISSUES permission
       (select count(*) from ord.commission_details where commission_oid = cmn.id and amnd_state = 'A') condition_count
       from 
       ord.commission cmn ,
-      ntg.airline al
+      hdbk.airline al
       where
       al.amnd_state = 'A'
       and al.IATA is not null
@@ -1812,7 +1812,7 @@ $TODO: there must be check for users with ISSUES permission
       dtl.template_value
       from 
       ord.commission cmn ,
-      ntg.airline al ,
+      hdbk.airline al ,
       (
         select 
         cd.commission_oid ,

@@ -283,7 +283,7 @@ create  or replace package BODY blng.fwdr as
       /*blng.core.pay_contract_by_client() tenant_id,*/ to_char(clt.birth_date,'yyyy-mm-dd') birth_date,
       clt.gender,
       clt.nationality,
-      ntg.ntg_api.gds_nationality_get_info_name(clt.nationality) nls_nationality,
+      hdbk.hdbk_api.gds_nationality_get_info_name(clt.nationality) nls_nationality,
       cld.id doc_id,   
       to_char(cld.expiry_date,'yyyy-mm-dd') doc_expiry_date,
       cld.doc_number,
@@ -293,7 +293,7 @@ create  or replace package BODY blng.fwdr as
       cld.gender doc_gender,
       to_char(cld.birth_date,'yyyy-mm-dd') doc_birth_date,
       cld.nationality doc_nationality,
-      ntg.ntg_api.gds_nationality_get_info_name(cld.nationality) doc_nls_nationality,cld.phone doc_phone,
+      hdbk.hdbk_api.gds_nationality_get_info_name(cld.nationality) doc_nls_nationality,cld.phone doc_phone,
       company.name company_name,
       clt.is_tester
       from blng.client clt, blng.client_data cld, blng.company

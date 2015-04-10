@@ -1,7 +1,7 @@
 
 /
 
-create or replace package ntg.ntg_api as
+create or replace package hdbk.hdbk_api as
 
   
 /*
@@ -65,7 +65,7 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
 
 end;
 /
-create or replace package body ntg.ntg_api as
+create or replace package body hdbk.hdbk_api as
   
   function gds_nationality_get_info (p_code in hdbk.dtype.t_code)
   return SYS_REFCURSOR
