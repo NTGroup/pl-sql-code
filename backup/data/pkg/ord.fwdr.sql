@@ -1,7 +1,7 @@
 
 /
 
-CREATE OR REPLACE PACKAGE "ORD"."FWDR" AS 
+CREATE OR REPLACE PACKAGE ORD.FWDR AS 
 
 
 /*
@@ -22,12 +22,12 @@ $obj_param: p_status: status like 'W' waiting or smth else
 $obj_return: id of created order
 
 */
-  function order_create(p_date  in ntg.dtype.t_date default null, 
-                    p_order_number  in ntg.dtype.t_long_code default null, 
-                    p_client in ntg.dtype.t_id default null,
-                    p_status in ntg.dtype.t_status default null
+  function order_create(p_date  in hdbk.dtype.t_date default null, 
+                    p_order_number  in hdbk.dtype.t_long_code default null, 
+                    p_client in hdbk.dtype.t_id default null,
+                    p_status in hdbk.dtype.t_status default null
                     )
-  return ntg.dtype.t_id;
+  return hdbk.dtype.t_id;
 
 /*
 
@@ -38,15 +38,15 @@ $obj_return: id of created item
 
 */
 
-  function item_add(p_order_oid in ntg.dtype.t_id default null,
-                          p_pnr_locator in ntg.dtype.t_long_code default null,
-                          p_time_limit  in ntg.dtype.t_date default null,
-                          p_total_amount in ntg.dtype.t_amount default null,
-                          p_total_markup in ntg.dtype.t_amount default null,
-                          p_pnr_object in ntg.dtype.t_clob default null,
-                          p_pnr_id in ntg.dtype.t_long_code default null
+  function item_add(p_order_oid in hdbk.dtype.t_id default null,
+                          p_pnr_locator in hdbk.dtype.t_long_code default null,
+                          p_time_limit  in hdbk.dtype.t_date default null,
+                          p_total_amount in hdbk.dtype.t_amount default null,
+                          p_total_markup in hdbk.dtype.t_amount default null,
+                          p_pnr_object in hdbk.dtype.t_clob default null,
+                          p_pnr_id in hdbk.dtype.t_long_code default null
                           )
-  return ntg.dtype.t_id;
+  return hdbk.dtype.t_id;
 
 /*
 
@@ -64,14 +64,14 @@ $obj_param: p_tenant_id: id of contract in text format, for authorization
 
 */
 
-  procedure avia_update(  p_pnr_id in ntg.dtype.t_long_code default null,
-                          p_pnr_locator in ntg.dtype.t_long_code default null,
-                          p_time_limit  in ntg.dtype.t_date default null,
-                          p_total_amount in ntg.dtype.t_amount default null,
-                          p_total_markup in ntg.dtype.t_amount default null,
-                          p_pnr_object in ntg.dtype.t_clob default null,
-                          p_nqt_status in  ntg.dtype.t_long_code default null,
-                          p_tenant_id  in  ntg.dtype.t_long_code default null
+  procedure avia_update(  p_pnr_id in hdbk.dtype.t_long_code default null,
+                          p_pnr_locator in hdbk.dtype.t_long_code default null,
+                          p_time_limit  in hdbk.dtype.t_date default null,
+                          p_total_amount in hdbk.dtype.t_amount default null,
+                          p_total_markup in hdbk.dtype.t_amount default null,
+                          p_pnr_object in hdbk.dtype.t_clob default null,
+                          p_nqt_status in  hdbk.dtype.t_long_code default null,
+                          p_tenant_id  in  hdbk.dtype.t_long_code default null
                           );
 
 /*
@@ -85,9 +85,9 @@ $obj_param: p_tenant_id: id of contract in text format, for authorization
 $obj_param: p_ticket: json[p_number,p_name,p_fare_amount,p_tax_amount,p_markup_amount,p_type]
 
 */
-  procedure avia_reg_ticket(  p_pnr_id in ntg.dtype.t_long_code default null,
-                            p_tenant_id  in  ntg.dtype.t_long_code default null,
-                            p_ticket in ntg.dtype.t_clob default null
+  procedure avia_reg_ticket(  p_pnr_id in hdbk.dtype.t_long_code default null,
+                            p_tenant_id  in  hdbk.dtype.t_long_code default null,
+                            p_ticket in hdbk.dtype.t_clob default null
                           );
 
 /*
@@ -99,8 +99,8 @@ $obj_param: p_user_id: user identifire. at this moment email
 $obj_param: p_pnr_id: id from NQT. search perform by this id
 
 */
-  procedure avia_pay( p_user_id in ntg.dtype.t_long_code default null,
-                      p_pnr_id in ntg.dtype.t_long_code default null);
+  procedure avia_pay( p_user_id in hdbk.dtype.t_long_code default null,
+                      p_pnr_id in hdbk.dtype.t_long_code default null);
 
 /*
 
@@ -109,7 +109,7 @@ $obj_name: order_get
 $obj_desc: fake
 
 */
-  function order_get(p_id in ntg.dtype.t_id)
+  function order_get(p_id in hdbk.dtype.t_id)
   return SYS_REFCURSOR;
 
 /*
@@ -119,7 +119,7 @@ $obj_name: item_list
 $obj_desc: fake
 
 */
-  function item_get(p_id in ntg.dtype.t_id)
+  function item_get(p_id in hdbk.dtype.t_id)
   return SYS_REFCURSOR;
 
 /*
@@ -129,7 +129,7 @@ $obj_name: item_list
 $obj_desc: fake
 
 */
-  function item_list(p_order in ntg.dtype.t_id)
+  function item_list(p_order in hdbk.dtype.t_id)
   return SYS_REFCURSOR;
   
 
@@ -144,7 +144,7 @@ $obj_param: p_rownum: filter for rows count
 $obj_return: sys_refcursor[pnr_id, nqt_status, po_status, nqt_status_cur, null po_msg, 'avia' item_type, pnr_locator, tenant_id]
 
 */
-  function pnr_list(p_nqt_status_list in ntg.dtype.t_clob, p_rownum in ntg.dtype.t_id default null)
+  function pnr_list(p_nqt_status_list in hdbk.dtype.t_clob, p_rownum in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 
 /*
@@ -159,7 +159,7 @@ $obj_return: sys_refcursor[pnr_id, nqt_status, po_status, nqt_status_cur, null p
 
 */
  
-  function pnr_list(p_pnr_list in ntg.dtype.t_clob)
+  function pnr_list(p_pnr_list in hdbk.dtype.t_clob)
   return SYS_REFCURSOR;
 
 /*
@@ -173,10 +173,10 @@ $obj_param: o_fix: in this paraveter returned fix commission value
 $obj_param: o_percent: in this paraveter returned percent commission value
 
 */
-  procedure commission_get( p_pnr_id in ntg.dtype.t_long_code,
-                            p_tenant_id in ntg.dtype.t_long_code, 
-                            o_fix out  ntg.dtype.t_amount, 
-                            o_percent out  ntg.dtype.t_amount
+  procedure commission_get( p_pnr_id in hdbk.dtype.t_long_code,
+                            p_tenant_id in hdbk.dtype.t_long_code, 
+                            o_fix out  hdbk.dtype.t_amount, 
+                            o_percent out  hdbk.dtype.t_amount
                           );
 
 /*
@@ -189,8 +189,8 @@ $obj_return: string like 0012410032, where 1241 - client id and 32 is a counter 
 
 */
 
-  function order_number_generate (p_client in ntg.dtype.t_id)
-  return ntg.dtype.t_long_code;
+  function order_number_generate (p_client in hdbk.dtype.t_id)
+  return hdbk.dtype.t_long_code;
 
 /*
 
@@ -202,9 +202,9 @@ $obj_param: p_tenant_id: id of contract in text format, for authorization
 $obj_param: p_result: [ERROR/SUCCESS/ if null then INPROGRESS] 
 
 */
-  procedure avia_manual( p_pnr_id in ntg.dtype.t_long_code default null, 
-                          p_tenant_id in ntg.dtype.t_long_code default null, 
-                          p_result in ntg.dtype.t_long_code default null);
+  procedure avia_manual( p_pnr_id in hdbk.dtype.t_long_code default null, 
+                          p_tenant_id in hdbk.dtype.t_long_code default null, 
+                          p_result in hdbk.dtype.t_long_code default null);
   
 
 /*
@@ -214,14 +214,14 @@ $obj_desc: perform reverse for order scheme. return bill to Waiting status
 $obj_desc: and call revoke_document from billing
 $obj_param: p_pnr_id: id from NQT. search perform by this id
 */
-  procedure cash_back(p_pnr_id in ntg.dtype.t_long_code);
+  procedure cash_back(p_pnr_id in hdbk.dtype.t_long_code);
 
 /*
 $obj_type: function
 $obj_name: get_sales_list
 $obj_desc: fake
 */    
-  function get_sales_list(p_datetime_from in ntg.dtype.t_long_code default null,p_datetime_to in ntg.dtype.t_long_code default null)
+  function get_sales_list(p_datetime_from in hdbk.dtype.t_long_code default null,p_datetime_to in hdbk.dtype.t_long_code default null)
   return SYS_REFCURSOR;
 
 /*
@@ -231,7 +231,7 @@ $obj_desc: return all rules by iata code of airline
 $obj_param: p_iata: iata 2 char code
 $obj_return: SYS_REFCURSOR[fields from v_rule view]
 */
-  function commission_view(p_iata in ntg.dtype.t_code default null)
+  function commission_view(p_iata in hdbk.dtype.t_code default null)
   return SYS_REFCURSOR;
 
 
@@ -246,8 +246,8 @@ $obj_param: p_user_id: user identifire. at this moment email
 
 */
 
-  procedure avia_create(  p_pnr_id in ntg.dtype.t_long_code default null,
-                          p_user_id  in  ntg.dtype.t_long_code default null
+  procedure avia_create(  p_pnr_id in hdbk.dtype.t_long_code default null,
+                          p_user_id  in  hdbk.dtype.t_long_code default null
                           );
 
 
@@ -261,8 +261,8 @@ $obj_param: p_user_id: user identifire. at this moment email
 
 */
   procedure avia_booked(
-                      p_pnr_id in ntg.dtype.t_long_code default null,
-                       p_user_id in ntg.dtype.t_long_code default null);
+                      p_pnr_id in hdbk.dtype.t_long_code default null,
+                       p_user_id in hdbk.dtype.t_long_code default null);
 
 
 
@@ -275,7 +275,7 @@ $obj_param: p_version: id
 $obj_return: SYS_REFCURSOR[ID, TENANT_ID, VALIDATING_CARRIER,booking_pos,ticketing_pos,stock,printer,VERSION, IS_ACTIVE]
 $obj_return: default tenant_id = 0, default validating_carrier = 'YY'
 */  
-  function pos_rule_get(p_version in ntg.dtype.t_id default null)
+  function pos_rule_get(p_version in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 
 
@@ -288,7 +288,7 @@ $obj_param: p_data: data for update. format json[id, tenant_id, validating_carri
 $obj_param: p_data: booking_pos, ticketing_pos, stock, printer, status]
 $obj_return: SYS_REFCURSOR[res:true/false]
 */
-  function pos_rule_edit(p_data in ntg.dtype.t_clob)
+  function pos_rule_edit(p_data in hdbk.dtype.t_clob)
   return SYS_REFCURSOR;
 
 /*
@@ -303,7 +303,7 @@ $obj_param: p_data: TEMPLATE_NAME_NLS, TEMPLATE_VALUE]
 $obj_return: SYS_REFCURSOR[res:true/false]
 */
 
-  function commission_edit(p_data in ntg.dtype.t_clob)
+  function commission_edit(p_data in hdbk.dtype.t_clob)
   return SYS_REFCURSOR;
   
 
@@ -314,7 +314,7 @@ $obj_desc: return all commission templates
 $obj_param: p_is_contract_type: if 'Y' then return all contract_types else all template_types
 $obj_return: SYS_REFCURSOR[ID, TEMPLATE_TYPE, PRIORITY, DETAILS, IS_CONTRACT_TYPE, NAME, NLS_NAME, IS_VALUE]
 */  
-  function commission_template_list(p_is_contract_type in ntg.dtype.t_status default null)
+  function commission_template_list(p_is_contract_type in hdbk.dtype.t_status default null)
   return SYS_REFCURSOR;
 
 /*
@@ -333,7 +333,7 @@ $obj_desc: return all markup rules
 $obj_param: p_version: version id. filter new changes
 $obj_return: SYS_REFCURSOR[ID, IS_ACTIVE, VERSION, TENANT_ID, IATA, MARKUP_TYPE, RULE_AMOUNT, RULE_AMOUNT_MEASURE, MIN_ABSOLUT, PRIORITY, PER_SEGMENT,CONTRACT_TYPE,CONDITION_COUNT]
 */
-  function markup_rule_get(p_version in ntg.dtype.t_id default null)
+  function markup_rule_get(p_version in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 
 /*
@@ -343,7 +343,7 @@ $obj_desc: return all markup templates for rule id
 $obj_param: p_rule_id: id of rule
 $obj_return: SYS_REFCURSOR[ID, TEMPLATE_TYPE_CODE, TEMPLATE_VALUE]
 */  
-  function markup_templ_get(p_rule_id in ntg.dtype.t_id default null)
+  function markup_templ_get(p_rule_id in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
   
 
@@ -352,17 +352,17 @@ END FWDR;
 
 /
 
-  CREATE OR REPLACE PACKAGE BODY "ORD"."FWDR" AS
+  CREATE OR REPLACE PACKAGE BODY ORD.FWDR AS
 
-  function order_create(p_date  in ntg.dtype.t_date default null, 
-                        p_order_number  in ntg.dtype.t_long_code default null, 
-                        p_client in ntg.dtype.t_id default null,
-                        p_status in ntg.dtype.t_status default null
+  function order_create(p_date  in hdbk.dtype.t_date default null, 
+                        p_order_number  in hdbk.dtype.t_long_code default null, 
+                        p_client in hdbk.dtype.t_id default null,
+                        p_status in hdbk.dtype.t_status default null
   )
-  return ntg.dtype.t_id
+  return hdbk.dtype.t_id
   is
     v_ord_row ord%rowtype;
-    v_id ntg.dtype.t_id;
+    v_id hdbk.dtype.t_id;
   begin
     
     v_id:=ord_api.ord_add(p_date => sysdate,
@@ -373,25 +373,25 @@ END FWDR;
     return v_id;
   exception when others then
     rollback;
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'order_create', p_msg_type=>'UNHANDLED_ERROR',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'order_create', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=ord,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into ord error. '||SQLERRM);
     return null;
   end;
 
-  function item_add(p_order_oid in ntg.dtype.t_id default null,
-                          p_pnr_locator in ntg.dtype.t_long_code default null,
-                          p_time_limit  in ntg.dtype.t_date default null,
-                          p_total_amount in ntg.dtype.t_amount default null,
-                          p_total_markup in ntg.dtype.t_amount default null,
-                          p_pnr_object in ntg.dtype.t_clob default null,
-                          p_pnr_id in ntg.dtype.t_long_code default null
+  function item_add(p_order_oid in hdbk.dtype.t_id default null,
+                          p_pnr_locator in hdbk.dtype.t_long_code default null,
+                          p_time_limit  in hdbk.dtype.t_date default null,
+                          p_total_amount in hdbk.dtype.t_amount default null,
+                          p_total_markup in hdbk.dtype.t_amount default null,
+                          p_pnr_object in hdbk.dtype.t_clob default null,
+                          p_pnr_id in hdbk.dtype.t_long_code default null
                           )
-  return ntg.dtype.t_id
+  return hdbk.dtype.t_id
   is
     v_ord_row ord%rowtype;
-    v_id ntg.dtype.t_id;
+    v_id hdbk.dtype.t_id;
   begin
     v_id:=ord_api.item_avia_add(  p_order_oid,
                                   p_pnr_locator,
@@ -403,30 +403,30 @@ END FWDR;
     return v_id;
   exception when others then
     rollback;
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'item_add', p_msg_type=>'UNHANDLED_ERROR',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'item_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=item_avia,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into item_avia error. '||SQLERRM);
     return null;
   end;
 
-  procedure avia_register( p_pnr_id in ntg.dtype.t_long_code default null,
-                          p_pnr_locator in ntg.dtype.t_long_code default null,
-                          p_time_limit  in ntg.dtype.t_date default null,
-                          p_total_amount in ntg.dtype.t_amount default null,
-                          p_total_markup in ntg.dtype.t_amount default null,
-                          p_pnr_object in ntg.dtype.t_clob default null,
-                          p_nqt_status in  ntg.dtype.t_long_code default null,
-                          p_client in ntg.dtype.t_id default null,
-                          p_tenant_id  in  ntg.dtype.t_long_code default null
+  procedure avia_register( p_pnr_id in hdbk.dtype.t_long_code default null,
+                          p_pnr_locator in hdbk.dtype.t_long_code default null,
+                          p_time_limit  in hdbk.dtype.t_date default null,
+                          p_total_amount in hdbk.dtype.t_amount default null,
+                          p_total_markup in hdbk.dtype.t_amount default null,
+                          p_pnr_object in hdbk.dtype.t_clob default null,
+                          p_nqt_status in  hdbk.dtype.t_long_code default null,
+                          p_client in hdbk.dtype.t_id default null,
+                          p_tenant_id  in  hdbk.dtype.t_long_code default null
                           )
   is
-    v_id ntg.dtype.t_id;
-    v_order ntg.dtype.t_id;
-    v_avia ntg.dtype.t_id;
-    v_bill ntg.dtype.t_id;
-    v_client ntg.dtype.t_id;
-    v_contract ntg.dtype.t_id;
+    v_id hdbk.dtype.t_id;
+    v_order hdbk.dtype.t_id;
+    v_avia hdbk.dtype.t_id;
+    v_bill hdbk.dtype.t_id;
+    v_client hdbk.dtype.t_id;
+    v_contract hdbk.dtype.t_id;
     r_item_avia item_avia%rowtype;
   begin
     
@@ -481,36 +481,36 @@ END FWDR;
   exception 
     when VALUE_ERROR then
       rollback;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_register', p_msg_type=>'VALUE_ERROR',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_register', p_msg_type=>'VALUE_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=item_avia,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'avia_register error. put wrong value. '||SQLERRM);
     when others then    
       rollback;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_register', p_msg_type=>'UNHANDLED_ERROR',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_register', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=item_avia,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'avia_register error. '||SQLERRM);
   end;
 
-  procedure avia_reg_ticket(  p_pnr_id in ntg.dtype.t_long_code default null,
-                            p_tenant_id  in  ntg.dtype.t_long_code default null,
-                            p_ticket in ntg.dtype.t_clob default null
+  procedure avia_reg_ticket(  p_pnr_id in hdbk.dtype.t_long_code default null,
+                            p_tenant_id  in  hdbk.dtype.t_long_code default null,
+                            p_ticket in hdbk.dtype.t_clob default null
                           )
   is
-    v_id ntg.dtype.t_id;
-    v_order ntg.dtype.t_id;
-    v_avia ntg.dtype.t_id;
-    v_bill ntg.dtype.t_id;
-    v_client ntg.dtype.t_id;
-    v_contract ntg.dtype.t_id;
+    v_id hdbk.dtype.t_id;
+    v_order hdbk.dtype.t_id;
+    v_avia hdbk.dtype.t_id;
+    v_bill hdbk.dtype.t_id;
+    v_client hdbk.dtype.t_id;
+    v_contract hdbk.dtype.t_id;
     r_item_avia item_avia%rowtype;
     r_order ord%rowtype;
     r_ticket ticket%rowtype;
     r_client blng.client%rowtype;
     r_item_avia_status item_avia_status%rowtype;
-    v_tenant_id ntg.dtype.t_id;
-    v_ticket ntg.dtype.t_id;
+    v_tenant_id hdbk.dtype.t_id;
+    v_ticket hdbk.dtype.t_id;
   begin
     
     v_tenant_id := to_number(p_tenant_id);
@@ -521,7 +521,7 @@ END FWDR;
       r_item_avia := ord_api.item_avia_get_info_r(p_pnr_id=>p_pnr_id);
     exception 
       when NO_DATA_FOUND then 
-        NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'NO_DATA_FOUND',
+        hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'NO_DATA_FOUND',
           P_MSG => 'p_pnr_id does not exists',p_info => 'p_pnr_id='||p_pnr_id||',p_date='
           || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
         RAISE_APPLICATION_ERROR(-20002,'avia_reg_ticket error. p_pnr_id does not found.');
@@ -541,13 +541,13 @@ $TODO: there must be check for users with ISSUES permission
       if blng.core.pay_contract_by_client(r_client.id)!=v_tenant_id then raise NO_DATA_FOUND; end if;
 
     exception when NO_DATA_FOUND then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'NO_DATA_FOUND',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => 'tenant_id not found',p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
       RAISE_APPLICATION_ERROR(-20002,'avia_register error. user_id not found. ');
     end;
 
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'OK',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'OK',
         P_MSG => p_ticket,
         p_info => 'p_pnr_id='||p_pnr_id||',p_tenant_id='||p_tenant_id||',p_table=ticket,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -570,7 +570,7 @@ $TODO: there must be check for users with ISSUES permission
   )
   loop
     begin
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'1',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'1',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
         p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -580,7 +580,7 @@ $TODO: there must be check for users with ISSUES permission
       r_ticket:= ord_api.ticket_get_info_r(
                             p_ticket_number       => i.p_number
                           );
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'2',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'2',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
         p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -597,12 +597,12 @@ $TODO: there must be check for users with ISSUES permission
                               p_partner_fee_amount  => i.p_markup_partner
                               
                             );    
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'3',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'3',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
         p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     exception when NO_DATA_FOUND then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'4',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'4',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
         p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -616,7 +616,7 @@ $TODO: there must be check for users with ISSUES permission
                               p_service_fee_amount  => i.p_markup_base,
                               p_partner_fee_amount  => i.p_markup_partner
                             );
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'5',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'5',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
         p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -629,7 +629,7 @@ $TODO: there must be check for users with ISSUES permission
   exception 
     when others then    
       rollback;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'UNHANDLED_ERROR',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
         p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -640,7 +640,7 @@ $TODO: there must be check for users with ISSUES permission
 
 
 
-  function item_list(p_order in ntg.dtype.t_id)
+  function item_list(p_order in hdbk.dtype.t_id)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
@@ -652,7 +652,7 @@ $TODO: there must be check for users with ISSUES permission
         order by id;
     return v_results;
   exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'item_list', p_msg_type=>'UNHANDLED_ERROR',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'item_list', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=item_avia,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
@@ -660,7 +660,7 @@ $TODO: there must be check for users with ISSUES permission
   end;
 
 
-  function pnr_list(p_nqt_status_list in ntg.dtype.t_clob, p_rownum in ntg.dtype.t_id default null)
+  function pnr_list(p_nqt_status_list in hdbk.dtype.t_clob, p_rownum in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
@@ -682,7 +682,7 @@ $TODO: there must be check for users with ISSUES permission
         order by ia.time_limit asc; --, ia.id;
     return v_results;
   exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'pnr_list', p_msg_type=>'UNHANDLED_ERROR',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'pnr_list', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=item_avia,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
@@ -690,7 +690,7 @@ $TODO: there must be check for users with ISSUES permission
   end;
   
 
-  function pnr_list(p_pnr_list in ntg.dtype.t_clob)
+  function pnr_list(p_pnr_list in hdbk.dtype.t_clob)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
@@ -721,14 +721,14 @@ $TODO: there must be check for users with ISSUES permission
         order by ia.time_limit asc; 
     return v_results;
   exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'pnr_list', p_msg_type=>'UNHANDLED_ERROR',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'pnr_list', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=item_avia,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
     return null;
   end;
     
-  function item_get(p_id in ntg.dtype.t_id)
+  function item_get(p_id in hdbk.dtype.t_id)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
@@ -740,14 +740,14 @@ $TODO: there must be check for users with ISSUES permission
         order by id;
     return v_results;
   exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'item_list', p_msg_type=>'UNHANDLED_ERROR',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'item_list', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=item_avia,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
     return null;    
   end;
 
-  function order_get(p_id in ntg.dtype.t_id)
+  function order_get(p_id in hdbk.dtype.t_id)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
@@ -759,17 +759,17 @@ $TODO: there must be check for users with ISSUES permission
         order by id;
     return v_results;
   exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'order_get', p_msg_type=>'UNHANDLED_ERROR',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'order_get', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=ord,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into ord error. '||SQLERRM);
     return null;
   end;
 
-  procedure commission_get(p_pnr_id in ntg.dtype.t_long_code, 
-                            p_tenant_id in ntg.dtype.t_long_code, 
-                            o_fix out  ntg.dtype.t_amount, 
-                            o_percent out  ntg.dtype.t_amount)
+  procedure commission_get(p_pnr_id in hdbk.dtype.t_long_code, 
+                            p_tenant_id in hdbk.dtype.t_long_code, 
+                            o_fix out  hdbk.dtype.t_amount, 
+                            o_percent out  hdbk.dtype.t_amount)
   is
     v_iata varchar2(255); 
   --  v_out number := null;
@@ -779,16 +779,16 @@ $TODO: there must be check for users with ISSUES permission
     r_order ord%rowtype;
 --    f_chs_VCeqMC number;  
 --    f_chs_MCneOC number;  
-    f_VCeqMC ntg.dtype.t_id;  
-    f_MCeqOC ntg.dtype.t_id;  
-    f_rule ntg.dtype.t_id;  
-    f_template_type ntg.dtype.t_id;  
-    f_list ntg.dtype.t_id;  
-    v_contract_type ntg.dtype.t_id;
+    f_VCeqMC hdbk.dtype.t_id;  
+    f_MCeqOC hdbk.dtype.t_id;  
+    f_rule hdbk.dtype.t_id;  
+    f_template_type hdbk.dtype.t_id;  
+    f_list hdbk.dtype.t_id;  
+    v_contract_type hdbk.dtype.t_id;
     v_template_type varchar2(255);
-    v_tenant_id ntg.dtype.t_id;
-    v_airline ntg.dtype.t_id;
-    v_id ntg.dtype.t_id;
+    v_tenant_id hdbk.dtype.t_id;
+    v_airline hdbk.dtype.t_id;
+    v_id hdbk.dtype.t_id;
     
   begin
 --o_percent:=0.6;
@@ -801,7 +801,7 @@ $TODO: there must be check for users with ISSUES permission
       r_item_avia := ord_api.item_avia_get_info_r(p_pnr_id=>p_pnr_id);
     exception 
       when NO_DATA_FOUND then 
-        NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'NO_DATA_FOUND',
+        hdbk.log_api.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'NO_DATA_FOUND',
           P_MSG => 'p_pnr_id does not exists',p_info => 'p_pnr_id='||p_pnr_id||',p_date='
           || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
         RAISE_APPLICATION_ERROR(-20002,'commission_get error. p_pnr_id does not found.');
@@ -821,14 +821,14 @@ $TODO: there must be check for users with ISSUES permission
       if blng.core.pay_contract_by_client(r_client.id)!=v_tenant_id then raise NO_DATA_FOUND; end if;
 
     exception when NO_DATA_FOUND then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'NO_DATA_FOUND',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => 'user_id not found',p_info => 'p_user_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
       RAISE_APPLICATION_ERROR(-20002,'commission_get error. user_id not found. ');
     end;
 
 
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'STARTED',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'STARTED',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
         
@@ -857,7 +857,7 @@ $TODO: there must be check for users with ISSUES permission
         if i_json.o_airline != i_json.m_airline then f_MCeqOC := 0; end if;
       end loop; --json
     exception when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'UNHANDLED_ERROR',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'commission_get error. json not found. '||SQLERRM);
@@ -950,20 +950,20 @@ $TODO: there must be check for users with ISSUES permission
   exception 
     WHEN NO_DATA_FOUND then 
       dbms_output.put_line(' p_id='||v_id||' v_iata='||v_iata||' o_fix='||o_fix||' o_percent='||o_percent);        
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'NO_DATA_FOUND',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       return;
     when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'UNHANDLED_ERROR',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)|| ' '||sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'commission_get error. '||SQLERRM);
     ---o_fix := null; o_percent:=5;
   end;
 
-  function order_number_generate (p_client in ntg.dtype.t_id)
-  return ntg.dtype.t_long_code
+  function order_number_generate (p_client in hdbk.dtype.t_id)
+  return hdbk.dtype.t_long_code
   is
     v_client_oid number;
     v_order_count number;
@@ -972,24 +972,24 @@ $TODO: there must be check for users with ISSUES permission
     return lpad(p_client,6,'0')||lpad(v_order_count+1,4,'0');
   end;
 
-  procedure avia_manual( p_pnr_id in ntg.dtype.t_long_code default null, 
-                          p_tenant_id in ntg.dtype.t_long_code default null, 
-                          p_result in ntg.dtype.t_long_code default null
+  procedure avia_manual( p_pnr_id in hdbk.dtype.t_long_code default null, 
+                          p_tenant_id in hdbk.dtype.t_long_code default null, 
+                          p_result in hdbk.dtype.t_long_code default null
                           )
   is
 --    v_ord_row ord%rowtype;
-    v_id ntg.dtype.t_id;
-    v_order ntg.dtype.t_id;
-    v_item_avia_status ntg.dtype.t_id;
+    v_id hdbk.dtype.t_id;
+    v_order hdbk.dtype.t_id;
+    v_item_avia_status hdbk.dtype.t_id;
     r_item_avia item_avia%rowtype;
     r_order ord%rowtype;
 --    r_client item_avia%rowtype;
     r_client blng.client%rowtype;
     r_item_avia_status item_avia_status%rowtype;
     v_order_r ord%rowtype;
-    v_bill ntg.dtype.t_id;
-    v_contract ntg.dtype.t_id;
-    v_tenant_id ntg.dtype.t_id;
+    v_bill hdbk.dtype.t_id;
+    v_contract hdbk.dtype.t_id;
+    v_tenant_id hdbk.dtype.t_id;
     
     c_bill  SYS_REFCURSOR;
     r_bill bill%rowtype;
@@ -1003,7 +1003,7 @@ $TODO: there must be check for users with ISSUES permission
       r_item_avia := ord_api.item_avia_get_info_r(p_pnr_id=>p_pnr_id);
     exception 
       when NO_DATA_FOUND then 
-        NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_manual', p_msg_type=>'NO_DATA_FOUND',
+        hdbk.log_api.LOG_ADD(p_proc_name=>'avia_manual', p_msg_type=>'NO_DATA_FOUND',
           P_MSG => 'p_pnr_id does not exists',p_info => 'p_pnr_id='||p_pnr_id||',p_date='
           || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
         RAISE_APPLICATION_ERROR(-20002,'avia_manual error. p_pnr_id does not found.');
@@ -1023,7 +1023,7 @@ $TODO: there must be check for users with ISSUES permission
       if blng.core.pay_contract_by_client(r_client.id)!=v_tenant_id then raise NO_DATA_FOUND; end if;
 
     exception when NO_DATA_FOUND then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_manual', p_msg_type=>'NO_DATA_FOUND',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_manual', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => 'tenant_id not found',p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
       RAISE_APPLICATION_ERROR(-20002,'avia_manual error. user_id not found. ');
@@ -1040,13 +1040,13 @@ $TODO: there must be check for users with ISSUES permission
   exception 
     when others then
     rollback;
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_manual', p_msg_type=>'UNHANDLED_ERROR',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'avia_manual', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=item_avia_status,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'avia_manual error. '||SQLERRM);
   end;
 
-  procedure cash_back(p_pnr_id in ntg.dtype.t_long_code)
+  procedure cash_back(p_pnr_id in hdbk.dtype.t_long_code)
   is
     r_item_avia item_avia%rowtype;
     r_bill bill%rowtype;
@@ -1064,7 +1064,7 @@ $TODO: there must be check for users with ISSUES permission
           blng.core.revoke_document(p_document =>r_document.id );
         exception when others then
           rollback;
-          NTG.LOG_API.LOG_ADD(p_proc_name=>'cash_back', p_msg_type=>'UNHANDLED_ERROR', 
+          hdbk.log_api.LOG_ADD(p_proc_name=>'cash_back', p_msg_type=>'UNHANDLED_ERROR', 
             P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=bill,p_date=' 
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
           CLOSE c_bill;
@@ -1075,14 +1075,14 @@ $TODO: there must be check for users with ISSUES permission
 
   exception when others then 
     rollback;
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'cash_back', p_msg_type=>'UNHANDLED_ERROR', 
+    hdbk.log_api.LOG_ADD(p_proc_name=>'cash_back', p_msg_type=>'UNHANDLED_ERROR', 
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=bill,p_date=' 
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
     RAISE_APPLICATION_ERROR(-20002,'cash_back error. '||SQLERRM);
   end;
 
 
-  function get_sales_list(p_datetime_from in ntg.dtype.t_long_code default null,p_datetime_to in ntg.dtype.t_long_code default null)
+  function get_sales_list(p_datetime_from in hdbk.dtype.t_long_code default null,p_datetime_to in hdbk.dtype.t_long_code default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -1099,7 +1099,7 @@ $TODO: there must be check for users with ISSUES permission
 
 
 
-  function commission_view(p_iata in ntg.dtype.t_code default null)
+  function commission_view(p_iata in hdbk.dtype.t_code default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -1110,13 +1110,13 @@ $TODO: there must be check for users with ISSUES permission
   end;
 
 
-  procedure avia_create(  p_pnr_id in ntg.dtype.t_long_code default null,
-                          p_user_id in ntg.dtype.t_long_code default null
+  procedure avia_create(  p_pnr_id in hdbk.dtype.t_long_code default null,
+                          p_user_id in hdbk.dtype.t_long_code default null
                           )
   is
-    v_order ntg.dtype.t_id;
-    v_item_avia ntg.dtype.t_id;
-    v_item_avia_status ntg.dtype.t_id;
+    v_order hdbk.dtype.t_id;
+    v_item_avia hdbk.dtype.t_id;
+    v_item_avia_status hdbk.dtype.t_id;
     r_item_avia item_avia%rowtype;
     r_client blng.client%rowtype;
   begin
@@ -1127,7 +1127,7 @@ $TODO: there must be check for users with ISSUES permission
       
       r_client := blng.blng_api.client_get_info_r(p_email=>p_user_id);
     exception when NO_DATA_FOUND then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_create', p_msg_type=>'NO_DATA_FOUND',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_create', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => 'email not found',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
       RAISE_APPLICATION_ERROR(-20002,'avia_create error. user_id not found. ');
@@ -1147,7 +1147,7 @@ $TODO: there must be check for users with ISSUES permission
         null;
       when VALUE_ERROR then 
       -- its not ok      
-        NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_create', p_msg_type=>'VALUE_ERROR',
+        hdbk.log_api.LOG_ADD(p_proc_name=>'avia_create', p_msg_type=>'VALUE_ERROR',
           P_MSG => 'p_pnr_id is null',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
           || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
         RAISE_APPLICATION_ERROR(-20002,'avia_create error. p_pnr_id is null');
@@ -1165,7 +1165,7 @@ $TODO: there must be check for users with ISSUES permission
   exception 
     when others then    
       rollback;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_create', p_msg_type=>'UNHANDLED_ERROR',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_create', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)
         || ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=item_avia,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -1173,26 +1173,26 @@ $TODO: there must be check for users with ISSUES permission
   end;
 
 
-  procedure avia_update( p_pnr_id in ntg.dtype.t_long_code default null,
-                          p_pnr_locator in ntg.dtype.t_long_code default null,
-                          p_time_limit  in ntg.dtype.t_date default null,
-                          p_total_amount in ntg.dtype.t_amount default null,
-                          p_total_markup in ntg.dtype.t_amount default null,
-                          p_pnr_object in ntg.dtype.t_clob default null,
-                          p_nqt_status in  ntg.dtype.t_long_code default null,
-                          p_tenant_id  in  ntg.dtype.t_long_code default null
+  procedure avia_update( p_pnr_id in hdbk.dtype.t_long_code default null,
+                          p_pnr_locator in hdbk.dtype.t_long_code default null,
+                          p_time_limit  in hdbk.dtype.t_date default null,
+                          p_total_amount in hdbk.dtype.t_amount default null,
+                          p_total_markup in hdbk.dtype.t_amount default null,
+                          p_pnr_object in hdbk.dtype.t_clob default null,
+                          p_nqt_status in  hdbk.dtype.t_long_code default null,
+                          p_tenant_id  in  hdbk.dtype.t_long_code default null
                           )
   is
-    v_id ntg.dtype.t_id;
-    v_order ntg.dtype.t_id;
-    v_avia ntg.dtype.t_id;
-    v_bill ntg.dtype.t_id;
-    v_client ntg.dtype.t_id;
-    v_contract ntg.dtype.t_id;
+    v_id hdbk.dtype.t_id;
+    v_order hdbk.dtype.t_id;
+    v_avia hdbk.dtype.t_id;
+    v_bill hdbk.dtype.t_id;
+    v_client hdbk.dtype.t_id;
+    v_contract hdbk.dtype.t_id;
     r_item_avia item_avia%rowtype;
     r_order ord%rowtype;
     r_client blng.client%rowtype;
-    v_tenant_id ntg.dtype.t_id;
+    v_tenant_id hdbk.dtype.t_id;
   begin
 
   v_tenant_id := to_number(p_tenant_id);
@@ -1204,7 +1204,7 @@ $TODO: there must be check for users with ISSUES permission
       r_item_avia := ord_api.item_avia_get_info_r(p_pnr_id=>p_pnr_id);
     exception 
       when NO_DATA_FOUND then 
-        NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_update', p_msg_type=>'NO_DATA_FOUND',
+        hdbk.log_api.LOG_ADD(p_proc_name=>'avia_update', p_msg_type=>'NO_DATA_FOUND',
           P_MSG => 'p_pnr_id does not exists',p_info => 'p_pnr_id='||p_pnr_id||',p_date='
           || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
         RAISE_APPLICATION_ERROR(-20002,'avia_update error. p_pnr_id does not found.');
@@ -1224,14 +1224,14 @@ $TODO: there must be check for users with ISSUES permission
       if blng.core.pay_contract_by_client(r_client.id)!=v_tenant_id then raise NO_DATA_FOUND; end if;
 
     exception when NO_DATA_FOUND then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_update', p_msg_type=>'NO_DATA_FOUND',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_update', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => 'user_id not found',p_info => 'p_user_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
       RAISE_APPLICATION_ERROR(-20002,'avia_update error. user_id not found. ');
     end;
     
 /*
-        NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_update', p_msg_type=>'RUN item_avia_edit',
+        hdbk.log_api.LOG_ADD(p_proc_name=>'avia_update', p_msg_type=>'RUN item_avia_edit',
         P_MSG => 'p_nqt_status='||p_nqt_status||',P_PNR_ID='||P_PNR_ID,
         p_info => 'p_date='|| to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>0);
 */
@@ -1251,21 +1251,21 @@ $TODO: there must be check for users with ISSUES permission
   exception 
     when others then    
       rollback;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_update', p_msg_type=>'UNHANDLED_ERROR',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_update', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=item_avia,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'avia_update error. '||SQLERRM);
   end;
 
 
-  procedure avia_pay( p_user_id in ntg.dtype.t_long_code default null,
-                      p_pnr_id in ntg.dtype.t_long_code default null
+  procedure avia_pay( p_user_id in hdbk.dtype.t_long_code default null,
+                      p_pnr_id in hdbk.dtype.t_long_code default null
                             )
   is
     r_item_avia item_avia%rowtype;
     r_item_avia_status item_avia_status%rowtype;
     v_order_r ord%rowtype;
-    v_bill ntg.dtype.t_id;
+    v_bill hdbk.dtype.t_id;
     r_client blng.client%rowtype;    
     c_bill  SYS_REFCURSOR;
     r_bill bill%rowtype;
@@ -1277,7 +1277,7 @@ $TODO: there must be check for users with ISSUES permission
       
       r_client := blng.blng_api.client_get_info_r(p_email=>p_user_id);
     exception when NO_DATA_FOUND then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_pay', p_msg_type=>'NO_DATA_FOUND',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_pay', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => 'user_id not found',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
       RAISE_APPLICATION_ERROR(-20002,'avia_pay error. user_id not found. ');
@@ -1289,7 +1289,7 @@ $TODO: there must be check for users with ISSUES permission
       
       r_item_avia := ord_api.item_avia_get_info_r(p_pnr_id=>p_pnr_id);
     exception when NO_DATA_FOUND then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_pay', p_msg_type=>'NO_DATA_FOUND',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_pay', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => 'pnr_id not found',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
       RAISE_APPLICATION_ERROR(-20002,'avia_pay error. pnr_id not found. ');
@@ -1311,21 +1311,21 @@ $TODO: there must be check for users with ISSUES permission
     when NO_DATA_FOUND then return;  
     when others then
     rollback;
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_pay', p_msg_type=>'UNHANDLED_ERROR',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'avia_pay', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10) || ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=item_avia_status,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'avia_pay error. '||SQLERRM);
   end;
 
   procedure avia_booked( 
-                          p_pnr_id in ntg.dtype.t_long_code default null,
-                          p_user_id in ntg.dtype.t_long_code default null
+                          p_pnr_id in hdbk.dtype.t_long_code default null,
+                          p_user_id in hdbk.dtype.t_long_code default null
                             )
   is
     r_item_avia item_avia%rowtype;
     r_client blng.client%rowtype;
-    v_bill ntg.dtype.t_id;
-    v_contract ntg.dtype.t_id;
+    v_bill hdbk.dtype.t_id;
+    v_contract hdbk.dtype.t_id;
   begin
   
     begin 
@@ -1334,7 +1334,7 @@ $TODO: there must be check for users with ISSUES permission
       
       r_client := blng.blng_api.client_get_info_r(p_email=>p_user_id);
     exception when NO_DATA_FOUND then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'NO_DATA_FOUND',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => 'user_id not found',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
       RAISE_APPLICATION_ERROR(-20002,'avia_booked error. user_id not found. ');
@@ -1348,7 +1348,7 @@ $TODO: there must be check for users with ISSUES permission
 --     if r_item_avia.order_oid is null then raise NO_DATA_FOUND; end if;
       
     exception when NO_DATA_FOUND then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'NO_DATA_FOUND',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => 'pnr_id not found',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
       RAISE_APPLICATION_ERROR(-20002,'avia_booked error. pnr_id not found. ');
@@ -1361,7 +1361,7 @@ $TODO: there must be check for users with ISSUES permission
                                 P_STATUS => 'M', --[M]anaging
                                 P_CONTRACT => v_contract);
                                 
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'OK',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'OK',
       P_MSG => 'pnr_id not found',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);                                
                                     
@@ -1369,7 +1369,7 @@ $TODO: there must be check for users with ISSUES permission
   exception 
     when others then
     rollback;
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'UNHANDLED_ERROR',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10) || ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=item_avia_status,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'avia_booked error. '||SQLERRM);
@@ -1377,7 +1377,7 @@ $TODO: there must be check for users with ISSUES permission
 
 
 
-  function pos_rule_get(p_version in ntg.dtype.t_id default null)
+  function pos_rule_get(p_version in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -1406,19 +1406,19 @@ $TODO: there must be check for users with ISSUES permission
           );
     return v_results;
   exception when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'get_full', p_msg_type=>'UNHANDLED_ERROR', 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'get_full', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select,p_table=markup,p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
       RAISE_APPLICATION_ERROR(-20002,'select row into markup error. '||SQLERRM);
     return null;  
   end;
 
-  function pos_rule_edit(p_data in ntg.dtype.t_clob)
+  function pos_rule_edit(p_data in hdbk.dtype.t_clob)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
-    v_id ntg.dtype.t_id; 
-    v_pos_rule ntg.dtype.t_id; 
+    v_id hdbk.dtype.t_id; 
+    v_pos_rule hdbk.dtype.t_id; 
     r_client pos_rule%rowtype;
   begin
 -- first update client info. then if doc_number is not null then update client_data 
@@ -1470,7 +1470,7 @@ $TODO: there must be check for users with ISSUES permission
   exception 
     when NO_DATA_FOUND then
       ROLLBACK;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'NO_DATA_FOUND',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
 --      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
@@ -1479,7 +1479,7 @@ $TODO: there must be check for users with ISSUES permission
       return v_results;
     when others then
       ROLLBACK;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'UNHANDLED_ERROR', 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
 --      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
@@ -1489,15 +1489,15 @@ $TODO: there must be check for users with ISSUES permission
   end;
 
 
-  function commission_edit(p_data in ntg.dtype.t_clob)
+  function commission_edit(p_data in hdbk.dtype.t_clob)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
-    v_id ntg.dtype.t_id; 
-    v_pos_rule ntg.dtype.t_id; 
+    v_id hdbk.dtype.t_id; 
+    v_pos_rule hdbk.dtype.t_id; 
     r_client pos_rule%rowtype;
-    v_commission ntg.dtype.t_id:=null;
-    v_commission_details ntg.dtype.t_id:=null;
+    v_commission hdbk.dtype.t_id:=null;
+    v_commission_details hdbk.dtype.t_id:=null;
   begin
 -- first update client info. then if doc_number is not null then update client_data 
     for i in (
@@ -1606,7 +1606,7 @@ $TODO: there must be check for users with ISSUES permission
   exception 
     when NO_DATA_FOUND then
       ROLLBACK;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'NO_DATA_FOUND',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
 --      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
@@ -1615,7 +1615,7 @@ $TODO: there must be check for users with ISSUES permission
       return v_results;
     when others then
       ROLLBACK;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'UNHANDLED_ERROR', 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
 --      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
@@ -1625,7 +1625,7 @@ $TODO: there must be check for users with ISSUES permission
   end;
 
 
-  function commission_template_list(p_is_contract_type in ntg.dtype.t_status default null)
+  function commission_template_list(p_is_contract_type in hdbk.dtype.t_status default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -1652,7 +1652,7 @@ $TODO: there must be check for users with ISSUES permission
 
     return v_results;
   exception when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'commission_template_get', p_msg_type=>'UNHANDLED_ERROR', 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_template_get', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select,p_table=commission_template,p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
       RAISE_APPLICATION_ERROR(-20002,'select row into commission_template_get error. '||SQLERRM);
@@ -1712,7 +1712,7 @@ $TODO: there must be check for users with ISSUES permission
 
     return v_results;
   exception when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'bill_import_list', p_msg_type=>'UNHANDLED_ERROR', 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_import_list', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
       RAISE_APPLICATION_ERROR(-20002,'select row error. '||SQLERRM);
@@ -1720,7 +1720,7 @@ $TODO: there must be check for users with ISSUES permission
   end;
 
 
-  function markup_rule_get(p_version in ntg.dtype.t_id default null)
+  function markup_rule_get(p_version in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -1791,7 +1791,7 @@ $TODO: there must be check for users with ISSUES permission
       ;      
     return v_results;
   exception when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'markup_get', p_msg_type=>'UNHANDLED_ERROR', 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_get', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
       RAISE_APPLICATION_ERROR(-20002,'select row error. '||SQLERRM);
@@ -1799,7 +1799,7 @@ $TODO: there must be check for users with ISSUES permission
   end;
 
 
-  function markup_templ_get(p_rule_id in ntg.dtype.t_id default null)
+  function markup_templ_get(p_rule_id in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -1840,7 +1840,7 @@ $TODO: there must be check for users with ISSUES permission
 
     return v_results;
   exception when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'markup_calc_get', p_msg_type=>'UNHANDLED_ERROR', 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_calc_get', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
       RAISE_APPLICATION_ERROR(-20002,'select row error. '||SQLERRM);

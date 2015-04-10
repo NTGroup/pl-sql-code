@@ -1,4 +1,4 @@
-  CREATE OR REPLACE PACKAGE "BLNG"."CORE" as
+  CREATE OR REPLACE PACKAGE BLNG.CORE as
 
 /*
 pkg: blng.core
@@ -9,7 +9,7 @@ $obj_type: constant
 $obj_name: g_delay_days
 $obj_desc: means how many days client has for pay loan
 */
-    g_delay_days CONSTANT     ntg.dtype.t_id := 30;
+    g_delay_days CONSTANT     hdbk.dtype.t_id := 30;
 
 /*
 $obj_type: procedure
@@ -60,7 +60,7 @@ $obj_param: p_contract: id of contract
 $obj_param: p_amount: how much money falls to delay list
 $obj_param: p_transaction: link to transaction id. later by this id cash_in operations may revokes
 */
-  procedure delay_remove(p_contract in ntg.dtype.t_id, p_amount in ntg.dtype.t_amount, p_transaction in ntg.dtype.t_id default null);
+  procedure delay_remove(p_contract in hdbk.dtype.t_id, p_amount in hdbk.dtype.t_amount, p_transaction in hdbk.dtype.t_id default null);
 
   /*
 $obj_type: procedure
@@ -78,7 +78,7 @@ $obj_desc: after p_days it blocks again
 $obj_param: p_contract: id of expired contract
 $obj_param: p_days: how much days gifted to client
 */
-  procedure contract_unblock(p_contract in ntg.dtype.t_id, p_days in ntg.dtype.t_id default 1);
+  procedure contract_unblock(p_contract in hdbk.dtype.t_id, p_days in hdbk.dtype.t_id default 1);
 
 /*
 $obj_type: procedure
@@ -86,7 +86,7 @@ $obj_name: revoke_document
 $obj_desc: get back money and erase transactions by p_document id
 $obj_param: p_document: id of document
 */
-  procedure revoke_document(p_document in ntg.dtype.t_id);
+  procedure revoke_document(p_document in hdbk.dtype.t_id);
   
   
 /*
@@ -98,26 +98,26 @@ $obj_desc: docs like buy or cash_in push to credit/debit_online accounts.
 $obj_param: p_client: client id
 $obj_return: contract id
 */
-  function pay_contract_by_client(p_client in ntg.dtype.t_id)
-  return ntg.dtype.t_id;
+  function pay_contract_by_client(p_client in hdbk.dtype.t_id)
+  return hdbk.dtype.t_id;
   
 end core;
 
 /
 
-  CREATE OR REPLACE PACKAGE BODY "BLNG"."CORE" as
+  CREATE OR REPLACE PACKAGE BODY BLNG.CORE as
 
   procedure approve_documents
   is
-    mess ntg.dtype.t_msg;
+    mess hdbk.dtype.t_msg;
     c_doc SYS_REFCURSOR;
     r_doc blng.document%rowtype;
     r_account blng.account%rowtype;
     v_item_avia_r ord.item_avia%rowtype;
     v_bill_r ord.bill%rowtype;
-    v_transaction ntg.dtype.t_id;
-    v_item_avia_status ntg.dtype.t_id;
-    v_waiting_contract ntg.dtype.t_id;
+    v_transaction hdbk.dtype.t_id;
+    v_item_avia_status hdbk.dtype.t_id;
+    v_waiting_contract hdbk.dtype.t_id;
     r_item_avia_status ord.item_avia_status%rowtype;
   begin
 --TODO in case load docs with file. load cash_in file at first
@@ -131,11 +131,11 @@ end core;
       begin
         -- TO DO: is it good to put id in choice
         if r_doc.TRANS_TYPE_OID in (blng_api.trans_type_get_id(p_code=>'b')) then
-          if v_waiting_contract is not null and v_waiting_contract = r_doc.contract_oid then raise ntg.dtype.doc_waiting; end if;
+          if v_waiting_contract is not null and v_waiting_contract = r_doc.contract_oid then raise hdbk.dtype.doc_waiting; end if;
           blng.core.buy(r_doc);
         end if;
         if r_doc.TRANS_TYPE_OID in (blng_api.trans_type_get_id(p_code=>'ci')) then
-          if v_waiting_contract is not null and v_waiting_contract = r_doc.contract_oid then raise ntg.dtype.doc_waiting; end if;
+          if v_waiting_contract is not null and v_waiting_contract = r_doc.contract_oid then raise hdbk.dtype.doc_waiting; end if;
           blng.core.cash_in(r_doc);
         end if;
         if r_doc.TRANS_TYPE_OID in (blng_api.trans_type_get_id(p_code=>'cl')) then 
@@ -164,7 +164,7 @@ end core;
           v_bill_r := ord.ord_api.bill_get_info_r(p_id=>r_doc.bill_oid);
           v_item_avia_r := ord.ord_api.item_avia_get_info_r(p_order => v_bill_r.order_oid);
           r_item_avia_status := ord.ord_api.item_avia_status_get_info_r(p_item_avia => v_item_avia_r.id);
-          NTG.LOG_API.LOG_ADD(p_proc_name=>'approve_document', p_msg_type=>'try set status SUCCESS',
+          hdbk.log_api.LOG_ADD(p_proc_name=>'approve_document', p_msg_type=>'try set status SUCCESS',
             P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| v_item_avia_r.id||'p_process=update,p_table=item_avia_status,p_date='
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
           ord.ord_api.item_avia_status_edit (  p_item_avia => v_item_avia_r.id, p_po_status => 'SUCCESS',
@@ -172,9 +172,9 @@ end core;
         end if;
         commit;
       exception
-        when ntg.dtype.insufficient_funds then
+        when hdbk.dtype.insufficient_funds then
           rollback;
-          NTG.LOG_API.LOG_ADD(p_proc_name=>'approve_documents', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => ',p_process=set,p_status=D,p_doc=' || r_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'approve_documents', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => ',p_process=set,p_status=D,p_doc=' || r_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
           blng.blng_api.document_edit(r_doc.id, 'D');
           if r_doc.bill_oid is not null then 
             --edit bill
@@ -183,20 +183,20 @@ end core;
             v_bill_r := ord.ord_api.bill_get_info_r(p_id=>r_doc.bill_oid);
             v_item_avia_r := ord.ord_api.item_avia_get_info_r(p_order => v_bill_r.order_oid);
             r_item_avia_status := ord.ord_api.item_avia_status_get_info_r(p_item_avia => v_item_avia_r.id);
-            NTG.LOG_API.LOG_ADD(p_proc_name=>'approve_document', p_msg_type=>'try set status ERROR',
+            hdbk.log_api.LOG_ADD(p_proc_name=>'approve_document', p_msg_type=>'try set status ERROR',
               P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| v_item_avia_r.id||'p_process=update,p_table=item_avia_status,p_date='
               || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
             ord.ord_api.item_avia_status_edit (  p_item_avia => v_item_avia_r.id, p_po_status => 'ERROR',
                                     p_nqt_status_cur => v_item_avia_r.nqt_status) ;  
           end if;
           commit;
-        when ntg.dtype.doc_waiting then
+        when hdbk.dtype.doc_waiting then
           rollback;
           v_waiting_contract := r_doc.contract_oid;
-          NTG.LOG_API.LOG_ADD(p_proc_name=>'approve_documents', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20000)),p_info => 'p_doc=' || r_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'approve_documents', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20000)),p_info => 'p_doc=' || r_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
         when VALUE_ERROR then
           rollback;
-          NTG.LOG_API.LOG_ADD(p_proc_name=>'approve_documents', p_msg_type=>'Error', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20000)),p_info => 'p_doc=' || r_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'approve_documents', p_msg_type=>'Error', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20000)),p_info => 'p_doc=' || r_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
           blng.blng_api.document_edit(r_doc.id, 'E');
           if r_doc.bill_oid is not null then 
             --edit bill
@@ -205,7 +205,7 @@ end core;
             v_bill_r := ord.ord_api.bill_get_info_r(p_id=>r_doc.bill_oid);
             v_item_avia_r := ord.ord_api.item_avia_get_info_r(p_order => v_bill_r.order_oid);
             r_item_avia_status := ord.ord_api.item_avia_status_get_info_r(p_item_avia => v_item_avia_r.id);
-            NTG.LOG_API.LOG_ADD(p_proc_name=>'approve_document', p_msg_type=>'try set status ERROR',
+            hdbk.log_api.LOG_ADD(p_proc_name=>'approve_document', p_msg_type=>'try set status ERROR',
               P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| v_item_avia_r.id||'p_process=update,p_table=item_avia_status,p_date='
               || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
             ord.ord_api.item_avia_status_edit (  p_item_avia => v_item_avia_r.id, p_po_status => 'ERROR',
@@ -215,7 +215,7 @@ end core;
           raise_application_error(-20003,'Wrong account amount value');--outside error
         when others then
           rollback;
-          NTG.LOG_API.LOG_ADD(p_proc_name=>'approve_documents.c_doc', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'approve_documents.c_doc', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
           blng.blng_api.document_edit(r_doc.id, 'E');
           if r_doc.bill_oid is not null then 
             --edit bill
@@ -224,7 +224,7 @@ end core;
             v_bill_r := ord.ord_api.bill_get_info_r(p_id=>r_doc.bill_oid);
             v_item_avia_r := ord.ord_api.item_avia_get_info_r(p_order => v_bill_r.order_oid);
             r_item_avia_status := ord.ord_api.item_avia_status_get_info_r(p_item_avia => v_item_avia_r.id);
-            NTG.LOG_API.LOG_ADD(p_proc_name=>'approve_document', p_msg_type=>'try set status ERROR',
+            hdbk.log_api.LOG_ADD(p_proc_name=>'approve_document', p_msg_type=>'try set status ERROR',
               P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| v_item_avia_r.id||'p_process=update,p_table=item_avia_status,p_date='
               || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
             ord.ord_api.item_avia_status_edit (  p_item_avia => v_item_avia_r.id, p_po_status => 'ERROR',
@@ -238,7 +238,7 @@ end core;
   exception
     when others then
       rollback;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'approve_documents', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'approve_documents', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       blng.blng_api.document_edit(r_doc.id, 'E'); --commited inside. its wrong.
       if r_doc.bill_oid is not null then 
         --edit bill
@@ -247,7 +247,7 @@ end core;
         v_bill_r := ord.ord_api.bill_get_info_r(p_id=>r_doc.bill_oid);
         v_item_avia_r := ord.ord_api.item_avia_get_info_r(p_order => v_bill_r.order_oid);
         r_item_avia_status := ord.ord_api.item_avia_status_get_info_r(p_item_avia => v_item_avia_r.id);
-        NTG.LOG_API.LOG_ADD(p_proc_name=>'approve_document', p_msg_type=>'try set status ERROR',
+        hdbk.log_api.LOG_ADD(p_proc_name=>'approve_document', p_msg_type=>'try set status ERROR',
           P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| v_item_avia_r.id||'p_process=update,p_table=item_avia_status,p_date='
           || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
         ord.ord_api.item_avia_status_edit (  p_item_avia => v_item_avia_r.id, p_po_status => 'ERROR',
@@ -259,10 +259,10 @@ end core;
   procedure buy ( p_doc in blng.document%rowtype
                 )
   is
-    v_transaction ntg.dtype.t_id;
+    v_transaction hdbk.dtype.t_id;
     r_account blng.account%rowtype;
     r_contract_info blng.v_account%rowtype;
-    v_msg ntg.dtype.t_msg;
+    v_msg hdbk.dtype.t_msg;
 
   begin
 
@@ -289,23 +289,23 @@ end core;
     v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => P_DOC.id,P_AMOUNT => -abs(p_doc.AMOUNT),
       P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'b'), P_TRANS_DATE => p_doc.doc_date, P_TARGET_ACCOUNT => r_account.id, p_status => 'W');
   exception
-    when ntg.dtype.insufficient_funds then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'buy', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => 'p_doc=' || p_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
+    when hdbk.dtype.insufficient_funds then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'buy', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => 'p_doc=' || p_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
       raise;
-    when ntg.dtype.doc_waiting then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'buy', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20000)),p_info => 'p_doc=' || p_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
+    when hdbk.dtype.doc_waiting then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'buy', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20000)),p_info => 'p_doc=' || p_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
       raise;
     when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'buy', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || p_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'buy', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || p_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       raise;
   end buy;
 
   procedure cash_in (p_doc in blng.document%rowtype)
   is
-    v_transaction ntg.dtype.t_id;
+    v_transaction hdbk.dtype.t_id;
     r_account blng.account%rowtype;
     r_contract_info blng.v_account%rowtype;
-    v_msg ntg.dtype.t_msg;
+    v_msg hdbk.dtype.t_msg;
   begin
     r_contract_info := blng.fwdr.v_account_get_info_r(p_contract => p_doc.contract_oid);
     if r_contract_info.debit_online<>0 or r_contract_info.credit_online<>0 then
@@ -320,28 +320,28 @@ end core;
       P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'ci'), P_TRANS_DATE => p_doc.doc_date, P_TARGET_ACCOUNT => r_account.id, p_status => 'W');
 --            DBMS_OUTPUT.PUT_LINE('r_account.id = '|| r_account.id);
   exception
-    when ntg.dtype.doc_waiting then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'cash_in', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20000)),p_info => 'p_doc=' || p_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
+    when hdbk.dtype.doc_waiting then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'cash_in', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20000)),p_info => 'p_doc=' || p_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
       raise;
     when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'cash_in', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || p_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'cash_in', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || p_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       raise;
   end cash_in;
 
 
   procedure credit_online
   is
-    v_transaction ntg.dtype.t_id;
-    v_transaction_2delay ntg.dtype.t_id;
-    v_doc ntg.dtype.t_id;
+    v_transaction hdbk.dtype.t_id;
+    v_transaction_2delay hdbk.dtype.t_id;
+    v_doc hdbk.dtype.t_id;
     c_transaction SYS_REFCURSOR;
     r_credit_online blng.account%rowtype;
     r_transaction blng.transaction%rowtype;
     r_deposit blng.account%rowtype;
     r_loan blng.account%rowtype;
-    v_msg ntg.dtype.t_msg;
-    v_amount ntg.dtype.t_amount;
-    v_settlement_amount ntg.dtype.t_amount;
+    v_msg hdbk.dtype.t_msg;
+    v_amount hdbk.dtype.t_amount;
+    v_settlement_amount hdbk.dtype.t_amount;
   begin
   -- get all cash_in transaction with status Waiting
   -- we have 3 branches of this process. 
@@ -409,29 +409,29 @@ end core;
 
       exception when others then
         rollback;
-        NTG.LOG_API.LOG_ADD(p_proc_name=>'credit_online.c_credit_online', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_account=' || r_credit_online.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+        hdbk.log_api.LOG_ADD(p_proc_name=>'credit_online.c_credit_online', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_account=' || r_credit_online.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       end;
     END LOOP;
     CLOSE c_transaction;
   exception when others then
     rollback;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'credit_online', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_account=' || r_credit_online.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'credit_online', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_account=' || r_credit_online.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
   end credit_online;
 
   procedure debit_online
   is
-    v_transaction ntg.dtype.t_id;
-    v_transaction_2delay ntg.dtype.t_id;
-    v_doc ntg.dtype.t_id;
+    v_transaction hdbk.dtype.t_id;
+    v_transaction_2delay hdbk.dtype.t_id;
+    v_doc hdbk.dtype.t_id;
     c_transaction SYS_REFCURSOR;
     r_transaction blng.transaction%rowtype;
     r_debit_online blng.account%rowtype;
     r_deposit blng.account%rowtype;
     r_loan blng.account%rowtype;
-    v_msg ntg.dtype.t_msg;
-    v_amount ntg.dtype.t_amount;
-    v_settlement_amount ntg.dtype.t_amount;
-    v_delay_amount  ntg.dtype.t_amount;
+    v_msg hdbk.dtype.t_msg;
+    v_amount hdbk.dtype.t_amount;
+    v_settlement_amount hdbk.dtype.t_amount;
+    v_delay_amount  hdbk.dtype.t_amount;
 
     r_contract_info blng.v_account%rowtype;
   begin
@@ -517,25 +517,25 @@ end core;
         commit; --after each transaction
       exception when others then
         rollback;
-        NTG.LOG_API.LOG_ADD(p_proc_name=>'debit_online.c_debit_online', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_account=' || r_debit_online.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+        hdbk.log_api.LOG_ADD(p_proc_name=>'debit_online.c_debit_online', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_account=' || r_debit_online.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       end;
     END LOOP;
     CLOSE c_transaction;
   exception when others then
     rollback;
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'debit_online.c_debit_online', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_account=' || r_debit_online.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'debit_online.c_debit_online', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_account=' || r_debit_online.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
   end debit_online;
 
 
-  procedure delay_remove(p_contract in ntg.dtype.t_id, p_amount in ntg.dtype.t_amount, p_transaction in ntg.dtype.t_id default null)
+  procedure delay_remove(p_contract in hdbk.dtype.t_id, p_amount in hdbk.dtype.t_amount, p_transaction in hdbk.dtype.t_id default null)
   is
-    v_amount  ntg.dtype.t_amount;
-    v_next_delay_date ntg.dtype.t_date;
+    v_amount  hdbk.dtype.t_amount;
+    v_next_delay_date hdbk.dtype.t_date;
     c_delay SYS_REFCURSOR;
     r_delay blng.delay%rowtype;
     r_account blng.account%rowtype;
-    v_transaction ntg.dtype.t_id;
-    v_delay_id  ntg.dtype.t_id;
+    v_transaction hdbk.dtype.t_id;
+    v_delay_id  hdbk.dtype.t_id;
   begin
   -- concept of delay is a tree. root as loan amount and branches points is a credit amounts that payed that loan
   --     *      for example 100$ loan and 3 credit amounts: 20$ + 30$ + 50$. so, amount_have is a total of credit amounts, 
@@ -591,7 +591,7 @@ end core;
           v_amount := v_amount - abs(i_delay.amount_need);
         end if;
       exception when others then
-        NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_remove.c_delay', p_msg_type=>'UNHANDLED_ERROR',
+        hdbk.log_api.LOG_ADD(p_proc_name=>'delay_remove.c_delay', p_msg_type=>'UNHANDLED_ERROR',
           P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_delay=' || r_delay.id || ',p_date=' ||
           to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
         raise;
@@ -607,7 +607,7 @@ end core;
       end if;
     end if;
   exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_remove', p_msg_type=>'UNHANDLED_ERROR',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'delay_remove', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_delay=' || v_delay_id || ',p_date=' ||
       to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     raise;
@@ -615,13 +615,13 @@ end core;
 
   procedure delay_expire
   is
-    v_amount  ntg.dtype.t_amount;
-    v_next_delay_date  ntg.dtype.t_date;
+    v_amount  hdbk.dtype.t_amount;
+    v_next_delay_date  hdbk.dtype.t_date;
     c_delay SYS_REFCURSOR;
     r_account blng.account%rowtype;
-    v_transaction ntg.dtype.t_id;
-    log_contract ntg.dtype.t_id;
-    log_proc ntg.dtype.t_code;
+    v_transaction hdbk.dtype.t_id;
+    log_contract hdbk.dtype.t_id;
+    log_proc hdbk.dtype.t_code;
     r_contract_info blng.v_account%rowtype;
   begin
 -- $TODO: select without api is bad
@@ -651,7 +651,7 @@ end core;
         commit; -- this process must be done anyway
       exception when others then
         rollback;
-        NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_expire.unblock', p_msg_type=>'UNHANDLED_ERROR',
+        hdbk.log_api.LOG_ADD(p_proc_name=>'delay_expire.unblock', p_msg_type=>'UNHANDLED_ERROR',
           P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_proc=' || log_proc || ',p_contract=' || log_contract || ',p_date=' ||
           to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       end;
@@ -682,7 +682,7 @@ end core;
         commit;
       exception when others then
         rollback;
-        NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_expire.block', p_msg_type=>'UNHANDLED_ERROR',
+        hdbk.log_api.LOG_ADD(p_proc_name=>'delay_expire.block', p_msg_type=>'UNHANDLED_ERROR',
           P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_proc=' || log_proc || ',p_contract=' || log_contract || ',p_date=' ||
           to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       end;
@@ -692,21 +692,21 @@ end core;
   exception 
     when NO_DATA_FOUND then
       rollback;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_expire', p_msg_type=>'NO_DATA_FOUND',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'delay_expire', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_proc=' || log_proc || ',p_contract=' || log_contract || ',p_date=' ||
         to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     when others then
       rollback;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'delay_expire', p_msg_type=>'UNHANDLED_ERROR',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'delay_expire', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_proc=' || log_proc || ',p_contract=' || log_contract || ',p_date=' ||
         to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
   end delay_expire;
 
 
-  procedure contract_unblock(p_contract in ntg.dtype.t_id, p_days in ntg.dtype.t_id default 1)
+  procedure contract_unblock(p_contract in hdbk.dtype.t_id, p_days in hdbk.dtype.t_id default 1)
   is
     r_account blng.account%rowtype;
-    v_transaction ntg.dtype.t_id;
+    v_transaction hdbk.dtype.t_id;
   begin
 -- executed by operators. can unblock contract for time, by adding unblock event/delay
     r_account := blng.blng_api.account_get_info_r(p_contract => p_contract, p_code => 'clb');
@@ -723,30 +723,30 @@ end core;
       raise_application_error(-20003,'contract_unblock error. call wrong contract id');
     when others then
       rollback;
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'contract_unblock', p_msg_type=>'UNHANDLED_ERROR',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_unblock', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_contract=' || p_contract || ',p_date=' ||
       to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       raise_application_error(-20003,'contract_unblock error');
   end contract_unblock;
 
 
-  procedure revoke_document(p_document in ntg.dtype.t_id)
+  procedure revoke_document(p_document in hdbk.dtype.t_id)
   is
     c_transaction SYS_REFCURSOR;
     r_transaction blng.transaction%rowtype;
     r_document blng.document%rowtype;
-    v_transaction ntg.dtype.t_id;
-    v_buy ntg.dtype.t_id;
-    v_cash_in ntg.dtype.t_id;
-    v_amount  ntg.dtype.t_amount;
-    v_next_delay_date  ntg.dtype.t_date;
+    v_transaction hdbk.dtype.t_id;
+    v_buy hdbk.dtype.t_id;
+    v_cash_in hdbk.dtype.t_id;
+    v_amount  hdbk.dtype.t_amount;
+    v_next_delay_date  hdbk.dtype.t_date;
     c_delay SYS_REFCURSOR;
     r_delay blng.delay%rowtype;
     r_account blng.account%rowtype;
     r_contract_info blng.v_account%rowtype;
-    v_prev_amount ntg.dtype.t_amount;
-    v_first_amount ntg.dtype.t_amount;
-    v_last_amount ntg.dtype.t_amount;
+    v_prev_amount hdbk.dtype.t_amount;
+    v_first_amount hdbk.dtype.t_amount;
+    v_last_amount hdbk.dtype.t_amount;
   begin
     r_document:=BLNG_API.document_get_info_r(p_id => P_document);
     v_buy:=blng_api.trans_type_get_id(p_code=>'b');
@@ -812,7 +812,7 @@ end core;
         end if;
       exception when others then
         CLOSE c_transaction;  --process stop. so, we need to close cursor
-        NTG.LOG_API.LOG_ADD(p_proc_name=>'revoke_document.c_transaction', p_msg_type=>'UNHANDLED_ERROR',
+        hdbk.log_api.LOG_ADD(p_proc_name=>'revoke_document.c_transaction', p_msg_type=>'UNHANDLED_ERROR',
           P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'r_transaction.id=' || r_transaction.id ||',p_document=' || p_document || ',p_date=' ||
           to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
         raise;
@@ -862,23 +862,23 @@ end core;
     if  r_document.bill_oid is not null then 
       ord.ORD_API.bill_edit( P_id => r_document.bill_oid, P_STATUS => 'R');   -- transported to reversed
     end if;
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'revoke_document.finish', p_msg_type=>'Successful',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'revoke_document.finish', p_msg_type=>'Successful',
       P_MSG => 'ok',p_info => 'p_transaction=' || v_transaction || ',p_date=' ||
       to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>0);
     commit;
   exception when others then
     rollback;
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'revoke_document', p_msg_type=>'UNHANDLED_ERROR',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'revoke_document', p_msg_type=>'UNHANDLED_ERROR',
     P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_document=' || p_document || ',p_date=' ||
     to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     raise_application_error(-20003,'revoke_document error');
   end revoke_document;
 
   
-  function pay_contract_by_client(p_client in ntg.dtype.t_id)
-  return ntg.dtype.t_id
+  function pay_contract_by_client(p_client in hdbk.dtype.t_id)
+  return hdbk.dtype.t_id
   is
-    v_contract ntg.dtype.t_id;
+    v_contract hdbk.dtype.t_id;
   begin
     select contract_oid into v_contract from blng.client2contract 
     where client_oid = p_client 
@@ -887,7 +887,7 @@ end core;
     
     return v_contract;
   exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'pay_contract_by_client', p_msg_type=>'UNHANDLED_ERROR',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'pay_contract_by_client', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client2contract,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'select row into client2contract error. '||SQLERRM);

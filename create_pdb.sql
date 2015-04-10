@@ -278,3 +278,39 @@ SELECT DISTINCT owner, table_name, PRIVILEGE
   FROM dba_role_privs rp JOIN role_tab_privs rtp ON (rp.granted_role = rtp.role)
  WHERE rp.grantee = 'ORD'
  ORDER BY owner, table_name;
+ 
+ 
+ 
+ /* create new user shcheme inside pdb */
+create user ntg_usr1 identified by cccCCC111;
+/     
+/* inside pdb */ 
+alter user ntg_usr1 
+DEFAULT TABLESPACE users
+TEMPORARY TABLESPACE temp
+QUOTA UNLIMITED ON users
+/*ACCOUNT UNLOCK*/ ;
+
+
+ /* create new user shcheme inside pdb */
+create user ntg_usr2 identified by cccCCC111;
+/     
+/* inside pdb */ 
+alter user ntg_usr2
+DEFAULT TABLESPACE users
+TEMPORARY TABLESPACE temp
+QUOTA UNLIMITED ON users
+/*ACCOUNT UNLOCK*/ ;
+
+
+
+
+ /* create new user shcheme inside pdb */
+create user hui identified by cccCCC111;
+/     
+/* inside pdb */ 
+alter user hui
+DEFAULT TABLESPACE users
+TEMPORARY TABLESPACE temp
+QUOTA UNLIMITED ON users
+/*ACCOUNT UNLOCK*/ ;

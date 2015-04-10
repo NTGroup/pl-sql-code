@@ -85,51 +85,51 @@ $obj_param: p_version: id
 $obj_return: SYS_REFCURSOR[ID, TENANT_ID, VALIDATING_CARRIER, CLASS_OF_SERVICE, 
 $obj_return: SEGMENT, V_FROM, V_TO, ABSOLUT_AMOUNT, PERCENT_AMOUNT, MIN_ABSOLUT, VERSION, IS_ACTIVE, markup_type]
 */  
-  function markup_get(p_version in ntg.dtype.t_id default null)
+  function markup_get(p_version in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 
 
 
-  function note_add(p_client in ntg.dtype.t_name default null,
-                    p_name in ntg.dtype.t_clob default null)
+  function note_add(p_client in hdbk.dtype.t_name default null,
+                    p_name in hdbk.dtype.t_clob default null)
   return SYS_REFCURSOR;
 
-  function note_edit(   p_id  in ntg.dtype.t_id default null,
-                        p_client in ntg.dtype.t_name default null,
-                        p_name in ntg.dtype.t_clob default null)
+  function note_edit(   p_id  in hdbk.dtype.t_id default null,
+                        p_client in hdbk.dtype.t_name default null,
+                        p_name in hdbk.dtype.t_clob default null)
   return SYS_REFCURSOR;
 
-  function note_delete(   p_id  in ntg.dtype.t_id default null,
-                        p_client in ntg.dtype.t_name default null)
+  function note_delete(   p_id  in hdbk.dtype.t_id default null,
+                        p_client in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR;
 
-  function note_recovery(   p_id  in ntg.dtype.t_id default null,
-                        p_client in ntg.dtype.t_name default null)
+  function note_recovery(   p_id  in hdbk.dtype.t_id default null,
+                        p_client in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR;
 
-  function note_ticket_add(   p_note  in ntg.dtype.t_id default null,
-                        p_client in ntg.dtype.t_name default null,
-                        p_tickets in ntg.dtype.t_clob default null)
+  function note_ticket_add(   p_note  in hdbk.dtype.t_id default null,
+                        p_client in hdbk.dtype.t_name default null,
+                        p_tickets in hdbk.dtype.t_clob default null)
   return SYS_REFCURSOR;
 
-  function note_ticket_delete(   p_note  in ntg.dtype.t_id default null,
-                                p_client in ntg.dtype.t_name default null,
-                                p_ticket in ntg.dtype.t_id default null)
+  function note_ticket_delete(   p_note  in hdbk.dtype.t_id default null,
+                                p_client in hdbk.dtype.t_name default null,
+                                p_ticket in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 
-  function note_ticket_recovery(   p_note  in ntg.dtype.t_id default null,
-                                p_client in ntg.dtype.t_name default null,
-                                p_ticket in ntg.dtype.t_id default null)
+  function note_ticket_recovery(   p_note  in hdbk.dtype.t_id default null,
+                                p_client in hdbk.dtype.t_name default null,
+                                p_ticket in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 
-  function note_list(     p_client in ntg.dtype.t_name default null)
+  function note_list(     p_client in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR;
 
-  function note_ticket_list(p_note in ntg.dtype.t_id default null)
+  function note_ticket_list(p_note in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 
-  function punto_switcher(p_text in ntg.dtype.t_msg)
-  return ntg.dtype.t_msg;
+  function punto_switcher(p_text in hdbk.dtype.t_msg)
+  return hdbk.dtype.t_msg;
 
 
 end;
@@ -181,7 +181,7 @@ create or replace package body ntg.fwdr as
         FROM v_markup;
     return v_results;
   exception when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'get_full', p_msg_type=>'UNHANDLED_ERROR', 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'get_full', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select,p_table=markup,p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
       RAISE_APPLICATION_ERROR(-20002,'select row into markup error. '||SQLERRM);
@@ -220,7 +220,7 @@ begin
 --      and g.iata = iata_list.IATA
       group by g.iata;    
   end if;  
-  NTG.LOG_API.LOG_ADD(p_proc_name=>'client_set_name', p_msg_type=>'Error');
+  hdbk.log_api.LOG_ADD(p_proc_name=>'client_set_name', p_msg_type=>'Error');
   return v_results;
 end;
 
@@ -338,7 +338,7 @@ end;
 
 
 
-  function markup_get(p_version in ntg.dtype.t_id default null)
+  function markup_get(p_version in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -382,7 +382,7 @@ end;
         );
     return v_results;
   exception when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'get_full', p_msg_type=>'UNHANDLED_ERROR', 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'get_full', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select,p_table=markup,p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
       RAISE_APPLICATION_ERROR(-20002,'select row into markup error. '||SQLERRM);
@@ -390,14 +390,14 @@ end;
   end;
 
 
-  function note_add(p_client in ntg.dtype.t_name default null,
-                    p_name in ntg.dtype.t_clob default null)
+  function note_add(p_client in hdbk.dtype.t_name default null,
+                    p_name in hdbk.dtype.t_clob default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
     r_client blng.client%rowtype; 
-    v_note ntg.dtype.t_id; 
-    note_count ntg.dtype.t_id; 
+    v_note hdbk.dtype.t_id; 
+    note_count hdbk.dtype.t_id; 
     OVER_LIMIT exception;
   begin
     r_client := blng.blng_api.client_get_info_r(p_email => p_client);
@@ -424,15 +424,15 @@ end;
       return v_results;  
   end;
 
-  function note_edit(   p_id  in ntg.dtype.t_id default null,
-                        p_client in ntg.dtype.t_name default null,
-                        p_name in ntg.dtype.t_clob default null)
+  function note_edit(   p_id  in hdbk.dtype.t_id default null,
+                        p_client in hdbk.dtype.t_name default null,
+                        p_name in hdbk.dtype.t_clob default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
     r_client blng.client%rowtype; 
     r_note note%rowtype; 
-    v_note ntg.dtype.t_id; 
+    v_note hdbk.dtype.t_id; 
   begin
         
     r_note := ntg.ntg_api.note_get_info_r(p_id => p_id);
@@ -450,14 +450,14 @@ end;
     return v_results;  
   end;
 
-  function note_delete(   p_id  in ntg.dtype.t_id default null,
-                        p_client in ntg.dtype.t_name default null)
+  function note_delete(   p_id  in hdbk.dtype.t_id default null,
+                        p_client in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
     r_client blng.client%rowtype; 
     r_note note%rowtype; 
-    v_note ntg.dtype.t_id; 
+    v_note hdbk.dtype.t_id; 
   begin
         
     r_note := ntg.ntg_api.note_get_info_r(p_id => p_id);
@@ -475,14 +475,14 @@ end;
     return v_results;  
   end;
 
-  function note_recovery(   p_id  in ntg.dtype.t_id default null,
-                        p_client in ntg.dtype.t_name default null)
+  function note_recovery(   p_id  in hdbk.dtype.t_id default null,
+                        p_client in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
     r_client blng.client%rowtype; 
     r_note note%rowtype; 
-    v_note ntg.dtype.t_id; 
+    v_note hdbk.dtype.t_id; 
   begin
         
     r_note := ntg.ntg_api.note_get_info_r(p_id => p_id);
@@ -500,15 +500,15 @@ end;
     return v_results;  
   end;
 
-  function note_ticket_add(   p_note  in ntg.dtype.t_id default null,
-                        p_client in ntg.dtype.t_name default null,
-                        p_tickets in ntg.dtype.t_clob default null)
+  function note_ticket_add(   p_note  in hdbk.dtype.t_id default null,
+                        p_client in hdbk.dtype.t_name default null,
+                        p_tickets in hdbk.dtype.t_clob default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
     r_client blng.client%rowtype; 
     r_note note%rowtype; 
-    v_note_ticket ntg.dtype.t_id; 
+    v_note_ticket hdbk.dtype.t_id; 
   begin
         
     r_note := ntg.ntg_api.note_get_info_r(p_id => p_note);
@@ -526,16 +526,16 @@ end;
     return v_results;  
   end;
 
-  function note_ticket_delete(   p_note  in ntg.dtype.t_id default null,
-                                p_client in ntg.dtype.t_name default null,
-                                p_ticket in ntg.dtype.t_id default null)
+  function note_ticket_delete(   p_note  in hdbk.dtype.t_id default null,
+                                p_client in hdbk.dtype.t_name default null,
+                                p_ticket in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
     r_client blng.client%rowtype; 
     r_note note%rowtype; 
     r_note_ticket note_ticket%rowtype; 
-    v_note_ticket ntg.dtype.t_id; 
+    v_note_ticket hdbk.dtype.t_id; 
   begin
         
     r_note := ntg.ntg_api.note_get_info_r(p_id => p_note);
@@ -560,16 +560,16 @@ end;
     return v_results;  
   end;
 
-  function note_ticket_recovery(   p_note  in ntg.dtype.t_id default null,
-                                p_client in ntg.dtype.t_name default null,
-                                p_ticket in ntg.dtype.t_id default null)
+  function note_ticket_recovery(   p_note  in hdbk.dtype.t_id default null,
+                                p_client in hdbk.dtype.t_name default null,
+                                p_ticket in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
     r_client blng.client%rowtype; 
     r_note note%rowtype; 
     r_note_ticket note_ticket%rowtype; 
-    v_note_ticket ntg.dtype.t_id; 
+    v_note_ticket hdbk.dtype.t_id; 
   begin
         
     r_note := ntg.ntg_api.note_get_info_r(p_id => p_note);
@@ -588,14 +588,14 @@ end;
     return v_results;  
   end;
 
-  function note_list(     p_client in ntg.dtype.t_name default null)
+  function note_list(     p_client in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
     r_client blng.client%rowtype; 
     r_note note%rowtype; 
     r_note_ticket note_ticket%rowtype; 
-    v_note_ticket ntg.dtype.t_id; 
+    v_note_ticket hdbk.dtype.t_id; 
   begin
         
     r_client := blng.blng_api.client_get_info_r(p_email => p_client);
@@ -609,14 +609,14 @@ end;
     return v_results;  
   end;
 
-  function note_ticket_list(p_note in ntg.dtype.t_id default null)
+  function note_ticket_list(p_note in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
     r_client blng.client%rowtype; 
     r_note note%rowtype; 
     r_note_ticket note_ticket%rowtype; 
-    v_note_ticket ntg.dtype.t_id; 
+    v_note_ticket hdbk.dtype.t_id; 
   begin
         
     r_note := ntg.ntg_api.note_get_info_r(p_id => p_note);
@@ -634,10 +634,10 @@ end;
     return v_results;  
   end;
 
-  function punto_switcher(p_text in ntg.dtype.t_msg)
-  return ntg.dtype.t_msg
+  function punto_switcher(p_text in hdbk.dtype.t_msg)
+  return hdbk.dtype.t_msg
   is
-    v_out ntg.dtype.t_msg;
+    v_out hdbk.dtype.t_msg;
   begin
     v_out := p_text;
     select translate(v_out,'QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>~qwertyuiop[]asdfghjkl;''zxcvbnm,.`','ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮЁйцукенгшщзхъфывапролджэячсмитьбюё') into v_out from dual;

@@ -28,7 +28,7 @@ ALTER TABLE ord.commission ADD CONSTRAINT CMN_CNTR_OID_FK FOREIGN KEY (contract_
   REFERENCES BLNG.contract ("ID") ENABLE;
 
 
-  CREATE TABLE ord.currency 
+  CREATE TABLE hdbk.currency 
    (	ID NUMBER(18,0), 
    amnd_date date,
    amnd_user VARCHAR2(50),
@@ -44,28 +44,29 @@ ALTER TABLE ord.commission ADD CONSTRAINT CMN_CNTR_OID_FK FOREIGN KEY (contract_
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX ord.curr_ID_IDX ON ord.currency ("ID") 
+  CREATE INDEX hdbk.curr_ID_IDX ON hdbk.currency ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE ord.currency MODIFY ("ID" CONSTRAINT curr_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ord.currency MODIFY (AMND_DATE CONSTRAINT "curr_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.currency MODIFY (AMND_USER CONSTRAINT "curr_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.currency MODIFY (AMND_STATE CONSTRAINT "curr_AST_NN" NOT NULL ENABLE);
-ALTER TABLE ord.currency  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
-ALTER TABLE ord.currency  MODIFY (AMND_USER DEFAULT  on null  user );
-ALTER TABLE ord.currency  MODIFY (AMND_STATE DEFAULT  on null  'A' );
-  ALTER TABLE ord.currency ADD CONSTRAINT curr_ID_PK PRIMARY KEY (ID)
-  USING INDEX ord.curr_ID_IDX ENABLE;
+  ALTER TABLE hdbk.currency MODIFY ("ID" CONSTRAINT curr_ID_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.currency MODIFY (AMND_DATE CONSTRAINT "curr_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE hdbk.currency MODIFY (AMND_USER CONSTRAINT "curr_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE hdbk.currency MODIFY (AMND_STATE CONSTRAINT "curr_AST_NN" NOT NULL ENABLE);
+ALTER TABLE hdbk.currency  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE hdbk.currency  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE hdbk.currency  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE hdbk.currency ADD CONSTRAINT curr_ID_PK PRIMARY KEY (ID)
+  USING INDEX hdbk.curr_ID_IDX ENABLE;
 
 
   
-INSERT INTO "ORD"."CURRENCY" (ID, AMND_PREV, CODE, NAME, NLS_NAME, IS_CURRENCY) VALUES ('810', '810', 'RUB', 'RUB', 'руб.', 'Y');
-INSERT INTO "ORD"."CURRENCY" (ID, AMND_PREV, CODE, NAME, NLS_NAME, IS_CURRENCY) VALUES ('840', '840', 'USD', 'USD', '$', 'Y');
-INSERT INTO "ORD"."CURRENCY" (ID, AMND_PREV, CODE, NAME, IS_CURRENCY) VALUES ('978', '978', 'EUR', 'EUR', 'Y');
-INSERT INTO "ORD"."CURRENCY" (ID, AMND_PREV, CODE, NAME, IS_CURRENCY) VALUES ('1', '1', '%', 'PERCENT', 'N');
+INSERT INTO hdbk.CURRENCY (ID, AMND_PREV, CODE, NAME, NLS_NAME, IS_CURRENCY) VALUES ('810', '810', 'RUB', 'RUB', 'руб.', 'Y');
+INSERT INTO hdbk.CURRENCY (ID, AMND_PREV, CODE, NAME, NLS_NAME, IS_CURRENCY) VALUES ('840', '840', 'USD', 'USD', '$', 'Y');
+INSERT INTO hdbk.CURRENCY (ID, AMND_PREV, CODE, NAME, IS_CURRENCY) VALUES ('978', '978', 'EUR', 'EUR', 'Y');
+INSERT INTO hdbk.CURRENCY (ID, AMND_PREV, CODE, NAME, IS_CURRENCY) VALUES ('1', '1', '%', 'PERCENT', 'N');
+
 
 INSERT INTO "NTG"."MARKUP_TYPE" (NAME) VALUES ('SUPPLIER');
 INSERT INTO "NTG"."MARKUP_TYPE" (NAME) VALUES ('COMMISSION');
@@ -222,21 +223,29 @@ ALTER TRIGGER ntg.ntt_TRGR ENABLE;
 as system
 
 grant execute on blng.blng_api to ntg;
+grant execute on hdbk.dtype to ntg;
+grant execute on hdbk.log_api to ntg;
 
+drop package ntg.log_api;
+drop package ntg.dtype;
 
 
 
 /
 
 
+@dba/GRANTS.sql;
 @metadata/view.sql;
+@data/pkg/hdbk.fwdr.sql;
+@data/pkg/hdbk.log_api.sql;
+@data/pkg/hdbk.dtype.sql;
 @data/pkg/blng.blng_api.sql;
 @data/pkg/blng.core.sql;
 @data/pkg/blng.fwdr.sql;
 @data/pkg/ntg.ntg_api.sql;
 @data/pkg/ntg.fwdr.sql;
-@data/pkg/ntg.log_api.sql;
-@data/pkg/ntg.dtype.sql;
+--@data/pkg/ntg.log_api.sql;
+--@data/pkg/ntg.dtype.sql;
 @data/pkg/ord.ord_api.sql;
 @data/pkg/ord.core.sql;
 @data/pkg/ord.fwdr.sql;

@@ -17,48 +17,48 @@ $obj_desc: ***_get_info return data from table *** with format SYS_REFCURSOR.
 $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
 */
   
-  function gds_nationality_get_info (p_code in ntg.dtype.t_code)
+  function gds_nationality_get_info (p_code in hdbk.dtype.t_code)
   return SYS_REFCURSOR;
 
-  function gds_nationality_get_info_r (p_code in ntg.dtype.t_code)
+  function gds_nationality_get_info_r (p_code in hdbk.dtype.t_code)
   return ntg.gds_nationality%rowtype;
 
-  function gds_nationality_get_info_name (p_code in ntg.dtype.t_code)
-  return ntg.dtype.t_name;
+  function gds_nationality_get_info_name (p_code in hdbk.dtype.t_code)
+  return hdbk.dtype.t_name;
   
   function note_add( 
-                    p_name in ntg.dtype.t_name default null,
-                    p_client in ntg.dtype.t_id default null
+                    p_name in hdbk.dtype.t_name default null,
+                    p_client in hdbk.dtype.t_id default null
                   )
-  return ntg.dtype.t_id;
+  return hdbk.dtype.t_id;
 
 
-  procedure note_edit(  P_ID  in ntg.dtype.t_id default null,
-                              p_name in ntg.dtype.t_name default null,
-                    p_client in ntg.dtype.t_id default null,
-                    p_status in ntg.dtype.t_status default null
+  procedure note_edit(  P_ID  in hdbk.dtype.t_id default null,
+                              p_name in hdbk.dtype.t_name default null,
+                    p_client in hdbk.dtype.t_id default null,
+                    p_status in hdbk.dtype.t_status default null
                       );
 
-  function note_get_info_r ( P_ID  in ntg.dtype.t_id default null)
+  function note_get_info_r ( P_ID  in hdbk.dtype.t_id default null)
   return note%rowtype;
 
 
 
   function note_ticket_add( 
-                    p_note in ntg.dtype.t_id default null,
-                    p_tickets in ntg.dtype.t_clob default null
+                    p_note in hdbk.dtype.t_id default null,
+                    p_tickets in hdbk.dtype.t_clob default null
                   )
-  return ntg.dtype.t_id;
+  return hdbk.dtype.t_id;
 
 
-  procedure note_ticket_edit(  P_ID  in ntg.dtype.t_id default null,
-                                p_note in ntg.dtype.t_id default null,
-                                p_tickets in ntg.dtype.t_clob default null,
-                                p_status in ntg.dtype.t_status default null                                
+  procedure note_ticket_edit(  P_ID  in hdbk.dtype.t_id default null,
+                                p_note in hdbk.dtype.t_id default null,
+                                p_tickets in hdbk.dtype.t_clob default null,
+                                p_status in hdbk.dtype.t_status default null                                
                       );
 
 
-  function note_ticket_get_info_r (    P_ID  in ntg.dtype.t_id default null  )
+  function note_ticket_get_info_r (    P_ID  in hdbk.dtype.t_id default null  )
   return note_ticket%rowtype;
 
   
@@ -67,7 +67,7 @@ end;
 /
 create or replace package body ntg.ntg_api as
   
-  function gds_nationality_get_info (p_code in ntg.dtype.t_code)
+  function gds_nationality_get_info (p_code in hdbk.dtype.t_code)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -82,17 +82,17 @@ create or replace package body ntg.ntg_api as
     return v_results;
   exception 
     when NO_DATA_FOUND then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'gds_nationality_get_info', p_msg_type=>'NO_DATA_FOUND',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=gds_nationality,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE;
     when TOO_MANY_ROWS then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'gds_nationality_get_info', p_msg_type=>'TOO_MANY_ROWS',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info', p_msg_type=>'TOO_MANY_ROWS',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=gds_nationality,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE;
     when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'gds_nationality_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=gds_nationality,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into gds_nationality error. '||SQLERRM);
@@ -100,7 +100,7 @@ create or replace package body ntg.ntg_api as
   end;
 
 
-  function gds_nationality_get_info_r (p_code in ntg.dtype.t_code)
+  function gds_nationality_get_info_r (p_code in hdbk.dtype.t_code)
   return ntg.gds_nationality%rowtype
   is
     v_results ntg.gds_nationality%rowtype; 
@@ -113,26 +113,26 @@ create or replace package body ntg.ntg_api as
     return v_results;
   exception 
     when NO_DATA_FOUND then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'gds_nationality_get_info_r', p_msg_type=>'NO_DATA_FOUND',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info_r', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=gds_nationality,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE NO_DATA_FOUND;
     when TOO_MANY_ROWS then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'gds_nationality_get_info_r', p_msg_type=>'TOO_MANY_ROWS',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info_r', p_msg_type=>'TOO_MANY_ROWS',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=gds_nationality,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE TOO_MANY_ROWS;
     when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'gds_nationality_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=gds_nationality,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into gds_nationality error. '||SQLERRM);
   end;
 
-  function gds_nationality_get_info_name (p_code in ntg.dtype.t_code)
-  return ntg.dtype.t_name
+  function gds_nationality_get_info_name (p_code in hdbk.dtype.t_code)
+  return hdbk.dtype.t_name
   is
-    v_results ntg.dtype.t_name; 
+    v_results hdbk.dtype.t_name; 
   begin
     if p_code is null then return null; end if; 
     select 
@@ -143,17 +143,17 @@ create or replace package body ntg.ntg_api as
     return v_results;
   exception 
     when NO_DATA_FOUND then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'gds_nationality_get_info_name', p_msg_type=>'TOO_MANY_ROWS',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info_name', p_msg_type=>'TOO_MANY_ROWS',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=gds_nationality,p_code='||p_code||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       raise NO_DATA_FOUND;
     when TOO_MANY_ROWS then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'gds_nationality_get_info_name', p_msg_type=>'TOO_MANY_ROWS',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info_name', p_msg_type=>'TOO_MANY_ROWS',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=gds_nationality,p_code='||p_code||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE TOO_MANY_ROWS;
     when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'gds_nationality_get_info_name', p_msg_type=>'UNHANDLED_ERROR',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info_name', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=gds_nationality,p_code='||p_code||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into gds_nationality error. '||SQLERRM);
@@ -163,13 +163,13 @@ create or replace package body ntg.ntg_api as
 
 
   function note_add( 
-                    p_name in ntg.dtype.t_name default null,
-                    p_client in ntg.dtype.t_id default null
+                    p_name in hdbk.dtype.t_name default null,
+                    p_client in hdbk.dtype.t_id default null
                   )
-  return ntg.dtype.t_id
+  return hdbk.dtype.t_id
   is
     v_obj_row note%rowtype;
-    v_id ntg.dtype.t_id;
+    v_id hdbk.dtype.t_id;
   begin
     v_obj_row.name:=  p_name;
     v_obj_row.client_oid:=  p_client;
@@ -177,17 +177,17 @@ create or replace package body ntg.ntg_api as
     insert into note values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'note_add', p_msg_type=>'UNHANDLED_ERROR',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'note_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=note,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into note error. '||SQLERRM);
   end;
 
 
-  procedure note_edit(  P_ID  in ntg.dtype.t_id default null,
-                              p_name in ntg.dtype.t_name default null,
-                    p_client in ntg.dtype.t_id default null,
-                    p_status in ntg.dtype.t_status default null
+  procedure note_edit(  P_ID  in hdbk.dtype.t_id default null,
+                              p_name in hdbk.dtype.t_name default null,
+                    p_client in hdbk.dtype.t_id default null,
+                    p_status in hdbk.dtype.t_status default null
                       )
   is
     v_obj_row_new note%rowtype;
@@ -218,13 +218,13 @@ create or replace package body ntg.ntg_api as
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'note_edit', p_msg_type=>'UNHANDLED_ERROR',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'note_edit', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=note,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'update row into note error. '||SQLERRM);
   end;
 
-  function note_get_info_r ( P_ID  in ntg.dtype.t_id default null)
+  function note_get_info_r ( P_ID  in hdbk.dtype.t_id default null)
   return note%rowtype
   is
     r_obj note%rowtype;
@@ -244,7 +244,7 @@ create or replace package body ntg.ntg_api as
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'note_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'note_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=note,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into note error. '||SQLERRM);
@@ -253,13 +253,13 @@ create or replace package body ntg.ntg_api as
 
 
   function note_ticket_add( 
-                    p_note in ntg.dtype.t_id default null,
-                    p_tickets in ntg.dtype.t_clob default null
+                    p_note in hdbk.dtype.t_id default null,
+                    p_tickets in hdbk.dtype.t_clob default null
                   )
-  return ntg.dtype.t_id
+  return hdbk.dtype.t_id
   is
     v_obj_row note_ticket%rowtype;
-    v_id ntg.dtype.t_id;
+    v_id hdbk.dtype.t_id;
   begin
     v_obj_row.note_oid:=  p_note;
     v_obj_row.tickets:=  p_tickets;
@@ -267,17 +267,17 @@ create or replace package body ntg.ntg_api as
     insert into ntg.note_ticket values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    NTG.LOG_API.LOG_ADD(p_proc_name=>'note_ticket_add', p_msg_type=>'UNHANDLED_ERROR',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'note_ticket_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=note_ticket,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into note_ticket error. '||SQLERRM);
   end;
 
 
-  procedure note_ticket_edit(  P_ID  in ntg.dtype.t_id default null,
-                                p_note in ntg.dtype.t_id default null,
-                                p_tickets in ntg.dtype.t_clob default null,
-                                p_status in ntg.dtype.t_status default null                                
+  procedure note_ticket_edit(  P_ID  in hdbk.dtype.t_id default null,
+                                p_note in hdbk.dtype.t_id default null,
+                                p_tickets in hdbk.dtype.t_clob default null,
+                                p_status in hdbk.dtype.t_status default null                                
                       )
   is
     v_obj_row_new note_ticket%rowtype;
@@ -310,14 +310,14 @@ create or replace package body ntg.ntg_api as
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'note_ticket_edit', p_msg_type=>'UNHANDLED_ERROR',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'note_ticket_edit', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=note_ticket,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'update row into note_ticket error. '||SQLERRM);
   end;
 
 
-  function note_ticket_get_info_r (    P_ID  in ntg.dtype.t_id default null  )
+  function note_ticket_get_info_r (    P_ID  in hdbk.dtype.t_id default null  )
   return note_ticket%rowtype
   is
     r_obj note_ticket%rowtype;
@@ -337,7 +337,7 @@ create or replace package body ntg.ntg_api as
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      NTG.LOG_API.LOG_ADD(p_proc_name=>'note_ticket_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'note_ticket_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=note_ticket,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into note_ticket error. '||SQLERRM);
