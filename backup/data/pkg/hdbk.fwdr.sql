@@ -680,9 +680,9 @@ end;
 --    v_id ntg.dtype.t_id; 
   begin
     OPEN v_results FOR
-      SELECT 'EUR' code,60.12 rate,1 version,'Y' is_active  from dual
-      union all
-      SELECT 'USD' code,53.32 rate,1 version,'Y' is_active  from dual;      
+      SELECT code,rate,(select max(id) from hdbk.rate) version , decode(amnd_state, 'A','Y','C','N','E') is_active, date_from, date_to
+      from hdbk.rate where date_to >= sysdate; -- 
+      
     return v_results;
   exception when others then
     hdbk.LOG_API.LOG_ADD(p_proc_name=>'rate_list', p_msg_type=>'UNHANDLED_ERROR',

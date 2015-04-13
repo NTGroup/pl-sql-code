@@ -646,10 +646,86 @@ ALTER TABLE hdbk.currency  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 /
 
 
+
+/* hdbk.rate  */
+  --------------------------------------------------------
+  --  DDL for Table
+  --------------------------------------------------------
+  
+    CREATE TABLE hdbk.rate 
+     (		ID NUMBER(18,0), 
+    AMND_DATE DATE, 
+    AMND_USER VARCHAR2(50 BYTE), 
+    AMND_STATE VARCHAR2(1 BYTE), 
+    AMND_PREV NUMBER(18,0), 
+    currency_oid NUMBER(18,0), 
+    code VARCHAR2(10 BYTE), 
+    rate  NUMBER(20,2),
+    date_from  date,
+    date_to  date
+    
+    
+     ) SEGMENT CREATION IMMEDIATE
+    TABLESPACE "USERS" ;
+  --------------------------------------------------------
+  --  DDL for Index 
+  --------------------------------------------------------
+  
+    CREATE INDEX hdbk.rate_ID_IDX ON hdbk.rate ("ID") 
+    TABLESPACE "USERS" ;
+  --------------------------------------------------------
+  --  Constraints
+  --------------------------------------------------------
+  
+    ALTER TABLE hdbk.rate MODIFY ("ID" CONSTRAINT rate_ID_NN NOT NULL ENABLE);
+    ALTER TABLE hdbk.rate MODIFY (AMND_DATE CONSTRAINT "rate_ADT_NN" NOT NULL ENABLE);
+    ALTER TABLE hdbk.rate MODIFY (AMND_USER CONSTRAINT "rate_AUR_NN" NOT NULL ENABLE);
+    ALTER TABLE hdbk.rate MODIFY (AMND_STATE CONSTRAINT "rate_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE hdbk.rate  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+  ALTER TABLE hdbk.rate  MODIFY (AMND_USER DEFAULT  on null  user );
+  ALTER TABLE hdbk.rate  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+    ALTER TABLE hdbk.rate ADD CONSTRAINT rate_ID_PK PRIMARY KEY (ID)
+    USING INDEX hdbk.rate_ID_IDX ENABLE;
+  
+     
+    ALTER TABLE hdbk.rate ADD CONSTRAINT rate_curr_OID_FK FOREIGN KEY (currency_oid)
+    REFERENCES hdbk.currency ("ID") ENABLE;
+  
+  
+    create sequence  hdbk.rate_seq
+    increment by 1
+    start with 1
+    nomaxvalue
+    nocache /*!!!*/
+    nocycle
+    order;
+  --------------------------------------------------------
+  --  DDL for Trigger 
+  --------------------------------------------------------
+  
+  CREATE OR REPLACE EDITIONABLE TRIGGER hdbk.rate_TRGR 
+  BEFORE
+  INSERT
+  ON hdbk.rate
+  REFERENCING NEW AS NEW OLD AS OLD
+  FOR EACH ROW
+   WHEN (new.id is null) BEGIN
+    select rate_SEQ.nextval into :new.id from dual; 
+    select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
+  end;
+  /
+  ALTER TRIGGER hdbk.rate_TRGR ENABLE;
+  
+  /
+  
+  
+  
+
 /
 CREATE bitmap INDEX hdbk.log_AS_IDX ON hdbk.log (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX hdbk.geo_AS_IDX ON hdbk.geo (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX hdbk.al_AS_IDX ON hdbk.airline (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX hdbk.ap_AS_IDX ON hdbk.airplane (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX hdbk.rate_AS_IDX ON hdbk.rate (amnd_state) TABLESPACE "USERS" ;
 
 
