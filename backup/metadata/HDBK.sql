@@ -487,7 +487,9 @@ ALTER TRIGGER hdbk.MKPT_TRGR ENABLE;
 	AMND_STATE VARCHAR2(1 BYTE), 
 	AMND_PREV NUMBER(18,0), 
 	NAME VARCHAR2(4000 BYTE), 
-	client_oid NUMBER(18,0)
+	client_oid NUMBER(18,0),
+  guid VARCHAR2(255 BYTE)
+  
    ) SEGMENT CREATION IMMEDIATE
   TABLESPACE "USERS" ;
 --------------------------------------------------------

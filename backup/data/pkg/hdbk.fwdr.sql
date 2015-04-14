@@ -127,7 +127,11 @@ $obj_return: SEGMENT, V_FROM, V_TO, ABSOLUT_AMOUNT, PERCENT_AMOUNT, MIN_ABSOLUT,
   function note_list(     p_client in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR;
 
-  function note_ticket_list(p_note in hdbk.dtype.t_id default null)
+  function note_ticket_list(p_note in hdbk.dtype.t_id default null,
+                            p_client in hdbk.dtype.t_name default null)
+  return SYS_REFCURSOR;
+
+  function note_ticket_list(P_GUID  in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR;
 
   function punto_switcher(p_text in hdbk.dtype.t_msg)
@@ -624,7 +628,7 @@ end;
     r_client := blng.blng_api.client_get_info_r(p_email => p_client);
     if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
     open v_results FOR
-      select id note_id, name from hdbk.note where amnd_state = 'A' and client_oid = r_client.id order by id desc;
+      select id note_id, name, guid from hdbk.note where amnd_state = 'A' and client_oid = r_client.id order by id desc;
     return v_results;  
   exception when others then
     open v_results FOR
@@ -632,7 +636,8 @@ end;
     return v_results;  
   end;
 
-  function note_ticket_list(p_note in hdbk.dtype.t_id default null)
+  function note_ticket_list(p_note in hdbk.dtype.t_id default null,
+                            p_client in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -643,8 +648,10 @@ end;
   begin
         
     r_note := hdbk.hdbk_api.note_get_info_r(p_id => p_note);
+    r_client := blng.blng_api.client_get_info_r(p_email => p_client);
+    if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
     open v_results FOR
-      select note.id note_id, note_ticket.id note_ticket_id, note.name, note_ticket.tickets from hdbk.note, hdbk.note_ticket
+      select note.id note_id, note_ticket.id note_ticket_id, note.name,note.guid, note_ticket.tickets from hdbk.note, hdbk.note_ticket
       where note.id = p_note
       and note.id = note_ticket.note_oid(+)
       and note.amnd_state = 'A'
@@ -657,6 +664,32 @@ end;
     return v_results;  
   end;
 
+
+  function note_ticket_list(p_guid in hdbk.dtype.t_name default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    r_client blng.client%rowtype; 
+    r_note note%rowtype; 
+    r_note_ticket note_ticket%rowtype; 
+    v_note_ticket hdbk.dtype.t_id; 
+  begin
+        
+    r_note := hdbk.hdbk_api.note_get_info_r(p_guid => p_guid);
+    open v_results FOR
+      select note.id note_id, note_ticket.id note_ticket_id, note.name, note.guid, note_ticket.tickets from hdbk.note, hdbk.note_ticket
+      where note.id = r_note.id
+      and note.id = note_ticket.note_oid(+)
+      and note.amnd_state = 'A'
+      and note_ticket.amnd_state(+) = 'A'
+      ;
+    return v_results;  
+  exception when others then
+    open v_results FOR
+      select 'NO_DATA_FOUND' res from dual;
+    return v_results;  
+  end;
+  
   function punto_switcher(p_text in hdbk.dtype.t_msg)
   return hdbk.dtype.t_msg
   is

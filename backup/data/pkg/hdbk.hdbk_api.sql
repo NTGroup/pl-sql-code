@@ -39,7 +39,8 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                     p_status in hdbk.dtype.t_status default null
                       );
 
-  function note_get_info_r ( P_ID  in hdbk.dtype.t_id default null)
+  function note_get_info_r ( P_ID  in hdbk.dtype.t_id default null,
+                              P_GUID  in hdbk.dtype.t_name default null)
   return note%rowtype;
 
 
@@ -206,6 +207,7 @@ create or replace package body hdbk.hdbk_api as
   begin
     v_obj_row.name:=  p_name;
     v_obj_row.client_oid:=  p_client;
+    v_obj_row.guid :=  SYS_GUID();
 
     insert into note values v_obj_row returning id into v_id;
     return v_id;
@@ -217,10 +219,10 @@ create or replace package body hdbk.hdbk_api as
   end;
 
 
-  procedure note_edit(  P_ID  in hdbk.dtype.t_id default null,
+  procedure note_edit(    P_ID  in hdbk.dtype.t_id default null,
                               p_name in hdbk.dtype.t_name default null,
-                    p_client in hdbk.dtype.t_id default null,
-                    p_status in hdbk.dtype.t_status default null
+                            p_client in hdbk.dtype.t_id default null,
+                            p_status in hdbk.dtype.t_status default null
                       )
   is
     v_obj_row_new note%rowtype;
@@ -257,17 +259,19 @@ create or replace package body hdbk.hdbk_api as
       RAISE_APPLICATION_ERROR(-20002,'update row into note error. '||SQLERRM);
   end;
 
-  function note_get_info_r ( P_ID  in hdbk.dtype.t_id default null)
+  function note_get_info_r ( P_ID  in hdbk.dtype.t_id default null,
+                              P_GUID  in hdbk.dtype.t_name default null)
   return note%rowtype
   is
     r_obj note%rowtype;
   begin
-    if p_id is null  then raise NO_DATA_FOUND; end if;   
+    if p_id is null and p_guid is null then raise NO_DATA_FOUND; end if;   
     
     SELECT
     * into r_obj
     from note 
     where id = nvl(p_id,id)
+    and guid = nvl(p_guid,guid)
     and amnd_state != 'I'
     order by id;
     return r_obj;

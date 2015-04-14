@@ -14,7 +14,7 @@ END;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  P_company VARCHAR2(255):='Shrew Crew';
+  P_company VARCHAR2(255):='ООО "ИМЭЙДЖИН ГРУПП"';
   v_company ntg.dtype.t_id;
 
 --  P_NAME VARCHAR2(255):='pasha';
@@ -714,4 +714,82 @@ BEGIN
   --revoke 100
 end;
 
+---------------------------------------------------------------------------------WORK
+
+
+/* first edition with check account value only*/
+DECLARE
+  starting_time  TIMESTAMP WITH TIME ZONE;
+  ending_time    TIMESTAMP WITH TIME ZONE;
+  P_company VARCHAR2(255):='ООО "ИМЭЙДЖИН ГРУПП"';
+  v_company ntg.dtype.t_id;
+
+--  P_NAME VARCHAR2(255):='pasha';
+  v_client1  ntg.dtype.t_id;
+  v_client2  ntg.dtype.t_id;
+  v_client3  ntg.dtype.t_id;
+  v_client4  ntg.dtype.t_id;
+  v_client5  ntg.dtype.t_id;
+  v_client6  ntg.dtype.t_id;
+  v_contract1  ntg.dtype.t_id;
+  v_contract5  ntg.dtype.t_id;
+  P_number VARCHAR2(255);
+    v_DOC ntg.dtype.t_id;
+BEGIN
+
+
+  SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
+
+  /*company*/
+  v_company := blng.BLNG_API.company_add(P_name => P_company);
+ -- v_company := 5;
+  DBMS_OUTPUT.PUT_LINE('v_company = ' || v_company);
+
+
+/*contract*/
+  v_contract1 := blng.BLNG_API.contract_add(P_company => v_company);
+  DBMS_OUTPUT.PUT_LINE('v_contract1 = ' || v_contract1); 
+  BLNG.BLNG_API.account_init(v_contract1);
+
+  SELECT SYSTIMESTAMP INTO ending_time FROM DUAL;
+  DBMS_OUTPUT.PUT_LINE('Time = ' || TO_CHAR(ending_time - starting_time));
+commit;
+
+  /* ins doc limit 1000 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract1,P_AMOUNT => 100000,P_TRANS_TYPE =>7);
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
+  
+  /* set delay days 50 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract1,P_AMOUNT => 3,P_TRANS_TYPE =>11);
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
+  /* set max loan trans amount 200 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract1,P_AMOUNT => 0,P_TRANS_TYPE =>8);
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
+
+
+
+INSERT INTO "BLNG"."DOMAIN" (NAME, CONTRACT_OID, STATUS, IS_DOMAIN) VALUES ('ddd', v_contract1, 'A', '0');
+commit;
+
+end;
+
+/
+select * from blng.client2contract;
+
+select * from blng.account where contract_oid in (20);
+
+  SELECT /* text */ * FROM blng.v_account order by contract_oid desc;
+--check docs
+select  /* text */ * FROM blng.document order by id desc;
+--check transactions
+select  /* text */ * FROM blng.transaction order by id desc;
+--check log
+select  /* text */ * FROM ntg.log order by id desc;
+
+
+INSERT INTO "NTG"."MARKUP" (CONTRACT_OID, GDS, POS, VALIDATING_CARRIER, CLASS_OF_SERVICE, HUMAN, ABSOLUT, ABSOLUT_AMOUNT, MARKUP_TYPE_OID) VALUES ('27', 'Sabre', 'CJ8H', '1597', 'default', 'Y', 'Y', '400', '1');
+commit;
 
