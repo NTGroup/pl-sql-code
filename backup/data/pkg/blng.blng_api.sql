@@ -54,7 +54,8 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                           p_email in hdbk.dtype.t_name default null,
                   p_phone in hdbk.dtype.t_name default null,
                   p_utc_offset in hdbk.dtype.t_id default null,
-                        p_is_tester in hdbk.dtype.t_status default null
+                        p_is_tester in hdbk.dtype.t_status default null,
+                        p_status in hdbk.dtype.t_status default null
   );
 
   function client_get_info( p_id in hdbk.dtype.t_id  default null,
@@ -102,6 +103,13 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                                       p_permission in hdbk.dtype.t_status default null
                                     )
   return SYS_REFCURSOR;
+
+  function client2contract_get_info_r(  p_id in hdbk.dtype.t_id default null,
+                                      p_client in hdbk.dtype.t_id default null,
+                                      p_contract in hdbk.dtype.t_id default null,
+                                      p_permission in hdbk.dtype.t_status default null
+                                    )
+  return blng.client2contract%rowtype;
 
   function contract_add( p_company in hdbk.dtype.t_id default null,
                   p_utc_offset in hdbk.dtype.t_id default null)
@@ -596,7 +604,9 @@ end blng_api;
                         p_email in hdbk.dtype.t_name default null,
                         p_phone in hdbk.dtype.t_name default null,
                         p_utc_offset in hdbk.dtype.t_id default null,
-                        p_is_tester in hdbk.dtype.t_status default null)
+                        p_is_tester in hdbk.dtype.t_status default null,
+                        p_status in hdbk.dtype.t_status default null
+                        )
   is
     v_obj_row_new blng.client%rowtype;
     v_obj_row_old blng.client%rowtype;
@@ -617,6 +627,8 @@ end blng_api;
     v_obj_row_new.utc_offset:=nvl(p_utc_offset, v_obj_row_new.utc_offset);
     v_obj_row_new.is_tester:=nvl(p_is_tester, v_obj_row_new.is_tester);
     --v_obj_row_new.amnd_user:=null;
+    if p_status in ('C','D') then v_obj_row_new.amnd_state :='C'; v_obj_row_new.status :='C'; end if;
+    if p_status in ('A') then v_obj_row_new.amnd_state :='A'; v_obj_row_new.status :='A'; end if;
     
     if 
       nvl(v_obj_row_new.last_name,'X') = nvl(v_obj_row_old.last_name,'X') and
@@ -628,7 +640,7 @@ end blng_api;
       nvl(v_obj_row_new.email,'X') = nvl(v_obj_row_old.email,'X') and
       v_obj_row_new.utc_offset = v_obj_row_old.utc_offset
       and v_obj_row_new.is_tester = v_obj_row_old.is_tester
-
+      and v_obj_row_new.amnd_state = v_obj_row_old.amnd_state
     then return; 
     else     
       v_obj_row_new.amnd_date:=sysdate;
@@ -754,29 +766,30 @@ end blng_api;
                                   p_contract in hdbk.dtype.t_id default null,
                                   p_status in hdbk.dtype.t_status default null)
   is
-    v_client2contract_row_new blng.client2contract%rowtype;
-    v_client2contract_row_old blng.client2contract%rowtype;
+    v_obj_row_new blng.client2contract%rowtype;
+    v_obj_row_old blng.client2contract%rowtype;
     v_mess hdbk.dtype.t_msg;
     v_id hdbk.dtype.t_id;
   begin
-    if p_status is null then raise NO_DATA_FOUND; end if;
-    if p_id is null then raise NO_DATA_FOUND; end if; 
+    if p_id is null and p_status is null then raise NO_DATA_FOUND; end if; 
     
-    select * into v_client2contract_row_old from blng.client2contract
+    select * into v_obj_row_old from blng.client2contract
     where id = nvl(p_id,id);
 
-    v_id := v_client2contract_row_old.id;
-    v_client2contract_row_new := v_client2contract_row_old;
+    v_id := v_obj_row_old.id;
+    v_obj_row_new := v_obj_row_old;
 
-    v_client2contract_row_old.amnd_state:='I';
-    v_client2contract_row_old.id:=null;
-    insert into blng.client2contract values v_client2contract_row_old;
+    v_obj_row_old.amnd_state:='I';
+    v_obj_row_old.id:=null;
+    insert into blng.client2contract values v_obj_row_old;
 
-    v_client2contract_row_new.amnd_state:=p_status;
-    v_client2contract_row_new.amnd_date:=sysdate;
-    v_client2contract_row_new.amnd_user:=user;
+    v_obj_row_new.amnd_state:=nvl(p_status,v_obj_row_new.amnd_state);
+    v_obj_row_new.contract_oid:=nvl(p_contract,v_obj_row_new.contract_oid);
+    v_obj_row_new.client_oid:=nvl(p_client,v_obj_row_new.client_oid);
+    v_obj_row_new.amnd_date:=sysdate;
+    v_obj_row_new.amnd_user:=user;
     --v_client_row_new.amnd_user:=null;
-    update blng.client2contract set row = v_client2contract_row_new where id = v_id;
+    update blng.client2contract set row = v_obj_row_new where id = v_id;
 --    commit;
   exception
     when NO_DATA_FOUND then 
@@ -818,6 +831,31 @@ end blng_api;
   end;
 
 
+  function client2contract_get_info_r(  p_id in hdbk.dtype.t_id default null,
+                                      p_client in hdbk.dtype.t_id default null,
+                                      p_contract in hdbk.dtype.t_id default null,
+                                      p_permission in hdbk.dtype.t_status default null
+                                    )
+  return blng.client2contract%rowtype
+  is
+    v_results blng.client2contract%rowtype;
+  begin
+    SELECT
+    * into v_results
+    from blng.client2contract
+    where client_oid = nvl(p_client,client_oid)
+    and contract_oid = nvl(p_contract,contract_oid)
+    and permission = nvl(p_permission,permission)
+    and amnd_state <> 'I'
+    order by id;
+    return v_results;
+  exception when others then
+    hdbk.log_api.LOG_ADD(p_proc_name=>'client2contract_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client2contract,p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'select row into client2contract error. '||SQLERRM);
+  end;
+
 
   function contract_add(p_company in hdbk.dtype.t_id default null,
                   p_utc_offset in hdbk.dtype.t_id default null)
@@ -836,6 +874,7 @@ end blng_api;
           and amnd_state = 'A';
     v_contract_row.contract_number := v_number;
     v_contract_row.company_oid := p_company;
+    v_contract_row.utc_offset := 3;
     v_contract_row.status := 'A';
     insert into blng.contract values v_contract_row returning id into v_id;
     return v_id;
@@ -2278,7 +2317,7 @@ $TODO: all this nullable fields are bad. document_get_info
       nvl(to_char(v_obj_row_new.expiry_date,'ddmmyyyy'),'X') = nvl(to_char(v_obj_row_old.expiry_date,'ddmmyyyy'),'X') and
       nvl(v_obj_row_new.owner,'X') = nvl(v_obj_row_old.owner,'X') and  
       nvl(v_obj_row_new.phone,'X') = nvl(v_obj_row_old.phone,'X')  
-      and v_obj_row_new.amnd_state <> 'C'
+      and v_obj_row_new.amnd_state = v_obj_row_old.amnd_state
     then return; 
     else
       v_obj_row_new.amnd_date:=sysdate;

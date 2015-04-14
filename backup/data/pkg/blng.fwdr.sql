@@ -9,7 +9,7 @@ $obj_name: get_tenant
 $obj_desc: return tenant. tenant is contract identifire. tenant using 
 $obj_desc: for checking is client registered in the system.
 $obj_param: p_email: user email
-$obj_return: contract(now company) identifire
+$obj_return: contract identifire
 */
   function get_tenant (p_email in hdbk.dtype.t_name default null)
   return hdbk.dtype.t_id;  
@@ -136,6 +136,40 @@ $obj_return: SYS_REFCURSOR[COMPANY_ID, CONTRACT_ID, COMPANY_NAME, CONTRACT_NUMBE
                         )
   return SYS_REFCURSOR;
 
+/*
+$obj_type: function
+$obj_name: check_tenant
+$obj_desc: return tenant. tenant is contract identifire. tenant using 
+$obj_desc: for checking is client registered in the system. if user dosnt exist then return NULL
+$obj_param: p_email: user email
+$obj_return: contract identifire
+*/
+  function check_tenant (p_email in hdbk.dtype.t_name default null)
+  return hdbk.dtype.t_id;  
+
+/*
+$obj_type: procedure
+$obj_name: god_unblock
+$obj_desc: unblock user god@ntg-one.com. this user must be usually at blocked status [C]losed
+*/
+  procedure god_unblock;  
+
+/*
+$obj_type: procedure
+$obj_name: god_block
+$obj_desc: block user god@ntg-one.com. this user must be usually at blocked status [C]losed
+*/
+  procedure god_block;  
+
+/*
+$obj_type: procedure
+$obj_name: god_move
+$obj_desc: move user god@ntg-one.com to contract with id equals p_tenant. 
+$obj_desc: mission of god@ntg-one.com is to login under one of a contract and check errors.
+$obj_desc: god can help others to understand some problems 
+$obj_param: p_tenant: id of contract
+*/
+  procedure god_move(p_tenant in hdbk.dtype.t_id default null);  
 
 end;
 /
@@ -722,6 +756,92 @@ create  or replace package BODY blng.fwdr as
   end;
 
 
+  function check_tenant (p_email in hdbk.dtype.t_name default null)
+  return hdbk.dtype.t_id
+  is
+    r_client blng.client%rowtype;
+    v_contract hdbk.dtype.t_id;
+  begin
+    r_client:=blng.blng_api.client_get_info_r(p_email=>lower(p_email));
+    v_contract := blng.core.pay_contract_by_client(r_client.id);
+    return v_contract;
+  exception 
+    when others then return null;
+  end;
+
+  procedure god_unblock
+  is
+    r_client blng.client%rowtype;
+    v_god_email hdbk.dtype.t_name:='god@ntg-one.com';
+  begin
+    r_client:=blng.blng_api.client_get_info_r(p_email=>v_god_email);
+    --dbms_output.put_line('r_client='||r_client.id);    
+    blng.blng_api.client_edit(p_id=>r_client.id, p_status=>'A');
+    commit;    
+  exception 
+    when NO_DATA_FOUND then
+      rollback;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'god_unblock', p_msg_type=>'NO_DATA_FOUND',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    when others then
+      rollback;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'god_unblock', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'update row into client error. '||SQLERRM);
+  end;
+
+  procedure god_block
+  is
+    r_client blng.client%rowtype;
+    v_god_email hdbk.dtype.t_name:='god@ntg-one.com';
+  begin
+    r_client:=blng.blng_api.client_get_info_r(p_email=>v_god_email);
+    blng.blng_api.client_edit(p_id=>r_client.id, p_status=>'C');
+    commit;    
+  exception 
+    when NO_DATA_FOUND then
+      rollback;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'god_block', p_msg_type=>'NO_DATA_FOUND',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    when others then
+      rollback;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'god_block', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'update row into client error. '||SQLERRM);
+  end;
+
+
+  procedure god_move(p_tenant in hdbk.dtype.t_id default null)
+  is
+    r_client blng.client%rowtype;
+    r_client2contract blng.client2contract%rowtype;
+    r_contract_to blng.contract%rowtype;
+    v_god_email hdbk.dtype.t_name:='god@ntg-one.com';
+  begin
+    r_client:=blng.blng_api.client_get_info_r(p_email=>v_god_email);
+    r_client2contract:=blng.blng_api.client2contract_get_info_r(p_client=>r_client.id, p_permission=>'B');
+    r_contract_to:=blng.blng_api.contract_get_info_r(p_id=>p_tenant);
+
+    blng.blng_api.client_edit(p_id=>r_client.id, p_company=>r_contract_to.company_oid);
+    blng.blng_api.client2contract_edit(p_id=>r_client2contract.id, p_contract=>r_contract_to.id);
+    commit;
+  exception 
+    when NO_DATA_FOUND then
+      rollback;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'god_move', p_msg_type=>'NO_DATA_FOUND',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    when others then
+      rollback;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'god_move', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'update row into client error. '||SQLERRM);
+  end;
 
 end;
 /

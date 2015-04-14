@@ -137,12 +137,10 @@ $obj_return: SEGMENT, V_FROM, V_TO, ABSOLUT_AMOUNT, PERCENT_AMOUNT, MIN_ABSOLUT,
 
 /*
 
-$obj_type: procedure
-$obj_name: bill_pay
-$obj_desc: procedure perform transit bills with status [W]aiting to billing system. 
-$obj_desc: that means bill requested for pay. after that bill marked as [T]ransported
-$obj_desc: this procedure executed from job scheduler
-$obj_param: p_pnr_id: id from NQT. search perform by this id
+$obj_type: function
+$obj_name: rate_list
+$obj_desc: return all active rates for current moment. its not depends of p_version
+$obj_param: p_version: version. not useful now. 
 $obj_return: SYS_REFCURSOR[code,rate,version,is_active(Y,N)]
 */
 
@@ -671,17 +669,15 @@ end;
   end;
 
 
-
   function rate_list(p_version in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
---    v_ord_row ord%rowtype;
---    v_id ntg.dtype.t_id; 
   begin
+  -- [a,b) 
     OPEN v_results FOR
-      SELECT code,rate,(select max(id) from hdbk.rate) version , decode(amnd_state, 'A','Y','C','N','E') is_active, date_from, date_to
-      from hdbk.rate where date_to >= sysdate; -- 
+      SELECT code,rate,(select max(id) from hdbk.rate) version , decode(amnd_state, 'A','Y','C','N','E') is_active
+      from hdbk.rate where date_from <=sysdate and sysdate < date_to and amnd_state = 'A';      
       
     return v_results;
   exception when others then

@@ -878,14 +878,10 @@ end core;
   function pay_contract_by_client(p_client in hdbk.dtype.t_id)
   return hdbk.dtype.t_id
   is
-    v_contract hdbk.dtype.t_id;
+    r_client2contract blng.client2contract%rowtype;
   begin
-    select contract_oid into v_contract from blng.client2contract 
-    where client_oid = p_client 
-    and permission = 'B'
-    and amnd_state = 'A';
-    
-    return v_contract;
+    r_client2contract:=blng.blng_api.client2contract_get_info_r(p_client=>p_client, p_permission=>'B');
+    return r_client2contract.contract_oid;
   exception when others then
     hdbk.log_api.LOG_ADD(p_proc_name=>'pay_contract_by_client', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client2contract,p_date='
