@@ -207,7 +207,7 @@ create or replace package body hdbk.hdbk_api as
   begin
     v_obj_row.name:=  p_name;
     v_obj_row.client_oid:=  p_client;
-    v_obj_row.guid :=  SYS_GUID();
+    v_obj_row.guid :=   ntg.RandomUUID();
 
     insert into note values v_obj_row returning id into v_id;
     return v_id;

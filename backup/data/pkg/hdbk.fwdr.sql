@@ -649,6 +649,7 @@ end;
         
     r_note := hdbk.hdbk_api.note_get_info_r(p_id => p_note);
     r_client := blng.blng_api.client_get_info_r(p_email => p_client);
+    
     if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
     open v_results FOR
       select note.id note_id, note_ticket.id note_ticket_id, note.name,note.guid, note_ticket.tickets from hdbk.note, hdbk.note_ticket
