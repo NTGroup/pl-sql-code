@@ -720,7 +720,151 @@ ALTER TABLE hdbk.currency  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   
   /
   
+
+  CREATE TABLE hdbk.calendar 
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+   date_to date,
+   day_type NUMBER(18,0),
+   contract_oid NUMBER(18,0)
   
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index 
+--------------------------------------------------------
+
+  CREATE INDEX hdbk.cal_ID_IDX ON hdbk.calendar ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table 
+--------------------------------------------------------
+
+
+  ALTER TABLE hdbk.calendar MODIFY ("ID" CONSTRAINT cal_ID_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.calendar MODIFY (AMND_DATE CONSTRAINT "cal_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE hdbk.calendar MODIFY (AMND_USER CONSTRAINT "cal_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE hdbk.calendar MODIFY (AMND_STATE CONSTRAINT "cal_AST_NN" NOT NULL ENABLE);
+ALTER TABLE hdbk.calendar  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE hdbk.calendar  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE hdbk.calendar  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE hdbk.calendar ADD CONSTRAINT cal_ID_PK PRIMARY KEY (ID)
+  USING INDEX hdbk.cal_ID_IDX ENABLE;
+
+
+
+
+
+/*
+ALTER TABLE hdbk.calendar ADD CONSTRAINT cal_clt_OID_FK FOREIGN KEY (client_oid)
+  REFERENCES hdbk.client ("ID") ENABLE;
+*/
+
+--------------------------------------------------------
+--  DDL for Secuence 
+--------------------------------------------------------
+ 
+  create sequence  hdbk.cal_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+  
+--------------------------------------------------------
+--  DDL for Trigger 
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER hdbk.cal_TRGR 
+BEFORE
+INSERT
+ON hdbk.calendar
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select hdbk.cal_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual;
+end;
+/
+ALTER TRIGGER hdbk.cal_TRGR ENABLE;
+
+/  
+  
+
+
+  CREATE TABLE hdbk.dictionary 
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+   code  VARCHAR2(50),
+   name  VARCHAR2(255),
+   INFO  VARCHAR2(255),
+   dictionary_type varchar2(50)
+   
+  
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index 
+--------------------------------------------------------
+
+  CREATE INDEX hdbk.dict_ID_IDX ON hdbk.dictionary ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table 
+--------------------------------------------------------
+
+
+  ALTER TABLE hdbk.dictionary MODIFY ("ID" CONSTRAINT dict_ID_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.dictionary MODIFY (AMND_DATE CONSTRAINT "dict_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE hdbk.dictionary MODIFY (AMND_USER CONSTRAINT "dict_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE hdbk.dictionary MODIFY (AMND_STATE CONSTRAINT "dict_AST_NN" NOT NULL ENABLE);
+ALTER TABLE hdbk.dictionary  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE hdbk.dictionary  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE hdbk.dictionary  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE hdbk.dictionary ADD CONSTRAINT dict_ID_PK PRIMARY KEY (ID)
+  USING INDEX hdbk.dict_ID_IDX ENABLE;
+
+--------------------------------------------------------
+--  DDL for Secuence 
+--------------------------------------------------------
+ 
+  create sequence  hdbk.dict_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+  
+--------------------------------------------------------
+--  DDL for Trigger 
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER hdbk.dict_TRGR 
+BEFORE
+INSERT
+ON hdbk.dictionary
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select hdbk.dict_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual;
+end;
+/
+ALTER TRIGGER hdbk.dict_TRGR ENABLE;
+
+/  
   
 
 /
@@ -729,5 +873,8 @@ CREATE bitmap INDEX hdbk.geo_AS_IDX ON hdbk.geo (amnd_state) TABLESPACE "USERS" 
 CREATE bitmap INDEX hdbk.al_AS_IDX ON hdbk.airline (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX hdbk.ap_AS_IDX ON hdbk.airplane (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX hdbk.rate_AS_IDX ON hdbk.rate (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX hdbk.cal_AS_IDX ON hdbk.calendar (amnd_state) TABLESPACE "USERS" ;
+
+CREATE INDEX hdbk.cal_dtt_IDX ON hdbk.calendar (date_to) TABLESPACE "USERS" ;
 
 
