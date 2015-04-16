@@ -1174,6 +1174,7 @@ $TODO: all this nullable fields are bad. document_get_info
         and contract_oid = nvl(p_contract,contract_oid)
         and trans_type_oid = nvl(p_trans_type,trans_type_oid)
         and status = nvl(p_status,status)
+        and status <> 'D'
         and bill_oid = p_bill
         and amnd_state = 'A'
         order by contract_oid, id asc;
@@ -1215,6 +1216,7 @@ $TODO: all this nullable fields are bad. document_get_info
         from blng.document
         where bill_oid = p_bill
         and amnd_state != 'I'
+        and status <> 'D'
         order by contract_oid, id asc;
     else
         SELECT

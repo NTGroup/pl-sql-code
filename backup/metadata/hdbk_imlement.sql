@@ -9,7 +9,7 @@ QUOTA UNLIMITED ON users
 ACCOUNT LOCK ;
 /
 
-@metadata/hdbk.sql;
+@metadata/hdbk.sql; RUN IT FROM RELEASE.sql
 
 /
 
@@ -104,7 +104,7 @@ drop sequence hdbk.mkpt_seq;
   
   create sequence  hdbk.mkpt_seq
   increment by 1
-  start with 6
+  start with 3
   nomaxvalue
   nocache 
   nocycle

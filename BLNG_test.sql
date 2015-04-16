@@ -15,17 +15,17 @@ DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
   P_company VARCHAR2(255):='ООО "ИМЭЙДЖИН ГРУПП"';
-  v_company ntg.dtype.t_id;
+  v_company hdbk.dtype.t_id;
 
 --  P_NAME VARCHAR2(255):='pasha';
-  v_client1  ntg.dtype.t_id;
-  v_client2  ntg.dtype.t_id;
-  v_client3  ntg.dtype.t_id;
-  v_client4  ntg.dtype.t_id;
-  v_client5  ntg.dtype.t_id;
-  v_client6  ntg.dtype.t_id;
-  v_contract1  ntg.dtype.t_id;
-  v_contract5  ntg.dtype.t_id;
+  v_client1  hdbk.dtype.t_id;
+  v_client2  hdbk.dtype.t_id;
+  v_client3  hdbk.dtype.t_id;
+  v_client4  hdbk.dtype.t_id;
+  v_client5  hdbk.dtype.t_id;
+  v_client6  hdbk.dtype.t_id;
+  v_contract1  hdbk.dtype.t_id;
+  v_contract5  hdbk.dtype.t_id;
   P_number VARCHAR2(255);
 BEGIN
 --- create contract and account for begin test
@@ -133,9 +133,9 @@ select * from blng.account where contract_oid in (20);
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=20;
+  v_contract  hdbk.dtype.t_id:=20;
   P_number VARCHAR2(255);
-  v_DOC ntg.dtype.t_id;
+  v_DOC hdbk.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
 
 BEGIN
@@ -194,7 +194,7 @@ select  /* text */ * FROM blng.document order by id desc;
 --check transactions
 select  /* text */ * FROM blng.transaction order by id desc;
 --check log
-select  /* text */ * FROM ntg.log order by id desc;
+select  /* text */ * FROM hdbk.log order by id desc;
 
 -- approve document manually if it needed
 begin
@@ -205,15 +205,15 @@ end;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=20;
+  v_contract  hdbk.dtype.t_id:=24;
   P_number VARCHAR2(255);
-  v_DOC ntg.dtype.t_id;
+  v_DOC hdbk.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
 
 BEGIN
 
   /* ins doc cash in 500 */
-  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 500,P_TRANS_TYPE =>2);
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 500000000,P_TRANS_TYPE =>2);
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
   commit;
   
@@ -227,19 +227,20 @@ end;
 
   SELECT /* text */ * FROM blng.v_account order by contract_oid desc;
 --check docs
+
 select  /* text */ * FROM blng.document order by id desc;
 --check transactions
 select  /* text */ * FROM blng.transaction order by id desc;
 --check log
-select  /* text */ * FROM ntg.log order by id desc;
+select  /* text */ * FROM hdbk.log order by id desc;
 
 --test buy from deposit
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=20;
+  v_contract  hdbk.dtype.t_id:=20;
   P_number VARCHAR2(255);
-  v_DOC ntg.dtype.t_id;
+  v_DOC hdbk.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
 
 BEGIN
@@ -265,16 +266,16 @@ select  /* text */ * FROM blng.transaction order by id desc;
 --check delay
 select  /* text */ * FROM blng.delay order by id desc;
 --check log
-select  /* text */ * FROM ntg.log order by id desc;
+select  /* text */ * FROM hdbk.log order by id desc;
 
 
 --test buy from deposit and loan second document with amount more then MAX_LOAN_TRANS_AMOUNT
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=20;
+  v_contract  hdbk.dtype.t_id:=20;
   P_number VARCHAR2(255);
-  v_DOC ntg.dtype.t_id;
+  v_DOC hdbk.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
 
 BEGIN
@@ -309,7 +310,7 @@ select  /* text */ * FROM blng.transaction order by id desc;
 --check delay
 select  /* text */ * FROM blng.delay order by id desc ;
 --check log
-select  /* text */ * FROM ntg.log order by id desc;
+select  /* text */ * FROM hdbk.log order by id desc;
 
 
 
@@ -317,9 +318,9 @@ select  /* text */ * FROM ntg.log order by id desc;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=20;
+  v_contract  hdbk.dtype.t_id:=20;
   P_number VARCHAR2(255);
-  v_DOC ntg.dtype.t_id;
+  v_DOC hdbk.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
 
 BEGIN
@@ -356,16 +357,16 @@ select  /* text */ * FROM blng.transaction order by id desc;
 --check delay
 select  /* text */ * FROM blng.delay where id >=55 order by id desc;
 --check log
-select  /* text */ * FROM ntg.log order by id desc;
+select  /* text */ * FROM hdbk.log order by id desc;
 
 
 --test insufficient funds exception and delay expire
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=20;
+  v_contract  hdbk.dtype.t_id:=20;
   P_number VARCHAR2(255);
-  v_DOC ntg.dtype.t_id;
+  v_DOC hdbk.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
 
 BEGIN
@@ -402,9 +403,9 @@ commit;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=20;
+  v_contract  hdbk.dtype.t_id:=20;
   P_number VARCHAR2(255);
-  v_DOC ntg.dtype.t_id;
+  v_DOC hdbk.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
 
 BEGIN
@@ -426,7 +427,7 @@ select  /* text */ * FROM blng.transaction order by id desc;
 --check delay
 select  /* text */ * FROM blng.delay order by id desc ;
 --check log
-select  /* text */ * FROM ntg.log order by id desc;
+select  /* text */ * FROM hdbk.log order by id desc;
 
 
 
@@ -434,9 +435,9 @@ select  /* text */ * FROM ntg.log order by id desc;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=20;
+  v_contract  hdbk.dtype.t_id:=20;
   P_number VARCHAR2(255);
-  v_DOC ntg.dtype.t_id;
+  v_DOC hdbk.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
 
 BEGIN
@@ -473,7 +474,7 @@ select  /* text */ * FROM blng.transaction order by id desc;
 --check delay
 select  /* text */ * FROM blng.delay where id >= 61 order by id desc ;
 --check log
-select  /* text */ * FROM ntg.log order by id desc;
+select  /* text */ * FROM hdbk.log order by id desc;
 
 
 --test expire unblock limit
@@ -498,9 +499,9 @@ commit;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=20;
+  v_contract  hdbk.dtype.t_id:=20;
   P_number VARCHAR2(255);
-  v_DOC ntg.dtype.t_id;
+  v_DOC hdbk.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
 
 BEGIN
@@ -520,7 +521,7 @@ select  /* text */ * FROM blng.transaction order by id desc;
 --check delay
 select  /* text */ * FROM blng.delay where id >= 61 order by id desc ;
 --check log
-select  /* text */ * FROM ntg.log order by id desc;
+select  /* text */ * FROM hdbk.log order by id desc;
 
 
 
@@ -528,9 +529,9 @@ select  /* text */ * FROM ntg.log order by id desc;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=20;
+  v_contract  hdbk.dtype.t_id:=20;
   P_number VARCHAR2(255);
-  v_DOC ntg.dtype.t_id;
+  v_DOC hdbk.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
 
 BEGIN
@@ -579,16 +580,16 @@ select  /* text */ * FROM blng.transaction order by id desc;
 --check delay
 select  /* text */ * FROM blng.delay where id >= 61  order by id desc;
 --check log
-select  /* text */ * FROM ntg.log order by id desc;
+select  /* text */ * FROM hdbk.log order by id desc;
 
 
 --test revoke_document
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=20;
+  v_contract  hdbk.dtype.t_id:=20;
   P_number VARCHAR2(255);
-  v_DOC ntg.dtype.t_id;
+  v_DOC hdbk.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
 
 BEGIN
@@ -631,9 +632,9 @@ end;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=20;
+  v_contract  hdbk.dtype.t_id:=20;
   P_number VARCHAR2(255);
-  v_DOC ntg.dtype.t_id;
+  v_DOC hdbk.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
 
 BEGIN
@@ -667,7 +668,7 @@ select  /* text */ * FROM blng.transaction order by id desc;
 --check delay
 select  /* text */ * FROM blng.delay where id >= 181 order by id desc;
 --check log
-select  /* text */ * FROM ntg.log order by id desc;
+select  /* text */ * FROM hdbk.log order by id desc;
 
 select lpad(' ',2*(level-1)) || to_char(amount) s, d.*
 from blng.delay d
@@ -698,9 +699,9 @@ connect by prior id = parent_id;
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  ntg.dtype.t_id:=20;
+  v_contract  hdbk.dtype.t_id:=20;
   P_number VARCHAR2(255);
-  v_DOC ntg.dtype.t_id;
+  v_DOC hdbk.dtype.t_id;
   r_contract_info blng.v_account%rowtype;
 
 BEGIN
@@ -722,19 +723,19 @@ DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
   P_company VARCHAR2(255):='ООО "ИМЭЙДЖИН ГРУПП"';
-  v_company ntg.dtype.t_id;
+  v_company hdbk.dtype.t_id;
 
 --  P_NAME VARCHAR2(255):='pasha';
-  v_client1  ntg.dtype.t_id;
-  v_client2  ntg.dtype.t_id;
-  v_client3  ntg.dtype.t_id;
-  v_client4  ntg.dtype.t_id;
-  v_client5  ntg.dtype.t_id;
-  v_client6  ntg.dtype.t_id;
-  v_contract1  ntg.dtype.t_id;
-  v_contract5  ntg.dtype.t_id;
+  v_client1  hdbk.dtype.t_id;
+  v_client2  hdbk.dtype.t_id;
+  v_client3  hdbk.dtype.t_id;
+  v_client4  hdbk.dtype.t_id;
+  v_client5  hdbk.dtype.t_id;
+  v_client6  hdbk.dtype.t_id;
+  v_contract1  hdbk.dtype.t_id;
+  v_contract5  hdbk.dtype.t_id;
   P_number VARCHAR2(255);
-    v_DOC ntg.dtype.t_id;
+    v_DOC hdbk.dtype.t_id;
 BEGIN
 
 
@@ -787,7 +788,7 @@ select  /* text */ * FROM blng.document order by id desc;
 --check transactions
 select  /* text */ * FROM blng.transaction order by id desc;
 --check log
-select  /* text */ * FROM ntg.log order by id desc;
+select  /* text */ * FROM hdbk.log order by id desc;
 
 
 INSERT INTO "NTG"."MARKUP" (CONTRACT_OID, GDS, POS, VALIDATING_CARRIER, CLASS_OF_SERVICE, HUMAN, ABSOLUT, ABSOLUT_AMOUNT, MARKUP_TYPE_OID) VALUES ('27', 'Sabre', 'CJ8H', '1597', 'default', 'Y', 'Y', '400', '1');

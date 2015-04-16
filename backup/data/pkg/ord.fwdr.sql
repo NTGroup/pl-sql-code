@@ -1065,7 +1065,7 @@ $TODO: there must be check for users with ISSUES permission
         exception when others then
           rollback;
           hdbk.log_api.LOG_ADD(p_proc_name=>'cash_back', p_msg_type=>'UNHANDLED_ERROR', 
-            P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=bill,p_date=' 
+            P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'pnr_id='||p_pnr_id||',p_date='
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
           CLOSE c_bill;
           raise;
@@ -1076,7 +1076,7 @@ $TODO: there must be check for users with ISSUES permission
   exception when others then 
     rollback;
     hdbk.log_api.LOG_ADD(p_proc_name=>'cash_back', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=bill,p_date=' 
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'pnr_id='||p_pnr_id||',p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
     RAISE_APPLICATION_ERROR(-20002,'cash_back error. '||SQLERRM);
   end;

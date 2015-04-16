@@ -1,6 +1,9 @@
-@metadata/HDBK.sql;
 
 @metadata/hdbk_implement.sql;
+
+STOP!!!
+
+@metadata/HDBK.sql;
 
 /
 
@@ -46,7 +49,15 @@ INSERT INTO hdbk.MARKUP_TYPE (NAME) VALUES ('MARKUP');
 
 
 commit;
- 
+
+STOP!!! get real RATES
+
+Insert into HDBK.RATE (CURRENCY_OID,CODE,RATE,DATE_FROM,DATE_TO) values (810,'RUB',1,to_date('13.04.1900 10:59:30','DD.MM.YYYY HH24:MI:SS'),to_date('26.04.3015 10:59:35','DD.MM.YYYY HH24:MI:SS'));
+Insert into HDBK.RATE (CURRENCY_OID,CODE,RATE,DATE_FROM,DATE_TO) values (840,'USD',50.13,to_date('13.04.2015 21:00:00','DD.MM.YYYY HH24:MI:SS'),to_date('19.04.2015 21:00:00','DD.MM.YYYY HH24:MI:SS'));
+Insert into HDBK.RATE (CURRENCY_OID,CODE,RATE,DATE_FROM,DATE_TO) values (978,'EUR',59.12,to_date('13.04.2015 21:00:00','DD.MM.YYYY HH24:MI:SS'),to_date('19.04.2015 21:00:00','DD.MM.YYYY HH24:MI:SS'));
+Insert into HDBK.RATE (CURRENCY_OID,CODE,RATE,DATE_FROM,DATE_TO) values (840,'USD',70.13,to_date('19.04.2015 21:00:00','DD.MM.YYYY HH24:MI:SS'),to_date('26.04.2015 21:00:00','DD.MM.YYYY HH24:MI:SS'));
+Insert into HDBK.RATE (CURRENCY_OID,CODE,RATE,DATE_FROM,DATE_TO) values (978,'EUR',90.12,to_date('19.04.2015 21:00:00','DD.MM.YYYY HH24:MI:SS'),to_date('26.04.2015 21:00:00','DD.MM.YYYY HH24:MI:SS'));
+commit; 
  
  
  
