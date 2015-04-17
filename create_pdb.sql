@@ -241,4 +241,76 @@ create user po_fwdr IDENTIFIED BY ccc DEFAULT TABLESPACE users ;
 GRANT RESTRICTED SESSION to ord
 GRANT RESTRICTED SESSION to blng
 GRANT RESTRICTED SESSION to po_fwdr
+
+GRANT RESTRICTED SESSION to dict
+
 ORA-01950: нет привилегий на раздел 'USERS'
+
+
+SELECT PRIVILEGE
+  FROM sys.dba_sys_privs
+ WHERE grantee = 'DICT'
+UNION
+SELECT PRIVILEGE 
+  FROM dba_role_privs rp JOIN role_sys_privs rsp ON (rp.granted_role = rsp.role)
+ WHERE rp.grantee = 'DICT'
+ ORDER BY 1;
+
+grant
+CREATE MATERIALIZED VIEW,
+CREATE SEQUENCE,
+CREATE SESSION,
+CREATE TABLE,
+CREATE TRIGGER,
+SELECT ANY SEQUENCE,
+SET CONTAINER
+to dict
+
+GRANT CREATE PACKAGE BODY to DICT;
+
+SELECT owner, table_name, select_priv, insert_priv, delete_priv, update_priv, references_priv, alter_priv, index_priv
+  FROM table_privileges
+ WHERE grantee = 'ORD'
+ ORDER BY owner, table_name;
+Indirect grants to tables/views:
+
+SELECT DISTINCT owner, table_name, PRIVILEGE 
+  FROM dba_role_privs rp JOIN role_tab_privs rtp ON (rp.granted_role = rtp.role)
+ WHERE rp.grantee = 'ORD'
+ ORDER BY owner, table_name;
+ 
+ 
+ 
+ /* create new user shcheme inside pdb */
+create user ntg_usr1 identified by cccCCC111;
+/     
+/* inside pdb */ 
+alter user ntg_usr1 
+DEFAULT TABLESPACE users
+TEMPORARY TABLESPACE temp
+QUOTA UNLIMITED ON users
+/*ACCOUNT UNLOCK*/ ;
+
+
+ /* create new user shcheme inside pdb */
+create user ntg_usr2 identified by cccCCC111;
+/     
+/* inside pdb */ 
+alter user ntg_usr2
+DEFAULT TABLESPACE users
+TEMPORARY TABLESPACE temp
+QUOTA UNLIMITED ON users
+/*ACCOUNT UNLOCK*/ ;
+
+
+
+
+ /* create new user shcheme inside pdb */
+create user hui identified by cccCCC111;
+/     
+/* inside pdb */ 
+alter user hui
+DEFAULT TABLESPACE users
+TEMPORARY TABLESPACE temp
+QUOTA UNLIMITED ON users
+/*ACCOUNT UNLOCK*/ ;

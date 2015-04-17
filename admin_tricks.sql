@@ -96,3 +96,20 @@ CREATE TABLESPACE TMPDICT DATAFILE '/home/oracle/app/oracle/oradata/orcl/ORCL/03
 --change pluggable database MAXSIZE
 ALTER PLUGGABLE DATABASE NTG STORAGE (MAXSIZE UNLIMITED);
 
+
+ /* create new user shcheme inside pdb */
+create user hdbk identified by cccCCC111;
+/     
+/* inside pdb */ 
+alter user hdbk
+DEFAULT TABLESPACE users
+TEMPORARY TABLESPACE temp
+QUOTA UNLIMITED ON users
+/*ACCOUNT UNLOCK*/ ;
+
+grant execute on hdbk.dtype to ntg_usr1
+grant execute on hdbk.dtype to po_fwdr
+grant execute on hdbk.fwdr to po_fwdr
+
+
+alter user hdbk account lock;

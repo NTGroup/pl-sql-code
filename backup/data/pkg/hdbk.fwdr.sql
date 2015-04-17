@@ -1,4 +1,6 @@
-create or replace package ntg.fwdr as
+  CREATE OR REPLACE PACKAGE hdbk.fwdr AS 
+
+
 
 /*
 pkg: hdbk.fwdr
@@ -125,16 +127,40 @@ $obj_return: SEGMENT, V_FROM, V_TO, ABSOLUT_AMOUNT, PERCENT_AMOUNT, MIN_ABSOLUT,
   function note_list(     p_client in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR;
 
-  function note_ticket_list(p_note in hdbk.dtype.t_id default null)
+  function note_ticket_list(p_note in hdbk.dtype.t_id default null,
+                            p_client in hdbk.dtype.t_name default null)
+  return SYS_REFCURSOR;
+
+  function note_ticket_list(P_GUID  in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR;
 
   function punto_switcher(p_text in hdbk.dtype.t_msg)
   return hdbk.dtype.t_msg;
 
 
-end;
+
+/*
+
+$obj_type: function
+$obj_name: rate_list
+$obj_desc: return all active rates for current moment. its not depends of p_version
+$obj_param: p_version: version. not useful now. 
+$obj_return: SYS_REFCURSOR[code,rate,version,is_active(Y,N)]
+*/
+
+  function rate_list( p_version in hdbk.dtype.t_id default null)
+  return SYS_REFCURSOR;
+
+END fwdr;
+
 /
-create or replace package body ntg.fwdr as
+
+--------------------------------------------------------
+--  DDL for Package Body CORE
+--------------------------------------------------------
+
+  CREATE OR REPLACE  PACKAGE BODY hdbk.fwdr AS
+
   function utc_offset_mow 
   return number
   is
@@ -602,7 +628,7 @@ end;
     r_client := blng.blng_api.client_get_info_r(p_email => p_client);
     if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
     open v_results FOR
-      select id note_id, name from hdbk.note where amnd_state = 'A' and client_oid = r_client.id order by id desc;
+      select id note_id, name, guid from hdbk.note where amnd_state = 'A' and client_oid = r_client.id order by id desc;
     return v_results;  
   exception when others then
     open v_results FOR
@@ -610,7 +636,8 @@ end;
     return v_results;  
   end;
 
-  function note_ticket_list(p_note in hdbk.dtype.t_id default null)
+  function note_ticket_list(p_note in hdbk.dtype.t_id default null,
+                            p_client in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -621,8 +648,11 @@ end;
   begin
         
     r_note := hdbk.hdbk_api.note_get_info_r(p_id => p_note);
+    r_client := blng.blng_api.client_get_info_r(p_email => p_client);
+    
+    if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
     open v_results FOR
-      select note.id note_id, note_ticket.id note_ticket_id, note.name, note_ticket.tickets from hdbk.note, hdbk.note_ticket
+      select note.id note_id, note_ticket.id note_ticket_id, note.name,note.guid, note_ticket.tickets from hdbk.note, hdbk.note_ticket
       where note.id = p_note
       and note.id = note_ticket.note_oid(+)
       and note.amnd_state = 'A'
@@ -635,6 +665,32 @@ end;
     return v_results;  
   end;
 
+
+  function note_ticket_list(p_guid in hdbk.dtype.t_name default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    r_client blng.client%rowtype; 
+    r_note note%rowtype; 
+    r_note_ticket note_ticket%rowtype; 
+    v_note_ticket hdbk.dtype.t_id; 
+  begin
+        
+    r_note := hdbk.hdbk_api.note_get_info_r(p_guid => p_guid);
+    open v_results FOR
+      select note.id note_id, note_ticket.id note_ticket_id, note.name, note.guid, note_ticket.tickets from hdbk.note, hdbk.note_ticket
+      where note.id = r_note.id
+      and note.id = note_ticket.note_oid(+)
+      and note.amnd_state = 'A'
+      and note_ticket.amnd_state(+) = 'A'
+      ;
+    return v_results;  
+  exception when others then
+    open v_results FOR
+      select 'NO_DATA_FOUND' res from dual;
+    return v_results;  
+  end;
+  
   function punto_switcher(p_text in hdbk.dtype.t_msg)
   return hdbk.dtype.t_msg
   is
@@ -646,10 +702,27 @@ end;
     return v_out;
   end;
 
-end;
-/
 
---grant execute on hdbk.fwdr to ord ;
---grant execute on hdbk.fwdr to blng ;
+  function rate_list(p_version in hdbk.dtype.t_id default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR;
+  begin
+  -- [a,b) 
+    OPEN v_results FOR
+      SELECT code,rate,(select max(id) from hdbk.rate) version , decode(amnd_state, 'A','Y','C','N','E') is_active
+      from hdbk.rate where date_from <=sysdate and sysdate < date_to and amnd_state = 'A';      
+      
+    return v_results;
+  exception when others then
+    hdbk.LOG_API.LOG_ADD(p_proc_name=>'rate_list', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=rate_list,p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'select row into rate error. '||SQLERRM);
+    return null;    
+  end;
+
+
+END fwdr;
 
 /

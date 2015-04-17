@@ -18,7 +18,7 @@ from
 ord.commission cmn,
 ord.commission_template ct,
 ord.commission_details cd,
-ntg.airline al
+hdbk.airline al
 where 
 al.amnd_state = 'A'
 and cmn.amnd_state = 'A'
@@ -152,7 +152,7 @@ group by acc.contract_oid;
 
 /
 
-  CREATE OR REPLACE  VIEW "NTG"."V_GEO" 
+  CREATE OR REPLACE  VIEW hdbk.V_GEO 
   AS 
   SELECT 
 iata, max(utc_offset) utc_offset
@@ -162,27 +162,27 @@ and iata is not null
 and iata not like '%@%'
 group by iata;
 /
-  CREATE OR REPLACE VIEW "NTG"."V_GEO_SUGGEST" 
+  CREATE OR REPLACE VIEW hdbk.V_GEO_SUGGEST
   AS 
   select
 id,
 iata,
 name,
 nvl(
- ( select nls_name from ntg.geo where id = 
+ ( select nls_name from hdbk.geo where id = 
   (
-    select city_id from ntg.geo where id=d_i_n.id
+    select city_id from hdbk.geo where id=d_i_n.id
   ) )
 ,name) city,
 (
-  select nls_name from ntg.geo where id = 
+  select nls_name from hdbk.geo where id = 
   (
-    select country_id from ntg.geo where id=d_i_n.id
+    select country_id from hdbk.geo where id=d_i_n.id
   ) 
 ) country,
 
   (
-    select nvl(search_rating,0) from ntg.geo where id=d_i_n.id
+    select nvl(search_rating,0) from hdbk.geo where id=d_i_n.id
   ) 
  search_rating,
  name_from,
@@ -196,7 +196,7 @@ from
   nls_name_rp name_from,
   nls_name_vp name_to
   from 
-  ntg.geo
+  hdbk.geo
   where object_type in (
   'airport',
   'airport real',
@@ -232,8 +232,8 @@ order by 2;
         else ''
         end rule_amount_measure,
         cmn.priority,
-        to_char(cmn.date_from + ntg.fwdr.utc_offset_mow / 24 ,'yyyy-mm-dd') rule_life_from,
-        to_char(cmn.date_to + ntg.fwdr.utc_offset_mow / 24 ,'yyyy-mm-dd') rule_life_to,
+        to_char(cmn.date_from + hdbk.fwdr.utc_offset_mow / 24 ,'yyyy-mm-dd') rule_life_from,
+        to_char(cmn.date_to + hdbk.fwdr.utc_offset_mow / 24 ,'yyyy-mm-dd') rule_life_to,
         dtl.condition_oid,
         dtl.template_type_oid,
         nvl(dtl.template_type,'default') template_type,
@@ -244,7 +244,7 @@ order by 2;
         cmn.fix
         from 
         ord.commission cmn ,
-        ntg.airline al,
+        hdbk.airline al,
         (
           select 
           cd.commission_oid ,
@@ -389,7 +389,7 @@ sum(amount) over (partition by contract_id order by trans_date RANGE UNBOUNDED P
         and document.bill_oid = bill.id
         and bill.contract_oid = contract.id
         and item_avia.order_oid = bill.order_oid
-        and item_avia.nqt_status in ('ISSUED','INMANUAL')
+        and item_avia.nqt_status in ('ISSUED'/*,'INMANUAL'*/)
         and item_avia.amnd_state = 'A'
         and bill.amnd_state = 'A'
         and ord.client_oid = client.id
