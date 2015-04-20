@@ -97,6 +97,77 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   return rate%rowtype;
 
 
+  function calendar_add( 
+                    p_date_to in hdbk.dtype.t_date default null,
+                    p_day_type in hdbk.dtype.t_id default null,
+                    p_contract in hdbk.dtype.t_id default null
+                  )
+  return hdbk.dtype.t_id;
+
+
+  procedure calendar_edit(  P_ID  in hdbk.dtype.t_id default null,
+                            p_date_to in hdbk.dtype.t_date default null,
+                            p_day_type in hdbk.dtype.t_id default null,
+                            p_contract in hdbk.dtype.t_id default null
+                      );
+
+
+  function calendar_get_info( P_ID  in hdbk.dtype.t_id default null,
+                            p_date_to in hdbk.dtype.t_date default null,
+                            p_day_type in hdbk.dtype.t_id default null,
+                            p_contract in hdbk.dtype.t_id default null
+                          )
+  return SYS_REFCURSOR;
+
+
+  function calendar_get_info_r (     P_ID  in hdbk.dtype.t_id default null,
+                            p_date_to in hdbk.dtype.t_date default null
+                                )
+  return calendar%rowtype;
+
+
+
+  function dictionary_add(       p_dictionary_type  in hdbk.dtype.t_name default null,
+                                p_code in hdbk.dtype.t_code default null,
+                                p_name in hdbk.dtype.t_name default null,
+                                 p_info in hdbk.dtype.t_name default null
+                          )
+  return hdbk.dtype.t_id;
+
+
+  procedure dictionary_edit(  P_ID  in hdbk.dtype.t_id default null,
+                              p_dictionary_type  in hdbk.dtype.t_name default null,
+                              p_code in hdbk.dtype.t_code default null,
+                              p_name in hdbk.dtype.t_name default null,
+                              p_info in hdbk.dtype.t_name default null
+                      );
+
+
+  function dictionary_get_info(    p_dictionary_type  in hdbk.dtype.t_name default null,
+                                p_code in hdbk.dtype.t_code default null,
+                                p_name in hdbk.dtype.t_name default null
+                          )
+  return SYS_REFCURSOR;
+
+
+  function dictionary_get_info_r (     p_dictionary_type  in hdbk.dtype.t_name default null,
+                                p_code in hdbk.dtype.t_code default null,
+                                p_name in hdbk.dtype.t_name default null
+                          )
+  return dictionary%rowtype;
+
+
+  function dictionary_get_id (    p_dictionary_type  in hdbk.dtype.t_name default null,
+                                p_code in hdbk.dtype.t_code default null,
+                                p_name in hdbk.dtype.t_name default null
+                          )
+  return hdbk.dtype.t_id;
+
+
+
+
+
+
 end;
 /
 create or replace package body hdbk.hdbk_api as
@@ -510,6 +581,315 @@ create or replace package body hdbk.hdbk_api as
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into rate error. '||SQLERRM);
   end;
+
+
+
+  function calendar_add( 
+                    p_date_to in hdbk.dtype.t_date default null,
+                    p_day_type in hdbk.dtype.t_id default null,
+                    p_contract in hdbk.dtype.t_id default null
+                  )
+  return hdbk.dtype.t_id
+  is
+    v_obj_row calendar%rowtype;
+    v_id hdbk.dtype.t_id;
+  begin
+    if p_date_to is null or p_day_type is null then raise NO_DATA_FOUND; end if;   
+    v_obj_row.date_to:=  p_date_to;
+    v_obj_row.day_type:=  p_day_type;
+    v_obj_row.contract_oid:=  nvl(p_contract,0);
+
+    insert into hdbk.calendar values v_obj_row returning id into v_id;
+    return v_id;
+  exception when others then
+    hdbk.log_api.LOG_ADD(p_proc_name=>'calendar_add', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=calendar,p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'insert row into calendar error. '||SQLERRM);
+  end;
+
+
+  procedure calendar_edit(  P_ID  in hdbk.dtype.t_id default null,
+                            p_date_to in hdbk.dtype.t_date default null,
+                            p_day_type in hdbk.dtype.t_id default null,
+                            p_contract in hdbk.dtype.t_id default null
+                      )
+  is
+    v_obj_row_new calendar%rowtype;
+    v_obj_row_old calendar%rowtype;
+  begin
+    if p_id is null then raise NO_DATA_FOUND; end if;   
+--    if p_date_to is null and p_day_type is null and p_contract is null then raise NO_DATA_FOUND; end if;   
+  
+    select * into v_obj_row_old from calendar 
+        where id = nvl(p_id,id)
+        and amnd_state = 'A'
+    ;
+    v_obj_row_new := v_obj_row_old;
+
+    v_obj_row_new.amnd_date:=sysdate;
+    v_obj_row_new.amnd_user:=user;
+    v_obj_row_new.date_to := nvl(p_date_to,v_obj_row_new.date_to);
+    v_obj_row_new.day_type := nvl(p_day_type,v_obj_row_new.day_type);
+    v_obj_row_new.contract_oid := nvl(p_contract,v_obj_row_new.contract_oid);
+
+    v_obj_row_old.amnd_state:='I';
+    v_obj_row_old.id:=null;
+    insert into calendar values v_obj_row_old;
+
+    update calendar set row = v_obj_row_new where id = v_obj_row_new.id;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'calendar_edit', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=calendar,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'update row into calendar error. '||SQLERRM);
+  end;
+
+
+  function calendar_get_info( P_ID  in hdbk.dtype.t_id default null,
+                            p_date_to in hdbk.dtype.t_date default null,
+                            p_day_type in hdbk.dtype.t_id default null,
+                            p_contract in hdbk.dtype.t_id default null
+                          )
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR;
+  begin
+      OPEN v_results FOR
+        SELECT
+        *
+        from hdbk.calendar 
+        where id = nvl(p_id,id)
+        and date_to = nvl(p_date_to,date_to)
+        and day_type = nvl(p_day_type,day_type)
+        and contract_oid = nvl(p_contract,contract_oid)
+        and amnd_state = 'A'
+        order by id;
+    return v_results;
+  exception when others then
+    hdbk.log_api.LOG_ADD(p_proc_name=>'calendar_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=calendar,p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'select row into calendar error. '||SQLERRM);
+  end;
+
+
+  function calendar_get_info_r (     P_ID  in hdbk.dtype.t_id default null,
+                            p_date_to in hdbk.dtype.t_date default null
+                                )
+  return calendar%rowtype
+  is
+    r_obj calendar%rowtype;
+  begin
+    if p_id is null and p_date_to is null then raise NO_DATA_FOUND; end if;   
+    
+    SELECT
+    * into r_obj
+    from hdbk.calendar 
+    where id = nvl(p_id,id)
+    and date_to = nvl(p_date_to,date_to)
+    and amnd_state = 'A'
+    order by id;
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'calendar_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=calendar,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into calendar error. '||SQLERRM);
+  end;
+
+
+
+  function dictionary_add(       p_dictionary_type  in hdbk.dtype.t_name default null,
+                                p_code in hdbk.dtype.t_code default null,
+                                p_name in hdbk.dtype.t_name default null,
+                                 p_info in hdbk.dtype.t_name default null
+                          )
+  return hdbk.dtype.t_id
+  is
+    v_obj_row dictionary%rowtype;
+    v_id hdbk.dtype.t_id;
+  begin
+    v_obj_row.dictionary_type := p_dictionary_type;
+    v_obj_row.name := p_name;
+    v_obj_row.code := p_code;
+    v_obj_row.info := p_info;    
+
+    insert into hdbk.dictionary values v_obj_row returning id into v_id;
+    return v_id;
+  exception when others then
+    hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_add', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=dictionary,p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'insert row into dictionary error. '||SQLERRM);
+  end;
+
+
+  procedure dictionary_edit(  P_ID  in hdbk.dtype.t_id default null,
+                              p_dictionary_type  in hdbk.dtype.t_name default null,
+                              p_code in hdbk.dtype.t_code default null,
+                              p_name in hdbk.dtype.t_name default null,
+                              p_info in hdbk.dtype.t_name default null
+                      )
+  is
+    v_obj_row_new dictionary%rowtype;
+    v_obj_row_old dictionary%rowtype;
+  begin
+    if p_id is null then raise NO_DATA_FOUND; end if;   
+  
+    select * into v_obj_row_old from dictionary 
+        where id = nvl(p_id,id)
+        and amnd_state = 'A'
+    ;
+    v_obj_row_new := v_obj_row_old;
+
+    v_obj_row_new.amnd_date:=sysdate;
+    v_obj_row_new.amnd_user:=user;
+    v_obj_row_new.dictionary_type := nvl(p_dictionary_type,v_obj_row_new.dictionary_type);
+    v_obj_row_new.name := nvl(p_name,v_obj_row_new.name);
+    v_obj_row_new.code := nvl(p_code,v_obj_row_new.code);
+    v_obj_row_new.info := nvl(p_info,v_obj_row_new.info);
+
+    v_obj_row_old.amnd_state:='I';
+    v_obj_row_old.id:=null;
+    insert into dictionary values v_obj_row_old;
+
+    update dictionary set row = v_obj_row_new where id = v_obj_row_new.id;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_edit', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=dictionary,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'update row into dictionary error. '||SQLERRM);
+  end;
+
+
+  function dictionary_get_info(    p_dictionary_type  in hdbk.dtype.t_name default null,
+                                p_code in hdbk.dtype.t_code default null,
+                                p_name in hdbk.dtype.t_name default null
+                          )
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR;
+  begin
+    if p_dictionary_type is not null and p_code is not null then 
+      OPEN v_results FOR
+        SELECT
+        *
+        from dictionary 
+        where dictionary_type = p_dictionary_type
+        and code = p_code
+        and amnd_state = 'A';
+    elsif p_dictionary_type is not null and p_name is not null then 
+      OPEN v_results FOR
+        SELECT
+        * 
+        from dictionary 
+        where dictionary_type = p_dictionary_type
+        and name = p_name
+        and amnd_state = 'A';
+    else raise NO_DATA_FOUND; 
+    end if;    
+    return v_results;
+  exception when others then
+    hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=dictionary,p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'select row into dictionary error. '||SQLERRM);
+  end;
+
+
+  function dictionary_get_info_r (     p_dictionary_type  in hdbk.dtype.t_name default null,
+                                p_code in hdbk.dtype.t_code default null,
+                                p_name in hdbk.dtype.t_name default null
+                          )
+  return dictionary%rowtype
+  is
+    r_obj dictionary%rowtype;
+  begin
+    if p_dictionary_type is not null and p_code is not null then 
+      SELECT
+      * into r_obj
+      from dictionary 
+      where dictionary_type = p_dictionary_type
+      and code = p_code
+      and amnd_state = 'A';
+    elsif p_dictionary_type is not null and p_name is not null then 
+      SELECT
+      * into r_obj
+      from dictionary 
+      where dictionary_type = p_dictionary_type
+      and name = p_name
+      and amnd_state = 'A';
+    else raise NO_DATA_FOUND; 
+    end if;    
+    
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=dictionary,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into dictionary error. '||SQLERRM);
+  end;
+
+
+  function dictionary_get_id (    p_dictionary_type  in hdbk.dtype.t_name default null,
+                                p_code in hdbk.dtype.t_code default null,
+                                p_name in hdbk.dtype.t_name default null
+                          )
+  return hdbk.dtype.t_id
+  is
+    r_obj hdbk.dtype.t_id;
+  begin
+    if p_dictionary_type is not null and p_code is not null then 
+      SELECT
+      id into r_obj
+      from dictionary 
+      where dictionary_type = p_dictionary_type
+      and code = p_code
+      and amnd_state = 'A';
+    elsif p_dictionary_type is not null and p_name is not null then 
+      SELECT
+      id into r_obj
+      from dictionary 
+      where dictionary_type = p_dictionary_type
+      and name = p_name
+      and amnd_state = 'A';
+    else raise NO_DATA_FOUND; 
+    end if;   
+    
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_get_id', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=dictionary,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into dictionary error. '||SQLERRM);
+  end;
+
 
 
 end;
