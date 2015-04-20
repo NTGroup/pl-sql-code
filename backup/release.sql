@@ -13,6 +13,7 @@ commit;
 @data/pkg/hdbk.fwdr.sql;
 @data/pkg/hdbk.log_api.sql;
 @data/pkg/hdbk.dtype.sql;
+@data/pkg/hdbk.core.sql;
 @data/pkg/blng.blng_api.sql;
 @data/pkg/blng.core.sql;
 @data/pkg/blng.fwdr.sql;
