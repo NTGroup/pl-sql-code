@@ -6,7 +6,7 @@
 
  /*
  
- pkg: NTG.LOG_API 
+ pkg: hdbk.LOG_API 
  
  */
   

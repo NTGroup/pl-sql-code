@@ -25,6 +25,9 @@ grant select on ord.commission TO hdbk;
 
 grant execute on blng.blng_api to hdbk;
 
+grant select on hdbk.V_GEO_SUGGEST to po_fwdr;
+
+
 
 ------ system
 /*grant select on hdbk.gds_nationality to ntg;
