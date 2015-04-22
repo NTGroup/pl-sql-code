@@ -26,7 +26,7 @@ grant select on ord.commission TO hdbk;
 grant execute on blng.blng_api to hdbk;
 
 grant select on hdbk.V_GEO_SUGGEST to po_fwdr;
-
+grant execute on hdbk.core to blng;
 
 
 ------ system

@@ -1,11 +1,3 @@
-insert into hdbk.dictionary (code,name,info,dictionary_type)
-                    values  ('HOLYDAY','HOLYDAY','Выходной День, праздник','CALENDAR');
-insert into hdbk.dictionary (code,name,info,dictionary_type)
-                    values  ('WORKDAY','WORKDAY','Рабочий день','CALENDAR');
-insert into hdbk.dictionary (code,name,info,dictionary_type)
-                    values  ('PAYDAY','PAYDAY','День оплаты. С клиента в этот день будет запрошена оплата независимо от обстоятельств.','CALENDAR');
-commit;
-
 
 @dba/GRANTS.sql;
 @metadata/view.sql;

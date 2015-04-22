@@ -67,7 +67,7 @@ END CORE;
                                               p_bill => r_bill.id
                                               );
         end if;
-        ORD_API.bill_edit( P_id => r_bill.id, P_STATUS => 'T');   --transported
+        ORD_API.bill_edit( P_id => r_bill.id, P_STATUS => 'T');   --[T]ransported
 
     END LOOP;
     CLOSE c_bill;    

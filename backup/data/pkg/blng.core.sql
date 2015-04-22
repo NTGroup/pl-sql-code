@@ -506,7 +506,9 @@ end core;
           r_contract_info := blng.fwdr.v_account_get_info_r(p_contract => r_debit_online.contract_oid);
           if r_contract_info.delay_days = 0 or r_contract_info.delay_days is null then r_contract_info.delay_days:= g_delay_days; end if;
           BLNG_API.delay_add( P_CONTRACT => r_debit_online.contract_oid,
-                              p_date_to => trunc(sysdate)+r_contract_info.delay_days,
+--                              p_date_to => trunc(sysdate)+r_contract_info.delay_days,
+-- add 1 day to let client pay bill
+                              p_date_to => hdbk.core.delay_payday(P_DELAY => r_contract_info.delay_days,p_contract => r_debit_online.contract_oid) + 1,
                               P_AMOUNT => abs(v_delay_amount),
                               P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'b'),
                               P_PRIORITY => 10,
