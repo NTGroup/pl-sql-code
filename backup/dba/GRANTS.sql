@@ -18,6 +18,7 @@ grant execute on hdbk.hdbk_api to blng;
 grant select on hdbk.airline TO ord;
 grant select on hdbk.geo TO ord;
 grant select on hdbk.markup_type TO ord;
+grant select on hdbk.currency TO ord;
 
 grant execute on blng.blng_api to hdbk;
 grant select on blng.client TO hdbk;
@@ -27,6 +28,7 @@ grant execute on blng.blng_api to hdbk;
 
 grant select on hdbk.V_GEO_SUGGEST to po_fwdr;
 grant execute on hdbk.core to blng;
+
 
 
 ------ system

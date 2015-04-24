@@ -828,7 +828,8 @@ begin
    amount NUMBER(20,2),
    status VARCHAR2(1),
    trans_type_oid NUMBER(18,0),
-   bill_oid NUMBER(18,0)
+   bill_oid NUMBER(18,0),
+   account_trans_type_oid NUMBER(18,0)
    
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 

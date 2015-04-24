@@ -226,12 +226,15 @@ $obj_desc: fake
 
 /*
 $obj_type: function
-$obj_name: commission_view
+$obj_name: rule_view
 $obj_desc: return all rules by iata code of airline
 $obj_param: p_iata: iata 2 char code
 $obj_return: SYS_REFCURSOR[fields from v_rule view]
 */
-  function commission_view(p_iata in hdbk.dtype.t_code default null)
+  function rule_view( p_iata in hdbk.dtype.t_code default null, 
+                      p_rule_type in hdbk.dtype.t_code default null,
+                      p_tenant_id in hdbk.dtype.t_id default null
+  )
   return SYS_REFCURSOR;
 
 
@@ -293,7 +296,7 @@ $obj_return: SYS_REFCURSOR[res:true/false]
 
 /*
 $obj_type: function
-$obj_name: commission_edit
+$obj_name: rule_edit
 $obj_desc: update commission rules or create new commission rules. if success return true else false.
 $obj_desc: if status equals [C]lose or [D]elete then delete commission rule.
 $obj_param: p_data: data for update. format json[AIRLINE_ID, CONTRACT_ID, RULE_ID, 
@@ -303,18 +306,19 @@ $obj_param: p_data: TEMPLATE_NAME_NLS, TEMPLATE_VALUE]
 $obj_return: SYS_REFCURSOR[res:true/false]
 */
 
-  function commission_edit(p_data in hdbk.dtype.t_clob)
+  function rule_edit(p_data in hdbk.dtype.t_clob)
   return SYS_REFCURSOR;
   
 
 /*
 $obj_type: function
-$obj_name: commission_template_list
+$obj_name: rule_template_list
 $obj_desc: return all commission templates
 $obj_param: p_is_contract_type: if 'Y' then return all contract_types else all template_types
 $obj_return: SYS_REFCURSOR[ID, TEMPLATE_TYPE, PRIORITY, DETAILS, IS_CONTRACT_TYPE, NAME, NLS_NAME, IS_VALUE]
 */  
-  function commission_template_list(p_is_contract_type in hdbk.dtype.t_status default null)
+  function rule_template_list(p_is_contract_type in hdbk.dtype.t_status default null,
+                              p_is_markup_type in hdbk.dtype.t_status default null)
   return SYS_REFCURSOR;
 
 /*
@@ -875,9 +879,9 @@ $TODO: there must be check for users with ISSUES permission
 
 -- get list of rulles for airline
     for i_rule in ( 
-      select distinct rule_oid id, fix, percent, priority,rule_description 
+      select distinct rule_id id, /*fix, percent, */ priority,rule_description , rule_amount_measure,rule_amount
       from ord.v_rule 
-      where contract_type_oid = v_contract_type and iata = v_iata
+      where contract_type_id = v_contract_type and iata = v_iata
       and nvl(to_date(rule_life_from,'yyyy-mm-dd'),trunc(sysdate)) <= trunc(sysdate)
       and nvl(to_date(rule_life_to,'yyyy-mm-dd'),trunc(sysdate)) >= trunc(sysdate)
       order by priority desc
@@ -887,7 +891,7 @@ $TODO: there must be check for users with ISSUES permission
 -- its mean we have to check all rules.
       f_rule := 1; 
       for i_condition in (
-        select template_type_code,template_value, template_type_oid from ord.v_rule where contract_type_oid = v_contract_type and iata = v_iata and rule_oid = i_rule.id
+        select template_type_code,template_value, template_type_id from ord.v_rule where contract_type_id = v_contract_type and iata = v_iata and rule_id = i_rule.id
       )
       loop
         f_template_type := 0; 
@@ -900,7 +904,7 @@ $TODO: there must be check for users with ISSUES permission
 -- json is just iteration for each segment. some conditions must be true for each segment,
 -- others only for one of them
         
-        if i_condition.template_type_oid is null then
+        if i_condition.template_type_id is null then
           f_template_type:=1;
           continue;
           --exit;
@@ -933,11 +937,11 @@ $TODO: there must be check for users with ISSUES permission
       end loop; --i_condition
       
       if f_rule = 1 then
-        if o_fix is null or o_fix > i_rule.fix then 
-          o_fix := i_rule.fix; 
+        if o_fix is null or o_fix > i_rule.rule_amount and i_rule.rule_amount_measure='FIX' then 
+          o_fix := i_rule.rule_amount; 
         end if;
-        if o_percent is null or o_percent > i_rule.percent then 
-          o_percent := i_rule.percent; 
+        if o_percent is null or o_percent > i_rule.rule_amount and i_rule.rule_amount_measure='PERCENT' then 
+          o_percent := i_rule.rule_amount; 
         end if;
       end if;
     dbms_output.put_line(' p_id='||i_rule.rule_description||' v_iata='||v_iata||' o_fix='||o_fix||' o_percent='||o_percent);          
@@ -1099,13 +1103,16 @@ $TODO: there must be check for users with ISSUES permission
 
 
 
-  function commission_view(p_iata in hdbk.dtype.t_code default null)
+  function rule_view( p_iata in hdbk.dtype.t_code default null, 
+                      p_rule_type in hdbk.dtype.t_code default null,
+                      p_tenant_id in hdbk.dtype.t_id default null
+                      )
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
   begin
     OPEN v_results FOR  
-      select * from ord.v_rule where IATA = p_iata;         
+      select * from ord.v_rule where IATA = p_iata and rule_type=nvl(p_rule_type, 'COMMISSION') and tenant_id=nvl(p_tenant_id,tenant_id);         
     return v_results;
   end;
 
@@ -1489,7 +1496,7 @@ $TODO: there must be check for users with ISSUES permission
   end;
 
 
-  function commission_edit(p_data in hdbk.dtype.t_clob)
+  function rule_edit(p_data in hdbk.dtype.t_clob)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -1625,7 +1632,8 @@ $TODO: there must be check for users with ISSUES permission
   end;
 
 
-  function commission_template_list(p_is_contract_type in hdbk.dtype.t_status default null)
+  function rule_template_list(p_is_contract_type in hdbk.dtype.t_status default null,
+                              p_is_markup_type in hdbk.dtype.t_status default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -1633,16 +1641,26 @@ $TODO: there must be check for users with ISSUES permission
     if p_is_contract_type = 'Y' then  
       OPEN v_results FOR
           SELECT
-          decode(ID,1,null,id) id, TEMPLATE_TYPE, PRIORITY, DETAILS, IS_CONTRACT_TYPE, NAME, NLS_NAME, IS_VALUE
+--          decode(ID,1,null,id) id, TEMPLATE_TYPE, PRIORITY, DETAILS, IS_CONTRACT_TYPE, NAME, NLS_NAME, IS_VALUE
+          decode(ID,1,null,id) id, NLS_NAME name
           from ord.commission_template 
           where /*id = nvl(p_id,id)
           and*/ amnd_state = 'A'
           and is_contract_type = 'Y'
           order by id;
+    elsif p_is_markup_type = 'Y' then
+      OPEN v_results FOR
+          SELECT
+          id, NAME
+          from hdbk.markup_type 
+          where id not in (4,5)
+          and amnd_state = 'A'
+          order by id;
     else
       OPEN v_results FOR
           SELECT
-          decode(ID,1,null,id) id, TEMPLATE_TYPE, PRIORITY, DETAILS, IS_CONTRACT_TYPE, NAME, NLS_NAME, IS_VALUE
+--          decode(ID,1,null,id) id, TEMPLATE_TYPE, PRIORITY, DETAILS, IS_CONTRACT_TYPE, NAME, NLS_NAME, IS_VALUE
+          decode(ID,1,null,id) id, NLS_NAME name
           from ord.commission_template 
           where /*id = nvl(p_id,id)
           and*/ amnd_state = 'A'

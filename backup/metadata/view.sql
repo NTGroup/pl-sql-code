@@ -215,33 +215,41 @@ order by 2;
 
  create or replace view ord.v_rule as      
   select 
-        al.id airline_oid,
+        al.id airline_id,
         al.IATA,
         al.nls_name nls_airline,
-        cmn.contract_type contract_type_oid,
+        cmn.contract_type contract_type_id,
+        nvl(cmn.contract_oid,0) tenant_id,
         (select name from 
         ORD.commission_template 
-        where id = cmn.contract_type) contract_type,
-        cmn.id rule_oid,
+        where id = cmn.contract_type) contract_type_name,
+        cmn.id rule_id,
         --max(ct.priority) over (partition by cmn.id) priority,
         cmn.details rule_description,
         nvl(cmn.percent,cmn.fix) rule_amount,
+        cmn.min_absolut rule_min_absolute,
         case 
         when cmn.percent is not null then 'PERCENT'
-        when cmn.fix is not null then 'RUB'
+        when cmn.fix is not null then 'FIX'
         else ''
         end rule_amount_measure,
         cmn.priority,
         to_char(cmn.date_from + hdbk.fwdr.utc_offset_mow / 24 ,'yyyy-mm-dd') rule_life_from,
         to_char(cmn.date_to + hdbk.fwdr.utc_offset_mow / 24 ,'yyyy-mm-dd') rule_life_to,
-        dtl.condition_oid,
-        dtl.template_type_oid,
+        dtl.condition_oid condition_id,
+        dtl.template_type_oid template_type_id,
         nvl(dtl.template_type,'default') template_type,
         dtl.template_type_code,
         dtl.template_value,
         dtl.is_value,
-        cmn.percent,
-        cmn.fix
+--        cmn.percent,
+--        cmn.fix,
+        (select code from hdbk.currency where id = cmn.currency) currency,
+        nvl(cmn.per_segment,'N') per_segment,
+        nvl(cmn.per_fare,'N') per_fare,
+        (select name from hdbk.markup_type where id = cmn.rule_type) rule_type,
+        (select name from hdbk.markup_type where id = cmn.markup_type) markup_type
+        
         from 
         ord.commission cmn ,
         hdbk.airline al,

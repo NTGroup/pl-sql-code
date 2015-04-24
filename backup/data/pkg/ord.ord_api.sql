@@ -186,7 +186,10 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                     p_amount in hdbk.dtype.t_amount default null,
                     p_date in  hdbk.dtype.t_date default null,
                     p_status in  hdbk.dtype.t_status default null,
-                    p_contract in  hdbk.dtype.t_id default null
+                    p_contract in  hdbk.dtype.t_id default null,
+                    p_bill in  hdbk.dtype.t_id default null,
+                    p_trans_type in  hdbk.dtype.t_id default null
+                    
                     
                   )
   return hdbk.dtype.t_id;
@@ -196,7 +199,10 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                         p_amount in hdbk.dtype.t_amount default null,
                         p_date in  hdbk.dtype.t_date default null,
                         p_status in  hdbk.dtype.t_status default null,
-                        p_contract in  hdbk.dtype.t_id default null
+                        p_contract in  hdbk.dtype.t_id default null,
+                    p_bill in  hdbk.dtype.t_id default null,
+                    p_trans_type in  hdbk.dtype.t_id default null
+
                       );
 
   function bill_get_info( p_id in hdbk.dtype.t_id default null, 
@@ -1067,7 +1073,10 @@ END ORD_API;
                     p_amount in hdbk.dtype.t_amount default null,
                     p_date in  hdbk.dtype.t_date default null,
                     p_status in  hdbk.dtype.t_status default null,
-                    p_contract in  hdbk.dtype.t_id default null
+                    p_contract in  hdbk.dtype.t_id default null,
+                    p_bill in  hdbk.dtype.t_id default null,
+                    p_trans_type in  hdbk.dtype.t_id default null
+
                     
                   )
   return hdbk.dtype.t_id
@@ -1080,6 +1089,8 @@ END ORD_API;
     v_obj_row.bill_date:=  nvl(p_date,sysdate);
     v_obj_row.status:=  nvl(p_status,'A');
     v_obj_row.contract_oid:=  p_contract;
+    v_obj_row.bill_oid :=  p_bill;
+    v_obj_row.trans_type_oid :=  p_trans_type;
 
     insert into ord.bill values v_obj_row returning id into v_id;
     return v_id;
@@ -1101,7 +1112,10 @@ END ORD_API;
                         p_amount in hdbk.dtype.t_amount default null,
                         p_date in  hdbk.dtype.t_date default null,
                         p_status in  hdbk.dtype.t_status default null,
-                        p_contract in  hdbk.dtype.t_id default null
+                        p_contract in  hdbk.dtype.t_id default null,
+                    p_bill in  hdbk.dtype.t_id default null,
+                    p_trans_type in  hdbk.dtype.t_id default null
+
                       )
   is
     v_obj_row_new bill%rowtype;

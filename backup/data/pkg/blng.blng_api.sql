@@ -162,11 +162,13 @@ $obj_param: p_contract: contract id
   function document_add ( p_contract in hdbk.dtype.t_id default null,
                           p_amount in hdbk.dtype.t_amount default null,
                           p_trans_type in hdbk.dtype.t_id default null,
-                          p_bill in hdbk.dtype.t_id default null
+                          p_bill in hdbk.dtype.t_id default null,
+                          p_account_trans_type in hdbk.dtype.t_id default null
                         )
   return hdbk.dtype.t_id;
 
-  procedure document_edit(p_id in hdbk.dtype.t_id, p_status in hdbk.dtype.t_status default null);
+  procedure document_edit(p_id in hdbk.dtype.t_id, p_status in hdbk.dtype.t_status default null,
+                          p_account_trans_type in hdbk.dtype.t_id default null);
 
   function document_get_info( p_id in hdbk.dtype.t_id default null,
                               p_contract in hdbk.dtype.t_id  default null,
@@ -1099,7 +1101,8 @@ end blng_api;
   function document_add ( p_contract in hdbk.dtype.t_id default null,
                           p_amount in hdbk.dtype.t_amount default null,
                           p_trans_type in hdbk.dtype.t_id default null,
-                          p_bill in hdbk.dtype.t_id default null
+                          p_bill in hdbk.dtype.t_id default null,
+                          p_account_trans_type in hdbk.dtype.t_id default null
                         )
   return hdbk.dtype.t_id
   is
@@ -1111,6 +1114,7 @@ end blng_api;
     v_document_row.trans_type_oid := p_trans_type;
     v_document_row.doc_date := sysdate;
     v_document_row.bill_oid := p_bill;
+    v_document_row.account_trans_type_oid := p_account_trans_type;
     insert into blng.document values v_document_row returning id into v_id;
     return v_id;
   exception when others then
@@ -1120,7 +1124,8 @@ end blng_api;
     RAISE_APPLICATION_ERROR(-20002,'insert row into document error. '||SQLERRM);
   end;
 
-  procedure document_edit(p_id in hdbk.dtype.t_id, p_status in hdbk.dtype.t_status default null)
+  procedure document_edit(p_id in hdbk.dtype.t_id, p_status in hdbk.dtype.t_status default null,
+                          p_account_trans_type in hdbk.dtype.t_id default null)
   is
     v_mess hdbk.dtype.t_msg;
     v_document_row_new blng.document%rowtype;
@@ -1137,7 +1142,8 @@ end blng_api;
 
     v_document_row_new.amnd_date:=sysdate;
     v_document_row_new.amnd_user:=user;
-    v_document_row_new.status := p_status;
+    v_document_row_new.status := nvl(p_status,v_document_row_new.status);
+    v_document_row_new.account_trans_type_oid := nvl(p_account_trans_type,v_document_row_new.account_trans_type_oid);
 
     update blng.document set row = v_document_row_new where id = v_document_row_new.id;
   exception 
