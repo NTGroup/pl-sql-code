@@ -51,6 +51,14 @@ $obj_desc: calls from scheduler. get list of debit_online accounts and separate 
 $obj_desc: then create loan delay
 */
   procedure debit_online;
+  
+/*
+$obj_type: procedure
+$obj_name: online
+$obj_desc: calls from scheduler debit_online and credit_online procedures.
+$obj_desc: then create loan delay
+*/
+  procedure online_accounts;
 
 /*
 $obj_type: procedure
@@ -131,8 +139,9 @@ end core;
       begin
         -- TO DO: is it good to put id in choice
         if r_doc.TRANS_TYPE_OID in (blng_api.trans_type_get_id(p_code=>'b')) then
-          if v_waiting_contract is not null and v_waiting_contract = r_doc.contract_oid then raise hdbk.dtype.doc_waiting; end if;
-          blng.core.buy(r_doc);
+          CONTINUE;
+/*          if v_waiting_contract is not null and v_waiting_contract = r_doc.contract_oid then raise hdbk.dtype.doc_waiting; end if;
+          blng.core.buy(r_doc);*/
         end if;
         if r_doc.TRANS_TYPE_OID in (blng_api.trans_type_get_id(p_code=>'ci')) then
           if v_waiting_contract is not null and v_waiting_contract = r_doc.contract_oid then raise hdbk.dtype.doc_waiting; end if;
@@ -536,6 +545,13 @@ end core;
     hdbk.log_api.LOG_ADD(p_proc_name=>'debit_online.c_debit_online', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_account=' || r_debit_online.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
   end debit_online;
 
+
+  procedure online_accounts
+  is
+  begin
+    debit_online;
+    credit_online;
+  end;
 
   procedure delay_remove(p_contract in hdbk.dtype.t_id, p_amount in hdbk.dtype.t_amount, p_transaction in hdbk.dtype.t_id default null)
   is

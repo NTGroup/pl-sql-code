@@ -1112,7 +1112,7 @@ $TODO: there must be check for users with ISSUES permission
     v_results SYS_REFCURSOR; 
   begin
     OPEN v_results FOR  
-      select * from ord.v_rule where IATA = p_iata and rule_type=nvl(p_rule_type, 'COMMISSION') and tenant_id=nvl(p_tenant_id,tenant_id);         
+      select * from ord.v_rule where IATA = p_iata and rule_type = nvl(p_rule_type, rule_type) and tenant_id=nvl(p_tenant_id,tenant_id);         
     return v_results;
   end;
 
@@ -1277,6 +1277,9 @@ $TODO: there must be check for users with ISSUES permission
     c_bill  SYS_REFCURSOR;
     r_bill bill%rowtype;
   begin
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_pay', p_msg_type=>'ok',
+        P_MSG => 'start',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
 
     begin 
 -- check that cliemt with this user_id exists
@@ -1334,6 +1337,10 @@ $TODO: there must be check for users with ISSUES permission
     v_bill hdbk.dtype.t_id;
     v_contract hdbk.dtype.t_id;
   begin
+
+    hdbk.log_api.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'OK',
+      P_MSG => 'start',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);                                
   
     begin 
 -- check that cliemt with this user_id exists
@@ -1366,10 +1373,11 @@ $TODO: there must be check for users with ISSUES permission
                                 P_AMOUNT => r_item_avia.TOTAL_AMOUNT,
                                 P_DATE => sysdate,
                                 P_STATUS => 'M', --[M]anaging
-                                P_CONTRACT => v_contract);
+                                P_CONTRACT => v_contract,
+                                p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'BUY'));
                                 
     hdbk.log_api.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'OK',
-      P_MSG => 'pnr_id not found',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
+      P_MSG => 'finish',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);                                
                                     
     commit;             
@@ -1642,11 +1650,15 @@ $TODO: there must be check for users with ISSUES permission
       OPEN v_results FOR
           SELECT
 --          decode(ID,1,null,id) id, TEMPLATE_TYPE, PRIORITY, DETAILS, IS_CONTRACT_TYPE, NAME, NLS_NAME, IS_VALUE
-          decode(ID,1,null,id) id, NLS_NAME name
+          id, NLS_NAME name
           from ord.commission_template 
           where /*id = nvl(p_id,id)
           and*/ amnd_state = 'A'
           and is_contract_type = 'Y'
+          union all
+          select 
+          0 id, name from
+          hdbk.dictionary where code = 'DEFAULT'   
           order by id;
     elsif p_is_markup_type = 'Y' then
       OPEN v_results FOR

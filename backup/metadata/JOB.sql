@@ -1,40 +1,37 @@
 BEGIN
-DBMS_SCHEDULER.CREATE_SCHEDULE (    	   
-  repeat_interval   => 'FREQ=SECONDLY;INTERVAL=2',     
-  start_date        => SYSTIMESTAMP,
-  comments          => 'Every 2 second',
-  schedule_name     => 'BILL_PAY_SCHEDULE');    
-END;
-
-BEGIN
 DBMS_SCHEDULER.CREATE_SCHEDULE ( 
   repeat_interval   => 'FREQ=SECONDLY;INTERVAL=2',     
   start_date        => SYSTIMESTAMP,
-  comments          => 'Every 2 hours',
-  schedule_name     => 'CREDIT_ONLINE_SCHEDULE');
-END;
-BEGIN
-DBMS_SCHEDULER.CREATE_SCHEDULE (
-  repeat_interval   => 'FREQ=SECONDLY;INTERVAL=2',     
-  start_date        => SYSTIMESTAMP,
-  comments          => 'Every 2 hours',
-  schedule_name     => 'DEBIT_ONLINE_SCHEDULE');        
-END;
-BEGIN
-DBMS_SCHEDULER.CREATE_SCHEDULE (
-  repeat_interval   => 'FREQ=DAILY;INTERVAL=1',     
-  start_date        => SYSTIMESTAMP,
-  comments          => 'Every 24 hours',
-  schedule_name     => 'DELAY_EXPIRE_SCHEDULE');        
+  comments          => 'Every 2 seconds',
+  schedule_name     => 'HDBK.BUY_SCHEDULE'
+  );
 END;
 /
 BEGIN
-DBMS_SCHEDULER.CREATE_SCHEDULE ( 
+DBMS_SCHEDULER.CREATE_SCHEDULE (    	   
+  repeat_interval   => 'FREQ=SECONDLY;INTERVAL=10',     
+  start_date        => SYSTIMESTAMP,
+  comments          => 'Every 10 second',
+  schedule_name     => 'HDBK.DOC_TASK_LIST_SCHEDULE');    
+END;
+/
+/
+BEGIN
+DBMS_SCHEDULER.CREATE_SCHEDULE (
   repeat_interval   => 'FREQ=SECONDLY;INTERVAL=2',     
   start_date        => SYSTIMESTAMP,
-  comments          => 'Every 10 seconds',
-  schedule_name     => 'DOCUMENT_SCHEDULE');
+  comments          => 'Every 5 seconds',
+  schedule_name     => 'HDBK.ONLINE_SCHEDULE');        
 END;
+/
+BEGIN
+DBMS_SCHEDULER.CREATE_SCHEDULE (
+  repeat_interval   => 'FREQ=DAILY;INTERVAL=1',     
+  start_date        => trunc(SYSTIMESTAMP),
+  comments          => 'Every 24 hours',
+  schedule_name     => 'HDBK.DELAY_EXPIRE_SCHEDULE');        
+END;
+/
 
 
 /*
@@ -50,58 +47,48 @@ END;
 
 /
 
+
 BEGIN
   DBMS_SCHEDULER.CREATE_JOB (
-   job_name           =>  'APPROVEDOCUMENTS',
-   schedule_name      =>  'DOCUMENT_SCHEDULE',
+   job_name           =>  'HDBK.BUY_JOB',
+ --  job_owner          =>  'HDBK',
+   schedule_name      =>  'HDBK.BUY_SCHEDULE',
    job_type           =>  'STORED_PROCEDURE',
-   job_action         =>  'blng.core.approve_documents',
+   job_action         =>  'ORD.CORE.BUY',
    --job_style        =>  'LIGHTWEIGHT',
    enabled            =>  TRUE,
-   COMMENTS           =>  'approve documents' );
+   COMMENTS           =>  'approve buy ticket tasks' );
+END;
+/
+BEGIN
+  DBMS_SCHEDULER.CREATE_JOB (
+   job_name           =>  'HDBK.DOC_TASK_LIST_JOB',
+   schedule_name      =>  'HDBK.DOC_TASK_LIST_SCHEDULE',
+   job_type           =>  'STORED_PROCEDURE',
+   job_action         =>  'ORD.CORE.DOC_TASK_LIST',
+   --job_style        =>  'LIGHTWEIGHT',
+   enabled            =>  TRUE,
+   COMMENTS           =>  'approve tasks with contract like set parameters or cash in' );
+END;
+/
+
+
+BEGIN
+  DBMS_SCHEDULER.CREATE_JOB (
+   job_name           =>  'HDBK.ONLINE_JOB',
+   schedule_name      =>  'HDBK.ONLINE_SCHEDULE',
+   job_type           =>  'STORED_PROCEDURE',
+   job_action         =>  'blng.core.online_accounts',
+   --job_style        =>  'LIGHTWEIGHT',
+   enabled            =>  TRUE,
+   COMMENTS           =>  'get money from online accounts' );
 END;
 /
 
 BEGIN
   DBMS_SCHEDULER.CREATE_JOB (
-   job_name           =>  'BILLPAY',
-   schedule_name      =>  'BILL_PAY_SCHEDULE',
-   job_type           =>  'STORED_PROCEDURE',
-   job_action         =>  'ord.core.bill_pay',
-   --job_style        =>  'LIGHTWEIGHT',
-   enabled            =>  TRUE,
-   COMMENTS           =>  'pay bill' );
-END;
-/
-
-BEGIN
-  DBMS_SCHEDULER.CREATE_JOB (
-   job_name           =>  'CREDITONLINE',
-   schedule_name      =>  'CREDIT_ONLINE_SCHEDULE',
-   job_type           =>  'STORED_PROCEDURE',
-   job_action         =>  'blng.core.credit_online',
-   --job_style        =>  'LIGHTWEIGHT',
-   enabled            =>  TRUE,
-   COMMENTS           =>  'credit online' );
-END;
-/
-
-BEGIN
-  DBMS_SCHEDULER.CREATE_JOB (
-   job_name           =>  'DEBITONLINE',
-   schedule_name      =>  'DEBIT_ONLINE_SCHEDULE',
-   job_type           =>  'STORED_PROCEDURE',
-   job_action         =>  'blng.core.debit_online',
-   --job_style        =>  'LIGHTWEIGHT',
-   enabled            =>  TRUE,
-   COMMENTS           =>  'debit online' );
-END;
-/
-
-BEGIN
-  DBMS_SCHEDULER.CREATE_JOB (
-   job_name           =>  'DelayExpire',
-   schedule_name      =>  'document_schedule',
+   job_name           =>  'HDBK.DELAY_EXPIRE_JOB',
+   schedule_name      =>  'HDBK.DELAY_EXPIRE_SCHEDULE',
    job_type           =>  'STORED_PROCEDURE',
    job_action         =>  'blng.core.delay_expire',
    --job_style        =>  'LIGHTWEIGHT',
@@ -116,3 +103,44 @@ DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'document_schedule', attribute         
 END;
 /
 */
+
+
+BEGIN
+
+
+    DBMS_SCHEDULER.DROP_JOB(job_name => 'NTG.APPROVEDOCUMENTS',
+                                defer => false,
+                                force => false);
+
+    DBMS_SCHEDULER.DROP_SCHEDULE(schedule_name => 'NTG.DOCUMENT_SCHEDULE',
+                                    force => false);
+
+    DBMS_SCHEDULER.DROP_JOB(job_name => 'NTG.BILLPAY',
+                                defer => false,
+                                force => false);
+    DBMS_SCHEDULER.DROP_SCHEDULE(schedule_name => 'NTG.BILL_PAY_SCHEDULE',
+                                force => false);
+                                
+    DBMS_SCHEDULER.DROP_JOB(job_name => 'NTG.CREDITONLINE',
+                                defer => false,
+                                force => false);
+                                
+    DBMS_SCHEDULER.DROP_SCHEDULE(schedule_name => 'NTG.CREDIT_ONLINE_SCHEDULE',
+                                force => false);
+                                
+    DBMS_SCHEDULER.DROP_JOB(job_name => 'NTG.DEBITONLINE',
+                                defer => false,
+                                force => false);
+                                
+    DBMS_SCHEDULER.DROP_SCHEDULE(schedule_name => 'NTG.DEBIT_ONLINE_SCHEDULE',
+                                force => false);
+                                
+    DBMS_SCHEDULER.DROP_JOB(job_name => 'NTG.DELAYEXPIRE',
+                                defer => false,
+                                force => false);
+                                
+    DBMS_SCHEDULER.DROP_SCHEDULE(schedule_name => 'NTG.DELAY_EXPIRE_SCHEDULE',
+                                force => false);
+
+END;
+

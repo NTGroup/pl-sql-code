@@ -29,6 +29,11 @@ grant execute on blng.blng_api to hdbk;
 grant select on hdbk.V_GEO_SUGGEST to po_fwdr;
 grant execute on hdbk.core to blng;
 
+grant select on hdbk.dictionary TO blng;
+grant select on hdbk.dictionary TO ord;
+
+grant execute on ord.core to hdbk;
+grant execute on blng.core to hdbk;
 
 
 ------ system

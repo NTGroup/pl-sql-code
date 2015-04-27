@@ -174,7 +174,8 @@ $obj_param: p_contract: contract id
                               p_contract in hdbk.dtype.t_id  default null,
                               p_trans_type in hdbk.dtype.t_id  default null,
                               p_status in hdbk.dtype.t_status  default null,
-                              p_bill in hdbk.dtype.t_id default null
+                              p_bill in hdbk.dtype.t_id default null,
+                              p_account_trans_type in hdbk.dtype.t_id default null
                             )
   return SYS_REFCURSOR;
 
@@ -182,7 +183,8 @@ $obj_param: p_contract: contract id
                               p_contract in hdbk.dtype.t_id  default null,
                               p_trans_type in hdbk.dtype.t_id  default null,
                               p_status in hdbk.dtype.t_status  default null,
-                              p_bill in hdbk.dtype.t_id default null
+                              p_bill in hdbk.dtype.t_id default null,
+                              p_account_trans_type in hdbk.dtype.t_id default null
                             )
   return blng.document%rowtype;
 
@@ -1162,7 +1164,8 @@ end blng_api;
                               p_contract in hdbk.dtype.t_id  default null,
                               p_trans_type in hdbk.dtype.t_id  default null,
                               p_status in hdbk.dtype.t_status  default null,
-                              p_bill in hdbk.dtype.t_id default null
+                              p_bill in hdbk.dtype.t_id default null,
+                              p_account_trans_type in hdbk.dtype.t_id default null
                             )
   return SYS_REFCURSOR
   is
@@ -1192,6 +1195,7 @@ $TODO: all this nullable fields are bad. document_get_info
         where id = nvl(p_id,id)
         and contract_oid = nvl(p_contract,contract_oid)
         and trans_type_oid = nvl(p_trans_type,trans_type_oid)
+        and account_trans_type_oid = nvl(p_account_trans_type,account_trans_type_oid)
         and status = nvl(p_status,status)
         and amnd_state = 'A'
         order by contract_oid, id asc;    
@@ -1209,7 +1213,8 @@ $TODO: all this nullable fields are bad. document_get_info
                               p_contract in hdbk.dtype.t_id  default null,
                               p_trans_type in hdbk.dtype.t_id  default null,
                               p_status in hdbk.dtype.t_status  default null,
-                          p_bill in hdbk.dtype.t_id default null
+                          p_bill in hdbk.dtype.t_id default null,
+                              p_account_trans_type in hdbk.dtype.t_id default null
                             )
   return blng.document%rowtype
   is
@@ -1229,6 +1234,7 @@ $TODO: all this nullable fields are bad. document_get_info
         * into r_obj
         from blng.document
         where id = nvl(p_id,id)
+--        and account_trans_type_oid = nvl(p_account_trans_type,account_trans_type_oid)
         and amnd_state = 'A'
         order by contract_oid, id asc;    
     end if;
