@@ -112,10 +112,13 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   return blng.client2contract%rowtype;
 
   function contract_add( p_company in hdbk.dtype.t_id default null,
+                            p_name in hdbk.dtype.t_name default null,
                   p_utc_offset in hdbk.dtype.t_id default null)
   return hdbk.dtype.t_id;
 
-  procedure contract_edit(p_id in hdbk.dtype.t_id default null, p_number in hdbk.dtype.t_long_code default null,
+  procedure contract_edit(p_id in hdbk.dtype.t_id default null, 
+                            p_number in hdbk.dtype.t_long_code default null,
+                            p_name in hdbk.dtype.t_name default null,
                   p_utc_offset in hdbk.dtype.t_id default null);
 
   function contract_get_info(p_id in hdbk.dtype.t_id default null,p_company  in hdbk.dtype.t_id default null,
@@ -862,7 +865,9 @@ end blng_api;
 
 
   function contract_add(p_company in hdbk.dtype.t_id default null,
-                  p_utc_offset in hdbk.dtype.t_id default null)
+                        p_name in hdbk.dtype.t_name default null,
+                        p_utc_offset in hdbk.dtype.t_id default null
+                      )
   return hdbk.dtype.t_id
   is
     v_contract_row blng.contract%rowtype;
@@ -877,6 +882,7 @@ end blng_api;
           ) 
           and amnd_state = 'A';
     v_contract_row.contract_number := v_number;
+    v_contract_row.name := p_name;
     v_contract_row.company_oid := p_company;
     v_contract_row.utc_offset := 3;
     v_contract_row.status := 'A';
@@ -889,8 +895,11 @@ end blng_api;
     RAISE_APPLICATION_ERROR(-20002,'insert row into contract error. '||SQLERRM);
   end;
 
-  procedure contract_edit(p_id in hdbk.dtype.t_id default null, p_number in hdbk.dtype.t_long_code default null,
-                  p_utc_offset in hdbk.dtype.t_id default null)
+  procedure contract_edit(  p_id in hdbk.dtype.t_id default null, 
+                            p_number in hdbk.dtype.t_long_code default null,
+                            p_name in hdbk.dtype.t_name default null,
+                            p_utc_offset in hdbk.dtype.t_id default null
+                         )
   is
     v_mess hdbk.dtype.t_msg;
     v_contract_row_new blng.contract%rowtype;
@@ -909,7 +918,8 @@ end blng_api;
 
     v_contract_row_new.amnd_date:=sysdate;
     v_contract_row_new.amnd_user:=user;
-    v_contract_row_new.contract_number := p_number;
+    v_contract_row_new.contract_number := nvl(p_number,v_contract_row_new.contract_number);
+    v_contract_row_new.name := nvl(p_name,v_contract_row_new.name);
 
     update blng.contract set row = v_contract_row_new where id = p_id;
   exception 

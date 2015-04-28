@@ -1,5 +1,6 @@
 
 
+alter table blng.contract add name varchar2(255);
 alter table ord.bill add bill_oid number(18,0);
 alter table ord.bill add trans_type_oid number(18,0);
 alter table blng.document add account_trans_type_oid number(18,0);
