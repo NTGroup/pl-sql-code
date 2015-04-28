@@ -1169,7 +1169,7 @@ END ORD_API;
       *
       from ord.bill 
       where id = nvl(p_id,id)
-      and order_oid = nvl(p_order,order_oid)
+--      and order_oid = nvl(p_order,order_oid)
       and status = nvl(p_status,status)
       and contract_oid = nvl(p_contract,contract_oid)
       and trans_type_oid = nvl(p_trans_type,trans_type_oid)

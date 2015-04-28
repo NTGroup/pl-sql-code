@@ -738,6 +738,7 @@ create  or replace package BODY blng.fwdr as
         company.id company_id,
         contract.id contract_id,
         company.name company_name,
+        'XXX' contract_name,
         contract.contract_number contract_number
         from blng.contract, blng.company
         where contract.amnd_state = 'A'

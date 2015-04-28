@@ -24,6 +24,9 @@ DBMS_SCHEDULER.CREATE_SCHEDULE (
   schedule_name     => 'HDBK.ONLINE_SCHEDULE');        
 END;
 /
+
+ALTER SESSION SET TIME_ZONE = '0:0';
+/
 BEGIN
 DBMS_SCHEDULER.CREATE_SCHEDULE (
   repeat_interval   => 'FREQ=DAILY;INTERVAL=1',     
@@ -142,5 +145,11 @@ BEGIN
     DBMS_SCHEDULER.DROP_SCHEDULE(schedule_name => 'NTG.DELAY_EXPIRE_SCHEDULE',
                                 force => false);
 
+/*    DBMS_SCHEDULER.DROP_JOB(job_name => 'HDBK.DELAY_EXPIRE_JOB',
+                                defer => false,
+                                force => false);
+                                
+    DBMS_SCHEDULER.DROP_SCHEDULE(schedule_name => 'HDBK.DELAY_EXPIRE_SCHEDULE',
+                                force => false);*/
 END;
 

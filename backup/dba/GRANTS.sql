@@ -35,6 +35,8 @@ grant select on hdbk.dictionary TO ord;
 grant execute on ord.core to hdbk;
 grant execute on blng.core to hdbk;
 
+grant select on hdbk.airline to po_fwdr;
+
 
 ------ system
 /*grant select on hdbk.gds_nationality to ntg;

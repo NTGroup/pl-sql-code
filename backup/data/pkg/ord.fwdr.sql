@@ -1374,7 +1374,7 @@ $TODO: there must be check for users with ISSUES permission
                                 P_DATE => sysdate,
                                 P_STATUS => 'M', --[M]anaging
                                 P_CONTRACT => v_contract,
-                                p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'BUY'));
+                                p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY'));
                                 
     hdbk.log_api.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'OK',
       P_MSG => 'finish',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
