@@ -306,10 +306,21 @@ $obj_param: p_data: TEMPLATE_NAME_NLS, TEMPLATE_VALUE]
 $obj_return: SYS_REFCURSOR[res:true/false]
 */
 
-  function rule_edit(p_data in hdbk.dtype.t_clob)
+  function rule_edit(p_iata in hdbk.dtype.t_code, p_tenant_id in hdbk.dtype.t_id, p_data in hdbk.dtype.t_clob)
   return SYS_REFCURSOR;
   
+/*
+$obj_type: function
+$obj_name: rule_delete
+$obj_desc: delete commission rule.
+$obj_param: p_id: rule id
+$obj_return: SYS_REFCURSOR[res:true/false]
+*/
 
+  function rule_delete(p_id in hdbk.dtype.t_id)
+  return SYS_REFCURSOR;
+ 
+ 
 /*
 $obj_type: function
 $obj_name: rule_template_list
@@ -1504,51 +1515,54 @@ $TODO: there must be check for users with ISSUES permission
   end;
 
 
-  function rule_edit(p_data in hdbk.dtype.t_clob)
+  function rule_edit(p_iata in hdbk.dtype.t_code, p_tenant_id in hdbk.dtype.t_id, p_data in hdbk.dtype.t_clob)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
     v_id hdbk.dtype.t_id; 
+    v_airline hdbk.dtype.t_id; 
     v_pos_rule hdbk.dtype.t_id; 
     r_client pos_rule%rowtype;
+--    r_airline hdbk.airline%rowtype;
     v_commission hdbk.dtype.t_id:=null;
     v_commission_details hdbk.dtype.t_id:=null;
   begin
+    hdbk.log_api.LOG_ADD(p_proc_name=>'rule_edit', p_msg_type=>'OK',
+      P_MSG => p_data,p_info => 'p_process=select,p_table=client,p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+     
+    v_airline:=hdbk.hdbk_api.airline_get_id(p_iata => p_iata);    
+  
 -- first update client info. then if doc_number is not null then update client_data 
     for i in (
         select *
         from 
         json_table (p_data,'$' columns(
-          airline_id number(20,2) path '$.airline_id',
-    --      airline_name VARCHAR2(250) path '$.airline_name',
-    --      airline_iata VARCHAR2(250) path '$.airline_iata',
-          NESTED PATH '$.contracts[*]' COLUMNS (
-            contract_type_id number(20,2) path '$.contract_id',
+            contract_type_id number(20,2) path '$.contract_type_id',
     --        contract_type VARCHAR2(250) path '$.contract_type',
             NESTED PATH '$.rules[*]' COLUMNS (
               rule_id number(20,2) path '$.rule_id',
+              rule_type VARCHAR2(250) path '$.rule_type',
+              markup_type VARCHAR2(250) path '$.markup_type',
               rule_description VARCHAR2(250) path '$.rule_description',
               rule_life_from VARCHAR2(250) path '$.rule_life_from',
               rule_life_to VARCHAR2(250) path '$.rule_life_to',
               rule_amount number(20,2) path '$.rule_amount',
               rule_amount_measure VARCHAR2(250) path '$.rule_amount_measure',
-              rule_priority number(20,2) path '$.rule_priority',
-              contract number(20,2) path '$.contract',
-              min_absolut number(20,2) path '$.min_absolut',
-              rule_type number(20,2) path '$.rule_type',
-              markup_type number(20,2) path '$.markup_type',
+              rule_min_absolute number(20,2) path '$.rule_min_absolute',
+              currency  varchar2(250) path '$.currency',
               per_segment  VARCHAR2(250) path '$.per_segment',
-              currency  number(20,2) path '$.currency',
               per_fare  VARCHAR2(250) path '$.per_fare',
+              rule_priority number(20,2) path '$.rule_priority',
+              rule_status VARCHAR2(10) path '$.rule_status',
               NESTED PATH '$.conditions[*]' COLUMNS (
                 condition_id number(20,2) path '$.condition_id',
                 condition_status VARCHAR2(10) path '$.condition_status',
                 template_type_id number(20,2) path '$.template_type_id',
-                template_name_nls VARCHAR2(250) path '$.template_name_nls',
+                template_type_name VARCHAR2(250) path '$.template_type_name',
                 template_value VARCHAR2(250) path '$.template_value'
               )          
             )
-          )
         ))
     )
     loop
@@ -1556,7 +1570,7 @@ $TODO: there must be check for users with ISSUES permission
 
       if v_commission is null then
         v_commission:=ord_api.commission_add( 
-                          p_airline => i.airline_id,
+                          p_airline => v_airline,
                           p_details => i.rule_description,
                           p_fix => case when i.rule_amount_measure = 'PERCENT' then null else  i.rule_amount end,
                           p_percent => case when i.rule_amount_measure = 'PERCENT' then i.rule_amount else  null end,
@@ -1564,11 +1578,12 @@ $TODO: there must be check for users with ISSUES permission
                           P_DATE_TO => to_date(i.rule_life_to,'yyyy-mm-dd')-hdbk.fwdr.utc_offset_mow/24,
                           p_priority => i.rule_priority,
                           p_contract_type => i.contract_type_id, --its contract_type of commission (self/interline/code-share)                          
-                          p_contract => i.contract,
-                          p_min_absolut => i.min_absolut,
-                          p_rule_type => nvl(i.rule_type,4), /*$TODO*/
+                          p_contract => p_tenant_id,
+                          p_min_absolut => i.rule_min_absolute,
+                          p_rule_type => hdbk.hdbk_api.markup_type_get_id(p_name=>i.rule_type), /*$TODO*/
+                          p_markup_type => hdbk.hdbk_api.markup_type_get_id(p_name=>i.markup_type), /*$TODO*/
                           p_per_segment => i.per_segment,
-                          p_currency => i.currency,
+                          p_currency => hdbk.hdbk_api.currency_get_id(i.currency),
                           p_per_fare => i.per_fare
                           );
 
@@ -1576,26 +1591,27 @@ $TODO: there must be check for users with ISSUES permission
       else
         ord_api.commission_edit( 
                           p_id => v_commission,
-                          p_airline => i.airline_id,
+                          p_airline => v_airline,
                           p_details => i.rule_description,
                           p_fix => case when i.rule_amount_measure = 'PERCENT' then null else  i.rule_amount end,
                           p_percent => case when i.rule_amount_measure = 'PERCENT' then i.rule_amount else  null end,
                           P_DATE_FROM => to_date(i.rule_life_from,'yyyy-mm-dd')-hdbk.fwdr.utc_offset_mow/24,
                           P_DATE_TO => to_date(i.rule_life_to,'yyyy-mm-dd')-hdbk.fwdr.utc_offset_mow/24,
                           p_priority => i.rule_priority,
-                          p_contract_type => i.contract_type_id, /*, --its contract_type of commission (self/interline/code-share)                          
-                          p_status =>*/
-                          p_contract => i.contract,
-                          p_min_absolut => i.min_absolut,
-                          p_rule_type => nvl(i.rule_type,4), /*$TODO*/
+                          p_contract_type => i.contract_type_id,  --its contract_type of commission (self/interline/code-share)                          
+                          p_status => i.rule_status,
+                          p_contract => p_tenant_id,
+                          p_min_absolut => i.rule_min_absolute,
+                          p_rule_type => hdbk.hdbk_api.markup_type_get_id(p_name=>i.rule_type), /*$TODO*/
+                          p_markup_type => hdbk.hdbk_api.markup_type_get_id(p_name=>i.markup_type), /*$TODO*/
                           p_per_segment => i.per_segment,
-                          p_currency => i.currency,
+                          p_currency => hdbk.hdbk_api.currency_get_id(i.currency),
                           p_per_fare => i.per_fare
                           
                           );
       end if;
 
-      if i.condition_id is null and i.template_name_nls <> 'default' then
+      if i.condition_id is null and i.template_type_name <> 'DEFAULT' then
         v_commission_details:=ord_api.commission_details_add( 
                                     p_commission => v_commission,
                                     p_commission_template => i.template_type_id,
@@ -1603,12 +1619,12 @@ $TODO: there must be check for users with ISSUES permission
                           );
 
                                   
-      elsif i.condition_id is not null and i.template_name_nls <> 'default' then
+      elsif i.condition_id is not null and i.template_type_name <> 'DEFAULT' then
         ord_api.commission_details_edit( p_id => i.condition_id,
                                     p_commission => v_commission,
                                     p_commission_template => i.template_type_id,
                                     p_value => i.template_value,
-                                    p_status => i.condition_status
+                                    p_status => nvl(i.condition_status,i.rule_status)
                           );
       end if;
       
@@ -1621,7 +1637,7 @@ $TODO: there must be check for users with ISSUES permission
   exception 
     when NO_DATA_FOUND then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'NO_DATA_FOUND',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_edit', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
 --      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
@@ -1630,12 +1646,62 @@ $TODO: there must be check for users with ISSUES permission
       return v_results;
     when others then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'UNHANDLED_ERROR', 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_edit', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
 --      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
       open v_results for
         select 'false' res from dual;
+      return v_results;
+  end;
+
+
+  function rule_delete(p_id in hdbk.dtype.t_id)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    v_id hdbk.dtype.t_id; 
+    v_airline hdbk.dtype.t_id; 
+    v_pos_rule hdbk.dtype.t_id; 
+    r_client pos_rule%rowtype;
+--    r_airline hdbk.airline%rowtype;
+    v_commission hdbk.dtype.t_id:=null;
+    v_commission_details hdbk.dtype.t_id:=null;
+  begin
+    
+    ord_api.commission_edit( 
+                      p_id => p_id,
+                      p_status => 'D'
+                      );
+    for i in (select id from ord.commission_details where amnd_state = 'A' and commission_oid = p_id)
+    loop    
+      ord_api.commission_details_edit( 
+                        p_id => i.id,
+                        p_status => 'D'
+                        );
+    end loop;                  
+    commit;
+      open v_results for
+        select 'SUCCESS' res from dual;
+      return v_results;
+  exception 
+    when NO_DATA_FOUND then
+      ROLLBACK;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_delete', p_msg_type=>'NO_DATA_FOUND',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+--      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      open v_results for
+        select 'NO_DATA_FOUND' res from dual;
+      return v_results;
+    when others then
+      ROLLBACK;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_delete', p_msg_type=>'UNHANDLED_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+--      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      open v_results for
+        select 'NO_DATA_FOUND' res from dual;
       return v_results;
   end;
 

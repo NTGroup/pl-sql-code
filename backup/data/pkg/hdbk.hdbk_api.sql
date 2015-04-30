@@ -164,8 +164,18 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   return hdbk.dtype.t_id;
 
 
+  function airline_get_id (     p_iata in hdbk.dtype.t_code default null
+                          )
+  return hdbk.dtype.t_id;
 
 
+  function markup_type_get_id (     p_name in hdbk.dtype.t_code default null
+                          )
+  return hdbk.dtype.t_id;
+
+  function currency_get_id (     p_code in hdbk.dtype.t_code default null
+                          )
+  return hdbk.dtype.t_id;
 
 
 end;
@@ -888,6 +898,97 @@ create or replace package body hdbk.hdbk_api as
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=dictionary,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into dictionary error. '||SQLERRM);
+  end;
+
+
+  function airline_get_id (     p_iata in hdbk.dtype.t_code default null
+                          )
+  return hdbk.dtype.t_id
+  is
+    r_obj hdbk.dtype.t_id;
+  begin
+    if p_iata is null then raise NO_DATA_FOUND; end if;
+
+    SELECT
+    id into r_obj
+    from airline 
+    where iata = p_iata
+    and amnd_state = 'A';
+    
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'airline_get_id', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=dictionary,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into airline_get_id error. '||SQLERRM);
+  end;
+
+
+  function markup_type_get_id (     p_name in hdbk.dtype.t_code default null
+                          )
+  return hdbk.dtype.t_id
+  is
+    r_obj hdbk.dtype.t_id;
+  begin
+    if p_name is null then raise NO_DATA_FOUND; end if;
+
+    SELECT
+    id into r_obj
+    from markup_type 
+    where name = p_name
+    and amnd_state = 'A';
+    
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+--      raise NO_DATA_FOUND;
+     return null;
+    when TOO_MANY_ROWS then 
+     -- raise NO_DATA_FOUND;  
+     return null;
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_type_get_id', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=dictionary,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+ --     RAISE_APPLICATION_ERROR(-20002,'select row into markup_type_get_id error. '||SQLERRM);
+      return null;
+
+  end;
+
+  function currency_get_id (     p_code in hdbk.dtype.t_code default null
+                          )
+  return hdbk.dtype.t_id
+  is
+    r_obj hdbk.dtype.t_id;
+  begin
+    if p_code is null then raise NO_DATA_FOUND; end if;
+
+    SELECT
+    id into r_obj
+    from currency 
+    where code = p_code
+    and amnd_state = 'A';
+    
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+--      raise NO_DATA_FOUND;
+     return 810;
+    when TOO_MANY_ROWS then 
+     -- raise NO_DATA_FOUND;  
+     return 810;
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_type_get_id', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=dictionary,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+ --     RAISE_APPLICATION_ERROR(-20002,'select row into markup_type_get_id error. '||SQLERRM);
+      return 810;
+
   end;
 
 
