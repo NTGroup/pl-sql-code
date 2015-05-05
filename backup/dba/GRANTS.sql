@@ -38,6 +38,13 @@ grant execute on blng.core to hdbk;
 grant select on hdbk.airline to po_fwdr;
 
 
+grant execute on erp.gate to erp_gate;
+grant execute on hdbk.dtype to erp;
+grant execute on hdbk.log_api to erp;
+
+GRANT create SESSION to erp_gate;
+
+
 ------ system
 /*grant select on hdbk.gds_nationality to ntg;
 grant select on hdbk.note to ntg;

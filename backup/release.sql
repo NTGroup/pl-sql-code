@@ -43,6 +43,39 @@ commit;
 
 
 
+ /* create new user shcheme inside pdb */
+create user erp identified by ***;
+/     
+/* inside pdb */ 
+alter user erp
+DEFAULT TABLESPACE users
+TEMPORARY TABLESPACE temp
+QUOTA UNLIMITED ON users
+ACCOUNT LOCK ;
+
+
+alter user erp account lock;
+
+create user erp_gate identified by ***;
+/     
+/* inside pdb */ 
+alter user erp_gate
+DEFAULT TABLESPACE users
+TEMPORARY TABLESPACE temp
+QUOTA UNLIMITED ON users
+ACCOUNT UNLOCK ;
+
+
+/*grant execute on hdbk.dtype to ntg_usr1
+grant execute on hdbk.dtype to po_fwdr
+grant execute on hdbk.fwdr to po_fwdr
+*/
+
+alter user erp_gate account UNLOCK;
+--GRANT RESTRICTED SESSION to erp
+GRANT create SESSION to erp_gate;
+
+
 
 @dba/GRANTS.sql;
 @metadata/view.sql;
