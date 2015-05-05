@@ -1821,6 +1821,9 @@ $TODO: there must be check for users with ISSUES permission
   is
     v_results SYS_REFCURSOR; 
   begin
+      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_rule_get', p_msg_type=>'OK', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
     OPEN v_results FOR
       select 
       cmn.id,
@@ -1860,7 +1863,7 @@ $TODO: there must be check for users with ISSUES permission
       where
       al.amnd_state = 'A'
       and al.IATA is not null
-      and cmn.amnd_state = 'A'
+      and cmn.amnd_state in ( 'A','C')
       and cmn.airline = al.id
       and cmn.rule_type = 5
       and cmn.id in 
@@ -1887,11 +1890,11 @@ $TODO: there must be check for users with ISSUES permission
       ;      
     return v_results;
   exception when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_get', p_msg_type=>'UNHANDLED_ERROR', 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_rule_get', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
       RAISE_APPLICATION_ERROR(-20002,'select row error. '||SQLERRM);
-    return null;  
+--    return null;  
   end;
 
 

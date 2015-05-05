@@ -867,6 +867,76 @@ ALTER TRIGGER hdbk.dict_TRGR ENABLE;
 /  
   
 
+  CREATE TABLE hdbk.pdf_printer 
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+   code  VARCHAR2(50),
+   name  VARCHAR2(255),
+   INFO  VARCHAR2(255),
+   pdf_printer_type varchar2(50)
+   
+  
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index 
+--------------------------------------------------------
+
+  CREATE INDEX hdbk.pdfp_ID_IDX ON hdbk.pdf_printer ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table 
+--------------------------------------------------------
+
+
+  ALTER TABLE hdbk.pdf_printer MODIFY ("ID" CONSTRAINT pdfp_ID_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.pdf_printer MODIFY (AMND_DATE CONSTRAINT "pdfp_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE hdbk.pdf_printer MODIFY (AMND_USER CONSTRAINT "pdfp_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE hdbk.pdf_printer MODIFY (AMND_STATE CONSTRAINT "pdfp_AST_NN" NOT NULL ENABLE);
+ALTER TABLE hdbk.pdf_printer  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE hdbk.pdf_printer  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE hdbk.pdf_printer  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE hdbk.pdf_printer ADD CONSTRAINT pdfp_ID_PK PRIMARY KEY (ID)
+  USING INDEX hdbk.pdfp_ID_IDX ENABLE;
+
+--------------------------------------------------------
+--  DDL for Secuence 
+--------------------------------------------------------
+ 
+  create sequence  hdbk.pdfp_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+  
+--------------------------------------------------------
+--  DDL for Trigger 
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER hdbk.pdfp_TRGR 
+BEFORE
+INSERT
+ON hdbk.pdf_printer
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select hdbk.pdfp_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual;
+end;
+/
+ALTER TRIGGER hdbk.pdfp_TRGR ENABLE;
+
+/  
+  
+
+
 /
 CREATE bitmap INDEX hdbk.log_AS_IDX ON hdbk.log (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX hdbk.geo_AS_IDX ON hdbk.geo (amnd_state) TABLESPACE "USERS" ;
@@ -874,6 +944,7 @@ CREATE bitmap INDEX hdbk.al_AS_IDX ON hdbk.airline (amnd_state) TABLESPACE "USER
 CREATE bitmap INDEX hdbk.ap_AS_IDX ON hdbk.airplane (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX hdbk.rate_AS_IDX ON hdbk.rate (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX hdbk.cal_AS_IDX ON hdbk.calendar (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX hdbk.pdfp_AS_IDX ON hdbk.pdf_printer (amnd_state) TABLESPACE "USERS" ;
 
 CREATE INDEX hdbk.cal_dtt_IDX ON hdbk.calendar (date_to) TABLESPACE "USERS" ;
 
