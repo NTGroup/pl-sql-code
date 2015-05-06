@@ -77,75 +77,6 @@ GRANT create SESSION to erp_gate;
 
 
 
-  CREATE TABLE hdbk.pdf_printer 
-   (	ID NUMBER(18,0), 
-   amnd_date date,
-   amnd_user VARCHAR2(50),
-   amnd_state VARCHAR2(1), 
-   amnd_prev NUMBER(18,0), 
-    payload clob,
-    status VARCHAR2(1),
-    filename VARCHAR2(4000)
-   
-  
-   ) SEGMENT CREATION IMMEDIATE 
-  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
- NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
---------------------------------------------------------
---  DDL for Index 
---------------------------------------------------------
-
-  CREATE INDEX hdbk.pdfp_ID_IDX ON hdbk.pdf_printer ("ID") 
-  TABLESPACE "USERS" ;
---------------------------------------------------------
---  Constraints for Table 
---------------------------------------------------------
-
-
-  ALTER TABLE hdbk.pdf_printer MODIFY ("ID" CONSTRAINT pdfp_ID_NN NOT NULL ENABLE);
-  ALTER TABLE hdbk.pdf_printer MODIFY (AMND_DATE CONSTRAINT "pdfp_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.pdf_printer MODIFY (AMND_USER CONSTRAINT "pdfp_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.pdf_printer MODIFY (AMND_STATE CONSTRAINT "pdfp_AST_NN" NOT NULL ENABLE);
-ALTER TABLE hdbk.pdf_printer  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
-ALTER TABLE hdbk.pdf_printer  MODIFY (AMND_USER DEFAULT  on null  user );
-ALTER TABLE hdbk.pdf_printer  MODIFY (AMND_STATE DEFAULT  on null  'A' );
-  ALTER TABLE hdbk.pdf_printer ADD CONSTRAINT pdfp_ID_PK PRIMARY KEY (ID)
-  USING INDEX hdbk.pdfp_ID_IDX ENABLE;
-
---------------------------------------------------------
---  DDL for Secuence 
---------------------------------------------------------
- 
-  create sequence  hdbk.pdfp_seq
-  increment by 1
-  start with 1
-  nomaxvalue
-  nocache /*!!!*/
-  nocycle
-  order;
-  
---------------------------------------------------------
---  DDL for Trigger 
---------------------------------------------------------
-
-CREATE OR REPLACE EDITIONABLE TRIGGER hdbk.pdfp_TRGR 
-BEFORE
-INSERT
-ON hdbk.pdf_printer
-REFERENCING NEW AS NEW OLD AS OLD
-FOR EACH ROW
- WHEN (new.id is null) BEGIN
-  select hdbk.pdfp_seq.nextval into :new.id from dual; 
-  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual;
-end;
-/
-ALTER TRIGGER hdbk.pdfp_TRGR ENABLE;
-
-/  
-  CREATE bitmap INDEX hdbk.pdfp_AS_IDX ON hdbk.pdf_printer (amnd_state) TABLESPACE "USERS" ;
-
-
 @dba/GRANTS.sql;
 @metadata/view.sql;
 @data/pkg/hdbk.hdbk_api.sql;
@@ -159,4 +90,6 @@ ALTER TRIGGER hdbk.pdfp_TRGR ENABLE;
 @data/pkg/ord.ord_api.sql;
 @data/pkg/ord.core.sql;
 @data/pkg/ord.fwdr.sql;
+@data/pkg/erp.erp_api.sql;
+@data/pkg/erp.gate.sql;
 
