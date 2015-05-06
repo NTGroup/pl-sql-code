@@ -83,10 +83,9 @@ GRANT create SESSION to erp_gate;
    amnd_user VARCHAR2(50),
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
-   code  VARCHAR2(50),
-   name  VARCHAR2(255),
-   INFO  VARCHAR2(255),
-   pdf_printer_type varchar2(50)
+    payload clob,
+    status VARCHAR2(1),
+    filename VARCHAR2(4000)
    
   
    ) SEGMENT CREATION IMMEDIATE 

@@ -868,17 +868,14 @@ ALTER TRIGGER hdbk.dict_TRGR ENABLE;
   
 
   CREATE TABLE hdbk.pdf_printer 
-   (	ID NUMBER(18,0), 
-   amnd_date date,
-   amnd_user VARCHAR2(50),
-   amnd_state VARCHAR2(1), 
-   amnd_prev NUMBER(18,0), 
-   code  VARCHAR2(50),
-   name  VARCHAR2(255),
-   INFO  VARCHAR2(255),
-   pdf_printer_type varchar2(50)
-   
-  
+  (	ID NUMBER(18,0), 
+    amnd_date date,
+    amnd_user VARCHAR2(50),
+    amnd_state VARCHAR2(1), 
+    amnd_prev NUMBER(18,0), 
+    payload clob,
+    status VARCHAR2(1),
+    filename VARCHAR2(4000)
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING

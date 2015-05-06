@@ -1832,13 +1832,14 @@ $TODO: there must be check for users with ISSUES permission
       when cmn.date_to is not null and cmn.date_to < sysdate then 'N'
       else 'Y'
       end is_active,
-      max(case
+      /*max(case
       when cmn.date_from is null and cmn.date_to is null then to_char(cmn.amnd_date,'yyyymmddhh24')*1
       when cmn.amnd_state <> 'A' then to_char(cmn.amnd_date,'yyyymmddhh24')*1
       when cmn.date_from is not null and cmn.date_to is null then to_char(greatest(cmn.amnd_date,cmn.date_from),'yyyymmddhh24')*1
       when cmn.date_from is null and cmn.date_to is not null then to_char(least(cmn.amnd_date,cmn.date_to),'yyyymmddhh24')*1
       else to_char(greatest(cmn.amnd_date,cmn.date_from),'yyyymmddhh24')*1
-      end) over () version,
+      end) over () version,*/
+      to_char(sysdate,'yymmddhh24mi')*1 version,
       nvl(cmn.contract_oid,0) tenant_id,
       nvl(al.IATA,'YY') iata,
       upper(nvl((select name from hdbk.markup_type where id = cmn.markup_type),'ERROR')) markup_type,
@@ -1877,13 +1878,13 @@ $TODO: there must be check for users with ISSUES permission
             and rule_type = 5 --in (1,2,3)
             union all 
             select id from  ord.commission where date_from is null and date_to is null 
-            and ((amnd_date >= to_date(p_version,'yyyymmddhh24') and amnd_state <>'I' and p_version <>0 and p_version is not null) 
+            and ((amnd_date >= to_date(p_version,'yymmddhh24mi') and amnd_state <>'I' and p_version <>0 and p_version is not null) 
               or (amnd_state ='A' and (p_version =0 or p_version is null)))  
             and rule_type = 5
             union all 
             select commission_details.commission_oid 
               from  ord.commission_details, ord.commission 
-              where commission_details.amnd_date >= to_date(p_version,'yyyymmddhh24') and commission_details.amnd_state <>'I' and p_version <>0 and p_version is not null
+              where commission_details.amnd_date >= to_date(p_version,'yymmddhh24mi') and commission_details.amnd_state <>'I' and p_version <>0 and p_version is not null
               and commission_details.commission_oid = commission.id and  commission.date_from is null and commission.date_to is null 
               and rule_type = 5
             )
