@@ -1738,11 +1738,17 @@ $TODO: there must be check for users with ISSUES permission
       OPEN v_results FOR
           SELECT
 --          decode(ID,1,null,id) id, TEMPLATE_TYPE, PRIORITY, DETAILS, IS_CONTRACT_TYPE, NAME, NLS_NAME, IS_VALUE
-          decode(ID,1,null,id) id, NLS_NAME name
+          id, NLS_NAME name
           from ord.commission_template 
           where /*id = nvl(p_id,id)
           and*/ amnd_state = 'A'
+          and id in (24,25,26,27,28)
           and is_contract_type = 'N'
+          --order by id
+          union all
+          select 
+          0 id, name from
+          hdbk.dictionary where code = 'DEFAULT'   
           order by id;
     end if;    
 

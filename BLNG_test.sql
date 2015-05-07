@@ -4,7 +4,7 @@ END;
 
 /
     BEGIN
-DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'document_schedule', attribute         =>  'repeat_interval', value => 'FREQ=DAILY;INTERVAL=2') ;
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.DOC_TASK_LIST_SCHEDULE', attribute         =>  'repeat_interval', value => 'FREQ=DAILY;INTERVAL=2') ;
 END;
 /
 
@@ -363,7 +363,7 @@ end;
 
   SELECT /* text */ * FROM blng.v_account order by contract_oid desc;
 --check docs
-select  /* text */ * FROM blng.document order by id desc;
+select  /* text */ * FROM blng.document  where status = 'W' and amnd_state = 'A' order by id desc;
 --check transactions
 select  /* text */ * FROM blng.transaction order by id desc;
 --check delay
@@ -805,4 +805,79 @@ select  /* text */ * FROM hdbk.log order by id desc;
 
 INSERT INTO "NTG"."MARKUP" (CONTRACT_OID, GDS, POS, VALIDATING_CARRIER, CLASS_OF_SERVICE, HUMAN, ABSOLUT, ABSOLUT_AMOUNT, MARKUP_TYPE_OID) VALUES ('27', 'Sabre', 'CJ8H', '1597', 'default', 'Y', 'Y', '400', '1');
 commit;
+
+
+
+--- stress test
+
+
+/
+
+/* first edition with check account value only*/
+DECLARE
+  starting_time  TIMESTAMP WITH TIME ZONE;
+  ending_time    TIMESTAMP WITH TIME ZONE;
+  P_company VARCHAR2(255):='ООО "ИМЭЙДЖИН ГРУПП"';
+  v_company hdbk.dtype.t_id;
+
+--  P_NAME VARCHAR2(255):='pasha';
+  v_client1  hdbk.dtype.t_id;
+  v_client2  hdbk.dtype.t_id;
+  v_client3  hdbk.dtype.t_id;
+  v_client4  hdbk.dtype.t_id;
+  v_client5  hdbk.dtype.t_id;
+  v_client6  hdbk.dtype.t_id;
+  v_contract1  hdbk.dtype.t_id;
+  v_contract  hdbk.dtype.t_id;
+  v_contract5  hdbk.dtype.t_id;
+  P_number VARCHAR2(255);
+    v_DOC hdbk.dtype.t_id;
+    v_bill hdbk.dtype.t_id;
+BEGIN
+
+  /* ins doc cash in 500 */
+--  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 500000000,P_TRANS_TYPE =>2);
+ for i in 1..100 loop
+ for k in 21..26 loop
+ if k=25 then continue; end if;
+v_contract:=k;
+    v_bill := ord.ORD_API.bill_add( --v_ORDER => r_item_avia.order_oid,
+                                P_AMOUNT => i,
+                                P_DATE => sysdate,
+                                P_STATUS => 'W', --[M]anaging
+                                P_CONTRACT => v_contract,
+                                p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'CASH_IN'));
+  
+  commit;
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_bill);
+    v_bill := ord.ORD_API.bill_add( --v_ORDER => r_item_avia.order_oid,
+                                P_AMOUNT => i*2,
+                                P_DATE => sysdate,
+                                P_STATUS => 'W', --[M]anaging
+                                P_CONTRACT => v_contract,
+                               p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY'));
+  
+  commit;
+
+  /* increase doc limit 1002 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 10000000+i,P_TRANS_TYPE =>7,p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
+  
+  
+-- CONTRACT_OID    DEPOSIT       LOAN CREDIT_LIMIT CREDIT_LIMIT_BLOCK DEBIT_ONLINE MAX_LOAN_TRANS_AMOUNT CREDIT_ONLINE DELAY_DAYS  AVAILABLE
+-- ------------ ---------- ---------- ------------ ------------------ ------------ --------------------- ------------- ---------- ----------
+--          XXX          0          0          999                  0            0                     0             0          0        999 
+
+  /* set delay days 50 */
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => i+100,P_TRANS_TYPE =>11,p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+  commit;
+
+end loop;
+end loop;
+
+
+end;
+
 
