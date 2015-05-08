@@ -18,7 +18,7 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
 
 
   function pdf_printer_add( 
-                    p_payload in hdbk.dtype.t_clob default null,
+                    p_payload in hdbk.dtype.t_long default null,
                     p_status in hdbk.dtype.t_status default null,
                     p_filename in hdbk.dtype.t_msg default null
                   )
@@ -26,7 +26,7 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
 
 
   procedure pdf_printer_edit(  P_ID  in hdbk.dtype.t_id default null,
-                                p_payload in hdbk.dtype.t_clob default null,
+                                p_payload in hdbk.dtype.t_long default null,
                                 p_status in hdbk.dtype.t_status default null,
                                 p_filename in hdbk.dtype.t_msg default null
                       );
@@ -52,7 +52,7 @@ end erp_api;
 
 
   function pdf_printer_add( 
-                    p_payload in hdbk.dtype.t_clob default null,
+                    p_payload in hdbk.dtype.t_long default null,
                     p_status in hdbk.dtype.t_status default null,
                     p_filename in hdbk.dtype.t_msg default null
                   )
@@ -77,7 +77,7 @@ end erp_api;
 
 
   procedure pdf_printer_edit(  P_ID  in hdbk.dtype.t_id default null,
-                                p_payload in hdbk.dtype.t_clob default null,
+                                p_payload in hdbk.dtype.t_long default null,
                                 p_status in hdbk.dtype.t_status default null,
                                 p_filename in hdbk.dtype.t_msg default null
                       )

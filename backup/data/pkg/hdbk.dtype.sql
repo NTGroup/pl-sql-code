@@ -51,6 +51,8 @@ $obj_desc: for big data clob.
  subtype t_bool is BOOLEAN;
  subtype t_date is date;
  subtype t_clob is clob;
+ subtype t_long is long;
+ subtype t_long_msg is varchar2(32767);
 
 
  /*

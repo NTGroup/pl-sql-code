@@ -4,7 +4,7 @@ END;
 
 /
     BEGIN
-DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.DOC_TASK_LIST_SCHEDULE', attribute         =>  'repeat_interval', value => 'FREQ=DAILY;INTERVAL=2') ;
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.DOC_TASK_LIST_SCHEDULE', attribute         =>  'repeat_interval', value => 'FREQ=SECONDLY;INTERVAL=10') ;
 END;
 /
 
@@ -365,12 +365,15 @@ end;
 --check docs
 select  /* text */ * FROM blng.document  where status = 'W' and amnd_state = 'A' order by id desc;
 --check transactions
-select  /* text */ * FROM blng.transaction order by id desc;
+select  /* text */ * FROM blng.transaction   where status = 'W' and amnd_state = 'A'  order by doc_oid desc;
 --check delay
 select  /* text */ * FROM blng.delay where id >=55 order by id desc;
+
 --check log
 select  /* text */ * FROM hdbk.log order by id desc;
 
+
+select count(*) from ord.bill where amnd_state = 'A' and status = 'W'
 
 --test insufficient funds exception and delay expire
 DECLARE
@@ -842,7 +845,7 @@ BEGIN
  if k=25 then continue; end if;
 v_contract:=k;
     v_bill := ord.ORD_API.bill_add( --v_ORDER => r_item_avia.order_oid,
-                                P_AMOUNT => i,
+                                P_AMOUNT => i*4,
                                 P_DATE => sysdate,
                                 P_STATUS => 'W', --[M]anaging
                                 P_CONTRACT => v_contract,

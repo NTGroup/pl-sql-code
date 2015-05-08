@@ -98,7 +98,7 @@ END CORE;
       exception
         when hdbk.dtype.insufficient_funds then
           rollback;
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => ',p_process=set,p_status=D,p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'Warning', P_MSG => 'insufficient_funds '||to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => ',p_process=set,p_status=D,p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
           r_item_avia := ord_api.item_avia_get_info_r(p_order => r_bill.order_oid);
           r_item_avia_status := ord_api.item_avia_status_get_info_r(p_item_avia => r_item_avia.id);
           hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'ERROR',
@@ -106,14 +106,17 @@ END CORE;
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
           ord_api.item_avia_status_edit (  p_item_avia => r_item_avia.id, p_po_status => 'ERROR',
                                   p_nqt_status_cur => r_item_avia.nqt_status) ;  
+          ORD_API.bill_edit( P_id => r_bill.id, P_STATUS => 'M');   --[M]anaged
           commit;
         when hdbk.dtype.doc_waiting then
           rollback;
 --???          v_waiting_contract := r_document.contract_oid;
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20000)),p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'Warning', P_MSG => 'doc_waiting ' || to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20000)),p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
+          ORD_API.bill_edit( P_id => r_bill.id, P_STATUS => 'M');   --[M]anaged
+          commit;
         when VALUE_ERROR then
           rollback;
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => ',p_process=set,p_status=D,p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'Warning', P_MSG => 'VALUE_ERROR ' || to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => ',p_process=set,p_status=D,p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
           r_item_avia := ord_api.item_avia_get_info_r(p_order => r_bill.order_oid);
           r_item_avia_status := ord_api.item_avia_status_get_info_r(p_item_avia => r_item_avia.id);
           hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'ERROR',
@@ -121,17 +124,19 @@ END CORE;
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
           ord_api.item_avia_status_edit (  p_item_avia => r_item_avia.id, p_po_status => 'ERROR',
                                   p_nqt_status_cur => r_item_avia.nqt_status) ;  
+          ORD_API.bill_edit( P_id => r_bill.id, P_STATUS => 'M');   --[M]anaged
           commit;
         when others then
           rollback;
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => ',p_process=set,p_status=D,p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'Warning', P_MSG =>  'others ' || to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => ',p_process=set,p_status=D,p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
           r_item_avia := ord_api.item_avia_get_info_r(p_order => r_bill.order_oid);
           r_item_avia_status := ord_api.item_avia_status_get_info_r(p_item_avia => r_item_avia.id);
           hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'ERROR',
             P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
           ord_api.item_avia_status_edit (  p_item_avia => r_item_avia.id, p_po_status => 'ERROR',
-                                  p_nqt_status_cur => r_item_avia.nqt_status) ;  
+                                  p_nqt_status_cur => r_item_avia.nqt_status) ; 
+          ORD_API.bill_edit( P_id => r_bill.id, P_STATUS => 'M');   --[M]anaged                                  
           commit;
       end;
 
