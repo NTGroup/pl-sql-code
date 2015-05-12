@@ -74,17 +74,23 @@ END CORE;
                                               P_AMOUNT => r_bill.amount,
                                               P_TRANS_TYPE => blng.blng_api.trans_type_get_id(p_code=>'b'),
                                               p_bill => r_bill.id);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '1',P_ALERT_LEVEL=>10);          
   
   
           r_document:=blng.BLNG_API.document_get_info_r(p_id => v_DOC);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '2',P_ALERT_LEVEL=>10);          
           blng.core.buy(r_document);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '3',P_ALERT_LEVEL=>10);          
   
           blng.blng_api.document_edit(r_document.id, 'P');
+          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '4',P_ALERT_LEVEL=>10);          
   
           ORD_API.bill_edit( P_id => r_bill.id, P_STATUS => 'P');   --[P]osted
+          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '5',P_ALERT_LEVEL=>10);          
   
           -- edit PNR
           r_item_avia := ord_api.item_avia_get_info_r(p_order => r_bill.order_oid);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '6',P_ALERT_LEVEL=>10);          
           r_item_avia_status := ord_api.item_avia_status_get_info_r(p_item_avia => r_item_avia.id);
           hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'try set status SUCCESS',
             P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='

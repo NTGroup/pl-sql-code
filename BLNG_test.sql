@@ -194,6 +194,7 @@ select  /* text */ * FROM blng.document order by id desc;
 --check transactions
 select  /* text */ * FROM blng.transaction order by id desc;
 --check log
+
 select  /* text */ * FROM hdbk.log order by id desc;
 
 -- approve document manually if it needed
@@ -853,7 +854,7 @@ v_contract:=k;
   
   commit;
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_bill);
-    v_bill := ord.ORD_API.bill_add( --v_ORDER => r_item_avia.order_oid,
+    v_bill := ord.ORD_API.bill_add( p_ORDER => 1170, --!!! or it will be error
                                 P_AMOUNT => i*2,
                                 P_DATE => sysdate,
                                 P_STATUS => 'W', --[M]anaging

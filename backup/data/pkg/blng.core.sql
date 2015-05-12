@@ -837,12 +837,12 @@ end core;
   begin
 -- executed by operators. can unblock contract for time, by adding unblock event/delay
     r_account := blng.blng_api.account_get_info_r(p_contract => p_contract, p_code => 'clb');
-    if r_account.amount <> 0 then
+    --if r_account.amount <> 0 then
       v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_AMOUNT => -r_account.amount,
         P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'clu'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
       BLNG_API.delay_add(P_CONTRACT => p_contract, P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'clu'),P_PRIORITY => 20,
         p_transaction=>v_transaction,p_date_to => trunc(sysdate)+p_days);
-    end if;
+    --end if;
     commit;
   exception 
     when NO_DATA_FOUND then
