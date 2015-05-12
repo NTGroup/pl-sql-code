@@ -4,9 +4,28 @@ END;
 
 /
     BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.DOC_TASK_LIST_SCHEDULE', attribute         =>  'repeat_interval', value => 'FREQ=DAILY;INTERVAL=10') ;
+END;
+/
+    BEGIN
 DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.DOC_TASK_LIST_SCHEDULE', attribute         =>  'repeat_interval', value => 'FREQ=SECONDLY;INTERVAL=10') ;
 END;
 /
+    BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.BUY_SCHEDULE', attribute         =>  'repeat_interval', value => 'FREQ=DAILY;INTERVAL=10') ;
+END;
+/
+
+    BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.BUY_SCHEDULE', attribute         =>  'repeat_interval', value => 'FREQ=SECONDLY;INTERVAL=2') ;
+END;
+/
+
+    BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.ONLINE_SCHEDULE', attribute         =>  'repeat_interval', value => 'FREQ=DAILY;INTERVAL=10') ;
+END;
+/
+
 
 
 

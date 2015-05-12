@@ -1145,6 +1145,8 @@ END ORD_API;
       raise NO_DATA_FOUND;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
+    when hdbk.dtype.dead_lock then
+      raise hdbk.dtype.dead_lock;
     when others then
       hdbk.log_api.LOG_ADD(p_proc_name=>'bill_edit', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=bill,p_date='

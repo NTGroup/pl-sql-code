@@ -489,11 +489,11 @@ end core;
 
 --        blng.core.delay_remove(r_credit_online.contract_oid, r_credit_online.amount, p_transaction => r_transaction.id);
         blng_api.transaction_edit(p_id => r_transaction.id, p_status => 'P');
-        commit;
+--        commit;
 
 
   exception when others then
-    rollback;
+--    rollback;
       hdbk.log_api.LOG_ADD(p_proc_name=>'credit_online', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_account=' || r_credit_online.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
   end;
 
@@ -596,9 +596,9 @@ end core;
                             );
         end if;
         blng_api.transaction_edit(p_id => r_transaction.id, p_status => 'P');
-        commit; --after each transaction
+--        commit; --after each transaction
   exception when others then
-    rollback;
+--    rollback;
     hdbk.log_api.LOG_ADD(p_proc_name=>'debit_online', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_account=' || r_debit_online.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
   end;
 
