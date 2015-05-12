@@ -221,6 +221,14 @@ $obj_param: p_contract: contract id
                             )
   return SYS_REFCURSOR;
 
+  function transaction_get_info_r( p_id in hdbk.dtype.t_id default null,
+                              p_document in hdbk.dtype.t_id default null,
+                              p_trans_type in hdbk.dtype.t_id default null,
+                              p_target_account in hdbk.dtype.t_id default null,
+                              p_status in hdbk.dtype.t_status default null
+                            )
+  return transaction%rowtype;
+
   function event_add( p_contract in hdbk.dtype.t_id default null,
                       p_amount in hdbk.dtype.t_amount default null,
                       p_transaction in hdbk.dtype.t_id default null,
@@ -1411,6 +1419,40 @@ $TODO: all this nullable fields are bad. document_get_info
   exception 
     when others then
       hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_get_info', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=transaction,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into transaction error. '||SQLERRM);
+  end;
+
+  function transaction_get_info_r( p_id in hdbk.dtype.t_id default null,
+                              p_document in hdbk.dtype.t_id default null,
+                              p_trans_type in hdbk.dtype.t_id default null,
+                              p_target_account in hdbk.dtype.t_id default null,
+                              p_status in hdbk.dtype.t_status default null
+                            )
+  return transaction%rowtype
+  is
+    r_obj transaction%rowtype;
+  begin
+   -- OPEN v_results FOR
+      SELECT 
+      * into r_obj
+      from transaction
+      where id = nvl(p_id,id)
+      and doc_oid = nvl(p_document,doc_oid)
+      and trans_type_oid = nvl(p_trans_type,trans_type_oid)
+      and target_account_oid = nvl(p_target_account,target_account_oid)
+      and status = nvl(p_status,status)
+      and amnd_state = 'A'
+      order by id;
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;    
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=transaction,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into transaction error. '||SQLERRM);

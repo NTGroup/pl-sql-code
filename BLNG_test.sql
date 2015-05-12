@@ -852,7 +852,7 @@ v_contract:=k;
                                 P_CONTRACT => v_contract,
                                 p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'CASH_IN'));
   
-  commit;
+ -- commit;
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_bill);
     v_bill := ord.ORD_API.bill_add( p_ORDER => 1170, --!!! or it will be error
                                 P_AMOUNT => i*2,
@@ -861,12 +861,12 @@ v_contract:=k;
                                 P_CONTRACT => v_contract,
                                p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY'));
   
-  commit;
+--  commit;
 
   /* increase doc limit 1002 */
   v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 10000000+i,P_TRANS_TYPE =>7,p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
-  commit;
+--  commit;
   
   
 -- CONTRACT_OID    DEPOSIT       LOAN CREDIT_LIMIT CREDIT_LIMIT_BLOCK DEBIT_ONLINE MAX_LOAN_TRANS_AMOUNT CREDIT_ONLINE DELAY_DAYS  AVAILABLE
@@ -876,11 +876,11 @@ v_contract:=k;
   /* set delay days 50 */
   v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => i+100,P_TRANS_TYPE =>11,p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+
+end loop;
+end loop;
+
   commit;
-
-end loop;
-end loop;
-
 
 end;
 

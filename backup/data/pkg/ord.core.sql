@@ -74,23 +74,24 @@ END CORE;
                                               P_AMOUNT => r_bill.amount,
                                               P_TRANS_TYPE => blng.blng_api.trans_type_get_id(p_code=>'b'),
                                               p_bill => r_bill.id);
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '1',P_ALERT_LEVEL=>10);          
+--          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '1',P_ALERT_LEVEL=>10);          
   
   
           r_document:=blng.BLNG_API.document_get_info_r(p_id => v_DOC);
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '2',P_ALERT_LEVEL=>10);          
+--          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '2',P_ALERT_LEVEL=>10);          
           blng.core.buy(r_document);
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '3',P_ALERT_LEVEL=>10);          
+          blng.core.debit_online(r_document.id);
+--          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '3',P_ALERT_LEVEL=>10);          
   
           blng.blng_api.document_edit(r_document.id, 'P');
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '4',P_ALERT_LEVEL=>10);          
+--          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '4',P_ALERT_LEVEL=>10);          
   
           ORD_API.bill_edit( P_id => r_bill.id, P_STATUS => 'P');   --[P]osted
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '5',P_ALERT_LEVEL=>10);          
+--          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '5',P_ALERT_LEVEL=>10);          
   
           -- edit PNR
           r_item_avia := ord_api.item_avia_get_info_r(p_order => r_bill.order_oid);
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '6',P_ALERT_LEVEL=>10);          
+--          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '6',P_ALERT_LEVEL=>10);          
           r_item_avia_status := ord_api.item_avia_status_get_info_r(p_item_avia => r_item_avia.id);
           hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'try set status SUCCESS',
             P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
@@ -102,6 +103,9 @@ END CORE;
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
           commit;             
       exception
+        when hdbk.dtype.dead_lock then
+          rollback;
+          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'DEAD_LOCK', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
         when hdbk.dtype.insufficient_funds then
           rollback;
           hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'Warning', P_MSG => 'insufficient_funds '||to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => ',p_process=set,p_status=D,p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
@@ -205,12 +209,14 @@ END CORE;
   
           v_DOC := blng.BLNG_API.document_add(P_CONTRACT => r_bill.contract_oid,
                                               P_AMOUNT => r_bill.amount,
-                                              P_TRANS_TYPE => blng.blng_api.trans_type_get_id(p_code=>'b'),
+                                              P_TRANS_TYPE => blng.blng_api.trans_type_get_id(p_code=>'ci'),
+                                              P_ACCOUNT_TRANS_TYPE => hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CASH_IN'),
                                               p_bill => r_bill.id);
   
   
           r_document:=blng.BLNG_API.document_get_info_r(p_id => v_DOC);
           blng.core.cash_in(r_document);
+          blng.core.credit_online(r_document.id);
   
           blng.blng_api.document_edit(r_document.id, 'P');
   
@@ -233,6 +239,9 @@ END CORE;
           rollback;
 --???          v_waiting_contract := r_document.contract_oid;
           hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
+        when hdbk.dtype.dead_lock then
+          rollback;
+          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'DEAD_LOCK', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
         when others then
           rollback;
           hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',p_process=set,p_status=D,p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
@@ -257,13 +266,14 @@ END CORE;
   
           v_DOC := blng.BLNG_API.document_add(P_CONTRACT => r_bill.contract_oid,
                                               P_AMOUNT => r_bill.amount,
-                                              P_TRANS_TYPE => blng.blng_api.trans_type_get_id(p_code=>'b'),
+                                              P_TRANS_TYPE => blng.blng_api.trans_type_get_id(p_code=>'ci'),
                                               P_ACCOUNT_TRANS_TYPE => hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'PAY_BILL'),
                                               p_bill => r_bill.id);
   
   
           r_document:=blng.BLNG_API.document_get_info_r(p_id => v_DOC);
           blng.core.pay_bill(r_document);
+          blng.core.credit_online(r_document.id);
   
           blng.blng_api.document_edit(r_document.id, 'P');
   
@@ -276,6 +286,9 @@ END CORE;
           hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
           ORD_API.bill_edit( P_id => r_bill.id, P_STATUS => 'E');   --[E]rror
           commit;             
+        when hdbk.dtype.dead_lock then
+          rollback;
+          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'DEAD_LOCK', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
         when others then
           rollback;
           hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',p_process=set,p_status=D,p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
@@ -300,6 +313,9 @@ END CORE;
         blng.blng_api.document_edit(r_document.id, 'P');
         commit;
       exception
+        when hdbk.dtype.dead_lock then
+          rollback;
+          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'DEAD_LOCK', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
         when others then
           rollback;
           hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -323,6 +339,9 @@ END CORE;
         blng.blng_api.document_edit(r_document.id, 'P');
         commit;
       exception
+        when hdbk.dtype.dead_lock then
+          rollback;
+          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'DEAD_LOCK', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
         when others then
           rollback;
           hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -345,6 +364,9 @@ END CORE;
         blng.blng_api.document_edit(r_document.id, 'P');
         commit;
       exception
+        when hdbk.dtype.dead_lock then
+          rollback;
+          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'DEAD_LOCK', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
         when others then
           rollback;
           hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);

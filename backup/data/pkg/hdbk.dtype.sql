@@ -82,6 +82,9 @@ $obj_desc: -20004
 $obj_name: INVALID_OPERATION
 $obj_desc: -20005
 
+$obj_name: DEAD_LOCK
+$obj_desc: -60
+
 
 */
  
@@ -110,6 +113,8 @@ $obj_desc: -20005
   INVALID_OPERATION EXCEPTION;
   PRAGMA EXCEPTION_INIT (INVALID_OPERATION, -20005);
 
+  DEAD_LOCK EXCEPTION;
+  PRAGMA EXCEPTION_INIT (DEAD_LOCK, -60);
 
 end dtype;
 
