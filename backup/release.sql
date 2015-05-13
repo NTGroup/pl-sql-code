@@ -75,6 +75,8 @@ alter user erp_gate account UNLOCK;
 --GRANT RESTRICTED SESSION to erp
 GRANT create SESSION to erp_gate;
 
+update ord.commission_template set amnd_state = 'C' where  id = 29;
+commit;
 
 
 @dba/GRANTS.sql;

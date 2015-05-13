@@ -12,12 +12,20 @@ DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.DOC_TASK_LIST_SCHEDULE', attribut
 END;
 /
     BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.DOC_TASK_LIST_SCHEDULE', attribute         =>  'repeat_interval', value => 'FREQ=SECONDLY;INTERVAL=30') ;
+END;
+/
+    BEGIN
 DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.BUY_SCHEDULE', attribute         =>  'repeat_interval', value => 'FREQ=DAILY;INTERVAL=10') ;
 END;
 /
 
     BEGIN
 DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.BUY_SCHEDULE', attribute         =>  'repeat_interval', value => 'FREQ=SECONDLY;INTERVAL=2') ;
+END;
+/
+    BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.BUY_SCHEDULE', attribute         =>  'repeat_interval', value => 'FREQ=SECONDLY;INTERVAL=10') ;
 END;
 /
 
@@ -773,11 +781,12 @@ DECLARE
     v_DOC hdbk.dtype.t_id;
 BEGIN
 
-
+ for i in 1..1 loop
+ 
   SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
 
   /*company*/
-  v_company := blng.BLNG_API.company_add(P_name => P_company);
+  v_company := blng.BLNG_API.company_add(P_name => P_company||i);
  -- v_company := 5;
   DBMS_OUTPUT.PUT_LINE('v_company = ' || v_company);
 
@@ -789,28 +798,32 @@ BEGIN
 
   SELECT SYSTIMESTAMP INTO ending_time FROM DUAL;
   DBMS_OUTPUT.PUT_LINE('Time = ' || TO_CHAR(ending_time - starting_time));
-commit;
+--commit;
 
   /* ins doc limit 1000 */
   v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract1,P_AMOUNT => 100000,P_TRANS_TYPE =>7);
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
-  commit;
+ -- commit;
   
   /* set delay days 50 */
   v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract1,P_AMOUNT => 3,P_TRANS_TYPE =>11);
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
-  commit;
+  --commit;
   /* set max loan trans amount 200 */
   v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract1,P_AMOUNT => 0,P_TRANS_TYPE =>8);
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
-  commit;
+  --commit;
+*/
 
 
+INSERT INTO "BLNG"."DOMAIN" (NAME, CONTRACT_OID, STATUS, IS_DOMAIN) VALUES ('fff'||i||'@asd.com', v_contract1, 'A', '0');
+--commit;
 
-INSERT INTO "BLNG"."DOMAIN" (NAME, CONTRACT_OID, STATUS, IS_DOMAIN) VALUES ('ddd', v_contract1, 'A', '0');
+end loop;
 commit;
-
 end;
+
+
 
 /
 select * from blng.client2contract;

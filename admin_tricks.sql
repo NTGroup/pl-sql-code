@@ -85,10 +85,21 @@ NOCOPY
   TEMPFILE REUSE;
 alter pluggable database my_test1 open read write; 
 
+
 SELECT name, open_mode
 FROM   v$pdbs
 ORDER BY name;
 
+
+select sid||','||serial# ,username, prev_exec_start, event, state  from v$session where schemaname <> 'SYS'
+--and username = 'NTG'
+
+
+select *  from v$session where schemaname <> 'SYS'
+--and username = 'NTG'
+
+     ALTER SYSTEM DISCONNECT SESSION '19,30006' IMMEDIATE;      
+     
 
 CREATE TABLESPACE TMPDICT DATAFILE '/home/oracle/app/oracle/oradata/orcl/ORCL/032A6356A8B256D7E055000000000002/datafile/TMPDICT01.dbf' SIZE 250M EXTENT MANAGEMENT LOCAL AUTOALLOCATE;
 
