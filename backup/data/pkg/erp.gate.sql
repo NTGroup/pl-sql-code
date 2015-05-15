@@ -73,6 +73,18 @@ $obj_param: o_filename: out parameter for return file name
                               o_filename out hdbk.dtype.t_msg
                             );
 
+
+/*
+$obj_type: function
+$obj_name: check_user
+$obj_desc: return user_id. if user dosnt exist then return NULL
+$obj_param: p_email: user email
+$obj_return: user identifire
+*/
+  function check_user (p_email in hdbk.dtype.t_name default null)
+  return hdbk.dtype.t_id;  
+
+
 end gate;
 
 /
@@ -196,6 +208,24 @@ end gate;
   end;
 
 
+  function check_user (p_email in hdbk.dtype.t_name default null)
+  return hdbk.dtype.t_id
+  is
+ --   r_client blng.client%rowtype;
+    v_contract hdbk.dtype.t_id;
+  begin
+    return 0;
+/*
+    r_client:=blng.blng_api.client_get_info_r(p_email=>lower(p_email));
+    v_contract := blng.core.pay_contract_by_client(r_client.id);
+    return v_contract;
+*/
+
+  exception 
+    when others then return null;
+  end;
+  
+  
 end gate;
 
 /

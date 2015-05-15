@@ -1714,18 +1714,19 @@ $TODO: there must be check for users with ISSUES permission
   begin
     if p_is_contract_type = 'Y' then  
       OPEN v_results FOR
-          SELECT
+          select id, name from 
+          (SELECT
 --          decode(ID,1,null,id) id, TEMPLATE_TYPE, PRIORITY, DETAILS, IS_CONTRACT_TYPE, NAME, NLS_NAME, IS_VALUE
-          id, NLS_NAME name
+          id, NLS_NAME name,priority
           from ord.commission_template 
           where /*id = nvl(p_id,id)
           and*/ amnd_state = 'A'
           and is_contract_type = 'Y'
           union all
           select 
-          0 id, name from
-          hdbk.dictionary where code = 'DEFAULT'   
-          order by id;
+          0 id, name, 0 priority from
+          hdbk.dictionary where code = 'DEFAULT'   )
+          order by priority;
     elsif p_is_markup_type = 'Y' then
       OPEN v_results FOR
           SELECT

@@ -873,10 +873,10 @@ BEGIN
 
   /* ins doc cash in 500 */
 --  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 500000000,P_TRANS_TYPE =>2);
- for i in 1..100 loop
- for k in 21..26 loop
- if k=25 then continue; end if;
-v_contract:=k;
+ for i in 1..1 loop
+ for k in (select id from blng.contract where amnd_state = 'A' and id > 26 and id <47) loop
+ --if k=25 then continue; end if;
+v_contract:=k.id;
     v_bill := ord.ORD_API.bill_add( --v_ORDER => r_item_avia.order_oid,
                                 P_AMOUNT => i*4,
                                 P_DATE => sysdate,

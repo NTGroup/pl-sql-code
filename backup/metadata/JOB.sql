@@ -55,9 +55,11 @@ BEGIN
   DBMS_SCHEDULER.CREATE_JOB (
    job_name           =>  'HDBK.BUY_JOB',
  --  job_owner          =>  'HDBK',
-   schedule_name      =>  'HDBK.BUY_SCHEDULE',
+--   schedule_name      =>  'HDBK.BUY_SCHEDULE',
    job_type           =>  'STORED_PROCEDURE',
    job_action         =>  'ORD.CORE.BUY',
+  repeat_interval   => 'FREQ=SECONDLY;INTERVAL=2',     
+  start_date        => SYSTIMESTAMP,
    --job_style        =>  'LIGHTWEIGHT',
    enabled            =>  TRUE,
    COMMENTS           =>  'approve buy ticket tasks' );
@@ -66,9 +68,11 @@ END;
 BEGIN
   DBMS_SCHEDULER.CREATE_JOB (
    job_name           =>  'HDBK.DOC_TASK_LIST_JOB',
-   schedule_name      =>  'HDBK.DOC_TASK_LIST_SCHEDULE',
+--   schedule_name      =>  'HDBK.DOC_TASK_LIST_SCHEDULE',
    job_type           =>  'STORED_PROCEDURE',
    job_action         =>  'ORD.CORE.DOC_TASK_LIST',
+   repeat_interval   => 'FREQ=SECONDLY;INTERVAL=10',     
+  start_date        => SYSTIMESTAMP,
    --job_style        =>  'LIGHTWEIGHT',
    enabled            =>  TRUE,
    COMMENTS           =>  'approve tasks with contract like set parameters or cash in' );
@@ -152,4 +156,20 @@ BEGIN
     DBMS_SCHEDULER.DROP_SCHEDULE(schedule_name => 'HDBK.DELAY_EXPIRE_SCHEDULE',
                                 force => false);*/
 END;
+
+
+
+/*
+BEGIN
+
+
+    DBMS_SCHEDULER.DROP_JOB(job_name => 'HDBK.DOC_TASK_LIST_JOB',
+                                defer => false,
+                                force => false);
+                                
+    DBMS_SCHEDULER.DROP_SCHEDULE(schedule_name => 'HDBK.DOC_TASK_LIST_SCHEDULE',
+                                force => false);
+END;
+*/
+
 

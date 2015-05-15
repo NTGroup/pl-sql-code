@@ -78,6 +78,11 @@ GRANT create SESSION to erp_gate;
 update ord.commission_template set amnd_state = 'C' where  id = 29;
 commit;
 
+update ord.commission_template set priority = 1 where id = 20;
+update ord.commission_template set priority = 2 where id = 19;
+update ord.commission_template set priority = 3 where id = 18;
+commit;
+
 
 @dba/GRANTS.sql;
 @metadata/view.sql;
@@ -94,4 +99,7 @@ commit;
 @data/pkg/ord.fwdr.sql;
 @data/pkg/erp.erp_api.sql;
 @data/pkg/erp.gate.sql;
+@metadata/get_ddl.sql;
+
+
 
