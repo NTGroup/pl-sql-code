@@ -27,6 +27,10 @@ $obj_desc: this procedure executed from job scheduler
 */ 
   procedure doc_task_list;
 
+procedure buy_run;
+
+
+procedure DOC_TASK_LIST_run;
 
 END CORE;
 
@@ -51,22 +55,29 @@ END CORE;
     v_contract hdbk.dtype.t_id;
     r_document blng.document%rowtype;
     
-    c_bill  SYS_REFCURSOR;
-    r_bill bill%rowtype;
+--    c_bill  SYS_REFCURSOR;
+--    r_bill bill%rowtype;
 
     v_DOC hdbk.dtype.t_id;
     
   begin
-    --begin
-      c_bill := ord_api.bill_get_info(p_status=>'W', p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY'));
-    --exception when NO_DATA_FOUND then return;
-    --end;
+--      c_bill := ord_api.bill_get_info(p_status=>'W', p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY'));
     
+      for r_bill in ( select * from ord.bill where amnd_state = 'A' and status = 'W'
+                      and trans_type_oid = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
+                      and contract_oid not in (
+                        select contract_oid from ord.bill where amnd_state = 'A' and status = 'W'
+                        and trans_type_oid <> hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
+                        )
+                      order by id desc
+                    )
+--      loop
+        
     LOOP
-      FETCH c_bill INTO r_bill;
-      EXIT WHEN c_bill%NOTFOUND;
+/*      FETCH c_bill INTO r_bill;
+      EXIT WHEN c_bill%NOTFOUND;*/
         begin
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',
+          hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'start',
             P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
   
@@ -93,25 +104,25 @@ END CORE;
           r_item_avia := ord_api.item_avia_get_info_r(p_order => r_bill.order_oid);
 --          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '6',P_ALERT_LEVEL=>10);          
           r_item_avia_status := ord_api.item_avia_status_get_info_r(p_item_avia => r_item_avia.id);
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'try set status SUCCESS',
+          hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'try set status SUCCESS',
             P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
           ord_api.item_avia_status_edit (  p_item_avia => r_item_avia.id, p_po_status => 'SUCCESS',
                                   p_nqt_status_cur => r_item_avia.nqt_status) ;  
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'finish',
+          hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'finish',
             P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
           commit;             
       exception
         when hdbk.dtype.dead_lock then
           rollback;
-          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'DEAD_LOCK', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'DEAD_LOCK', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
         when hdbk.dtype.insufficient_funds then
           rollback;
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'Warning', P_MSG => 'insufficient_funds '||to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => ',p_process=set,p_status=D,p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'Warning', P_MSG => 'insufficient_funds '||to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => ',p_process=set,p_status=D,p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
           r_item_avia := ord_api.item_avia_get_info_r(p_order => r_bill.order_oid);
           r_item_avia_status := ord_api.item_avia_status_get_info_r(p_item_avia => r_item_avia.id);
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'ERROR',
+          hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'ERROR',
             P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
           ord_api.item_avia_status_edit (  p_item_avia => r_item_avia.id, p_po_status => 'ERROR',
@@ -121,15 +132,15 @@ END CORE;
         when hdbk.dtype.doc_waiting then
           rollback;
 --???          v_waiting_contract := r_document.contract_oid;
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'Warning', P_MSG => 'doc_waiting ' || to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20000)),p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
-          ORD_API.bill_edit( P_id => r_bill.id, P_STATUS => 'M');   --[M]anaged
-          commit;
+          hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'Warning', P_MSG => 'doc_waiting ' || to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20000)),p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
+ --         ORD_API.bill_edit( P_id => r_bill.id, P_STATUS => 'W');   --[M]anaged
+ --         commit;
         when VALUE_ERROR then
           rollback;
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'Warning', P_MSG => 'VALUE_ERROR ' || to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => ',p_process=set,p_status=D,p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'Warning', P_MSG => 'VALUE_ERROR ' || to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => ',p_process=set,p_status=D,p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
           r_item_avia := ord_api.item_avia_get_info_r(p_order => r_bill.order_oid);
           r_item_avia_status := ord_api.item_avia_status_get_info_r(p_item_avia => r_item_avia.id);
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'ERROR',
+          hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'ERROR',
             P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
           ord_api.item_avia_status_edit (  p_item_avia => r_item_avia.id, p_po_status => 'ERROR',
@@ -138,10 +149,10 @@ END CORE;
           commit;
         when others then
           rollback;
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'Warning', P_MSG =>  'others ' || to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => ',p_process=set,p_status=D,p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'Warning', P_MSG =>  'others ' || to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => ',p_process=set,p_status=D,p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
           r_item_avia := ord_api.item_avia_get_info_r(p_order => r_bill.order_oid);
           r_item_avia_status := ord_api.item_avia_status_get_info_r(p_item_avia => r_item_avia.id);
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'ERROR',
+          hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'ERROR',
             P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
           ord_api.item_avia_status_edit (  p_item_avia => r_item_avia.id, p_po_status => 'ERROR',
@@ -151,7 +162,7 @@ END CORE;
       end;
 
     END LOOP;
-    CLOSE c_bill;    
+ --   CLOSE c_bill;    
 
     
 
@@ -159,7 +170,7 @@ END CORE;
     when NO_DATA_FOUND then null;
     when others then
       rollback;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'UNHANDLED_ERROR',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=bill,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       --RAISE_APPLICATION_ERROR(-20002,'doc_task_list error. '||SQLERRM);
@@ -185,7 +196,7 @@ END CORE;
     
     c_bill  SYS_REFCURSOR;
     c_doc  SYS_REFCURSOR;
-    r_bill bill%rowtype;
+--    r_bill bill%rowtype;
 
     v_DOC hdbk.dtype.t_id;
     
@@ -195,18 +206,25 @@ END CORE;
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
 */
     --begin
-      c_bill := ord_api.bill_get_info(p_status=>'W', p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'CASH_IN'));
+--      c_bill := ord_api.bill_get_info(p_status=>'W', p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'CASH_IN'));
     --exception when NO_DATA_FOUND then return;
     --end;
     
-    LOOP
-      FETCH c_bill INTO r_bill;
-      EXIT WHEN c_bill%NOTFOUND;
+      for r_bill in ( select * from ord.bill where amnd_state = 'A' and status = 'W'
+                      and trans_type_oid = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'CASH_IN')
+                    /*  and contract_oid not in (
+                        select contract_oid from ord.bill where amnd_state = 'A' and status = 'W'
+                        and trans_type_oid = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
+                        )*/
+                      order by id desc
+                    )
+      loop
+
         begin
-          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list1', p_msg_type=>'start',
+ /*         hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list1', p_msg_type=>'start',
             P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
-  
+  */
           v_DOC := blng.BLNG_API.document_add(P_CONTRACT => r_bill.contract_oid,
                                               P_AMOUNT => r_bill.amount,
                                               P_TRANS_TYPE => blng.blng_api.trans_type_get_id(p_code=>'ci'),
@@ -222,17 +240,6 @@ END CORE;
   
           ORD_API.bill_edit( P_id => r_bill.id, P_STATUS => 'P');   --[P]osted
   
-          -- edit PNR
-/*          r_item_avia := ord_api.item_avia_get_info_r(p_order => r_bill.order_oid);
-          r_item_avia_status := ord_api.item_avia_status_get_info_r(p_item_avia => r_item_avia.id);
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'try set status SUCCESS',
-            P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
-            || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
-          ord_api.item_avia_status_edit (  p_item_avia => r_item_avia.id, p_po_status => 'SUCCESS',
-                                  p_nqt_status_cur => r_item_avia.nqt_status) ;  
-          hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'finish',
-            P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
-            || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);       */   
           commit;             
       exception
         when hdbk.dtype.doc_waiting then
@@ -248,17 +255,21 @@ END CORE;
       end;
 
     END LOOP;
-    CLOSE c_bill;    
     
 /*    hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'PAY_BILL',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
 */
-      c_bill := ord_api.bill_get_info(p_status=>'W', p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'PAY_BILL'));
-    
-    LOOP
-      FETCH c_bill INTO r_bill;
-      EXIT WHEN c_bill%NOTFOUND;
+--      c_bill := ord_api.bill_get_info(p_status=>'W', p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'PAY_BILL'));
+      for r_bill in ( select * from ord.bill where amnd_state = 'A' and status = 'W'
+                      and trans_type_oid = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'PAY_BILL')
+                   /*   and contract_oid not in (
+                        select contract_oid from ord.bill where amnd_state = 'A' and status = 'W'
+                        and trans_type_oid = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
+                        )*/
+                      order by id desc
+                    )
+      loop
         begin
           hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list2', p_msg_type=>'start',
             P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
@@ -297,84 +308,98 @@ END CORE;
       end;
 
     END LOOP;
-    CLOSE c_bill;    
 
 
-    c_doc := blng.blng_api.document_get_info(p_status=>'W', p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'UP_LIM_TRANS'));
-    LOOP
-      FETCH c_doc INTO r_document;
-      EXIT WHEN c_doc%NOTFOUND;
-
+--    c_doc := blng.blng_api.document_get_info(p_status=>'W', p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'UP_LIM_TRANS'));
+    for i_document in ( select * from blng.document where amnd_state = 'A' and status = 'W'
+                    and account_trans_type_oid in hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'UP_LIM_TRANS')
+                   /* and contract_oid not in (
+                      select contract_oid from ord.bill where amnd_state = 'A' and status = 'W'
+                      and trans_type_oid = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
+                      )*/
+                    order by id desc
+                  )
+    loop
       begin
-        if r_document.amount < 0 then raise VALUE_ERROR; end if;
-        r_account := blng.blng_api.account_get_info_r(p_contract => r_document.contract_oid, p_code => 'ult'  );
-        v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => r_document.id,P_AMOUNT => abs(r_document.amount)-abs(r_account.amount),
+        if i_document.amount < 0 then raise VALUE_ERROR; end if;
+        r_account := blng.blng_api.account_get_info_r(p_contract => i_document.contract_oid, p_code => 'ult'  );
+        v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => i_document.id,P_AMOUNT => abs(i_document.amount)-abs(r_account.amount),
           P_TRANS_TYPE => BLNG.blng_api.trans_type_get_id(p_code=>'ult'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
-        blng.blng_api.document_edit(r_document.id, 'P');
+        blng.blng_api.document_edit(i_document.id, 'P');
         commit;
       exception
         when hdbk.dtype.dead_lock then
           rollback;
-          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'DEAD_LOCK', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'DEAD_LOCK', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || i_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
         when others then
           rollback;
-          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-          blng.blng_api.document_edit(r_document.id, 'E');
+          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || i_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+          blng.blng_api.document_edit(i_document.id, 'E');
           commit;
       end;
     END LOOP;
-    CLOSE c_doc;
+--    CLOSE c_doc;
 
-    c_doc := blng.blng_api.document_get_info(p_status=>'W', p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
-    LOOP
-      FETCH c_doc INTO r_document;
-      EXIT WHEN c_doc%NOTFOUND;
-
+    --c_doc := blng.blng_api.document_get_info(p_status=>'W', p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
+    for i_document in ( select * from blng.document where amnd_state = 'A' and status = 'W'
+                    and account_trans_type_oid in hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT')
+                   /* and contract_oid not in (
+                      select contract_oid from ord.bill where amnd_state = 'A' and status = 'W'
+                      and trans_type_oid = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
+                      )*/
+                    order by id desc
+                  )
+    loop
       begin
-        if r_document.amount < 0 then raise VALUE_ERROR; end if;
-        r_account := blng.blng_api.account_get_info_r(p_contract => r_document.contract_oid, p_code => 'cl'  );
-        v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => r_document.id,P_AMOUNT => abs(r_document.amount)-abs(r_account.amount),
+        if i_document.amount < 0 then raise VALUE_ERROR; end if;
+        r_account := blng.blng_api.account_get_info_r(p_contract => i_document.contract_oid, p_code => 'cl'  );
+        v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => i_document.id,P_AMOUNT => abs(i_document.amount)-abs(r_account.amount),
           P_TRANS_TYPE => BLNG.blng_api.trans_type_get_id(p_code=>'cl'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
-        --blng.blng_api.document_edit(r_document.id, p_account_trans_type=> hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'), p_status_ );
-        blng.blng_api.document_edit(r_document.id, 'P');
+        --blng.blng_api.document_edit(i_document.id, p_account_trans_type=> hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'), p_status_ );
+        blng.blng_api.document_edit(i_document.id, 'P');
         commit;
       exception
         when hdbk.dtype.dead_lock then
           rollback;
-          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'DEAD_LOCK', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'DEAD_LOCK', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || i_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
         when others then
           rollback;
-          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-          blng.blng_api.document_edit(r_document.id, 'E');
+          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || i_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+          blng.blng_api.document_edit(i_document.id, 'E');
           commit;
       end;
     END LOOP;
-    CLOSE c_doc;
+--    CLOSE c_doc;
 
-    c_doc := blng.blng_api.document_get_info(p_status=>'W', p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
-    LOOP
-      FETCH c_doc INTO r_document;
-      EXIT WHEN c_doc%NOTFOUND;
-
+--    c_doc := blng.blng_api.document_get_info(p_status=>'W', p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
+    for i_document in ( select * from blng.document where amnd_state = 'A' and status = 'W'
+                    and account_trans_type_oid in hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY')
+               /*     and contract_oid not in (
+                      select contract_oid from ord.bill where amnd_state = 'A' and status = 'W'
+                      and trans_type_oid = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
+                      )*/
+                    order by id desc
+                  )
+    loop
       begin
-        if r_document.amount < 0 then raise VALUE_ERROR; end if;
-        r_account := blng.blng_api.account_get_info_r(p_contract => r_document.contract_oid, p_code => 'dd'  );
-        v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => r_document.id,P_AMOUNT => abs(r_document.amount)-abs(r_account.amount),
+        if i_document.amount < 0 then raise VALUE_ERROR; end if;
+        r_account := blng.blng_api.account_get_info_r(p_contract => i_document.contract_oid, p_code => 'dd'  );
+        v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => i_document.id,P_AMOUNT => abs(i_document.amount)-abs(r_account.amount),
           P_TRANS_TYPE => BLNG.blng_api.trans_type_get_id(p_code=>'dd'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
-        blng.blng_api.document_edit(r_document.id, 'P');
+        blng.blng_api.document_edit(i_document.id, 'P');
         commit;
       exception
         when hdbk.dtype.dead_lock then
           rollback;
-          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'DEAD_LOCK', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'DEAD_LOCK', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || i_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
         when others then
           rollback;
-          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-          blng.blng_api.document_edit(r_document.id, 'E');
+          hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || i_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+          blng.blng_api.document_edit(i_document.id, 'E');
           commit;
       end;
     END LOOP;
-    CLOSE c_doc;
+--    CLOSE c_doc;
 
   exception 
     when NO_DATA_FOUND then 
@@ -382,7 +407,10 @@ END CORE;
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=bill,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       --RAISE_APPLICATION_ERROR(-20002,'doc_task_list error. '||SQLERRM);
-    
+    when hdbk.dtype.dead_lock then
+      rollback;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'DEAD_LOCK', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
+
     when others then
       rollback;
       hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list', p_msg_type=>'UNHANDLED_ERROR',
@@ -442,6 +470,61 @@ END CORE;
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'bill_pay error. '||SQLERRM);
   end;
+
+procedure buy_run
+is
+  job_count number;
+begin
+  
+---  SELECT count(*) FROM DBA_SCHEDULER_JOB_DESTS where job_name in ('DOC_TASK_LIST_JOB','BUY_JOB','DOC_TASK_LIST_RUN','BUY_RUN')
+  SELECT count(*) into job_count FROM ALL_SCHEDULER_JOB_DESTS where job_name in ('BUY_JOB');
+  
+  if job_count = 0 then
+    BEGIN
+      sys.DBMS_SCHEDULER.CREATE_JOB (
+       job_name           =>  'HDBK.BUY_JOB',
+       job_type           =>  'STORED_PROCEDURE',
+       job_action         =>  'ORD.CORE.BUY',
+    --  repeat_interval   => 'FREQ=SECONDLY;INTERVAL=2',     
+      start_date        => SYSTIMESTAMP,
+       enabled            =>  TRUE,
+       COMMENTS           =>  'approve buy ticket tasks' );
+    END;
+  end if;  
+exception when others then 
+    hdbk.log_api.LOG_ADD(p_proc_name=>'buy_run', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=bill,p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'buy_run error. '||SQLERRM);
+end;
+
+
+procedure DOC_TASK_LIST_run
+is
+  job_count number;
+begin
+  
+---  SELECT count(*) FROM DBA_SCHEDULER_JOB_DESTS where job_name in ('DOC_TASK_LIST_JOB','BUY_JOB','DOC_TASK_LIST_RUN','BUY_RUN')
+  SELECT count(*) into job_count FROM ALL_SCHEDULER_JOB_DESTS where job_name in ('DOC_TASK_LIST_JOB');
+  
+  if job_count = 0 then
+    BEGIN
+      sys.DBMS_SCHEDULER.CREATE_JOB (
+       job_name           =>  'HDBK.DOC_TASK_LIST_JOB',
+       job_type           =>  'STORED_PROCEDURE',
+       job_action         =>  'ORD.CORE.DOC_TASK_LIST',
+    --  repeat_interval   => 'FREQ=SECONDLY;INTERVAL=2',     
+      start_date        => SYSTIMESTAMP,
+       enabled            =>  TRUE,
+       COMMENTS           =>  'approve buy ticket tasks' );
+    END;
+  end if;  
+exception when others then 
+    hdbk.log_api.LOG_ADD(p_proc_name=>'buy_run', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=bill,p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'buy_run error. '||SQLERRM);
+end;
 
 
 END CORE;

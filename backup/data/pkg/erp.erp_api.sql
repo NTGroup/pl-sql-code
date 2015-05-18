@@ -16,7 +16,7 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
 */
   
 
-
+/*
   function pdf_printer_add( 
                     p_payload in hdbk.dtype.t_long default null,
                     p_status in hdbk.dtype.t_status default null,
@@ -40,7 +40,7 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   function pdf_printer_get_info_r (     P_ID  in hdbk.dtype.t_id default null
                                 )
   return pdf_printer%rowtype;
-
+*/
 
 end erp_api;
 
@@ -50,7 +50,7 @@ end erp_api;
   CREATE OR REPLACE PACKAGE BODY erp.erp_api as
 
 
-
+/*
   function pdf_printer_add( 
                     p_payload in hdbk.dtype.t_long default null,
                     p_status in hdbk.dtype.t_status default null,
@@ -167,7 +167,7 @@ end erp_api;
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into pdf_printer error. '||SQLERRM);
   end;
-
+*/
 
 
 end erp_api;

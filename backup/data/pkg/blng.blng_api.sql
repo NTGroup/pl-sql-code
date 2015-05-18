@@ -3,7 +3,7 @@
 
   
 /*
-$pkg: BLNG.BLNG_API
+$pkg: BLNG.BLNG_API 
 */
   
 /*
@@ -1050,6 +1050,8 @@ end blng_api;
       raise NO_DATA_FOUND;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
+    when hdbk.dtype.dead_lock then
+      raise hdbk.dtype.dead_lock;
     when others then
       hdbk.log_api.LOG_ADD(p_proc_name=>'account_edit', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=account,p_date='
@@ -1137,7 +1139,10 @@ end blng_api;
     v_document_row.account_trans_type_oid := p_account_trans_type;
     insert into blng.document values v_document_row returning id into v_id;
     return v_id;
-  exception when others then
+  exception 
+    when hdbk.dtype.dead_lock then
+      raise hdbk.dtype.dead_lock;
+  when others then
     hdbk.log_api.LOG_ADD(p_proc_name=>'document_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=document,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
@@ -1171,6 +1176,8 @@ end blng_api;
       raise NO_DATA_FOUND;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
+    when hdbk.dtype.dead_lock then
+      raise hdbk.dtype.dead_lock;
     when others then
       hdbk.log_api.LOG_ADD(p_proc_name=>'document_edit', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=document,p_date='
@@ -1301,6 +1308,8 @@ $TODO: all this nullable fields are bad. document_get_info
 
     return v_id;
   exception
+    when hdbk.dtype.dead_lock then
+      raise hdbk.dtype.dead_lock;
     when hdbk.dtype.exit_alert then
       hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_add', p_msg_type=>'hdbk.dtype.exit_alert',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=transaction,p_date='
@@ -1344,6 +1353,8 @@ $TODO: all this nullable fields are bad. document_get_info
 
     return v_transaction;
   exception
+    when hdbk.dtype.dead_lock then
+      raise hdbk.dtype.dead_lock;
     when hdbk.dtype.exit_alert then
       hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_add_with_acc', p_msg_type=>'hdbk.dtype.exit_alert',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
@@ -1387,6 +1398,8 @@ $TODO: all this nullable fields are bad. document_get_info
       raise NO_DATA_FOUND;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
+    when hdbk.dtype.dead_lock then
+      raise hdbk.dtype.dead_lock;
     when others then
       hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_edit', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=transaction,p_date='

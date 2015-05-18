@@ -34,7 +34,22 @@ DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.ONLINE_SCHEDULE', attribute      
 END;
 /
 
+BEGIN
+      DBMS_SCHEDULER.disable(name=>'"HDBK"."DOC_TASK_LIST_JOB"', force => TRUE);
+END;
+/
+BEGIN
+      DBMS_SCHEDULER.disable(name=>'"HDBK"."BUY_JOB"', force => TRUE);
+END;
 
+
+BEGIN
+      DBMS_SCHEDULER.enable(name=>'"HDBK"."DOC_TASK_LIST_JOB"');
+END;
+/
+BEGIN
+      DBMS_SCHEDULER.enable(name=>'"HDBK"."BUY_JOB"');
+END;
 
 
 /* first edition with check account value only*/
@@ -801,7 +816,7 @@ BEGIN
 --commit;
 
   /* ins doc limit 1000 */
-  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract1,P_AMOUNT => 100000,P_TRANS_TYPE =>7);
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract1,P_AMOUNT => 1000000,P_TRANS_TYPE =>7);
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
  -- commit;
   
@@ -873,12 +888,12 @@ BEGIN
 
   /* ins doc cash in 500 */
 --  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 500000000,P_TRANS_TYPE =>2);
- for i in 1..1 loop
- for k in (select id from blng.contract where amnd_state = 'A' and id > 26 and id <47) loop
- --if k=25 then continue; end if;
+ for i in 1..3 loop
+ for k in (select id from blng.contract where amnd_state in ( 'A','T') and id > 20 and id <146) loop
+if k.id=25 then continue; end if;
 v_contract:=k.id;
     v_bill := ord.ORD_API.bill_add( --v_ORDER => r_item_avia.order_oid,
-                                P_AMOUNT => i*4,
+                                P_AMOUNT => i*5,
                                 P_DATE => sysdate,
                                 P_STATUS => 'W', --[M]anaging
                                 P_CONTRACT => v_contract,
@@ -887,7 +902,7 @@ v_contract:=k.id;
  -- commit;
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_bill);
     v_bill := ord.ORD_API.bill_add( p_ORDER => 1170, --!!! or it will be error
-                                P_AMOUNT => i*2,
+                                P_AMOUNT => i*30,
                                 P_DATE => sysdate,
                                 P_STATUS => 'W', --[M]anaging
                                 P_CONTRACT => v_contract,
@@ -895,18 +910,12 @@ v_contract:=k.id;
   
 --  commit;
 
-  /* increase doc limit 1002 */
-  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 10000000+i,P_TRANS_TYPE =>7,p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
-  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
---  commit;
-  
-  
--- CONTRACT_OID    DEPOSIT       LOAN CREDIT_LIMIT CREDIT_LIMIT_BLOCK DEBIT_ONLINE MAX_LOAN_TRANS_AMOUNT CREDIT_ONLINE DELAY_DAYS  AVAILABLE
--- ------------ ---------- ---------- ------------ ------------------ ------------ --------------------- ------------- ---------- ----------
---          XXX          0          0          999                  0            0                     0             0          0        999 
+--  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 0,P_TRANS_TYPE =>7,p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
 
-  /* set delay days 50 */
-  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => i+100,P_TRANS_TYPE =>11,p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 10000000+i,p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
+
+--  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 0,P_TRANS_TYPE =>11,p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => i+100,p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
 
 end loop;

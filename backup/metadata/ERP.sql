@@ -1,6 +1,7 @@
 /* erp.pdf_printer */
 
-  CREATE TABLE erp.pdf_printer 
+/*  
+CREATE TABLE erp.pdf_printer 
   (	ID NUMBER(18,0), 
     amnd_date date,
     amnd_user VARCHAR2(50),
@@ -42,7 +43,7 @@ ALTER TABLE erp.pdf_printer  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   increment by 1
   start with 1
   nomaxvalue
-  nocache /*!!!*/
+  nocache 
   nocycle
   order;
   
@@ -64,11 +65,12 @@ end;
 ALTER TRIGGER erp.pdfp_TRGR ENABLE;
 
 /  
-  
+ */
+ 
 
 
 /
-CREATE bitmap INDEX erp.pdfp_AS_IDX ON erp.pdf_printer (amnd_state) TABLESPACE "USERS" ;
+--CREATE bitmap INDEX erp.pdfp_AS_IDX ON erp.pdf_printer (amnd_state) TABLESPACE "USERS" ;
 
 
 

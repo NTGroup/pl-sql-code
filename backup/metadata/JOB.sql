@@ -15,7 +15,7 @@ DBMS_SCHEDULER.CREATE_SCHEDULE (
   schedule_name     => 'HDBK.DOC_TASK_LIST_SCHEDULE');    
 END;
 /
-/
+/*
 BEGIN
 DBMS_SCHEDULER.CREATE_SCHEDULE (
   repeat_interval   => 'FREQ=SECONDLY;INTERVAL=2',     
@@ -23,7 +23,7 @@ DBMS_SCHEDULER.CREATE_SCHEDULE (
   comments          => 'Every 5 seconds',
   schedule_name     => 'HDBK.ONLINE_SCHEDULE');        
 END;
-/
+/*/
 
 ALTER SESSION SET TIME_ZONE = '0:0';
 /
@@ -53,14 +53,36 @@ END;
 
 BEGIN
   DBMS_SCHEDULER.CREATE_JOB (
-   job_name           =>  'HDBK.BUY_JOB',
+   job_name           =>  'HDBK.BUY_RUN',
  --  job_owner          =>  'HDBK',
---   schedule_name      =>  'HDBK.BUY_SCHEDULE',
+   schedule_name      =>  'HDBK.BUY_SCHEDULE',
+   job_type           =>  'STORED_PROCEDURE',
+   job_action         =>  'ORD.CORE.BUY_JOB',
+   enabled            =>  TRUE,
+   COMMENTS           =>  'approve buy ticket tasks' );
+END;
+/
+BEGIN
+  DBMS_SCHEDULER.CREATE_JOB (
+   job_name           =>  'HDBK.DOC_TASK_LIST_RUN',
+   schedule_name      =>  'HDBK.DOC_TASK_LIST_SCHEDULE',
+   job_type           =>  'STORED_PROCEDURE',
+   job_action         =>  'ORD.CORE.DOC_TASK_LIST_JOB',
+   enabled            =>  TRUE,
+   COMMENTS           =>  'approve tasks with contract like set parameters or cash in' );
+END;
+/
+
+
+
+/*
+BEGIN
+  DBMS_SCHEDULER.CREATE_JOB (
+   job_name           =>  'HDBK.BUY_JOB',
    job_type           =>  'STORED_PROCEDURE',
    job_action         =>  'ORD.CORE.BUY',
-  repeat_interval   => 'FREQ=SECONDLY;INTERVAL=2',     
+--  repeat_interval   => 'FREQ=SECONDLY;INTERVAL=2',     
   start_date        => SYSTIMESTAMP,
-   --job_style        =>  'LIGHTWEIGHT',
    enabled            =>  TRUE,
    COMMENTS           =>  'approve buy ticket tasks' );
 END;
@@ -71,15 +93,15 @@ BEGIN
 --   schedule_name      =>  'HDBK.DOC_TASK_LIST_SCHEDULE',
    job_type           =>  'STORED_PROCEDURE',
    job_action         =>  'ORD.CORE.DOC_TASK_LIST',
-   repeat_interval   => 'FREQ=SECONDLY;INTERVAL=10',     
+--   repeat_interval   => 'FREQ=SECONDLY;INTERVAL=10',     
   start_date        => SYSTIMESTAMP,
    --job_style        =>  'LIGHTWEIGHT',
    enabled            =>  TRUE,
    COMMENTS           =>  'approve tasks with contract like set parameters or cash in' );
 END;
 /
-
-
+*/
+/*
 BEGIN
   DBMS_SCHEDULER.CREATE_JOB (
    job_name           =>  'HDBK.ONLINE_JOB',
@@ -90,7 +112,7 @@ BEGIN
    enabled            =>  TRUE,
    COMMENTS           =>  'get money from online accounts' );
 END;
-/
+/ */
 
 BEGIN
   DBMS_SCHEDULER.CREATE_JOB (
@@ -163,12 +185,10 @@ END;
 BEGIN
 
 
-    DBMS_SCHEDULER.DROP_JOB(job_name => 'HDBK.DOC_TASK_LIST_JOB',
+    DBMS_SCHEDULER.DROP_JOB(job_name => 'HDBK.BUY_JOB',
                                 defer => false,
                                 force => false);
                                 
-    DBMS_SCHEDULER.DROP_SCHEDULE(schedule_name => 'HDBK.DOC_TASK_LIST_SCHEDULE',
-                                force => false);
 END;
 */
 
