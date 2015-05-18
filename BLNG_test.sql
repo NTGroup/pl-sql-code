@@ -884,11 +884,14 @@ DECLARE
   P_number VARCHAR2(255);
     v_DOC hdbk.dtype.t_id;
     v_bill hdbk.dtype.t_id;
+    v_ord hdbk.dtype.t_id;
+    v_item_avia hdbk.dtype.t_id;
+    v_item_avia_status hdbk.dtype.t_id;
 BEGIN
 
   /* ins doc cash in 500 */
 --  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 500000000,P_TRANS_TYPE =>2);
- for i in 1..3 loop
+ for i in 1..1 loop
  for k in (select id from blng.contract where amnd_state in ( 'A','T') and id > 20 and id <146) loop
 if k.id=25 then continue; end if;
 v_contract:=k.id;
@@ -900,8 +903,13 @@ v_contract:=k.id;
                                 p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'CASH_IN'));
   
  -- commit;
+
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_bill);
-    v_bill := ord.ORD_API.bill_add( p_ORDER => 1170, --!!! or it will be error
+  
+  v_ord:= ORD.ORD_API.ORD_ADD(  sysdate, '2', 113,'A');
+  v_item_avia:= ORD.ORD_API.item_avia_ADD(  v_ord,'sssss',p_pnr_id=>'ssssa');
+  v_item_avia_status:= ORD.ORD_API.item_avia_status_ADD(  v_item_avia);
+    v_bill := ord.ORD_API.bill_add( p_ORDER => v_ord, --!!! or it will be error
                                 P_AMOUNT => i*30,
                                 P_DATE => sysdate,
                                 P_STATUS => 'W', --[M]anaging

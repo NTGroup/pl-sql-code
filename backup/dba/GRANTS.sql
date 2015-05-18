@@ -37,6 +37,8 @@ grant execute on blng.core to hdbk;
 
 grant select on hdbk.airline to po_fwdr;
 
+grant select on ord.bill to hdbk;
+
 
 grant execute on erp.gate to erp_gate;
 grant execute on hdbk.dtype to erp;

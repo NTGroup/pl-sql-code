@@ -185,7 +185,7 @@ END;
 BEGIN
 
 
-    DBMS_SCHEDULER.DROP_JOB(job_name => 'HDBK.DOC_TASK_LIST_RUN',
+    DBMS_SCHEDULER.DROP_JOB(job_name => 'HDBK.DOC_TASK_LIST_JOB',
                                 defer => false,
                                 force => false);
                                 
