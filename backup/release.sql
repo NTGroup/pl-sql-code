@@ -75,13 +75,17 @@ alter user erp_gate account UNLOCK;
 --GRANT RESTRICTED SESSION to erp
 GRANT create SESSION to erp_gate;
 
-update ord.commission_template set amnd_state = 'C' where  id = 29;
+/*
+update ord.commission_template set amnd_state = 'C' where  id = 29;     !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 commit;
+*/
 
 update ord.commission_template set priority = 1 where id = 20;
 update ord.commission_template set priority = 2 where id = 19;
 update ord.commission_template set priority = 3 where id = 18;
 commit;
+
+@metadata/JOB.sql;
 
 
 @dba/GRANTS.sql;
