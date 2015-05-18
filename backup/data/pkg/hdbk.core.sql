@@ -21,6 +21,13 @@ $obj_return: day of pay
     P_CONTRACT   in hdbk.dtype.t_id default null )
   return hdbk.dtype.t_date;
 
+
+procedure buy_run;
+
+
+procedure DOC_TASK_LIST_run;
+
+
 end core;
 
 /
@@ -144,6 +151,63 @@ dbms_output.put_line('12');
     RAISE_APPLICATION_ERROR(-20002,'avia_pay error. '||SQLERRM);
   end;
 
+
+
+
+procedure buy_run
+is
+  job_count number;
+begin
+  
+---  SELECT count(*) FROM DBA_SCHEDULER_JOB_DESTS where job_name in ('DOC_TASK_LIST_JOB','BUY_JOB','DOC_TASK_LIST_RUN','BUY_RUN')
+  SELECT count(*) into job_count FROM ALL_SCHEDULER_JOB_DESTS where job_name in ('BUY_JOB');
+  
+  if job_count = 0 then
+    BEGIN
+      sys.DBMS_SCHEDULER.CREATE_JOB (
+       job_name           =>  'HDBK.BUY_JOB',
+       job_type           =>  'STORED_PROCEDURE',
+       job_action         =>  'ORD.CORE.BUY',
+    --  repeat_interval   => 'FREQ=SECONDLY;INTERVAL=2',     
+      start_date        => SYSTIMESTAMP,
+       enabled            =>  TRUE,
+       COMMENTS           =>  'approve buy ticket tasks' );
+    END;
+  end if;  
+exception when others then 
+    hdbk.log_api.LOG_ADD(p_proc_name=>'buy_run', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=bill,p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'buy_run error. '||SQLERRM);
+end;
+
+
+procedure DOC_TASK_LIST_run
+is
+  job_count number;
+begin
+  
+---  SELECT count(*) FROM DBA_SCHEDULER_JOB_DESTS where job_name in ('DOC_TASK_LIST_JOB','BUY_JOB','DOC_TASK_LIST_RUN','BUY_RUN')
+  SELECT count(*) into job_count FROM ALL_SCHEDULER_JOB_DESTS where job_name in ('DOC_TASK_LIST_JOB');
+  
+  if job_count = 0 then
+    BEGIN
+      sys.DBMS_SCHEDULER.CREATE_JOB (
+       job_name           =>  'HDBK.DOC_TASK_LIST_JOB',
+       job_type           =>  'STORED_PROCEDURE',
+       job_action         =>  'ORD.CORE.DOC_TASK_LIST',
+    --  repeat_interval   => 'FREQ=SECONDLY;INTERVAL=2',     
+      start_date        => SYSTIMESTAMP,
+       enabled            =>  TRUE,
+       COMMENTS           =>  'approve buy ticket tasks' );
+    END;
+  end if;  
+exception when others then 
+    hdbk.log_api.LOG_ADD(p_proc_name=>'buy_run', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=bill,p_date='
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'buy_run error. '||SQLERRM);
+end;
 
 
 end core;

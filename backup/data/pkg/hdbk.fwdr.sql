@@ -151,6 +151,9 @@ $obj_return: SYS_REFCURSOR[code,rate,version,is_active(Y,N)]
   function rate_list( p_version in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 
+
+
+
 END fwdr;
 
 /
@@ -721,7 +724,6 @@ end;
     RAISE_APPLICATION_ERROR(-20002,'select row into rate error. '||SQLERRM);
     return null;    
   end;
-
 
 
 

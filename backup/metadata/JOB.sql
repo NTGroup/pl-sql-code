@@ -57,7 +57,7 @@ BEGIN
  --  job_owner          =>  'HDBK',
    schedule_name      =>  'HDBK.BUY_SCHEDULE',
    job_type           =>  'STORED_PROCEDURE',
-   job_action         =>  'ORD.CORE.BUY_JOB',
+   job_action         =>  'HDBK.CORE.BUY_RUN',
    enabled            =>  TRUE,
    COMMENTS           =>  'approve buy ticket tasks' );
 END;
@@ -67,7 +67,7 @@ BEGIN
    job_name           =>  'HDBK.DOC_TASK_LIST_RUN',
    schedule_name      =>  'HDBK.DOC_TASK_LIST_SCHEDULE',
    job_type           =>  'STORED_PROCEDURE',
-   job_action         =>  'ORD.CORE.DOC_TASK_LIST_JOB',
+   job_action         =>  'HDBK.CORE.DOC_TASK_LIST_RUN',
    enabled            =>  TRUE,
    COMMENTS           =>  'approve tasks with contract like set parameters or cash in' );
 END;
@@ -185,7 +185,7 @@ END;
 BEGIN
 
 
-    DBMS_SCHEDULER.DROP_JOB(job_name => 'HDBK.BUY_JOB',
+    DBMS_SCHEDULER.DROP_JOB(job_name => 'HDBK.DOC_TASK_LIST_RUN',
                                 defer => false,
                                 force => false);
                                 

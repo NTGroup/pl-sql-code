@@ -43,7 +43,7 @@ grant execute on hdbk.dtype to erp;
 grant execute on hdbk.log_api to erp;
 
 GRANT create SESSION to erp_gate;
-
+GRANT CREATE JOB TO HDBK;
 
 ------ system
 /*grant select on hdbk.gds_nationality to ntg;
