@@ -145,7 +145,7 @@ $obj_param: p_email: user email
 $obj_return: contract identifire
 */
   function check_tenant (p_email in hdbk.dtype.t_name default null)
-  return hdbk.dtype.t_id;  
+  return SYS_REFCURSOR;  
 
 /*
 $obj_type: function
@@ -764,17 +764,30 @@ create  or replace package BODY blng.fwdr as
 
 
   function check_tenant (p_email in hdbk.dtype.t_name default null)
-  return hdbk.dtype.t_id
+  return SYS_REFCURSOR
   is
     r_client blng.client%rowtype;
     v_contract hdbk.dtype.t_id;
+    v_results SYS_REFCURSOR;
   begin
     r_client:=blng.blng_api.client_get_info_r(p_email=>lower(p_email));
-    v_contract := blng.core.pay_contract_by_client(r_client.id);
-    return v_contract;
+--    v_contract := blng.core.pay_contract_by_client(r_client.id);
+    open v_results for
+      select blng.core.pay_contract_by_client(r_client.id) tenant_id from dual;
+    return v_results;
+--    return v_contract;
   exception 
-    when others then return null;
+    when NO_DATA_FOUND then
+      open v_results for
+        select 'NO_DATA_FOUND' res from dual;
+      return v_results;
+    when others then
+--      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      open v_results for
+        select 'ERROR' res from dual;
+      return v_results;
   end;
+
 
   function god_unblock
   return SYS_REFCURSOR
