@@ -112,21 +112,26 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   return blng.client2contract%rowtype;
 
   function contract_add( p_company in hdbk.dtype.t_id default null,
-                            p_name in hdbk.dtype.t_name default null,
-                  p_utc_offset in hdbk.dtype.t_id default null)
+                         p_name in hdbk.dtype.t_name default null,
+                         p_utc_offset in hdbk.dtype.t_id default null,
+                         p_contact_name in hdbk.dtype.t_name default null,
+                         p_contact_phone in hdbk.dtype.t_long_code default null
+                  )
   return hdbk.dtype.t_id;
 
-  procedure contract_edit(p_id in hdbk.dtype.t_id default null, 
+  procedure contract_edit(  p_id in hdbk.dtype.t_id default null, 
                             p_number in hdbk.dtype.t_long_code default null,
                             p_name in hdbk.dtype.t_name default null,
-                  p_utc_offset in hdbk.dtype.t_id default null);
+                            p_utc_offset in hdbk.dtype.t_id default null,
+                            p_contact_name in hdbk.dtype.t_name default null,
+                            p_contact_phone in hdbk.dtype.t_long_code default null,
+                            p_status in hdbk.dtype.t_status default null
+                  );
 
-  function contract_get_info(p_id in hdbk.dtype.t_id default null,p_company  in hdbk.dtype.t_id default null,
-                  p_utc_offset in hdbk.dtype.t_id default null)
+  function contract_get_info(p_id in hdbk.dtype.t_id default null,p_company  in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 
-  function contract_get_info_r(p_id in hdbk.dtype.t_id default null,p_company  in hdbk.dtype.t_id default null,
-                  p_utc_offset in hdbk.dtype.t_id default null)
+  function contract_get_info_r(p_id in hdbk.dtype.t_id default null,p_company  in hdbk.dtype.t_id default null)
   return blng.contract%rowtype;
 
 
@@ -874,7 +879,9 @@ end blng_api;
 
   function contract_add(p_company in hdbk.dtype.t_id default null,
                         p_name in hdbk.dtype.t_name default null,
-                        p_utc_offset in hdbk.dtype.t_id default null
+                        p_utc_offset in hdbk.dtype.t_id default null,
+                            p_contact_name in hdbk.dtype.t_name default null,
+                            p_contact_phone in hdbk.dtype.t_long_code default null
                       )
   return hdbk.dtype.t_id
   is
@@ -892,8 +899,10 @@ end blng_api;
     v_contract_row.contract_number := v_number;
     v_contract_row.name := p_name;
     v_contract_row.company_oid := p_company;
-    v_contract_row.utc_offset := 3;
+    v_contract_row.utc_offset := nvl(p_utc_offset,3);
     v_contract_row.status := 'A';
+    v_contract_row.contact_name := p_contact_name;
+    v_contract_row.contact_phone := p_contact_phone;
     insert into blng.contract values v_contract_row returning id into v_id;
     return v_id;
   exception when others then
@@ -906,7 +915,11 @@ end blng_api;
   procedure contract_edit(  p_id in hdbk.dtype.t_id default null, 
                             p_number in hdbk.dtype.t_long_code default null,
                             p_name in hdbk.dtype.t_name default null,
-                            p_utc_offset in hdbk.dtype.t_id default null
+                            p_utc_offset in hdbk.dtype.t_id default null,
+                            p_contact_name in hdbk.dtype.t_name default null,
+                            p_contact_phone in hdbk.dtype.t_long_code default null,
+                            p_status in hdbk.dtype.t_status default null
+                            
                          )
   is
     v_mess hdbk.dtype.t_msg;
@@ -928,6 +941,10 @@ end blng_api;
     v_contract_row_new.amnd_user:=user;
     v_contract_row_new.contract_number := nvl(p_number,v_contract_row_new.contract_number);
     v_contract_row_new.name := nvl(p_name,v_contract_row_new.name);
+    v_contract_row_new.utc_offset := nvl(p_utc_offset,v_contract_row_new.utc_offset);
+    v_contract_row_new.status := nvl(p_status,v_contract_row_new.status);
+    v_contract_row_new.contact_name := nvl(p_contact_name,v_contract_row_new.contact_name);
+    v_contract_row_new.contact_phone := nvl(p_contact_phone,v_contract_row_new.contact_phone);
 
     update blng.contract set row = v_contract_row_new where id = p_id;
   exception 
@@ -943,8 +960,7 @@ end blng_api;
   end;
 
 
-  function contract_get_info(p_id in hdbk.dtype.t_id default null,p_company  in hdbk.dtype.t_id default null,
-                  p_utc_offset in hdbk.dtype.t_id default null)
+  function contract_get_info(p_id in hdbk.dtype.t_id default null,p_company  in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
@@ -963,8 +979,7 @@ end blng_api;
     RAISE_APPLICATION_ERROR(-20002,'select row into contract error. '||SQLERRM);
   end;
 
-  function contract_get_info_r(p_id in hdbk.dtype.t_id default null,p_company  in hdbk.dtype.t_id default null,
-                  p_utc_offset in hdbk.dtype.t_id default null)
+  function contract_get_info_r(p_id in hdbk.dtype.t_id default null,p_company  in hdbk.dtype.t_id default null)
   return blng.contract%rowtype
   is
     r_obj blng.contract%rowtype;

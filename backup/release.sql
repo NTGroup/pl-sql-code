@@ -85,6 +85,12 @@ update ord.commission_template set priority = 2 where id = 19;
 update ord.commission_template set priority = 3 where id = 18;
 commit;
 
+
+alter table blng.contract add contact_name varchar2(255);
+alter table blng.contract add contact_phone varchar2(50);
+
+
+
 @metadata/JOB.sql;
 
 

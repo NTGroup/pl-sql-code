@@ -403,6 +403,9 @@ end core;
       BLNG_API.delay_edit(p_id => r_v_delay.delay_id, p_status => 'C');
     end if;
 
+    -- unblock
+    blng.core.unblock(p_doc.contract_oid);
+
   exception
     when NO_DATA_FOUND then
       hdbk.log_api.LOG_ADD(p_proc_name=>'pay_bill', p_msg_type=>'NO_DATA_FOUND', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20000)),p_info => 'p_doc=' || p_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
@@ -916,7 +919,8 @@ null;
 -- how much client must pay for it.
 -- this function close all unblock delays and block contracts with expired loan delays. 
 -- 1 part. close all unblock events(delay) and close expired
--- 2 part. check all expired loan delays without unblock and block contracts
+-- 2 part. check all expired loan delays without unblock. if it exist then block contracts 
+-- (update status to [B]locked and update account clb with -credit_limit)
 
 
 
@@ -962,6 +966,7 @@ null;
         r_account := blng.blng_api.account_get_info_r(p_contract => r_delay.contract_oid, p_code => 'clb');
         r_contract_info := blng.fwdr.v_account_get_info_r(p_contract => r_delay.contract_oid);
         if r_account.amount = 0 then
+          blng_api.contract_edit(p_id=>log_contract,p_status=>'B');
           v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_AMOUNT => -r_contract_info.credit_limit,
             P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'clb'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
         end if;
@@ -1004,6 +1009,7 @@ null;
     if v_next_delay_date > sysdate or v_next_delay_date is null then
       r_account := blng.blng_api.account_get_info_r(p_contract => p_contract, p_code => 'clb');
       if r_account.amount <> 0 then
+        blng_api.contract_edit(p_id=>p_contract,p_status=>'A');      
         v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_AMOUNT => -r_account.amount,
           P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'clu'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
       end if;
@@ -1028,10 +1034,13 @@ null;
 -- executed by operators. can unblock contract for time, by adding unblock event/delay
     r_account := blng.blng_api.account_get_info_r(p_contract => p_contract, p_code => 'clb');
     --if r_account.amount <> 0 then
+      blng_api.contract_edit(p_id=>p_contract,p_status=>'A');
+    
       v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_AMOUNT => -r_account.amount,
         P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'clu'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
       BLNG_API.delay_add(P_CONTRACT => p_contract, P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'clu'),P_PRIORITY => 20,
         p_transaction=>v_transaction,p_date_to => trunc(sysdate)+p_days);
+        
     --end if;
     commit;
   exception 
