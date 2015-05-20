@@ -85,10 +85,21 @@ NOCOPY
   TEMPFILE REUSE;
 alter pluggable database my_test1 open read write; 
 
+
 SELECT name, open_mode
 FROM   v$pdbs
 ORDER BY name;
 
+
+select sid||','||serial# ,username, prev_exec_start, event, state  from v$session where schemaname <> 'SYS'
+--and username = 'NTG'
+
+
+select *  from v$session where schemaname <> 'SYS'
+--and username = 'NTG'
+
+     ALTER SYSTEM DISCONNECT SESSION '19,30006' IMMEDIATE;      
+     
 
 CREATE TABLESPACE TMPDICT DATAFILE '/home/oracle/app/oracle/oradata/orcl/ORCL/032A6356A8B256D7E055000000000002/datafile/TMPDICT01.dbf' SIZE 250M EXTENT MANAGEMENT LOCAL AUTOALLOCATE;
 
@@ -113,3 +124,37 @@ grant execute on hdbk.fwdr to po_fwdr
 
 
 alter user hdbk account lock;
+
+
+
+ /* create new user shcheme inside pdb */
+create user erp identified by ***;
+/     
+/* inside pdb */ 
+alter user erp
+DEFAULT TABLESPACE users
+TEMPORARY TABLESPACE temp
+QUOTA UNLIMITED ON users
+ACCOUNT LOCK ;
+
+
+alter user erp account lock;
+
+create user erp_gate identified by ***;
+/     
+/* inside pdb */ 
+alter user erp_gate
+DEFAULT TABLESPACE users
+TEMPORARY TABLESPACE temp
+QUOTA UNLIMITED ON users
+ACCOUNT UNLOCK ;
+
+
+/*grant execute on hdbk.dtype to ntg_usr1
+grant execute on hdbk.dtype to po_fwdr
+grant execute on hdbk.fwdr to po_fwdr
+*/
+
+alter user erp_gate account UNLOCK;
+
+

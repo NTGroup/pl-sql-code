@@ -867,6 +867,7 @@ ALTER TRIGGER hdbk.dict_TRGR ENABLE;
 /  
   
 
+
 /
 CREATE bitmap INDEX hdbk.log_AS_IDX ON hdbk.log (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX hdbk.geo_AS_IDX ON hdbk.geo (amnd_state) TABLESPACE "USERS" ;

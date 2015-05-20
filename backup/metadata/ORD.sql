@@ -88,7 +88,9 @@ ALTER TRIGGER ord.ord_TRGR ENABLE;
    amount NUMBER(20,2),
    bill_date date,
    status VARCHAR2(1),
-   contract_oid NUMBER(18,0) 
+   contract_oid NUMBER(18,0), 
+   bill_oid NUMBER(18,0), 
+   trans_type_oid NUMBER(18,0)
    ) SEGMENT CREATION IMMEDIATE
   TABLESPACE "USERS" ;
 --------------------------------------------------------

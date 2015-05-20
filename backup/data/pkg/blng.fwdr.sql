@@ -145,31 +145,67 @@ $obj_param: p_email: user email
 $obj_return: contract identifire
 */
   function check_tenant (p_email in hdbk.dtype.t_name default null)
-  return hdbk.dtype.t_id;  
+  return SYS_REFCURSOR;  
 
 /*
-$obj_type: procedure
+$obj_type: function
 $obj_name: god_unblock
 $obj_desc: unblock user god@ntg-one.com. this user must be usually at blocked status [C]losed
+$obj_return: res[SUCCESS/ERROR/NO_DATA_FOUND]
 */
-  procedure god_unblock;  
+  function god_unblock  
+  return SYS_REFCURSOR;
 
 /*
-$obj_type: procedure
+$obj_type: function
 $obj_name: god_block
 $obj_desc: block user god@ntg-one.com. this user must be usually at blocked status [C]losed
+$obj_return: res[SUCCESS/ERROR/NO_DATA_FOUND]
 */
-  procedure god_block;  
+  function god_block  
+  return SYS_REFCURSOR;
 
 /*
-$obj_type: procedure
+$obj_type: function
 $obj_name: god_move
 $obj_desc: move user god@ntg-one.com to contract with id equals p_tenant. 
 $obj_desc: mission of god@ntg-one.com is to login under one of a contract and check errors.
 $obj_desc: god can help others to understand some problems 
 $obj_param: p_tenant: id of contract
+$obj_return: res[SUCCESS/ERROR/NO_DATA_FOUND]
 */
-  procedure god_move(p_tenant in hdbk.dtype.t_id default null);  
+  function god_move(p_tenant in hdbk.dtype.t_id default null)
+  return SYS_REFCURSOR;
+
+
+/*
+$obj_type: function
+$obj_name: client_list
+$obj_desc: return list of clients(company_list). 
+$obj_return: SYS_REFCURSOR[client_id,name]
+*/
+
+  function client_list
+  return SYS_REFCURSOR;
+
+/*
+$obj_type: function
+$obj_name: client_add
+$obj_desc: create client(company now) and return list of clients(company_list). 
+$obj_return: SYS_REFCURSOR[client_id,name]
+*/
+
+  function client_add(p_name in hdbk.dtype.t_name default null)
+  return SYS_REFCURSOR;
+
+
+  function contract_list(p_client in hdbk.dtype.t_id default null)
+  return SYS_REFCURSOR;
+
+
+  function contract_add(p_client in hdbk.dtype.t_id default null, p_data in hdbk.dtype.t_clob default null)
+  return SYS_REFCURSOR;
+
 
 end;
 /
@@ -738,6 +774,7 @@ create  or replace package BODY blng.fwdr as
         company.id company_id,
         contract.id contract_id,
         company.name company_name,
+        contract.name contract_name,
         contract.contract_number contract_number
         from blng.contract, blng.company
         where contract.amnd_state = 'A'
@@ -757,20 +794,35 @@ create  or replace package BODY blng.fwdr as
 
 
   function check_tenant (p_email in hdbk.dtype.t_name default null)
-  return hdbk.dtype.t_id
+  return SYS_REFCURSOR
   is
     r_client blng.client%rowtype;
     v_contract hdbk.dtype.t_id;
+    v_results SYS_REFCURSOR;
   begin
     r_client:=blng.blng_api.client_get_info_r(p_email=>lower(p_email));
-    v_contract := blng.core.pay_contract_by_client(r_client.id);
-    return v_contract;
+--    v_contract := blng.core.pay_contract_by_client(r_client.id);
+    open v_results for
+      select blng.core.pay_contract_by_client(r_client.id) tenant_id from dual;
+    return v_results;
+--    return v_contract;
   exception 
-    when others then return null;
+    when NO_DATA_FOUND then
+      open v_results for
+        select 'NO_DATA_FOUND' res from dual;
+      return v_results;
+    when others then
+--      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      open v_results for
+        select 'ERROR' res from dual;
+      return v_results;
   end;
 
-  procedure god_unblock
+
+  function god_unblock
+  return SYS_REFCURSOR
   is
+    v_results SYS_REFCURSOR;
     r_client blng.client%rowtype;
     v_god_email hdbk.dtype.t_name:='god@ntg-one.com';
   begin
@@ -778,49 +830,75 @@ create  or replace package BODY blng.fwdr as
     --dbms_output.put_line('r_client='||r_client.id);    
     blng.blng_api.client_edit(p_id=>r_client.id, p_status=>'A');
     commit;    
+      open v_results for
+        select 'SUCCESS' res from dual;
+      return v_results;
   exception 
     when NO_DATA_FOUND then
-      rollback;
+      ROLLBACK;
       hdbk.log_api.LOG_ADD(p_proc_name=>'god_unblock', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => ''
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+--      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      open v_results for
+        select 'NO_DATA_FOUND' res from dual;
+      return v_results;
     when others then
-      rollback;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'god_unblock', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'update row into client error. '||SQLERRM);
+      ROLLBACK;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'god_unblock', p_msg_type=>'UNHANDLED_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => '' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+--      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      open v_results for
+        select 'ERROR' res from dual;
+      return v_results;
   end;
 
-  procedure god_block
+  function god_block
+  return SYS_REFCURSOR
   is
+    v_results SYS_REFCURSOR;
     r_client blng.client%rowtype;
     v_god_email hdbk.dtype.t_name:='god@ntg-one.com';
   begin
     r_client:=blng.blng_api.client_get_info_r(p_email=>v_god_email);
     blng.blng_api.client_edit(p_id=>r_client.id, p_status=>'C');
     commit;    
+    
+
+      open v_results for
+        select 'SUCCESS' res from dual;
+      return v_results;
   exception 
     when NO_DATA_FOUND then
-      rollback;
+      ROLLBACK;
       hdbk.log_api.LOG_ADD(p_proc_name=>'god_block', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => ''
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+--      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      open v_results for
+        select 'NO_DATA_FOUND' res from dual;
+      return v_results;
     when others then
-      rollback;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'god_block', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'update row into client error. '||SQLERRM);
+      ROLLBACK;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'god_block', p_msg_type=>'UNHANDLED_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => '' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+--      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      open v_results for
+        select 'ERROR' res from dual;
+      return v_results;
   end;
 
 
-  procedure god_move(p_tenant in hdbk.dtype.t_id default null)
+  function god_move(p_tenant in hdbk.dtype.t_id default null)
+  return SYS_REFCURSOR
   is
     r_client blng.client%rowtype;
     r_client2contract blng.client2contract%rowtype;
     r_contract_to blng.contract%rowtype;
     v_god_email hdbk.dtype.t_name:='god@ntg-one.com';
+    v_results SYS_REFCURSOR;
   begin
     r_client:=blng.blng_api.client_get_info_r(p_email=>v_god_email);
     r_client2contract:=blng.blng_api.client2contract_get_info_r(p_client=>r_client.id, p_permission=>'B');
@@ -829,19 +907,195 @@ create  or replace package BODY blng.fwdr as
     blng.blng_api.client_edit(p_id=>r_client.id, p_company=>r_contract_to.company_oid);
     blng.blng_api.client2contract_edit(p_id=>r_client2contract.id, p_contract=>r_contract_to.id);
     commit;
+      open v_results for
+        select 'SUCCESS' res from dual;
+      return v_results;
   exception 
     when NO_DATA_FOUND then
-      rollback;
+      ROLLBACK;
       hdbk.log_api.LOG_ADD(p_proc_name=>'god_move', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => ''
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+--      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      open v_results for
+        select 'NO_DATA_FOUND' res from dual;
+      return v_results;
     when others then
-      rollback;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'god_move', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'update row into client error. '||SQLERRM);
+      ROLLBACK;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'god_move', p_msg_type=>'UNHANDLED_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => '' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+--      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      open v_results for
+        select 'ERROR' res from dual;
+      return v_results;
   end;
+
+  function client_list
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    v_contract hdbk.dtype.t_id;
+  begin
+      OPEN v_results FOR
+  
+        select 
+        company.id client_id,
+        company.name name
+        from blng.company
+        where company.amnd_state = 'A'
+        order by id
+        ;
+        
+    return v_results;
+  exception when others then 
+    hdbk.log_api.LOG_ADD(p_proc_name=>'client_list', p_msg_type=>'UNHANDLED_ERROR', 
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      open v_results for
+        select 'ERROR' res from dual;
+      return v_results;
+  end;
+
+
+  function client_add(p_name in hdbk.dtype.t_name default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    v_client hdbk.dtype.t_id;
+  begin
+    v_client:=blng_api.company_add(p_name=>p_name);
+    commit;    
+      OPEN v_results FOR
+  
+        select 
+        v_client client_id,
+        p_name name
+        from dual
+        ;
+        
+    return v_results;
+  exception when others then 
+    hdbk.log_api.LOG_ADD(p_proc_name=>'client_add', p_msg_type=>'UNHANDLED_ERROR', 
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      open v_results for
+        select 'ERROR' res from dual;
+      return v_results;
+  end;
+
+
+  function contract_list(p_client in hdbk.dtype.t_id default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    v_contract hdbk.dtype.t_id;
+  begin
+      OPEN v_results FOR
+  
+        select 
+        contract.id contract_id,
+        contract.id tenant_id,
+        decode(contract.status,'B','Y','N') is_blocked,
+        contract.name contract_name,
+        v_account.credit_limit,
+        v_account.delay_days,
+        v_account.max_loan_trans_amount max_credit,
+        contract.utc_offset,
+        contract.contact_name,
+        contract.contact_phone
+        from blng.contract, blng.v_account
+        where contract.amnd_state = 'A'
+        and contract.id = v_account.contract_oid
+        and contract.company_oid = nvl(p_client,contract.company_oid)
+        order by id
+        ;
+        
+    return v_results;
+  exception when others then 
+    hdbk.log_api.LOG_ADD(p_proc_name=>'contract_list', p_msg_type=>'UNHANDLED_ERROR', 
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      open v_results for
+        select 'ERROR' res from dual;
+      return v_results;
+  end;
+
+
+  function contract_add(p_client in hdbk.dtype.t_id default null, p_data in hdbk.dtype.t_clob default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    v_contract hdbk.dtype.t_id;
+    v_doc hdbk.dtype.t_id;
+  begin
+  
+    for i in (
+      select 
+      *
+      from 
+      json_table(p_data, '$'
+        COLUMNS 
+          (
+--           client_id number PATH '$.client_id',
+           contract_name VARCHAR2(256 CHAR) PATH '$.contract_name',
+           credit_limit number PATH '$.credit_limit',
+           delay_days number PATH '$.delay_days',
+           max_credit number PATH '$.max_credit',
+           utc_offset number PATH '$.utc_offset',
+           contact_name VARCHAR2(256 CHAR) PATH '$.contact_name',
+           contact_phone VARCHAR2(256 CHAR) PATH '$.contact_phone'
+          )
+        ) 
+    )
+    loop
+      v_contract := blng.BLNG_API.contract_add( P_company => p_client, 
+                                                p_name=>i.contract_name, 
+                                                p_utc_offset=>i.utc_offset,
+                                                p_contact_name=>i.contact_name,
+                                                p_contact_phone=>i.contact_phone
+                                                );
+      BLNG.BLNG_API.account_init(v_contract);
+    
+      v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => i.credit_limit,
+        p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
+      v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => i.delay_days,
+        p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
+      v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => i.max_credit,
+        p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'UP_LIM_TRANS'));
+      commit;
+    end loop;
+
+    OPEN v_results FOR
+      select 
+      contract.id contract_id,
+      contract.id tenant_id,
+      decode(contract.status,'B','Y','N') is_blocked,
+      contract.name contract_name,
+      v_account.credit_limit,
+      v_account.delay_days,
+      v_account.max_loan_trans_amount max_credit,
+      contract.utc_offset,
+      contract.contact_name,
+      contract.contact_phone
+      from blng.contract, blng.v_account
+      where contract.amnd_state = 'A'
+      and contract.id = v_account.contract_oid
+      and contract.id = v_contract
+      order by id
+      ;    
+    return v_results;
+  exception when others then 
+    hdbk.log_api.LOG_ADD(p_proc_name=>'contract_add', p_msg_type=>'UNHANDLED_ERROR', 
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      open v_results for
+        select 'ERROR' res from dual;
+      return v_results;
+  end;
+
+
+
 
 end;
 /

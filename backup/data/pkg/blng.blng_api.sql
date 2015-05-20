@@ -3,7 +3,7 @@
 
   
 /*
-$pkg: BLNG.BLNG_API
+$pkg: BLNG.BLNG_API 
 */
   
 /*
@@ -112,18 +112,26 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   return blng.client2contract%rowtype;
 
   function contract_add( p_company in hdbk.dtype.t_id default null,
-                  p_utc_offset in hdbk.dtype.t_id default null)
+                         p_name in hdbk.dtype.t_name default null,
+                         p_utc_offset in hdbk.dtype.t_id default null,
+                         p_contact_name in hdbk.dtype.t_name default null,
+                         p_contact_phone in hdbk.dtype.t_long_code default null
+                  )
   return hdbk.dtype.t_id;
 
-  procedure contract_edit(p_id in hdbk.dtype.t_id default null, p_number in hdbk.dtype.t_long_code default null,
-                  p_utc_offset in hdbk.dtype.t_id default null);
+  procedure contract_edit(  p_id in hdbk.dtype.t_id default null, 
+                            p_number in hdbk.dtype.t_long_code default null,
+                            p_name in hdbk.dtype.t_name default null,
+                            p_utc_offset in hdbk.dtype.t_id default null,
+                            p_contact_name in hdbk.dtype.t_name default null,
+                            p_contact_phone in hdbk.dtype.t_long_code default null,
+                            p_status in hdbk.dtype.t_status default null
+                  );
 
-  function contract_get_info(p_id in hdbk.dtype.t_id default null,p_company  in hdbk.dtype.t_id default null,
-                  p_utc_offset in hdbk.dtype.t_id default null)
+  function contract_get_info(p_id in hdbk.dtype.t_id default null,p_company  in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 
-  function contract_get_info_r(p_id in hdbk.dtype.t_id default null,p_company  in hdbk.dtype.t_id default null,
-                  p_utc_offset in hdbk.dtype.t_id default null)
+  function contract_get_info_r(p_id in hdbk.dtype.t_id default null,p_company  in hdbk.dtype.t_id default null)
   return blng.contract%rowtype;
 
 
@@ -162,17 +170,20 @@ $obj_param: p_contract: contract id
   function document_add ( p_contract in hdbk.dtype.t_id default null,
                           p_amount in hdbk.dtype.t_amount default null,
                           p_trans_type in hdbk.dtype.t_id default null,
-                          p_bill in hdbk.dtype.t_id default null
+                          p_bill in hdbk.dtype.t_id default null,
+                          p_account_trans_type in hdbk.dtype.t_id default null
                         )
   return hdbk.dtype.t_id;
 
-  procedure document_edit(p_id in hdbk.dtype.t_id, p_status in hdbk.dtype.t_status default null);
+  procedure document_edit(p_id in hdbk.dtype.t_id, p_status in hdbk.dtype.t_status default null,
+                          p_account_trans_type in hdbk.dtype.t_id default null);
 
   function document_get_info( p_id in hdbk.dtype.t_id default null,
                               p_contract in hdbk.dtype.t_id  default null,
                               p_trans_type in hdbk.dtype.t_id  default null,
                               p_status in hdbk.dtype.t_status  default null,
-                              p_bill in hdbk.dtype.t_id default null
+                              p_bill in hdbk.dtype.t_id default null,
+                              p_account_trans_type in hdbk.dtype.t_id default null
                             )
   return SYS_REFCURSOR;
 
@@ -180,7 +191,8 @@ $obj_param: p_contract: contract id
                               p_contract in hdbk.dtype.t_id  default null,
                               p_trans_type in hdbk.dtype.t_id  default null,
                               p_status in hdbk.dtype.t_status  default null,
-                              p_bill in hdbk.dtype.t_id default null
+                              p_bill in hdbk.dtype.t_id default null,
+                              p_account_trans_type in hdbk.dtype.t_id default null
                             )
   return blng.document%rowtype;
 
@@ -213,6 +225,14 @@ $obj_param: p_contract: contract id
                               p_status in hdbk.dtype.t_status default null
                             )
   return SYS_REFCURSOR;
+
+  function transaction_get_info_r( p_id in hdbk.dtype.t_id default null,
+                              p_document in hdbk.dtype.t_id default null,
+                              p_trans_type in hdbk.dtype.t_id default null,
+                              p_target_account in hdbk.dtype.t_id default null,
+                              p_status in hdbk.dtype.t_status default null
+                            )
+  return transaction%rowtype;
 
   function event_add( p_contract in hdbk.dtype.t_id default null,
                       p_amount in hdbk.dtype.t_amount default null,
@@ -858,7 +878,11 @@ end blng_api;
 
 
   function contract_add(p_company in hdbk.dtype.t_id default null,
-                  p_utc_offset in hdbk.dtype.t_id default null)
+                        p_name in hdbk.dtype.t_name default null,
+                        p_utc_offset in hdbk.dtype.t_id default null,
+                            p_contact_name in hdbk.dtype.t_name default null,
+                            p_contact_phone in hdbk.dtype.t_long_code default null
+                      )
   return hdbk.dtype.t_id
   is
     v_contract_row blng.contract%rowtype;
@@ -873,9 +897,12 @@ end blng_api;
           ) 
           and amnd_state = 'A';
     v_contract_row.contract_number := v_number;
+    v_contract_row.name := p_name;
     v_contract_row.company_oid := p_company;
-    v_contract_row.utc_offset := 3;
+    v_contract_row.utc_offset := nvl(p_utc_offset,3);
     v_contract_row.status := 'A';
+    v_contract_row.contact_name := p_contact_name;
+    v_contract_row.contact_phone := p_contact_phone;
     insert into blng.contract values v_contract_row returning id into v_id;
     return v_id;
   exception when others then
@@ -885,8 +912,15 @@ end blng_api;
     RAISE_APPLICATION_ERROR(-20002,'insert row into contract error. '||SQLERRM);
   end;
 
-  procedure contract_edit(p_id in hdbk.dtype.t_id default null, p_number in hdbk.dtype.t_long_code default null,
-                  p_utc_offset in hdbk.dtype.t_id default null)
+  procedure contract_edit(  p_id in hdbk.dtype.t_id default null, 
+                            p_number in hdbk.dtype.t_long_code default null,
+                            p_name in hdbk.dtype.t_name default null,
+                            p_utc_offset in hdbk.dtype.t_id default null,
+                            p_contact_name in hdbk.dtype.t_name default null,
+                            p_contact_phone in hdbk.dtype.t_long_code default null,
+                            p_status in hdbk.dtype.t_status default null
+                            
+                         )
   is
     v_mess hdbk.dtype.t_msg;
     v_contract_row_new blng.contract%rowtype;
@@ -905,7 +939,12 @@ end blng_api;
 
     v_contract_row_new.amnd_date:=sysdate;
     v_contract_row_new.amnd_user:=user;
-    v_contract_row_new.contract_number := p_number;
+    v_contract_row_new.contract_number := nvl(p_number,v_contract_row_new.contract_number);
+    v_contract_row_new.name := nvl(p_name,v_contract_row_new.name);
+    v_contract_row_new.utc_offset := nvl(p_utc_offset,v_contract_row_new.utc_offset);
+    v_contract_row_new.status := nvl(p_status,v_contract_row_new.status);
+    v_contract_row_new.contact_name := nvl(p_contact_name,v_contract_row_new.contact_name);
+    v_contract_row_new.contact_phone := nvl(p_contact_phone,v_contract_row_new.contact_phone);
 
     update blng.contract set row = v_contract_row_new where id = p_id;
   exception 
@@ -921,8 +960,7 @@ end blng_api;
   end;
 
 
-  function contract_get_info(p_id in hdbk.dtype.t_id default null,p_company  in hdbk.dtype.t_id default null,
-                  p_utc_offset in hdbk.dtype.t_id default null)
+  function contract_get_info(p_id in hdbk.dtype.t_id default null,p_company  in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
@@ -941,8 +979,7 @@ end blng_api;
     RAISE_APPLICATION_ERROR(-20002,'select row into contract error. '||SQLERRM);
   end;
 
-  function contract_get_info_r(p_id in hdbk.dtype.t_id default null,p_company  in hdbk.dtype.t_id default null,
-                  p_utc_offset in hdbk.dtype.t_id default null)
+  function contract_get_info_r(p_id in hdbk.dtype.t_id default null,p_company  in hdbk.dtype.t_id default null)
   return blng.contract%rowtype
   is
     r_obj blng.contract%rowtype;
@@ -1028,6 +1065,8 @@ end blng_api;
       raise NO_DATA_FOUND;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
+    when hdbk.dtype.dead_lock then
+      raise hdbk.dtype.dead_lock;
     when others then
       hdbk.log_api.LOG_ADD(p_proc_name=>'account_edit', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=account,p_date='
@@ -1099,7 +1138,8 @@ end blng_api;
   function document_add ( p_contract in hdbk.dtype.t_id default null,
                           p_amount in hdbk.dtype.t_amount default null,
                           p_trans_type in hdbk.dtype.t_id default null,
-                          p_bill in hdbk.dtype.t_id default null
+                          p_bill in hdbk.dtype.t_id default null,
+                          p_account_trans_type in hdbk.dtype.t_id default null
                         )
   return hdbk.dtype.t_id
   is
@@ -1111,16 +1151,21 @@ end blng_api;
     v_document_row.trans_type_oid := p_trans_type;
     v_document_row.doc_date := sysdate;
     v_document_row.bill_oid := p_bill;
+    v_document_row.account_trans_type_oid := p_account_trans_type;
     insert into blng.document values v_document_row returning id into v_id;
     return v_id;
-  exception when others then
+  exception 
+    when hdbk.dtype.dead_lock then
+      raise hdbk.dtype.dead_lock;
+  when others then
     hdbk.log_api.LOG_ADD(p_proc_name=>'document_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=document,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'insert row into document error. '||SQLERRM);
   end;
 
-  procedure document_edit(p_id in hdbk.dtype.t_id, p_status in hdbk.dtype.t_status default null)
+  procedure document_edit(p_id in hdbk.dtype.t_id, p_status in hdbk.dtype.t_status default null,
+                          p_account_trans_type in hdbk.dtype.t_id default null)
   is
     v_mess hdbk.dtype.t_msg;
     v_document_row_new blng.document%rowtype;
@@ -1137,7 +1182,8 @@ end blng_api;
 
     v_document_row_new.amnd_date:=sysdate;
     v_document_row_new.amnd_user:=user;
-    v_document_row_new.status := p_status;
+    v_document_row_new.status := nvl(p_status,v_document_row_new.status);
+    v_document_row_new.account_trans_type_oid := nvl(p_account_trans_type,v_document_row_new.account_trans_type_oid);
 
     update blng.document set row = v_document_row_new where id = v_document_row_new.id;
   exception 
@@ -1145,6 +1191,8 @@ end blng_api;
       raise NO_DATA_FOUND;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
+    when hdbk.dtype.dead_lock then
+      raise hdbk.dtype.dead_lock;
     when others then
       hdbk.log_api.LOG_ADD(p_proc_name=>'document_edit', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=document,p_date='
@@ -1156,7 +1204,8 @@ end blng_api;
                               p_contract in hdbk.dtype.t_id  default null,
                               p_trans_type in hdbk.dtype.t_id  default null,
                               p_status in hdbk.dtype.t_status  default null,
-                              p_bill in hdbk.dtype.t_id default null
+                              p_bill in hdbk.dtype.t_id default null,
+                              p_account_trans_type in hdbk.dtype.t_id default null
                             )
   return SYS_REFCURSOR
   is
@@ -1186,6 +1235,7 @@ $TODO: all this nullable fields are bad. document_get_info
         where id = nvl(p_id,id)
         and contract_oid = nvl(p_contract,contract_oid)
         and trans_type_oid = nvl(p_trans_type,trans_type_oid)
+        and account_trans_type_oid = nvl(p_account_trans_type,account_trans_type_oid)
         and status = nvl(p_status,status)
         and amnd_state = 'A'
         order by contract_oid, id asc;    
@@ -1203,7 +1253,8 @@ $TODO: all this nullable fields are bad. document_get_info
                               p_contract in hdbk.dtype.t_id  default null,
                               p_trans_type in hdbk.dtype.t_id  default null,
                               p_status in hdbk.dtype.t_status  default null,
-                          p_bill in hdbk.dtype.t_id default null
+                          p_bill in hdbk.dtype.t_id default null,
+                              p_account_trans_type in hdbk.dtype.t_id default null
                             )
   return blng.document%rowtype
   is
@@ -1223,6 +1274,7 @@ $TODO: all this nullable fields are bad. document_get_info
         * into r_obj
         from blng.document
         where id = nvl(p_id,id)
+--        and account_trans_type_oid = nvl(p_account_trans_type,account_trans_type_oid)
         and amnd_state = 'A'
         order by contract_oid, id asc;    
     end if;
@@ -1271,6 +1323,8 @@ $TODO: all this nullable fields are bad. document_get_info
 
     return v_id;
   exception
+    when hdbk.dtype.dead_lock then
+      raise hdbk.dtype.dead_lock;
     when hdbk.dtype.exit_alert then
       hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_add', p_msg_type=>'hdbk.dtype.exit_alert',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=transaction,p_date='
@@ -1314,6 +1368,8 @@ $TODO: all this nullable fields are bad. document_get_info
 
     return v_transaction;
   exception
+    when hdbk.dtype.dead_lock then
+      raise hdbk.dtype.dead_lock;
     when hdbk.dtype.exit_alert then
       hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_add_with_acc', p_msg_type=>'hdbk.dtype.exit_alert',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
@@ -1357,6 +1413,8 @@ $TODO: all this nullable fields are bad. document_get_info
       raise NO_DATA_FOUND;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
+    when hdbk.dtype.dead_lock then
+      raise hdbk.dtype.dead_lock;
     when others then
       hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_edit', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=transaction,p_date='
@@ -1389,6 +1447,40 @@ $TODO: all this nullable fields are bad. document_get_info
   exception 
     when others then
       hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_get_info', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=transaction,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into transaction error. '||SQLERRM);
+  end;
+
+  function transaction_get_info_r( p_id in hdbk.dtype.t_id default null,
+                              p_document in hdbk.dtype.t_id default null,
+                              p_trans_type in hdbk.dtype.t_id default null,
+                              p_target_account in hdbk.dtype.t_id default null,
+                              p_status in hdbk.dtype.t_status default null
+                            )
+  return transaction%rowtype
+  is
+    r_obj transaction%rowtype;
+  begin
+   -- OPEN v_results FOR
+      SELECT 
+      * into r_obj
+      from transaction
+      where id = nvl(p_id,id)
+      and doc_oid = nvl(p_document,doc_oid)
+      and trans_type_oid = nvl(p_trans_type,trans_type_oid)
+      and target_account_oid = nvl(p_target_account,target_account_oid)
+      and status = nvl(p_status,status)
+      and amnd_state = 'A'
+      order by id;
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;    
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=transaction,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into transaction error. '||SQLERRM);

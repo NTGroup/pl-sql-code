@@ -186,7 +186,10 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                     p_amount in hdbk.dtype.t_amount default null,
                     p_date in  hdbk.dtype.t_date default null,
                     p_status in  hdbk.dtype.t_status default null,
-                    p_contract in  hdbk.dtype.t_id default null
+                    p_contract in  hdbk.dtype.t_id default null,
+                    p_bill in  hdbk.dtype.t_id default null,
+                    p_trans_type in  hdbk.dtype.t_id default null
+                    
                     
                   )
   return hdbk.dtype.t_id;
@@ -196,14 +199,18 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                         p_amount in hdbk.dtype.t_amount default null,
                         p_date in  hdbk.dtype.t_date default null,
                         p_status in  hdbk.dtype.t_status default null,
-                        p_contract in  hdbk.dtype.t_id default null
+                        p_contract in  hdbk.dtype.t_id default null,
+                    p_bill in  hdbk.dtype.t_id default null,
+                    p_trans_type in  hdbk.dtype.t_id default null
+
                       );
 
   function bill_get_info( p_id in hdbk.dtype.t_id default null, 
                           p_order in hdbk.dtype.t_id default null,
                           p_date in  hdbk.dtype.t_date default null,
                           p_status in  hdbk.dtype.t_status default null,
-                          p_contract in  hdbk.dtype.t_id default null
+                          p_contract in  hdbk.dtype.t_id default null,
+                          p_trans_type in hdbk.dtype.t_id default null
                           )
   return SYS_REFCURSOR;
 
@@ -211,7 +218,8 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
                           p_order in hdbk.dtype.t_id default null,
                           p_date in  hdbk.dtype.t_date default null,
                           p_status in  hdbk.dtype.t_status default null,
-                          p_contract in  hdbk.dtype.t_id default null
+                          p_contract in  hdbk.dtype.t_id default null,
+                          p_trans_type in hdbk.dtype.t_id default null
                           )
   return bill%rowtype;
 
@@ -1067,7 +1075,10 @@ END ORD_API;
                     p_amount in hdbk.dtype.t_amount default null,
                     p_date in  hdbk.dtype.t_date default null,
                     p_status in  hdbk.dtype.t_status default null,
-                    p_contract in  hdbk.dtype.t_id default null
+                    p_contract in  hdbk.dtype.t_id default null,
+                    p_bill in  hdbk.dtype.t_id default null,
+                    p_trans_type in  hdbk.dtype.t_id default null
+
                     
                   )
   return hdbk.dtype.t_id
@@ -1080,6 +1091,8 @@ END ORD_API;
     v_obj_row.bill_date:=  nvl(p_date,sysdate);
     v_obj_row.status:=  nvl(p_status,'A');
     v_obj_row.contract_oid:=  p_contract;
+    v_obj_row.bill_oid :=  p_bill;
+    v_obj_row.trans_type_oid :=  p_trans_type;
 
     insert into ord.bill values v_obj_row returning id into v_id;
     return v_id;
@@ -1101,7 +1114,10 @@ END ORD_API;
                         p_amount in hdbk.dtype.t_amount default null,
                         p_date in  hdbk.dtype.t_date default null,
                         p_status in  hdbk.dtype.t_status default null,
-                        p_contract in  hdbk.dtype.t_id default null
+                        p_contract in  hdbk.dtype.t_id default null,
+                    p_bill in  hdbk.dtype.t_id default null,
+                    p_trans_type in  hdbk.dtype.t_id default null
+
                       )
   is
     v_obj_row_new bill%rowtype;
@@ -1129,6 +1145,8 @@ END ORD_API;
       raise NO_DATA_FOUND;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
+    when hdbk.dtype.dead_lock then
+      raise hdbk.dtype.dead_lock;
     when others then
       hdbk.log_api.LOG_ADD(p_proc_name=>'bill_edit', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=bill,p_date='
@@ -1141,7 +1159,8 @@ END ORD_API;
                           p_order in hdbk.dtype.t_id default null,
                           p_date in  hdbk.dtype.t_date default null,
                           p_status in  hdbk.dtype.t_status default null,
-                          p_contract in  hdbk.dtype.t_id default null
+                          p_contract in  hdbk.dtype.t_id default null,
+                          p_trans_type in hdbk.dtype.t_id default null
                           )
   return SYS_REFCURSOR
   is
@@ -1152,9 +1171,10 @@ END ORD_API;
       *
       from ord.bill 
       where id = nvl(p_id,id)
-      and order_oid = nvl(p_order,order_oid)
+--      and order_oid = nvl(p_order,order_oid)
       and status = nvl(p_status,status)
       and contract_oid = nvl(p_contract,contract_oid)
+      and trans_type_oid = nvl(p_trans_type,trans_type_oid)
       and amnd_state = 'A'
       order by id;
     return v_results;
@@ -1170,7 +1190,8 @@ END ORD_API;
                           p_order in hdbk.dtype.t_id default null,
                           p_date in  hdbk.dtype.t_date default null,
                           p_status in  hdbk.dtype.t_status default null,
-                          p_contract in  hdbk.dtype.t_id default null
+                          p_contract in  hdbk.dtype.t_id default null,
+                          p_trans_type in hdbk.dtype.t_id default null
                           )
   return bill%rowtype
   is
@@ -1182,6 +1203,7 @@ END ORD_API;
     from ord.bill 
     where id = nvl(p_id,id)
     and status = nvl(p_status,status)
+    and trans_type_oid = nvl(p_trans_type,trans_type_oid)
     and amnd_state != 'I'
     order by id;
     return r_obj;

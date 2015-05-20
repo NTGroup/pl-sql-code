@@ -151,6 +151,9 @@ $obj_return: SYS_REFCURSOR[code,rate,version,is_active(Y,N)]
   function rate_list( p_version in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 
+
+
+
 END fwdr;
 
 /
@@ -697,8 +700,8 @@ end;
     v_out hdbk.dtype.t_msg;
   begin
     v_out := p_text;
-    select translate(v_out,'QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>~qwertyuiop[]asdfghjkl;''zxcvbnm,.`','ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮЁйцукенгшщзхъфывапролджэячсмитьбюё') into v_out from dual;
-    select translate(v_out,'ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮЁйцукенгшщзхъфывапролджэячсмитьбюё','QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>~qwertyuiop[]asdfghjkl;''zxcvbnm,.`') into v_out from dual;
+    select translate(v_out,'QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>~qwertyuiop[]asdfghjkl;''zxcvbnm,.`ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮЁйцукенгшщзхъфывапролджэячсмитьбюё','ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮЁйцукенгшщзхъфывапролджэячсмитьбюёQWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>~qwertyuiop[]asdfghjkl;''zxcvbnm,.`') into v_out from dual;
+--    select translate(v_out,'ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮЁйцукенгшщзхъфывапролджэячсмитьбюё','QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>~qwertyuiop[]asdfghjkl;''zxcvbnm,.`') into v_out from dual;
     return v_out;
   end;
 
@@ -721,6 +724,7 @@ end;
     RAISE_APPLICATION_ERROR(-20002,'select row into rate error. '||SQLERRM);
     return null;    
   end;
+
 
 
 END fwdr;

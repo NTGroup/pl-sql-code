@@ -215,33 +215,41 @@ order by 2;
 
  create or replace view ord.v_rule as      
   select 
-        al.id airline_oid,
+        al.id airline_id,
         al.IATA,
         al.nls_name nls_airline,
-        cmn.contract_type contract_type_oid,
-        (select name from 
+        nvl(cmn.contract_type,0) contract_type_id,
+        nvl(cmn.contract_oid,0) tenant_id,
+        nvl((select name from 
         ORD.commission_template 
-        where id = cmn.contract_type) contract_type,
-        cmn.id rule_oid,
+        where id = cmn.contract_type),'DEFAULT') contract_type_name,
+        cmn.id rule_id,
         --max(ct.priority) over (partition by cmn.id) priority,
         cmn.details rule_description,
         nvl(cmn.percent,cmn.fix) rule_amount,
+        cmn.min_absolut rule_min_absolute,
         case 
         when cmn.percent is not null then 'PERCENT'
-        when cmn.fix is not null then 'RUB'
+        when cmn.fix is not null then 'FIX'
         else ''
         end rule_amount_measure,
         cmn.priority,
         to_char(cmn.date_from + hdbk.fwdr.utc_offset_mow / 24 ,'yyyy-mm-dd') rule_life_from,
         to_char(cmn.date_to + hdbk.fwdr.utc_offset_mow / 24 ,'yyyy-mm-dd') rule_life_to,
-        dtl.condition_oid,
-        dtl.template_type_oid,
+        dtl.condition_oid condition_id,
+        dtl.template_type_oid template_type_id,
         nvl(dtl.template_type,'default') template_type,
         dtl.template_type_code,
         dtl.template_value,
         dtl.is_value,
-        cmn.percent,
-        cmn.fix
+--        cmn.percent,
+--        cmn.fix,
+        (select code from hdbk.currency where id = cmn.currency) currency,
+        nvl(cmn.per_segment,'N') per_segment,
+        nvl(cmn.per_fare,'N') per_fare,
+        (select name from hdbk.markup_type where id = cmn.rule_type) rule_type,
+        (select name from hdbk.markup_type where id = cmn.markup_type) markup_type
+        
         from 
         ord.commission cmn ,
         hdbk.airline al,
@@ -304,7 +312,7 @@ create or replace view blng.v_total as
 /
 
         create or replace view blng.v_statement as
-             select
+        select
         doc_id,
         transaction_id,
         contract_id,
@@ -325,9 +333,6 @@ sum(amount) over (partition by contract_id order by trans_date RANGE UNBOUNDED P
          last_name,
         first_name,
         email              
-             
-             
-             
              from 
         (select
         document.id doc_id,
@@ -343,13 +348,7 @@ sum(amount) over (partition by contract_id order by trans_date RANGE UNBOUNDED P
 --        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid < trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_before,
         trans.amount,
 --        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid <= trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_after,
-        case 
-          when delay.id is not null and doc_trans.code = 'b' then 'LOAN'
-          when doc_trans.code = 'b' then 'BUY'
-          when doc_trans.code = 'ci' then 'CASH_IN'
-          when doc_trans.code = 'cl' then 'CREDIT_LIMIT'
-          else 'UNDEFINED'
-        end transaction_type,
+        (select code from hdbk.dictionary where id = document.account_trans_type_oid) transaction_type,
         pnr_id,
         pnr_locator order_number,
         INITCAP(client.last_name) last_name,
@@ -359,22 +358,14 @@ sum(amount) over (partition by contract_id order by trans_date RANGE UNBOUNDED P
         blng.client,
         ord.bill,
         blng.contract,
-  --      blng.client2contract,
         ord.item_avia,
         blng.document,
         blng.transaction trans,
         blng.trans_type doc_trans,
         blng.trans_type trans_trans,
-        (select * from blng.delay where amnd_state in ('A','C') and event_type_oid = 6) delay,
         ord.ord
-        where 
-   /*    client2contract.client_oid = client.id
-        and client2contract.amnd_state = 'A'
-        and*/ /*client.amnd_state = 'A'
-        and*/ contract.amnd_state = 'A'
+        where  contract.amnd_state = 'A'
         and document.amnd_state = 'A'
-    --    and client2contract.contract_oid = contract.id
-   --     and client2contract.permission = 'B'
         and document.status = 'P'
         and document.contract_oid = contract.id
         and doc_trans.amnd_state = 'A'
@@ -385,18 +376,16 @@ sum(amount) over (partition by contract_id order by trans_date RANGE UNBOUNDED P
         and trans_trans.amnd_state = 'A'
         and trans_trans.id = trans.trans_type_oid
         and trans_trans.code in ('b','ci','cl')
-        and delay.transaction_oid(+) = trans.id
         and document.bill_oid = bill.id
         and bill.contract_oid = contract.id
         and item_avia.order_oid = bill.order_oid
-        and item_avia.nqt_status in ('ISSUED'/*,'INMANUAL'*/)
+        and item_avia.nqt_status in ('ISSUED')
         and item_avia.amnd_state = 'A'
         and bill.amnd_state = 'A'
         and ord.client_oid = client.id
         and ord.amnd_state = 'A'
         and ord.id = bill.order_oid
-    --  order by trans.trans_date
-
+       --         and contract.id = 22
 
 union all
 
@@ -414,36 +403,22 @@ union all
 --        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid < trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_before,
         trans.amount,
 --        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid <= trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_after,
-        case 
-          when delay.id is not null and doc_trans.code = 'b' then 'LOAN'
-          when doc_trans.code = 'b' then 'BUY'
-          when doc_trans.code = 'ci' then 'CASH_IN'
-          when doc_trans.code = 'cl' then 'CREDIT_LIMIT'
-          else 'UNDEFINED'
-        end transaction_type,
+        (select code from hdbk.dictionary where id = document.account_trans_type_oid) transaction_type,
         null pnr_id,
         null order_number,
         null last_name,
         null first_name,
         null email 
         from 
-      --  blng.client,
-        --ord.bill,
         blng.contract,
-     --   blng.client2contract,
-        --ord.item_avia,
         blng.document,
         blng.transaction trans,
         blng.trans_type doc_trans,
-        blng.trans_type trans_trans,
-        blng.delay
+        blng.trans_type trans_trans
         
         where 
         contract.amnd_state = 'A'
         and document.amnd_state = 'A'
-      --  and client2contract.contract_oid = contract.id
-      --  and client2contract.permission = 'B'
-      --  and nvl((select nqt_status FROM ord.item_avia where amnd_state = 'A' and order_oid = (select order_oid from ord.bill where amnd_state = 'A' and id = document.bill_oid and document.bill_oid is not null)),'ISSUED') in ('ISSUED','INMANUAL')
         and document.status = 'P'
         and document.contract_oid = contract.id
         and doc_trans.amnd_state = 'A'
@@ -454,10 +429,8 @@ union all
         and trans_trans.amnd_state = 'A'
         and trans_trans.id = trans.trans_type_oid
         and trans_trans.code in ('b','ci','cl')
-        and (delay.amnd_state(+) = 'A' or delay.amnd_state(+) = 'C')
-        and delay.transaction_oid(+) = trans.id
-        and delay.event_type_oid(+) = 6 -- buy
         and document.bill_oid is null
+    --    and contract.id = 22
         )
       --  where contract_id = 21
         order by contract_id, trans_date;
@@ -477,3 +450,29 @@ DISABLE QUERY REWRITE AS
 SELECT * from blng.v_statement;
 */
 /
+
+
+
+create or replace view blng.v_delay as
+select
+delay_buy.contract_oid contract_id,
+document.bill_oid bill_id,
+document.id doc_id,
+delay_buy.id delay_id,
+delay_buy.amount,
+nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = delay_buy.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount_have,
+delay_buy.amount - nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = delay_buy.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount_need,
+delay_buy.date_to
+from blng.delay delay_buy, blng.document, blng.transaction
+where delay_buy.amnd_state = 'A'
+and parent_id is null
+--      and contract_oid = p_contract
+and delay_buy.EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'b')
+and transaction.id = delay_buy.transaction_oid
+and transaction.amnd_state = 'A'
+and document.amnd_state = 'A'
+and document.id = transaction.doc_oid
+order by delay_buy.contract_oid asc, date_to asc, delay_buy.id asc;
+/
+
+                    

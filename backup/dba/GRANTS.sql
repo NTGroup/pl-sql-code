@@ -18,6 +18,7 @@ grant execute on hdbk.hdbk_api to blng;
 grant select on hdbk.airline TO ord;
 grant select on hdbk.geo TO ord;
 grant select on hdbk.markup_type TO ord;
+grant select on hdbk.currency TO ord;
 
 grant execute on blng.blng_api to hdbk;
 grant select on blng.client TO hdbk;
@@ -26,8 +27,25 @@ grant select on ord.commission TO hdbk;
 grant execute on blng.blng_api to hdbk;
 
 grant select on hdbk.V_GEO_SUGGEST to po_fwdr;
+grant execute on hdbk.core to blng;
+
+grant select on hdbk.dictionary TO blng;
+grant select on hdbk.dictionary TO ord;
+
+grant execute on ord.core to hdbk;
+grant execute on blng.core to hdbk;
+
+grant select on hdbk.airline to po_fwdr;
+
+grant select on ord.bill to hdbk;
 
 
+grant execute on erp.gate to erp_gate;
+grant execute on hdbk.dtype to erp;
+grant execute on hdbk.log_api to erp;
+
+GRANT create SESSION to erp_gate;
+GRANT CREATE JOB TO HDBK;
 
 ------ system
 /*grant select on hdbk.gds_nationality to ntg;

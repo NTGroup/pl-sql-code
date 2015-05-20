@@ -4,10 +4,52 @@ END;
 
 /
     BEGIN
-DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'document_schedule', attribute         =>  'repeat_interval', value => 'FREQ=DAILY;INTERVAL=2') ;
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.DOC_TASK_LIST_SCHEDULE', attribute         =>  'repeat_interval', value => 'FREQ=DAILY;INTERVAL=10') ;
+END;
+/
+    BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.DOC_TASK_LIST_SCHEDULE', attribute         =>  'repeat_interval', value => 'FREQ=SECONDLY;INTERVAL=10') ;
+END;
+/
+    BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.DOC_TASK_LIST_SCHEDULE', attribute         =>  'repeat_interval', value => 'FREQ=SECONDLY;INTERVAL=30') ;
+END;
+/
+    BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.BUY_SCHEDULE', attribute         =>  'repeat_interval', value => 'FREQ=DAILY;INTERVAL=10') ;
 END;
 /
 
+    BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.BUY_SCHEDULE', attribute         =>  'repeat_interval', value => 'FREQ=SECONDLY;INTERVAL=2') ;
+END;
+/
+    BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.BUY_SCHEDULE', attribute         =>  'repeat_interval', value => 'FREQ=SECONDLY;INTERVAL=10') ;
+END;
+/
+
+    BEGIN
+DBMS_SCHEDULER.SET_ATTRIBUTE ( name   => 'HDBK.ONLINE_SCHEDULE', attribute         =>  'repeat_interval', value => 'FREQ=DAILY;INTERVAL=10') ;
+END;
+/
+
+BEGIN
+      DBMS_SCHEDULER.disable(name=>'"HDBK"."DOC_TASK_LIST_JOB"', force => TRUE);
+END;
+/
+BEGIN
+      DBMS_SCHEDULER.disable(name=>'"HDBK"."BUY_JOB"', force => TRUE);
+END;
+
+
+BEGIN
+      DBMS_SCHEDULER.enable(name=>'"HDBK"."DOC_TASK_LIST_JOB"');
+END;
+/
+BEGIN
+      DBMS_SCHEDULER.enable(name=>'"HDBK"."BUY_JOB"');
+END;
 
 
 /* first edition with check account value only*/
@@ -141,7 +183,7 @@ DECLARE
 BEGIN
 
   /* ins doc limit 1000 */
-  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 1000,P_TRANS_TYPE =>7);
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 1000,P_TRANS_TYPE =>7,p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
   commit;
   
@@ -152,7 +194,7 @@ BEGIN
 
 
   /* increase doc limit 1002 */
-  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 1002,P_TRANS_TYPE =>7);
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 1002,P_TRANS_TYPE =>7,p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
   commit;
   
@@ -162,7 +204,7 @@ BEGIN
 --          XXX          0          0         1002                  0            0                     0             0          0       1002 
 
   /* increase doc limit 1002 */
-  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 999,P_TRANS_TYPE =>7);
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 999,P_TRANS_TYPE =>7,p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
   commit;
   
@@ -172,11 +214,11 @@ BEGIN
 --          XXX          0          0          999                  0            0                     0             0          0        999 
 
   /* set delay days 50 */
-  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 50,P_TRANS_TYPE =>11);
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 50,P_TRANS_TYPE =>11,p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
   commit;
   /* set max loan trans amount 200 */
-  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 200,P_TRANS_TYPE =>8);
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 200,P_TRANS_TYPE =>8,p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
   commit;
   
@@ -194,6 +236,7 @@ select  /* text */ * FROM blng.document order by id desc;
 --check transactions
 select  /* text */ * FROM blng.transaction order by id desc;
 --check log
+
 select  /* text */ * FROM hdbk.log order by id desc;
 
 -- approve document manually if it needed
@@ -201,20 +244,30 @@ begin
 BLNG.core.approve_documents;
 end;
 
+
+/
 --test first cash_in
 DECLARE
   starting_time  TIMESTAMP WITH TIME ZONE;
   ending_time    TIMESTAMP WITH TIME ZONE;
-  v_contract  hdbk.dtype.t_id:=24;
+  v_contract  hdbk.dtype.t_id:=23;
   P_number VARCHAR2(255);
-  v_DOC hdbk.dtype.t_id;
+  v_bill hdbk.dtype.t_id;
+  v_amount hdbk.dtype.t_amount:=21550;
   r_contract_info blng.v_account%rowtype;
-
+ v_trans_type hdbk.dtype.t_code:= 'CASH_IN';
 BEGIN
 
   /* ins doc cash in 500 */
-  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 500000000,P_TRANS_TYPE =>2);
-  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+--  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 500000000,P_TRANS_TYPE =>2);
+    v_bill := ord.ORD_API.bill_add( --v_ORDER => r_item_avia.order_oid,
+                                P_AMOUNT => V_AMOUNT,
+                                P_DATE => sysdate,
+                                P_STATUS => 'W', --[M]anaging
+                                P_CONTRACT => v_contract,
+                                p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>v_trans_type));
+  
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_bill);
   commit;
   
   
@@ -224,6 +277,8 @@ BEGIN
 
 
 end;
+
+/
 
   SELECT /* text */ * FROM blng.v_account order by contract_oid desc;
 --check docs
@@ -351,14 +406,17 @@ end;
 
   SELECT /* text */ * FROM blng.v_account order by contract_oid desc;
 --check docs
-select  /* text */ * FROM blng.document order by id desc;
+select  /* text */ * FROM blng.document  where status = 'W' and amnd_state = 'A' order by id desc;
 --check transactions
-select  /* text */ * FROM blng.transaction order by id desc;
+select  /* text */ * FROM blng.transaction   where status = 'W' and amnd_state = 'A'  order by doc_oid desc;
 --check delay
 select  /* text */ * FROM blng.delay where id >=55 order by id desc;
+
 --check log
 select  /* text */ * FROM hdbk.log order by id desc;
 
+
+select count(*) from ord.bill where amnd_state = 'A' and status = 'W'
 
 --test insufficient funds exception and delay expire
 DECLARE
@@ -738,11 +796,12 @@ DECLARE
     v_DOC hdbk.dtype.t_id;
 BEGIN
 
-
+ for i in 1..1 loop
+ 
   SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
 
   /*company*/
-  v_company := blng.BLNG_API.company_add(P_name => P_company);
+  v_company := blng.BLNG_API.company_add(P_name => P_company||i);
  -- v_company := 5;
   DBMS_OUTPUT.PUT_LINE('v_company = ' || v_company);
 
@@ -754,28 +813,32 @@ BEGIN
 
   SELECT SYSTIMESTAMP INTO ending_time FROM DUAL;
   DBMS_OUTPUT.PUT_LINE('Time = ' || TO_CHAR(ending_time - starting_time));
-commit;
+--commit;
 
   /* ins doc limit 1000 */
-  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract1,P_AMOUNT => 100000,P_TRANS_TYPE =>7);
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract1,P_AMOUNT => 1000000,P_TRANS_TYPE =>7);
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
-  commit;
+ -- commit;
   
   /* set delay days 50 */
   v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract1,P_AMOUNT => 3,P_TRANS_TYPE =>11);
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
-  commit;
+  --commit;
   /* set max loan trans amount 200 */
   v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract1,P_AMOUNT => 0,P_TRANS_TYPE =>8);
   DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
-  commit;
+  --commit;
+*/
 
 
+INSERT INTO "BLNG"."DOMAIN" (NAME, CONTRACT_OID, STATUS, IS_DOMAIN) VALUES ('fff'||i||'@asd.com', v_contract1, 'A', '0');
+--commit;
 
-INSERT INTO "BLNG"."DOMAIN" (NAME, CONTRACT_OID, STATUS, IS_DOMAIN) VALUES ('ddd', v_contract1, 'A', '0');
+end loop;
 commit;
-
 end;
+
+
 
 /
 select * from blng.client2contract;
@@ -793,4 +856,81 @@ select  /* text */ * FROM hdbk.log order by id desc;
 
 INSERT INTO "NTG"."MARKUP" (CONTRACT_OID, GDS, POS, VALIDATING_CARRIER, CLASS_OF_SERVICE, HUMAN, ABSOLUT, ABSOLUT_AMOUNT, MARKUP_TYPE_OID) VALUES ('27', 'Sabre', 'CJ8H', '1597', 'default', 'Y', 'Y', '400', '1');
 commit;
+
+
+
+--- stress test
+
+
+/
+
+/* first edition with check account value only*/
+DECLARE
+  starting_time  TIMESTAMP WITH TIME ZONE;
+  ending_time    TIMESTAMP WITH TIME ZONE;
+  P_company VARCHAR2(255):='ООО "ИМЭЙДЖИН ГРУПП"';
+  v_company hdbk.dtype.t_id;
+
+--  P_NAME VARCHAR2(255):='pasha';
+  v_client1  hdbk.dtype.t_id;
+  v_client2  hdbk.dtype.t_id;
+  v_client3  hdbk.dtype.t_id;
+  v_client4  hdbk.dtype.t_id;
+  v_client5  hdbk.dtype.t_id;
+  v_client6  hdbk.dtype.t_id;
+  v_contract1  hdbk.dtype.t_id;
+  v_contract  hdbk.dtype.t_id;
+  v_contract5  hdbk.dtype.t_id;
+  P_number VARCHAR2(255);
+    v_DOC hdbk.dtype.t_id;
+    v_bill hdbk.dtype.t_id;
+    v_ord hdbk.dtype.t_id;
+    v_item_avia hdbk.dtype.t_id;
+    v_item_avia_status hdbk.dtype.t_id;
+BEGIN
+
+  /* ins doc cash in 500 */
+--  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 500000000,P_TRANS_TYPE =>2);
+ for i in 1..1 loop
+ for k in (select id from blng.contract where amnd_state in ( 'A','T') and id > 20 and id <146) loop
+if k.id=25 then continue; end if;
+v_contract:=k.id;
+    v_bill := ord.ORD_API.bill_add( --v_ORDER => r_item_avia.order_oid,
+                                P_AMOUNT => i*5,
+                                P_DATE => sysdate,
+                                P_STATUS => 'W', --[M]anaging
+                                P_CONTRACT => v_contract,
+                                p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'CASH_IN'));
+  
+ -- commit;
+
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_bill);
+  
+  v_ord:= ORD.ORD_API.ORD_ADD(  sysdate, '2', 113,'A');
+  v_item_avia:= ORD.ORD_API.item_avia_ADD(  v_ord,'sssss',p_pnr_id=>'ssssa');
+  v_item_avia_status:= ORD.ORD_API.item_avia_status_ADD(  v_item_avia);
+    v_bill := ord.ORD_API.bill_add( p_ORDER => v_ord, --!!! or it will be error
+                                P_AMOUNT => i*30,
+                                P_DATE => sysdate,
+                                P_STATUS => 'W', --[M]anaging
+                                P_CONTRACT => v_contract,
+                               p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY'));
+  
+--  commit;
+
+--  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 0,P_TRANS_TYPE =>7,p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
+
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 10000000+i,p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
+
+--  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => 0,P_TRANS_TYPE =>11,p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
+  v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => i+100,p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
+  DBMS_OUTPUT.PUT_LINE('v_DOC = ' || v_DOC);
+
+end loop;
+end loop;
+
+  commit;
+
+end;
+
 
