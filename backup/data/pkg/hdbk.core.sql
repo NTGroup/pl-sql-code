@@ -197,12 +197,12 @@ begin
                       and trans_type_oid = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
                       order by id desc;
   
-  if job_count = 0 --and BILL_count =0 
+  if job_count = 0 and BILL_count =0 
   then
     BEGIN
-         hdbk.log_api.LOG_ADD(p_proc_name=>'DOC_TASK_LIST_RUN', p_msg_type=>'OK',
+/*         hdbk.log_api.LOG_ADD(p_proc_name=>'DOC_TASK_LIST_RUN', p_msg_type=>'OK',
       P_MSG => 'RUN',p_info => 'p_process=update,p_table=bill,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);*/
       sys.DBMS_SCHEDULER.CREATE_JOB (
        job_name           =>  'HDBK.DOC_TASK_LIST_JOB',
        job_type           =>  'STORED_PROCEDURE',

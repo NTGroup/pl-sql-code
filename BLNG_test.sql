@@ -933,4 +933,27 @@ end loop;
 
 end;
 
+/
+
+/* first edition with check account value only*/
+DECLARE
+
+
+  v_contract  hdbk.dtype.t_id:=22;
+    v_bill hdbk.dtype.t_id;
+BEGIN
+
+
+    v_bill := ord.ORD_API.bill_add( --v_ORDER => r_item_avia.order_oid,
+                                P_AMOUNT => 6819.07,
+                                P_DATE => sysdate,
+                                P_STATUS => 'W', --[M]anaging
+                                P_CONTRACT => v_contract,
+                                p_bill=> 431420,
+                                p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'PAY_BILL'));
+  
+
+  commit;
+
+end;
 
