@@ -431,6 +431,42 @@ union all
         and trans_trans.code in ('b','ci','cl')
         and document.bill_oid is null
     --    and contract.id = 22
+    union all
+
+     select
+        document.id doc_id,
+        document.id transaction_id,
+        contract.id contract_id,
+        contract.utc_offset,
+        'ci' doc_trans_code,
+        1 one,
+        document.doc_date trans_date,
+        to_char(document.doc_date + contract.utc_offset/24,'yyyy-mm-dd') transaction_date,
+        to_char(document.doc_date + contract.utc_offset/24,'HH24:mi:ss') transaction_time,
+--        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid < trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_before,
+        document.amount,
+--        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid <= trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_after,
+        dictionary.code transaction_type,
+        null pnr_id,
+        null order_number,
+        null last_name,
+        null first_name,
+        null email 
+        from 
+        blng.contract,
+        blng.document,
+        hdbk.dictionary
+        
+        where 
+        contract.amnd_state = 'A'
+        and document.amnd_state = 'A'
+        and document.status = 'P'
+        and document.contract_oid = contract.id
+    --    and document.bill_oid is null
+        and dictionary.id = document.account_trans_type_oid
+        and dictionary.dictionary_type = 'ACCOUNT_TYPE'
+       and dictionary.code in ('PAY_BILL') 
+    --    and contract.id = 22  
         )
       --  where contract_id = 21
         order by contract_id, trans_date;

@@ -498,7 +498,9 @@ begin
    status VARCHAR2(1),
    company_oid NUMBER(18,0),
    utc_offset number,
-   name  VARCHAR2(255)
+   name  VARCHAR2(255),
+   contact_name varchar2(255),
+   contact_phone varchar2(50)
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING

@@ -157,4 +157,9 @@ grant execute on hdbk.fwdr to po_fwdr
 
 alter user erp_gate account UNLOCK;
 
+/* change password  */
+
+alter user erp_gate 
+ identified by
+"NEW_PASS" replace "OLD_PASS";
 

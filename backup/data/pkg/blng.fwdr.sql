@@ -180,9 +180,10 @@ $obj_return: res[SUCCESS/ERROR/NO_DATA_FOUND]
 
 /*
 $obj_type: function
-$obj_name: client_list
-$obj_desc: return list of clients(company_list). 
-$obj_return: SYS_REFCURSOR[client_id,name]
+$obj_name: client_list()
+$obj_desc: return list of clients(company now). 
+$obj_return: on success SYS_REFCURSOR[client_id,name].
+$obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 */
 
   function client_list
@@ -191,18 +192,36 @@ $obj_return: SYS_REFCURSOR[client_id,name]
 /*
 $obj_type: function
 $obj_name: client_add
-$obj_desc: create client(company now) and return list of clients(company_list). 
-$obj_return: SYS_REFCURSOR[client_id,name]
+$obj_desc: create client(company now) and return info about this new client(company now). 
+$obj_param: p_name: name of client
+$obj_return: on success SYS_REFCURSOR[res,client_id,name]
+$obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 */
-
   function client_add(p_name in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR;
 
-
+/*
+$obj_type: function
+$obj_name: contract_list
+$obj_desc: return list of contracts by client id (company now)
+$obj_param: p_client: id of client
+$obj_return: on success SYS_REFCURSOR[CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, 
+$obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE]
+$obj_return: on error SYS_REFCURSOR[res]. res=ERROR
+*/
   function contract_list(p_client in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 
-
+/*
+$obj_type: function
+$obj_name: contract_list
+$obj_desc: return list of contracts by client id (company now) and return info about this new contract. 
+$obj_param: p_client: id of client
+$obj_param: p_data: json[CONTRACT_NAME, CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE]
+$obj_return: on success SYS_REFCURSOR[res, CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, 
+$obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE
+$obj_return: on error SYS_REFCURSOR[res]. res=ERROR
+*/
   function contract_add(p_client in hdbk.dtype.t_id default null, p_data in hdbk.dtype.t_clob default null)
   return SYS_REFCURSOR;
 
@@ -946,15 +965,16 @@ create  or replace package BODY blng.fwdr as
         where company.amnd_state = 'A'
         order by id
         ;
-        
+
     return v_results;
+
   exception when others then 
     hdbk.log_api.LOG_ADD(p_proc_name=>'client_list', p_msg_type=>'UNHANDLED_ERROR', 
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
-      open v_results for
-        select 'ERROR' res from dual;
-      return v_results;
+      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);    
+    open v_results for
+      select 'ERROR' res from dual;
+    return v_results;
   end;
 
 
