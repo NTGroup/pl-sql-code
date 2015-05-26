@@ -16,7 +16,7 @@
 @data/pkg/ord.fwdr.sql;
 @data/pkg/erp.erp_api.sql;
 @data/pkg/erp.gate.sql;
-@metadata/get_ddl.sql;
+--@metadata/get_ddl.sql;
 
 
 

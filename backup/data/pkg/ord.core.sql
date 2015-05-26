@@ -103,12 +103,12 @@ END CORE;
 --         hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '6',P_ALERT_LEVEL=>10);          
           r_item_avia_status := ord_api.item_avia_status_get_info_r(p_item_avia => r_item_avia.id);
           hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'try set status SUCCESS',
-            P_MSG => 'try set status SUCCESS',p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
+            P_MSG => 'try set status SUCCESS',p_info => ',item_avia='|| r_item_avia.id||'p_date='
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
           ord_api.item_avia_status_edit (  p_item_avia => r_item_avia.id, p_po_status => 'SUCCESS',
                                   p_nqt_status_cur => r_item_avia.nqt_status) ;  
           hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'finish',
-            P_MSG => 'finish',p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
+            P_MSG => 'finish',p_info => ',item_avia='|| r_item_avia.id||'p_date='
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
           commit;             
       exception

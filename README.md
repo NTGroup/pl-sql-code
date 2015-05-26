@@ -15,6 +15,10 @@ create all accounts under the contract
 
 
 
+## TODOs: ##  
+1. all this nullable fields are bad. document\_get\_info  
+
+
 ## blng.core ##
 
 
@@ -299,11 +303,22 @@ on success SYS\_REFCURSOR[CONTRACT\_ID, TENANT\_ID, IS\_BLOCKED, CONTRACT\_NAME,
 
 
 
-- *function* **blng.fwdr.contract\_list**  
+- *function* **blng.fwdr.contract\_add**  
 *description:*  
-return list of contracts by client id (company now) and return info about this new contract.  
+add contract for client and return info about this new contract.  
 *parameters:*  
 **p\_client**: id of client  
+**p\_data**: json[CONTRACT\_NAME, CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, CONTACT\_PHONE]  
+*return:*  
+on success SYS\_REFCURSOR[res, CONTRACT\_ID, TENANT\_ID, IS\_BLOCKED, CONTRACT\_NAME,CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, CONTACT\_PHONEon error SYS\_REFCURSOR[res]. res=ERROR  
+
+
+
+- *function* **blng.fwdr.contract\_update**  
+*description:*  
+update contract info for client and return info about this new contract.  
+*parameters:*  
+**p\_contract**: id of contract  
 **p\_data**: json[CONTRACT\_NAME, CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, CONTACT\_PHONE]  
 *return:*  
 on success SYS\_REFCURSOR[res, CONTRACT\_ID, TENANT\_ID, IS\_BLOCKED, CONTRACT\_NAME,CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, CONTACT\_PHONEon error SYS\_REFCURSOR[res]. res=ERROR  
@@ -740,6 +755,263 @@ procedure perform document tasks like pay for bills, set cledit limit and others
 
 
 
+## ord.fwdr ##
+
+
+
+- *function* **ord.fwdr.order\_create**  
+*description:*  
+fake function. used in avia\_register for creating emty order  
+*parameters:*  
+**p\_date**: date for wich we need create order  
+**p\_order\_number**: number could set or generate inside  
+**p\_status**: status like 'W' waiting or smth else  
+*return:*  
+id of created order  
+
+
+
+- *function* **ord.fwdr.item\_add**  
+*description:*  
+fake function.  
+*return:*  
+id of created item  
+
+
+
+- *procedure* **ord.fwdr.avia\_update**  
+*description:*  
+procedure update item\_avia row searched by pnr\_id.  
+*parameters:*  
+**p\_pnr\_id**: id from NQT. search perform by this id  
+**p\_pnr\_locator**: record locator just for info  
+**p\_time\_limit**: time limit just for info  
+**p\_total\_amount**: total amount including markup  
+**p\_total\_markup**: just total markup  
+**p\_pnr\_object**: json for backup  
+**p\_nqt\_status**: current NQT process  
+**p\_tenant\_id**: id of contract in text format, for authorization  
+
+
+
+- *procedure* **ord.fwdr.avia\_reg\_ticket**  
+*description:*  
+procedure get ticket info by pnr\_id. its create row for ticket. later this info will send to managers  
+*parameters:*  
+**p\_pnr\_id**: id from NQT. search perform by this id  
+**p\_tenant\_id**: id of contract in text format, for authorization  
+**p\_ticket**: json[p\_number,p\_name,p\_fare\_amount,p\_tax\_amount,p\_markup\_amount,p\_type]  
+
+
+
+- *procedure* **ord.fwdr.avia\_pay**  
+*description:*  
+procedure send all bills in status [M]arked to [W]aiting in billing for pay.  
+*parameters:*  
+**p\_user\_id**: user identifire. at this moment email  
+**p\_pnr\_id**: id from NQT. search perform by this id  
+
+
+
+- *function* **ord.fwdr.order\_get**  
+*description:*  
+fake  
+
+
+
+- *function* **ord.fwdr.item\_list**  
+*description:*  
+fake  
+
+
+
+- *function* **ord.fwdr.item\_list**  
+*description:*  
+fake  
+
+
+
+- *function* **ord.fwdr.pnr\_list**  
+*description:*  
+get pnr list whith statuses listed in p\_nqt\_status\_list and with paging by p\_rownum count.  
+*parameters:*  
+**p\_nqt\_status\_list**: json[status]  
+**p\_rownum**: filter for rows count  
+*return:*  
+sys\_refcursor[pnr\_id, nqt\_status, po\_status, nqt\_status\_cur, null po\_msg, 'avia' item\_type, pnr\_locator, tenant\_id]  
+
+
+
+- *function* **ord.fwdr.pnr\_list**  
+*description:*  
+get pnr list whith id listed in p\_pnr\_list.  
+*parameters:*  
+**p\_pnr\_list**: json[p\_pnr\_id,p\_tenant\_id], where  
+**p\_pnr\_id**: id from NQT. search perform by this id  
+**p\_tenant\_id**: id of contract in text format, for authorization  
+*return:*  
+sys\_refcursor[pnr\_id, nqt\_status, po\_status, nqt\_status\_cur, null po\_msg, 'avia' item\_type, pnr\_locator,tenant\_id]  
+
+
+
+- *procedure* **ord.fwdr.commission\_get**  
+*description:*  
+calculate commission for pnr\_id  
+*parameters:*  
+**p\_pnr\_id**: id from NQT. search perform by this id  
+**p\_tenant\_id**: id of contract in text format, for authorization  
+**o\_fix**: in this paraveter returned fix commission value  
+**o\_percent**: in this paraveter returned percent commission value  
+
+
+
+- *function* **ord.fwdr.order\_number\_generate**  
+*description:*  
+generate order number as last number + 1 by client id  
+*parameters:*  
+**p\_client**: client id.  
+*return:*  
+string like 0012410032, where 1241 - client id and 32 is a counter of order  
+
+
+
+- *procedure* **ord.fwdr.avia\_manual**  
+*description:*  
+update order status to p\_result[ERROR/SUCCESS] or to INPROGRESS, if ERROR then return all money.  
+*parameters:*  
+**p\_pnr\_id**: id from NQT. search perform by this id  
+**p\_tenant\_id**: id of contract in text format, for authorization  
+**p\_result**: [ERROR/SUCCESS/ if null then INPROGRESS]  
+
+
+
+- *procedure* **ord.fwdr.cash\_back**  
+*description:*  
+perform reverse for order scheme. return bill to Waiting status and call revoke\_document from billing  
+*parameters:*  
+**p\_pnr\_id**: id from NQT. search perform by this id  
+
+
+
+- *function* **ord.fwdr.get\_sales\_list**  
+*description:*  
+fake  
+
+
+
+- *function* **ord.fwdr.rule\_view**  
+*description:*  
+return all rules by iata code of airline  
+*parameters:*  
+**p\_iata**: iata 2 char code  
+*return:*  
+SYS\_REFCURSOR[fields from v\_rule view]  
+
+
+
+- *procedure* **ord.fwdr.avia\_create**  
+*description:*  
+procedure create item\_avia row only. it cant update item  
+*parameters:*  
+**p\_pnr\_id**: id from NQT. search perform by this id  
+**p\_user\_id**: user identifire. at this moment email  
+
+
+
+- *procedure* **ord.fwdr.avia\_booked**  
+*description:*  
+procedure send item/order/bill to billing for pay.  
+*parameters:*  
+**p\_pnr\_id**: id from NQT. search perform by this id  
+**p\_user\_id**: user identifire. at this moment email  
+
+
+
+- *function* **ord.fwdr.pos\_rule\_get**  
+*description:*  
+when p\_version is null then return all active rows. if not null then get all active and deleted rows that changed after p\_version id  
+*parameters:*  
+**p\_version**: id  
+*return:*  
+SYS\_REFCURSOR[ID, TENANT\_ID, VALIDATING\_CARRIER,booking\_pos,ticketing\_pos,stock,printer,VERSION, IS\_ACTIVE]default tenant\_id = 0, default validating\_carrier = 'YY'  
+
+
+
+- *function* **ord.fwdr.pos\_rule\_edit**  
+*description:*  
+update pos\_rules or create new pos\_rules. if success return true else false. if status equals [C]lose or [D]elete then delete pos\_rule.  
+*parameters:*  
+**p\_data**: data for update. format json[id, tenant\_id, validating\_carrier, booking\_pos, ticketing\_pos, stock, printer, status]  
+*return:*  
+SYS\_REFCURSOR[res:true/false]  
+
+
+
+- *function* **ord.fwdr.rule\_edit**  
+*description:*  
+update commission rules or create new commission rules. if success return true else false. if status equals [C]lose or [D]elete then delete commission rule.  
+*parameters:*  
+**p\_data**: data for update. format json[AIRLINE\_ID, CONTRACT\_ID, RULE\_ID, RULE\_DESCRIPTION, RULE\_LIFE\_FROM, RULE\_LIFE\_TO, RULE\_AMOUNT, RULE\_AMOUNT\_MEASURE, RULE\_PRIORITY, CONDITION\_ID,condition\_status, TEMPLATE\_TYPE\_ID, TEMPLATE\_NAME\_NLS, TEMPLATE\_VALUE]  
+*return:*  
+SYS\_REFCURSOR[res:true/false]  
+
+
+
+- *function* **ord.fwdr.rule\_delete**  
+*description:*  
+delete commission rule.  
+*parameters:*  
+**p\_id**: rule id  
+*return:*  
+SYS\_REFCURSOR[res:true/false]  
+
+
+
+- *function* **ord.fwdr.rule\_template\_list**  
+*description:*  
+return all commission templates  
+*parameters:*  
+**p\_is\_contract\_type**: if 'Y' then return all contract\_types else all template\_types  
+*return:*  
+SYS\_REFCURSOR[ID, TEMPLATE\_TYPE, PRIORITY, DETAILS, IS\_CONTRACT\_TYPE, NAME, NLS\_NAME, IS\_VALUE]  
+
+
+
+- *function* **ord.fwdr.bill\_import\_list**  
+*description:*  
+return all bills info for import into 1C  
+*return:*  
+SYS\_REFCURSOR[BILL\_OID, ITEM, IS\_NDS, FLIGHT\_FROM, FLIGHT\_TO, FARE\_AMOUNT, CONTRACT\_NUMBER, PASSENGER\_NAME]  
+
+
+
+- *function* **ord.fwdr.markup\_rule\_get**  
+*description:*  
+return all markup rules  
+*parameters:*  
+**p\_version**: version id. filter new changes  
+*return:*  
+SYS\_REFCURSOR[ID, IS\_ACTIVE, VERSION, TENANT\_ID, IATA, MARKUP\_TYPE, RULE\_AMOUNT, RULE\_AMOUNT\_MEASURE, MIN\_ABSOLUT, PRIORITY, PER\_SEGMENT,CONTRACT\_TYPE,CONDITION\_COUNT]  
+
+
+
+- *function* **ord.fwdr.markup\_templ\_get**  
+*description:*  
+return all markup templates for rule id  
+*parameters:*  
+**p\_rule\_id**: id of rule  
+*return:*  
+SYS\_REFCURSOR[ID, TEMPLATE\_TYPE\_CODE, TEMPLATE\_VALUE]  
+
+
+
+## TODOs: ##  
+1. there must be check for users with ISSUES permission  
+2. there must be check for users with ISSUES permission  
+3. there must be check for users with ISSUES permission  
+4. there must be check for users with ISSUES permission  
+
+
 ## ORD.ORD\_API ##
 
 
@@ -747,13 +1019,5 @@ procedure perform document tasks like pay for bills, set cledit limit and others
 *description:*  
 ***\_add insert row into table ***. could return id of new row. ***\_edit update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api. ***\_get\_info return data from table *** with format SYS\_REFCURSOR. ***\_get\_info\_r return one row from table *** with format ***%rowtype.  
 
-
-
-## TODOs: ##  
-1. all this nullable fields are bad. document\_get\_info  
-2. there must be check for users with ISSUES permission  
-3. there must be check for users with ISSUES permission  
-4. there must be check for users with ISSUES permission  
-5. there must be check for users with ISSUES permission  
 
 

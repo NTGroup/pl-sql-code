@@ -6,7 +6,7 @@ CREATE OR REPLACE PACKAGE ORD.FWDR AS
 
 /*
 
-pkg: ord.fwdr
+$pkg: ord.fwdr
 
 */
 
