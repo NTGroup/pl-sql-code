@@ -7,12 +7,12 @@ $pkg: ORD.ORD_API
 */
 
 /*
-$obj_desc: ***_add insert row into table ***. could return id of new row.
-$obj_desc: ***_edit update row into table ***. object have always one id. first, old data with amnd_state = [I]nactive
-$obj_desc: inserted as row with link to new row(amnd_prev). new data just update object row, 
-$obj_desc: amnd_date updates to sysdate and amnd_user to current user who called api.
-$obj_desc: ***_get_info return data from table *** with format SYS_REFCURSOR.
-$obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
+$obj_desc: ***_add: insert row into table ***. could return id of new row.
+$obj_desc: ***_edit: update row into table ***. object have always one id. first, old data with amnd_state = [I]nactive
+$obj_desc: ***_edit: inserted as row with link to new row(amnd_prev). new data just update object row, 
+$obj_desc: ***_edit: amnd_date updates to sysdate and amnd_user to current user who called api.
+$obj_desc: ***_get_info: return data from table *** with format SYS_REFCURSOR.
+$obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype.
 */
 
   function ord_add( p_date  in hdbk.dtype.t_date default null, 

@@ -2,40 +2,67 @@
 
   
 /*
- pkg: NTG.DTYPE
+ $pkg: HDBK.DTYPE
  */
 
 
 /*
 $obj_type: data_type
-
 $obj_name: t_id
 $obj_desc: for id. integer/number(18,0)
 
+*/
+
+/*
+$obj_type: data_type
 $obj_name: t_amount
 $obj_desc: for money. float/number(20,2)
+*/
 
+/*
+$obj_type: data_type
 $obj_name: t_status
 $obj_desc: for 1 letter statuses. char(1)
+*/
 
+/*
+$obj_type: data_type
 $obj_name: t_msg
 $obj_desc: for long messages less 4000 chars. string(4000)/varchar2(4000)
+*/
 
+/*
+$obj_type: data_type
 $obj_name: t_name
 $obj_desc: for client names or geo names less 255 chars. string(255)/varchar2(255)
+*/
 
+/*
+$obj_type: data_type
 $obj_name: t_code
 $obj_desc: for short codes less 10 chars. string(10)/varchar2(10)
+*/
 
+/*
+$obj_type: data_type
 $obj_name: t_long_code
 $obj_desc: for long codes less 50 chars. string(50)/varchar2(50)
+*/
 
+/*
+$obj_type: data_type
 $obj_name: t_bool
 $obj_desc: for boolean values. 
+*/
 
+/*
+$obj_type: data_type
 $obj_name: t_date
 $obj_desc: for date with time values. 
+*/
 
+/*
+$obj_type: data_type
 $obj_name: t_clob
 $obj_desc: for big data clob. 
 
@@ -57,31 +84,54 @@ $obj_desc: for big data clob.
 
  /*
 $obj_type: exception variable
-
 $obj_name: INVALID_PARAMETER
 $obj_desc: -6502
+*/
 
+/*
+$obj_type: exception variable
 $obj_name: max_loan_transaction_block
 $obj_desc:  -6502
+*/
 
+/*
+$obj_type: exception variable
 $obj_name: doc_waiting
 $obj_desc:  -20000
+*/
 
+/*
+$obj_type: exception variable
 $obj_name: insufficient_funds
 $obj_desc: -20001
+*/
 
+/*
+$obj_type: exception variable
 $obj_name: api_error
 $obj_desc: -20002
+*/
 
+/*
+$obj_type: exception variable
 $obj_name: VALUE_ERROR
 $obj_desc: -20003
+*/
 
+/*
+$obj_type: exception variable
 $obj_name: EXIT_ALERT
 $obj_desc: -20004
+*/
 
+/*
+$obj_type: exception variable
 $obj_name: INVALID_OPERATION
 $obj_desc: -20005
+*/
 
+/*
+$obj_type: exception variable
 $obj_name: DEAD_LOCK
 $obj_desc: -60
 

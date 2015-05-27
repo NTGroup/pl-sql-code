@@ -3,7 +3,10 @@
 
 
 *description:*  
-***\_add insert row into table ***. could return id of new row. ***\_edit update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api. ***\_get\_info return data from table *** with format SYS\_REFCURSOR. ***\_get\_info\_r return one row from table *** with format ***%rowtype.  
+*****\_add**: insert row into table ***. could return id of new row.  
+*****\_edit**: update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api.  
+*****\_get\_info**: return data from table *** with format SYS\_REFCURSOR.  
+*****\_get\_info\_r**: return one row from table *** with format ***%rowtype.  
 
 
 
@@ -341,7 +344,10 @@ on success SYS\_REFCURSOR[res, CONTRACT\_ID, TENANT\_ID, IS\_BLOCKED, CONTRACT\_
 
 
 *description:*  
-***\_add insert row into table ***. could return id of new row. ***\_edit update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api. ***\_get\_info return data from table *** with format SYS\_REFCURSOR. ***\_get\_info\_r return one row from table *** with format ***%rowtype.  
+*****\_add**: insert row into table ***. could return id of new row.  
+*****\_edit**: update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api.  
+*****\_get\_info**: return data from table *** with format SYS\_REFCURSOR.  
+*****\_get\_info\_r**: return one row from table *** with format ***%rowtype.  
 
 
 
@@ -427,19 +433,121 @@ day of pay
 
 
 
-## NTG.DTYPE ##
+## HDBK.DTYPE ##
 
 
 
-- *data\_type* **NTG.DTYPE.t\_clob**  
+- *data\_type* **HDBK.DTYPE.t\_id**  
 *description:*  
-for id. integer/number(18,0) for money. float/number(20,2) for 1 letter statuses. char(1) for long messages less 4000 chars. string(4000)/varchar2(4000) for client names or geo names less 255 chars. string(255)/varchar2(255) for short codes less 10 chars. string(10)/varchar2(10) for long codes less 50 chars. string(50)/varchar2(50) for boolean values. for date with time values. for big data clob.  
+for id. integer/number(18,0)  
 
 
 
-- *exception variable* **NTG.DTYPE.DEAD\_LOCK**  
+- *data\_type* **HDBK.DTYPE.t\_amount**  
 *description:*  
--6502 -6502 -20000 -20001 -20002 -20003 -20004 -20005 -60  
+for money. float/number(20,2)  
+
+
+
+- *data\_type* **HDBK.DTYPE.t\_status**  
+*description:*  
+for 1 letter statuses. char(1)  
+
+
+
+- *data\_type* **HDBK.DTYPE.t\_msg**  
+*description:*  
+for long messages less 4000 chars. string(4000)/varchar2(4000)  
+
+
+
+- *data\_type* **HDBK.DTYPE.t\_name**  
+*description:*  
+for client names or geo names less 255 chars. string(255)/varchar2(255)  
+
+
+
+- *data\_type* **HDBK.DTYPE.t\_code**  
+*description:*  
+for short codes less 10 chars. string(10)/varchar2(10)  
+
+
+
+- *data\_type* **HDBK.DTYPE.t\_long\_code**  
+*description:*  
+for long codes less 50 chars. string(50)/varchar2(50)  
+
+
+
+- *data\_type* **HDBK.DTYPE.t\_bool**  
+*description:*  
+for boolean values.  
+
+
+
+- *data\_type* **HDBK.DTYPE.t\_date**  
+*description:*  
+for date with time values.  
+
+
+
+- *data\_type* **HDBK.DTYPE.t\_clob**  
+*description:*  
+for big data clob.  
+
+
+
+- *exception variable* **HDBK.DTYPE.INVALID\_PARAMETER**  
+*description:*  
+-6502  
+
+
+
+- *exception variable* **HDBK.DTYPE.max\_loan\_transaction\_block**  
+*description:*  
+-6502  
+
+
+
+- *exception variable* **HDBK.DTYPE.doc\_waiting**  
+*description:*  
+-20000  
+
+
+
+- *exception variable* **HDBK.DTYPE.insufficient\_funds**  
+*description:*  
+-20001  
+
+
+
+- *exception variable* **HDBK.DTYPE.api\_error**  
+*description:*  
+-20002  
+
+
+
+- *exception variable* **HDBK.DTYPE.VALUE\_ERROR**  
+*description:*  
+-20003  
+
+
+
+- *exception variable* **HDBK.DTYPE.EXIT\_ALERT**  
+*description:*  
+-20004  
+
+
+
+- *exception variable* **HDBK.DTYPE.INVALID\_OPERATION**  
+*description:*  
+-20005  
+
+
+
+- *exception variable* **HDBK.DTYPE.DEAD\_LOCK**  
+*description:*  
+-60  
 
 
 
@@ -520,7 +628,10 @@ SYS\_REFCURSOR[code,rate,version,is\_active(Y,N)]
 
 
 *description:*  
-***\_add insert row into table ***. could return id of new row. ***\_edit update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api. ***\_get\_info return data from table *** with format SYS\_REFCURSOR. ***\_get\_info\_r return one row from table *** with format ***%rowtype.  
+*****\_add**: insert row into table ***. could return id of new row.  
+*****\_edit**: update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api.  
+*****\_get\_info**: return data from table *** with format SYS\_REFCURSOR.  
+*****\_get\_info\_r**: return one row from table *** with format ***%rowtype.  
 
 
 
@@ -818,7 +929,10 @@ SYS\_REFCURSOR[ID, TEMPLATE\_TYPE\_CODE, TEMPLATE\_VALUE]
 
 
 *description:*  
-***\_add insert row into table ***. could return id of new row. ***\_edit update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api. ***\_get\_info return data from table *** with format SYS\_REFCURSOR. ***\_get\_info\_r return one row from table *** with format ***%rowtype.  
+*****\_add**: insert row into table ***. could return id of new row.  
+*****\_edit**: update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api.  
+*****\_get\_info**: return data from table *** with format SYS\_REFCURSOR.  
+*****\_get\_info\_r**: return one row from table *** with format ***%rowtype.  
 
 
 
