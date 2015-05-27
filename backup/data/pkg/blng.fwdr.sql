@@ -27,10 +27,22 @@ $obj_return: client id
 /*
 $obj_type: function
 $obj_name: balance
-$obj_desc: return info of contract for show balance to the client
+$obj_desc: return info of contract for show balance to the client. function return this filds
+$obj_desc: **DEPOSIT:** self money
+$obj_desc: **LOAN:** money thatspent from credit limit
+$obj_desc: **CREDIT_LIMIT:** credit limit
+$obj_desc: **UNUSED_CREDIT_LIMIT:** credit limit - loan
+$obj_desc: **AVAILABLE:** credit limit + deposit - loan. if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ.
+$obj_desc: **BLOCK_DATE:** expiration date of the next bill
+$obj_desc: **UNBLOCK_SUM:** sum next neares bills (with one day) + all bills before current day
+$obj_desc: **NEAR_UNBLOCK_SUM:** unblock sum + bills for 2 next days after after first bill
+$obj_desc: **EXPIRY_DATE:** date of first expired bill
+$obj_desc: **EXPIRY_SUM:** summ of all expired bills
+$obj_desc: **STATUS:** if bills are expired and contract blocked then 'BLOCK', if bills are expired and contract unblocked then 'UNBLOCK', else 'ACTIVE'
 $obj_param: P_TENANT_ID: contract id
 $obj_return: SYS_REFCURSOR[CONTRACT_OID, DEPOSIT, LOAN, CREDIT_LIMIT, UNUSED_CREDIT_LIMIT, 
-$obj_return: AVAILABLE, BLOCK_DATE, UNBLOCK_SUM, NEAR_UNBLOCK_SUM, EXPIRY_DATE, EXPIRY_SUM]
+$obj_return: AVAILABLE, BLOCK_DATE, UNBLOCK_SUM, NEAR_UNBLOCK_SUM, EXPIRY_DATE, EXPIRY_SUM, status]
+
 */
   function balance( P_TENANT_ID in hdbk.dtype.t_id  default null
                           )
@@ -214,8 +226,8 @@ $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 
 /*
 $obj_type: function
-$obj_name: contract_list
-$obj_desc: return list of contracts by client id (company now) and return info about this new contract. 
+$obj_name: contract_add
+$obj_desc: add contract for client and return info about this new contract. 
 $obj_param: p_client: id of client
 $obj_param: p_data: json[CONTRACT_NAME, CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE]
 $obj_return: on success SYS_REFCURSOR[res, CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, 
@@ -223,6 +235,19 @@ $obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CON
 $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 */
   function contract_add(p_client in hdbk.dtype.t_id default null, p_data in hdbk.dtype.t_clob default null)
+  return SYS_REFCURSOR;
+
+/*
+$obj_type: function
+$obj_name: contract_update
+$obj_desc: update contract info for client and return info about this new contract. 
+$obj_param: p_contract: id of contract
+$obj_param: p_data: json[CONTRACT_NAME, CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE]
+$obj_return: on success SYS_REFCURSOR[res, CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, 
+$obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE
+$obj_return: on error SYS_REFCURSOR[res]. res=ERROR
+*/
+  function contract_update(p_contract in hdbk.dtype.t_id default null, p_data in hdbk.dtype.t_clob default null)
   return SYS_REFCURSOR;
 
 
@@ -335,19 +360,27 @@ create  or replace package BODY blng.fwdr as
       OPEN v_results FOR
         select
         acc.CONTRACT_OID, acc.DEPOSIT, abs(acc.LOAN) loan, acc.CREDIT_LIMIT, 
-        case when total.expiry_sum<>0 then 0
+/*        case when total.expiry_sum<>0 then 0
         else acc.UNUSED_CREDIT_LIMIT
-        end UNUSED_CREDIT_LIMIT,
-        case when total.expiry_sum<>0 then 0
+        end UNUSED_CREDIT_LIMIT,*/
+        acc.UNUSED_CREDIT_LIMIT,
+        case when contract.status = 'B' then 0
         else acc.AVAILABLE
         end available,
         to_char(total.BLOCK_DATE,'yyyy-mm-dd') BLOCK_DATE,
         nvl(total.UNBLOCK_SUM,0) UNBLOCK_SUM,
         nvl(total.NEAR_UNBLOCK_SUM,0) NEAR_UNBLOCK_SUM,
         to_char(total.expiry_date,'yyyy-mm-dd') expiry_date,
-        total.expiry_sum
-        from blng.v_account acc, blng.v_total total 
+        total.expiry_sum,
+        case
+        when total.expiry_sum<>0 and contract.status = 'B' then 'BLOCK'
+        when total.expiry_sum<>0 and contract.status = 'A' then 'UNBLOCK'
+        else 'ACTIVE'
+        end status        
+        from blng.v_account acc, blng.v_total total, blng.contract 
         where acc.contract_oid = P_TENANT_ID
+        and acc.contract_oid = contract.id
+        and contract.amnd_state = 'A'
         and acc.contract_oid = total.contract_oid(+)
     ;
     return v_results;
@@ -1115,6 +1148,106 @@ create  or replace package BODY blng.fwdr as
   end;
 
 
+
+  function contract_update(p_contract in hdbk.dtype.t_id default null, p_data in hdbk.dtype.t_clob default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    --v_contract hdbk.dtype.t_id;
+    r_account_info blng.v_account%rowtype;
+    v_doc hdbk.dtype.t_id;
+  begin
+  
+    for i in (
+      select 
+      *
+      from 
+      json_table(p_data, '$'
+        COLUMNS 
+          (
+--           client_id number PATH '$.client_id',
+           contract_name VARCHAR2(256 CHAR) PATH '$.contract_name',
+           credit_limit number PATH '$.credit_limit',
+           delay_days number PATH '$.delay_days',
+           max_credit number PATH '$.max_credit',
+           utc_offset number PATH '$.utc_offset',
+           contact_name VARCHAR2(256 CHAR) PATH '$.contact_name',
+           contact_phone VARCHAR2(256 CHAR) PATH '$.contact_phone'
+          )
+        ) 
+    )
+    loop
+      blng.BLNG_API.contract_edit( P_id => p_contract, 
+                                                p_name=>i.contract_name, 
+                                                p_utc_offset=>i.utc_offset,
+                                                p_contact_name=>i.contact_name,
+                                                p_contact_phone=>i.contact_phone
+                                                );
+                                                      
+      r_account_info := fwdr.v_account_get_info_r(p_contract);
+      
+      if    i.credit_limit is null 
+        or  i.delay_days is null 
+        or  i.max_credit is null 
+        or  i.contract_name is null 
+        or  i.utc_offset is null 
+      then raise VALUE_ERROR; 
+      end if;
+      
+      if r_account_info.loan <> 0 and abs(r_account_info.loan)> i.credit_limit then raise VALUE_ERROR; end if;
+    
+      v_DOC := blng.BLNG_API.document_add(P_CONTRACT => p_contract,P_AMOUNT => i.credit_limit,
+        p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
+      v_DOC := blng.BLNG_API.document_add(P_CONTRACT => p_contract,P_AMOUNT => i.delay_days,
+        p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
+      v_DOC := blng.BLNG_API.document_add(P_CONTRACT => p_contract,P_AMOUNT => i.max_credit,
+        p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'UP_LIM_TRANS'));
+      commit;
+    end loop;
+
+    OPEN v_results FOR
+      select 
+      contract.id contract_id,
+      contract.id tenant_id,
+      decode(contract.status,'B','Y','N') is_blocked,
+      contract.name contract_name,
+      v_account.credit_limit,
+      v_account.delay_days,
+      v_account.max_loan_trans_amount max_credit,
+      contract.utc_offset,
+      contract.contact_name,
+      contract.contact_phone
+      from blng.contract, blng.v_account
+      where contract.amnd_state = 'A'
+      and contract.id = v_account.contract_oid
+      and contract.id = p_contract
+      order by id
+      ;    
+    return v_results;
+  exception 
+    when VALUE_ERROR then 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'VALUE_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+        open v_results for
+          select 'ERROR' res from dual;
+        return v_results;
+    when NO_DATA_FOUND then 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'NO_DATA_FOUND', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+        open v_results for
+          select 'ERROR' res from dual;
+        return v_results;
+    when others then
+      rollback;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'UNHANDLED_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+        open v_results for
+          select 'ERROR' res from dual;
+        return v_results;
+  end;
 
 
 end;
