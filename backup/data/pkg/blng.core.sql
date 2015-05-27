@@ -81,7 +81,7 @@ $obj_param: p_transaction: link to transaction id. later by this id cash_in oper
   /*
 $obj_type: procedure
 $obj_name: delay_expire
-$obj_desc: calls from scheduler at 00:00 UTC. get list of expired delays, then block credit limit
+$obj_desc: calls from scheduler at 00.00 UTC. get list of expired delays, then block credit limit
 */
   procedure delay_expire;
 

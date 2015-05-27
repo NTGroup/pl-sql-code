@@ -47,6 +47,18 @@ grant execute on hdbk.log_api to erp;
 GRANT create SESSION to erp_gate;
 GRANT CREATE JOB TO HDBK;
 
+
+grant debug on ord.ord_api to hdbk;
+grant debug on ord.core to hdbk;
+grant debug on ord.fwdr to hdbk;
+grant debug on blng.blng_api to hdbk;
+grant debug on blng.core to hdbk;
+grant debug on blng.fwdr to hdbk;
+grant debug on erp.erp_api to hdbk;
+grant debug on erp.gate to hdbk;
+
+
+
 ------ system
 /*grant select on hdbk.gds_nationality to ntg;
 grant select on hdbk.note to ntg;

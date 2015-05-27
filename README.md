@@ -89,7 +89,7 @@ calls from credit\_online and close loan delay
 
 - *procedure* **blng.core.delay\_expire**  
 *description:*  
-calls from scheduler at 00:00 UTC. get list of expired delays, then block credit limit  
+calls from scheduler at 00.00 UTC. get list of expired delays, then block credit limit  
 
 
 
@@ -154,7 +154,18 @@ client id
 
 - *function* **blng.fwdr.balance**  
 *description:*  
-return info of contract for show balance to the client. function return this filds **DEPOSIT:** self money **LOAN:** money thatspent from credit limit **CREDIT\_LIMIT:** credit limit **UNUSED\_CREDIT\_LIMIT:** credit limit - loan **AVAILABLE:** credit limit + deposit - loan. if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ. **BLOCK\_DATE:** expiration date of the next bill **UNBLOCK\_SUM:** sum next neares bills (with one day) + all bills before current day **NEAR\_UNBLOCK\_SUM:** unblock sum + bills for 2 next days after after first bill **EXPIRY\_DATE:** date of first expired bill **EXPIRY\_SUM:** summ of all expired bills **STATUS:** if bills are expired and contract blocked then 'BLOCK', if bills are expired and contract unblocked then 'UNBLOCK', else 'ACTIVE'  
+return info of contract for show balance to the client. function return this filds  
+**DEPOSIT**: self money  
+**LOAN**: money thatspent from credit limit  
+**CREDIT\_LIMIT**: credit limit  
+**UNUSED\_CREDIT\_LIMIT**: credit limit - loan  
+**AVAILABLE**: credit limit + deposit - loan. if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ.  
+**BLOCK\_DATE**: expiration date of the next bill  
+**UNBLOCK\_SUM**: sum next neares bills (with one day) + all bills before current day  
+**NEAR\_UNBLOCK\_SUM**: unblock sum + bills for 2 next days after after first bill  
+**EXPIRY\_DATE**: date of first expired bill  
+**EXPIRY\_SUM**: summ of all expired bills  
+**STATUS**: if bills are expired and contract blocked then 'BLOCK', if bills are expired and contract unblocked then 'UNBLOCK', else 'ACTIVE'  
 *parameters:*  
 **P\_TENANT\_ID**: contract id  
 *return:*  
@@ -325,109 +336,6 @@ on success SYS\_REFCURSOR[res, CONTRACT\_ID, TENANT\_ID, IS\_BLOCKED, CONTRACT\_
 
 
 
-## dict.dict\_api ##
-
-
-
-*description:*  
-***\_add insert row into table ***. could return id of new row. ***\_edit update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api. ***\_get\_info return data from table *** with format SYS\_REFCURSOR. ***\_get\_info\_r return one row from table *** with format ***%rowtype.  
-
-
-
-## dict.DTYPE ##
-
-
-
-- *data\_type* **dict.DTYPE.t\_clob**  
-*description:*  
-for id. integer/number(18,0) for money. float/number(20,2) for 1 letter statuses. char(1) for long messages less 4000 chars. string(4000)/varchar2(4000) for client names or geo names less 255 chars. string(255)/varchar2(255) for short codes less 10 chars. string(10)/varchar2(10) for long codes less 50 chars. string(50)/varchar2(50) for boolean values. for date with time values. for big data clob.  
-
-
-
-- *exception variable* **dict.DTYPE.INVALID\_OPERATION**  
-*description:*  
--6502 -6502 -20000 -20001 -20002 -20003 -20004 -20005  
-
-
-
-## dict.fwdr ##
-
-
-
-- *function* **dict.fwdr.get\_utc\_offset**  
-*description:*  
-list of airlines with utc\_offset  
-*return:*  
-SYS\_REFCURSOR[iata,utc\_offset]  
-
-
-
-- *function* **dict.fwdr.geo\_get\_list**  
-*description:*  
-list of airports and city of airport  
-*return:*  
-SYS\_REFCURSOR[iata,name,NLS\_NAME,city\_iata,city\_name,city\_nls\_name]  
-
-
-
-- *function* **dict.fwdr.airline\_get\_list**  
-*description:*  
-list of airlines names and iata codes  
-*return:*  
-SYS\_REFCURSOR[iata,name,nls\_name]  
-
-
-
-- *function* **dict.fwdr.airplane\_get\_list**  
-*description:*  
-list of airplane names and iata codes  
-*return:*  
-SYS\_REFCURSOR[iata,name,nls\_name]  
-
-
-
-- *function* **dict.fwdr.airline\_commission\_list**  
-*description:*  
-list of airlines with flag commission(means: is airline have rules for calc commission).  
-*return:*  
-SYS\_REFCURSOR[airline\_oid,name,IATA,commission[Y/N]]  
-
-
-
-- *function* **dict.fwdr.get\_full**  
-*description:*  
-return all from v\_markup  
-*return:*  
-SYS\_REFCURSOR  
-
-
-
-- *function* **dict.fwdr.markup\_get**  
-*description:*  
-when p\_version is null then return all active rows. if not null then get all active and deleted rows that changed after p\_version id  
-*parameters:*  
-**p\_version**: id  
-*return:*  
-SYS\_REFCURSOR[ID, TENANT\_ID, VALIDATING\_CARRIER, CLASS\_OF\_SERVICE,SEGMENT, V\_FROM, V\_TO, ABSOLUT\_AMOUNT, PERCENT\_AMOUNT, MIN\_ABSOLUT, VERSION, IS\_ACTIVE, markup\_type]  
-
-
-
-## DICT.LOG\_API ##
-
-
-
-- *procedure* **DICT.LOG\_API.log\_add**  
-*description:*  
-procedure for write log. this procedure make autonomous\_transaction commits. its mean independent of other function commit/rollback and not affect to other function commit/rollback  
-*parameters:*  
-**P\_PROC\_NAME**: name of process  
-**P\_MSG**: message that wont be written to log  
-**P\_MSG\_TYPE**: Information/Error or etc. default Information  
-**P\_INFO**: some more details  
-**P\_ALERT\_LEVEL**: 0..10. priority level, default 0  
-
-
-
 ## erp.erp\_api ##
 
 
@@ -453,10 +361,10 @@ SYS\_REFCURSOR[n,date\_to,str,int,double]. table with this columns.
 
 - *procedure* **erp.gate.run\_proc**  
 *description:*  
-test procedure. do nothing, but return string "input: p\_rowcount" in out parameter o\_result.  
+test procedure. do nothing, but return string "input p\_rowcount" in out parameter o\_result.  
 *parameters:*  
 **p\_rowcount**: its just parameter for input  
-**o\_result**: string out parameter for return "input: p\_rowcount"  
+**o\_result**: string out parameter for return "input p\_rowcount"  
 
 
 
@@ -573,7 +481,7 @@ SYS\_REFCURSOR[iata,name,nls\_name]
 
 - *function* **hdbk.fwdr.airline\_commission\_list**  
 *description:*  
-list of airlines with flag commission(means: is airline have rules for calc commission).  
+list of airlines with flag commission(it means, is airline have rules for calc commission).  
 *return:*  
 SYS\_REFCURSOR[airline\_oid,name,IATA,commission[Y/N]]  
 
@@ -629,113 +537,6 @@ procedure for write log. this procedure make autonomous\_transaction commits. it
 **P\_MSG\_TYPE**: Information/Error or etc. default Information  
 **P\_INFO**: some more details  
 **P\_ALERT\_LEVEL**: 0..10. priority level, default 0  
-
-
-
-##  ##
-
-
-
-## NTG.DTYPE ##
-
-
-
-- *data\_type* **NTG.DTYPE.t\_clob**  
-*description:*  
-for id. integer/number(18,0) for money. float/number(20,2) for 1 letter statuses. char(1) for long messages less 4000 chars. string(4000)/varchar2(4000) for client names or geo names less 255 chars. string(255)/varchar2(255) for short codes less 10 chars. string(10)/varchar2(10) for long codes less 50 chars. string(50)/varchar2(50) for boolean values. for date with time values. for big data clob.  
-
-
-
-- *exception variable* **NTG.DTYPE.INVALID\_OPERATION**  
-*description:*  
--6502 -6502 -20000 -20001 -20002 -20003 -20004 -20005  
-
-
-
-## hdbk.fwdr ##
-
-
-
-- *function* **hdbk.fwdr.get\_utc\_offset**  
-*description:*  
-list of airlines with utc\_offset  
-*return:*  
-SYS\_REFCURSOR[iata,utc\_offset]  
-
-
-
-- *function* **hdbk.fwdr.geo\_get\_list**  
-*description:*  
-list of airports and city of airport  
-*return:*  
-SYS\_REFCURSOR[iata,name,NLS\_NAME,city\_iata,city\_name,city\_nls\_name]  
-
-
-
-- *function* **hdbk.fwdr.airline\_get\_list**  
-*description:*  
-list of airlines names and iata codes  
-*return:*  
-SYS\_REFCURSOR[iata,name,nls\_name]  
-
-
-
-- *function* **hdbk.fwdr.airplane\_get\_list**  
-*description:*  
-list of airplane names and iata codes  
-*return:*  
-SYS\_REFCURSOR[iata,name,nls\_name]  
-
-
-
-- *function* **hdbk.fwdr.airline\_commission\_list**  
-*description:*  
-list of airlines with flag commission(means: is airline have rules for calc commission).  
-*return:*  
-SYS\_REFCURSOR[airline\_oid,name,IATA,commission[Y/N]]  
-
-
-
-- *function* **hdbk.fwdr.get\_full**  
-*description:*  
-return all from v\_markup  
-*return:*  
-SYS\_REFCURSOR  
-
-
-
-- *function* **hdbk.fwdr.markup\_get**  
-*description:*  
-when p\_version is null then return all active rows. if not null then get all active and deleted rows that changed after p\_version id  
-*parameters:*  
-**p\_version**: id  
-*return:*  
-SYS\_REFCURSOR[ID, TENANT\_ID, VALIDATING\_CARRIER, CLASS\_OF\_SERVICE,SEGMENT, V\_FROM, V\_TO, ABSOLUT\_AMOUNT, PERCENT\_AMOUNT, MIN\_ABSOLUT, VERSION, IS\_ACTIVE, markup\_type]  
-
-
-
-## NTG.LOG\_API ##
-
-
-
-- *procedure* **NTG.LOG\_API.log\_add**  
-*description:*  
-procedure for write log. this procedure make autonomous\_transaction commits. its mean independent of other function commit/rollback and not affect to other function commit/rollback  
-*parameters:*  
-**P\_PROC\_NAME**: name of process  
-**P\_MSG**: message that wont be written to log  
-**P\_MSG\_TYPE**: Information/Error or etc. default Information  
-**P\_INFO**: some more details  
-**P\_ALERT\_LEVEL**: 0..10. priority level, default 0  
-
-
-
-## hdbk.hdbk\_api ##
-
-
-
-*description:*  
-***\_add insert row into table ***. could return id of new row. ***\_edit update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api. ***\_get\_info return data from table *** with format SYS\_REFCURSOR. ***\_get\_info\_r return one row from table *** with format ***%rowtype.  
 
 
 

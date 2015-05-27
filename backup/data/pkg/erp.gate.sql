@@ -21,9 +21,9 @@ $obj_return: SYS_REFCURSOR[n,date_to,str,int,double]. table with this columns.
 /*
 $obj_type: procedure
 $obj_name: run_proc
-$obj_desc: test procedure. do nothing, but return string "input: p_rowcount" in out parameter o_result.
+$obj_desc: test procedure. do nothing, but return string "input p_rowcount" in out parameter o_result.
 $obj_param: p_rowcount: its just parameter for input
-$obj_param: o_result: string out parameter for return "input: p_rowcount"
+$obj_param: o_result: string out parameter for return "input p_rowcount"
 */
   procedure run_proc(p_rowcount in hdbk.dtype.t_id default null, o_result out hdbk.dtype.t_name);
 

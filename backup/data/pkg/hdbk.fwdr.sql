@@ -56,7 +56,7 @@ return SYS_REFCURSOR;
 
 $obj_type: function
 $obj_name: airline_commission_list
-$obj_desc: list of airlines with flag commission(means: is airline have rules for calc commission).
+$obj_desc: list of airlines with flag commission(it means, is airline have rules for calc commission).
 $obj_return: SYS_REFCURSOR[airline_oid,name,IATA,commission[Y/N]]
 
 */
