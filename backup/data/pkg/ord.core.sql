@@ -57,6 +57,7 @@ END CORE;
     v_DOC hdbk.dtype.t_id;
     
   begin
+--  return;
 --      c_bill := ord_api.bill_get_info(p_status=>'W', p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY'));
     
       for r_bill in ( select * from ord.bill where amnd_state = 'A' and status = 'W'
@@ -102,9 +103,9 @@ END CORE;
           r_item_avia := ord_api.item_avia_get_info_r(p_order => r_bill.order_oid);
 --         hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '6',P_ALERT_LEVEL=>10);          
           r_item_avia_status := ord_api.item_avia_status_get_info_r(p_item_avia => r_item_avia.id);
-          hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'try set status SUCCESS',
+/*          hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'try set status SUCCESS',
             P_MSG => 'try set status SUCCESS',p_info => ',item_avia='|| r_item_avia.id||'p_date='
-            || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
+            || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);    */      
           ord_api.item_avia_status_edit (  p_item_avia => r_item_avia.id, p_po_status => 'SUCCESS',
                                   p_nqt_status_cur => r_item_avia.nqt_status) ;  
           hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'finish',
@@ -165,7 +166,9 @@ END CORE;
     
 
   exception 
-    when NO_DATA_FOUND then null;
+    when NO_DATA_FOUND then 
+      rollback;
+      null;
     when others then
       rollback;
       hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'UNHANDLED_ERROR',
@@ -425,7 +428,7 @@ END CORE;
 
 
 
-  procedure bill_pay_back( p_pnr_id in hdbk.dtype.t_long_code default null
+  /*procedure bill_pay_back( p_pnr_id in hdbk.dtype.t_long_code default null
                     )
   is
 --    v_ord_row ord%rowtype;
@@ -472,7 +475,7 @@ END CORE;
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=bill,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'bill_pay error. '||SQLERRM);
-  end;
+  end;*/
 
 END CORE;
 

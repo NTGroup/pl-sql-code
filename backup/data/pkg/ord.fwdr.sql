@@ -1828,9 +1828,9 @@ $TODO: there must be check for users with ISSUES permission
   is
     v_results SYS_REFCURSOR; 
   begin
-      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_rule_get', p_msg_type=>'OK', 
+/*      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_rule_get', p_msg_type=>'OK', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);*/      
     OPEN v_results FOR
       select 
       cmn.id,

@@ -27,10 +27,22 @@ $obj_return: client id
 /*
 $obj_type: function
 $obj_name: balance
-$obj_desc: return info of contract for show balance to the client
+$obj_desc: return info of contract for show balance to the client. function return this filds
+$obj_desc: **DEPOSIT:** self money
+$obj_desc: **LOAN:** money thatspent from credit limit
+$obj_desc: **CREDIT_LIMIT:** credit limit
+$obj_desc: **UNUSED_CREDIT_LIMIT:** credit limit - loan
+$obj_desc: **AVAILABLE:** credit limit + deposit - loan. if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ.
+$obj_desc: **BLOCK_DATE:** expiration date of the next bill
+$obj_desc: **UNBLOCK_SUM:** sum next neares bills (with one day) + all bills before current day
+$obj_desc: **NEAR_UNBLOCK_SUM:** unblock sum + bills for 2 next days after after first bill
+$obj_desc: **EXPIRY_DATE:** date of first expired bill
+$obj_desc: **EXPIRY_SUM:** summ of all expired bills
+$obj_desc: **STATUS:** if bills are expired and contract blocked then 'BLOCK', if bills are expired and contract unblocked then 'UNBLOCK', else 'ACTIVE'
 $obj_param: P_TENANT_ID: contract id
 $obj_return: SYS_REFCURSOR[CONTRACT_OID, DEPOSIT, LOAN, CREDIT_LIMIT, UNUSED_CREDIT_LIMIT, 
-$obj_return: AVAILABLE, BLOCK_DATE, UNBLOCK_SUM, NEAR_UNBLOCK_SUM, EXPIRY_DATE, EXPIRY_SUM]
+$obj_return: AVAILABLE, BLOCK_DATE, UNBLOCK_SUM, NEAR_UNBLOCK_SUM, EXPIRY_DATE, EXPIRY_SUM, status]
+
 */
   function balance( P_TENANT_ID in hdbk.dtype.t_id  default null
                           )
@@ -348,19 +360,27 @@ create  or replace package BODY blng.fwdr as
       OPEN v_results FOR
         select
         acc.CONTRACT_OID, acc.DEPOSIT, abs(acc.LOAN) loan, acc.CREDIT_LIMIT, 
-        case when total.expiry_sum<>0 then 0
+/*        case when total.expiry_sum<>0 then 0
         else acc.UNUSED_CREDIT_LIMIT
-        end UNUSED_CREDIT_LIMIT,
-        case when total.expiry_sum<>0 then 0
+        end UNUSED_CREDIT_LIMIT,*/
+        acc.UNUSED_CREDIT_LIMIT,
+        case when contract.status = 'B' then 0
         else acc.AVAILABLE
         end available,
         to_char(total.BLOCK_DATE,'yyyy-mm-dd') BLOCK_DATE,
         nvl(total.UNBLOCK_SUM,0) UNBLOCK_SUM,
         nvl(total.NEAR_UNBLOCK_SUM,0) NEAR_UNBLOCK_SUM,
         to_char(total.expiry_date,'yyyy-mm-dd') expiry_date,
-        total.expiry_sum
-        from blng.v_account acc, blng.v_total total 
+        total.expiry_sum,
+        case
+        when total.expiry_sum<>0 and contract.status = 'B' then 'BLOCK'
+        when total.expiry_sum<>0 and contract.status = 'A' then 'UNBLOCK'
+        else 'ACTIVE'
+        end status        
+        from blng.v_account acc, blng.v_total total, blng.contract 
         where acc.contract_oid = P_TENANT_ID
+        and acc.contract_oid = contract.id
+        and contract.amnd_state = 'A'
         and acc.contract_oid = total.contract_oid(+)
     ;
     return v_results;

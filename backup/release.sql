@@ -1,4 +1,6 @@
 
+alter table hdbk.log
+add  error_stack clob;
 
 
 @dba/GRANTS.sql;

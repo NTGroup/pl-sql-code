@@ -154,11 +154,11 @@ client id
 
 - *function* **blng.fwdr.balance**  
 *description:*  
-return info of contract for show balance to the client  
+return info of contract for show balance to the client. function return this filds **DEPOSIT:** self money **LOAN:** money thatspent from credit limit **CREDIT\_LIMIT:** credit limit **UNUSED\_CREDIT\_LIMIT:** credit limit - loan **AVAILABLE:** credit limit + deposit - loan. if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ. **BLOCK\_DATE:** expiration date of the next bill **UNBLOCK\_SUM:** sum next neares bills (with one day) + all bills before current day **NEAR\_UNBLOCK\_SUM:** unblock sum + bills for 2 next days after after first bill **EXPIRY\_DATE:** date of first expired bill **EXPIRY\_SUM:** summ of all expired bills **STATUS:** if bills are expired and contract blocked then 'BLOCK', if bills are expired and contract unblocked then 'UNBLOCK', else 'ACTIVE'  
 *parameters:*  
 **P\_TENANT\_ID**: contract id  
 *return:*  
-SYS\_REFCURSOR[CONTRACT\_OID, DEPOSIT, LOAN, CREDIT\_LIMIT, UNUSED\_CREDIT\_LIMIT,AVAILABLE, BLOCK\_DATE, UNBLOCK\_SUM, NEAR\_UNBLOCK\_SUM, EXPIRY\_DATE, EXPIRY\_SUM]  
+SYS\_REFCURSOR[CONTRACT\_OID, DEPOSIT, LOAN, CREDIT\_LIMIT, UNUSED\_CREDIT\_LIMIT,AVAILABLE, BLOCK\_DATE, UNBLOCK\_SUM, NEAR\_UNBLOCK\_SUM, EXPIRY\_DATE, EXPIRY\_SUM, status]  
 
 
 
