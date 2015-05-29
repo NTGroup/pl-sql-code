@@ -735,7 +735,7 @@ create or replace package body hdbk.hdbk_api as
     v_obj_row.code := p_code;
     v_obj_row.info := p_info;    
 
-    insert into hdbk.dictionary values v_obj_row returning id into v_id;
+    insert into dictionary values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
     hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_add', p_msg_type=>'UNHANDLED_ERROR',

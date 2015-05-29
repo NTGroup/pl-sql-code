@@ -16,7 +16,8 @@
 	MSG VARCHAR2(4000 BYTE), 
 	MSG_TYPE VARCHAR2(50 BYTE), 
 	INFO VARCHAR2(4000 BYTE), 
-	ALERT_LEVEL NUMBER(18,0)
+	ALERT_LEVEL NUMBER(18,0),
+  error_stack clob
    ) SEGMENT CREATION IMMEDIATE
   TABLESPACE "USERS" ;
 --------------------------------------------------------
