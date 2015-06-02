@@ -1,6 +1,5 @@
 
 /*company*/
-begin
 
 --------------------------------------------------------
 --  DDL for Table 
@@ -71,7 +70,7 @@ end;
 /
 ALTER TRIGGER BLNG.cmp_TRGR ENABLE;
 
-end;
+/
 
 
 
@@ -79,7 +78,7 @@ end;
 
 
 /*client*/
-begin
+
 
 --------------------------------------------------------
 --  DDL for Table 
@@ -160,13 +159,13 @@ end;
 /
 ALTER TRIGGER BLNG.CLT_TRGR ENABLE;
 
-end;
+/
 
 
 
 
 /*permission*/
-begin
+
 /*
 --------------------------------------------------------
 --  DDL for Table 
@@ -233,14 +232,11 @@ end;
 /
 ALTER TRIGGER BLNG.prm_TRGR ENABLE;
 */
-end;
 
-
-
+/
 
 
 /*client2permission*/
-begin
 /*
 --------------------------------------------------------
 --  DDL for Table 
@@ -311,14 +307,9 @@ end;
 /
 ALTER TRIGGER BLNG.cl2p_TRGR ENABLE;
 */
-end;
-
-
-
 
 
 /*permission2contract*/
-begin
 /*
 --------------------------------------------------------
 --  DDL for Table 
@@ -392,13 +383,11 @@ end;
 /
 ALTER TRIGGER BLNG.p2cntr_TRGR ENABLE;
 */
-end;
 
 
-
+/
 
 /*client2contract*/
-begin
 
 --------------------------------------------------------
 --  DDL for Table client2contract
@@ -476,13 +465,12 @@ end;
 /
 ALTER TRIGGER BLNG.cl2cntr_TRGR ENABLE;
 
-end;
+/
 
 
 
 
 /*contract*/
-begin
 
 --------------------------------------------------------
 --  DDL for Table 
@@ -566,12 +554,11 @@ end;
 /
 ALTER TRIGGER BLNG.CNTR_TRGR ENABLE;
 
-end;
+/
 
 
 
 /* account_type */
-begin
 
 --------------------------------------------------------
 --  DDL for Table 
@@ -646,14 +633,13 @@ end;
 /
 ALTER TRIGGER BLNG.acct_TRGR ENABLE;
 
-end;
+/
 
 
 
 
 
 /*accounts*/
-begin
 
 --------------------------------------------------------
 --  DDL for Table 
@@ -734,11 +720,10 @@ end;
 /
 ALTER TRIGGER BLNG.acc_TRGR ENABLE;
 
-end;
+/
 
 
 /* trans_type */
-begin
 
 --------------------------------------------------------
 --  DDL for Table 
@@ -1330,11 +1315,10 @@ ALTER TRIGGER BLNG.DLY_TRGR ENABLE;
 
 end;
 
-
+/
 
 
 /* domain */
-begin
 
 --------------------------------------------------------
 --  DDL for Table 
@@ -1410,7 +1394,6 @@ end;
 /
 ALTER TRIGGER BLNG.dmn_TRGR ENABLE;
 
-end;
 
 
 /

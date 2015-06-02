@@ -412,7 +412,7 @@ $obj_param: p_contract: contract id
                           p_is_domain in hdbk.dtype.t_status default null
                             
                           )
-  return blng.domain%rowtype;
+  return domain%rowtype;
 
   function client_data_add(p_client in hdbk.dtype.t_id default null, 
                   p_last_name in hdbk.dtype.t_name default null, 
@@ -2189,14 +2189,14 @@ $TODO: all this nullable fields are bad. document_get_info
                       p_is_domain in hdbk.dtype.t_status default null
                     )
   is
-    v_obj_row blng.domain%rowtype;
+    v_obj_row domain%rowtype;
     v_id hdbk.dtype.t_id;
   begin
     v_obj_row.name := p_name;
     v_obj_row.contract_oid := p_contract;
     v_obj_row.is_domain := p_is_domain;
     v_obj_row.status := 'A';
-    insert into blng.domain values v_obj_row;
+    insert into domain values v_obj_row;
   exception when others then
     hdbk.log_api.LOG_ADD(p_proc_name=>'domain_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=domain,p_date='
@@ -2213,11 +2213,11 @@ $TODO: all this nullable fields are bad. document_get_info
                       )
   is
     v_mess hdbk.dtype.t_msg;
-    v_obj_row_new blng.domain%rowtype;
-    v_obj_row_old blng.domain%rowtype;
+    v_obj_row_new domain%rowtype;
+    v_obj_row_old domain%rowtype;
   begin
 
-    select * into v_obj_row_old from blng.domain
+    select * into v_obj_row_old from domain
     where id = p_id
     ;
 
@@ -2225,7 +2225,7 @@ $TODO: all this nullable fields are bad. document_get_info
 
     v_obj_row_old.id:=null;
     v_obj_row_old.amnd_state :='I';
-    insert into blng.domain values v_obj_row_old;
+    insert into domain values v_obj_row_old;
 
     v_obj_row_new.amnd_date:=sysdate;
     v_obj_row_new.amnd_user:=user;
@@ -2238,7 +2238,7 @@ $TODO: all this nullable fields are bad. document_get_info
     if p_status in ('A') then v_obj_row_new.status :='A'; end if;
 
 
-    update blng.domain set row = v_obj_row_new where id = v_obj_row_new.id;
+    update domain set row = v_obj_row_new where id = v_obj_row_new.id;
   exception 
     when NO_DATA_FOUND then 
       raise NO_DATA_FOUND;
@@ -2267,7 +2267,7 @@ $TODO: all this nullable fields are bad. document_get_info
     OPEN v_results FOR
       SELECT 
       *
-      from blng.domain
+      from domain
       where id = nvl(p_id,id)
       and contract_oid = nvl(p_contract,contract_oid)
       and name = nvl(p_name,name)
@@ -2294,13 +2294,13 @@ $TODO: all this nullable fields are bad. document_get_info
                           p_is_domain in hdbk.dtype.t_status default null
                             
                           )
-  return blng.domain%rowtype
+  return domain%rowtype
   is
-    r_obj blng.domain%rowtype;
+    r_obj domain%rowtype;
   begin
       SELECT 
       * into r_obj
-      from blng.domain
+      from domain
       where id = nvl(p_id,id)
       and name = nvl(p_name,name)
       and amnd_state != 'I';
