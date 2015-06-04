@@ -14,10 +14,14 @@ ALTER TABLE BLNG.USR RENAME COLUMN company_OID TO CLIENT_OID;
 ALTER TABLE BLNG.contract RENAME COLUMN company_OID TO CLIENT_OID;
 
 
+insert into hdbk.dictionary (code, name, info, dictionary_type) values('GOD','god@ntg-one.com','super user','CONSTANT');
+commit;
+
+
 @dba/GRANTS.sql;
 @metadata/view.sql;
 @data/pkg/hdbk.hdbk_api.sql;
- @data/pkg/hdbk.fwdr.sql;
+@data/pkg/hdbk.fwdr.sql;
 @data/pkg/hdbk.log_api.sql;
 @data/pkg/hdbk.dtype.sql;
 @data/pkg/hdbk.core.sql;
@@ -30,6 +34,9 @@ ALTER TABLE BLNG.contract RENAME COLUMN company_OID TO CLIENT_OID;
 --@data/pkg/erp.erp_api.sql;
 --@data/pkg/erp.gate.sql;
 --@metadata/get_ddl.sql;
+
+
+
 
 
 

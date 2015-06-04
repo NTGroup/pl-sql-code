@@ -1107,7 +1107,7 @@ END FWDR;
                                 P_DATE => sysdate,
                                 P_STATUS => 'M', --[M]anaging
                                 P_CONTRACT => v_contract,
-                                p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY'));
+                                p_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY'));
                                 
     hdbk.log_api.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'OK',
       P_MSG => 'finish',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
@@ -1740,7 +1740,7 @@ $TODO: there must be check for users with ISSUES permission
     begin 
 -- check that cliemt with this user_id exist
       if p_email is null then raise NO_DATA_FOUND; end if;
-      if p_email = 'god@ntg-one.com' then raise NOT_LOGGED_ON; end if;
+      if p_email = hdbk.core.dictionary_get_name_by_code(p_dictionary_type=>'CONSTANT',p_code=>'GOD') then raise NOT_LOGGED_ON; end if;
       
       r_usr := blng.blng_api.usr_get_info_r(p_email=>p_email);
     exception 

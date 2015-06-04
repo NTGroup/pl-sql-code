@@ -20,6 +20,7 @@ grant execute on hdbk.log_api to erp;
 grant execute on hdbk.log_api to po_fwdr;
 
 grant execute on hdbk.core to blng;
+grant execute on hdbk.core to ord;
 
 grant execute on hdbk.fwdr to po_fwdr;
 grant execute on hdbk.fwdr to ord;

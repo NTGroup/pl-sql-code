@@ -58,13 +58,13 @@ END CORE;
     
   begin
 --  return;
---      c_bill := ord_api.bill_get_info(p_status=>'W', p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY'));
+--      c_bill := ord_api.bill_get_info(p_status=>'W', p_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY'));
     
       for r_bill in ( select * from ord.bill where amnd_state = 'A' and status = 'W'
-                      and trans_type_oid = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
+                      and trans_type_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
                  /*     and contract_oid not in (
                         select contract_oid from ord.bill where amnd_state = 'A' and status = 'W'
-                        and trans_type_oid <> hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
+                        and trans_type_oid <> hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
                         )
                       order by id desc*/
                     --  FETCH FIRST 5 ROWS ONLY
@@ -82,7 +82,7 @@ END CORE;
           v_DOC := blng.BLNG_API.document_add(P_CONTRACT => r_bill.contract_oid,
                                               P_AMOUNT => r_bill.amount,
                                               P_TRANS_TYPE => blng.blng_api.trans_type_get_id(p_code=>'b'),
-                                              P_ACCOUNT_TRANS_TYPE => hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'BUY'),
+                                              P_ACCOUNT_TRANS_TYPE => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'BUY'),
                                               p_bill => r_bill.id);
   --        hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '1',P_ALERT_LEVEL=>10);          
   
@@ -207,15 +207,15 @@ END CORE;
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
 */
     --begin
---      c_bill := ord_api.bill_get_info(p_status=>'W', p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'CASH_IN'));
+--      c_bill := ord_api.bill_get_info(p_status=>'W', p_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'CASH_IN'));
     --exception when NO_DATA_FOUND then return;
     --end;
     
       for r_bill in ( select * from ord.bill where amnd_state = 'A' and status = 'W'
-                      and trans_type_oid = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'CASH_IN')
+                      and trans_type_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'CASH_IN')
                       and contract_oid not in (
                         select contract_oid from ord.bill where amnd_state = 'A' and status = 'W'
-                        and trans_type_oid = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
+                        and trans_type_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
                         )
                
                     --  FETCH FIRST 5 ROWS ONLY
@@ -230,7 +230,7 @@ END CORE;
           v_DOC := blng.BLNG_API.document_add(P_CONTRACT => r_bill.contract_oid,
                                               P_AMOUNT => r_bill.amount,
                                               P_TRANS_TYPE => blng.blng_api.trans_type_get_id(p_code=>'ci'),
-                                              P_ACCOUNT_TRANS_TYPE => hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CASH_IN'),
+                                              P_ACCOUNT_TRANS_TYPE => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CASH_IN'),
                                               p_bill => r_bill.id);
   
   
@@ -268,12 +268,12 @@ END CORE;
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
 */
---      c_bill := ord_api.bill_get_info(p_status=>'W', p_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'PAY_BILL'));
+--      c_bill := ord_api.bill_get_info(p_status=>'W', p_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'PAY_BILL'));
       for r_bill in ( select * from ord.bill where amnd_state = 'A' and status = 'W'
-                      and trans_type_oid = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'PAY_BILL')
+                      and trans_type_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'PAY_BILL')
                       and contract_oid not in (
                         select contract_oid from ord.bill where amnd_state = 'A' and status = 'W'
-                        and trans_type_oid = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
+                        and trans_type_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
                         )
                      
                    --   FETCH FIRST 5 ROWS ONLY
@@ -287,7 +287,7 @@ END CORE;
           v_DOC := blng.BLNG_API.document_add(P_CONTRACT => r_bill.contract_oid,
                                               P_AMOUNT => r_bill.amount,
                                               P_TRANS_TYPE => blng.blng_api.trans_type_get_id(p_code=>'ci'),
-                                              P_ACCOUNT_TRANS_TYPE => hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'PAY_BILL'),
+                                              P_ACCOUNT_TRANS_TYPE => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'PAY_BILL'),
                                               p_bill => r_bill.id);
   
   
@@ -324,12 +324,12 @@ END CORE;
     END LOOP;
 
 
---    c_doc := blng.blng_api.document_get_info(p_status=>'W', p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'UP_LIM_TRANS'));
+--    c_doc := blng.blng_api.document_get_info(p_status=>'W', p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'UP_LIM_TRANS'));
     for i_document in ( select * from blng.document where amnd_state = 'A' and status = 'W'
-                    and account_trans_type_oid in hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'UP_LIM_TRANS')
+                    and account_trans_type_oid in hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'UP_LIM_TRANS')
                     and contract_oid not in (
                       select contract_oid from ord.bill where amnd_state = 'A' and status = 'W'
-                      and trans_type_oid = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
+                      and trans_type_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
                       )
                  
                      -- FETCH FIRST 5 ROWS ONLY
@@ -355,12 +355,12 @@ END CORE;
     END LOOP;
 --    CLOSE c_doc;
 
-    --c_doc := blng.blng_api.document_get_info(p_status=>'W', p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
+    --c_doc := blng.blng_api.document_get_info(p_status=>'W', p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
     for i_document in ( select * from blng.document where amnd_state = 'A' and status = 'W'
-                    and account_trans_type_oid in hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT')
+                    and account_trans_type_oid in hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT')
                    and contract_oid not in (
                       select contract_oid from ord.bill where amnd_state = 'A' and status = 'W'
-                      and trans_type_oid = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
+                      and trans_type_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
                       )
                   
                     --  FETCH FIRST 5 ROWS ONLY
@@ -371,7 +371,7 @@ END CORE;
         r_account := blng.blng_api.account_get_info_r(p_contract => i_document.contract_oid, p_code => 'cl'  );
         v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => i_document.id,P_AMOUNT => abs(i_document.amount)-abs(r_account.amount),
           P_TRANS_TYPE => BLNG.blng_api.trans_type_get_id(p_code=>'cl'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
-        --blng.blng_api.document_edit(i_document.id, p_account_trans_type=> hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'), p_status_ );
+        --blng.blng_api.document_edit(i_document.id, p_account_trans_type=> hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'), p_status_ );
         blng.blng_api.document_edit(i_document.id, 'P');
         commit;
       exception
@@ -387,12 +387,12 @@ END CORE;
     END LOOP;
 --    CLOSE c_doc;
 
---    c_doc := blng.blng_api.document_get_info(p_status=>'W', p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
+--    c_doc := blng.blng_api.document_get_info(p_status=>'W', p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
     for i_document in ( select * from blng.document where amnd_state = 'A' and status = 'W'
-                    and account_trans_type_oid in hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY')
+                    and account_trans_type_oid in hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY')
                     and contract_oid not in (
                       select contract_oid from ord.bill where amnd_state = 'A' and status = 'W'
-                      and trans_type_oid = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
+                      and trans_type_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
                       )
                 
                     --  FETCH FIRST 5 ROWS ONLY

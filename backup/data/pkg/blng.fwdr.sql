@@ -1097,11 +1097,11 @@ create  or replace package BODY blng.fwdr as
       BLNG.BLNG_API.account_init(v_contract);
     
       v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => i.credit_limit,
-        p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
+        p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
       v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => i.delay_days,
-        p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
+        p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
       v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => i.max_credit,
-        p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'UP_LIM_TRANS'));
+        p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'UP_LIM_TRANS'));
       commit;
     end loop;
 
@@ -1183,11 +1183,11 @@ create  or replace package BODY blng.fwdr as
       if r_account_info.loan <> 0 and abs(r_account_info.loan)> i.credit_limit then raise VALUE_ERROR; end if;
     
       v_DOC := blng.BLNG_API.document_add(P_CONTRACT => p_contract,P_AMOUNT => i.credit_limit,
-        p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
+        p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
       v_DOC := blng.BLNG_API.document_add(P_CONTRACT => p_contract,P_AMOUNT => i.delay_days,
-        p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
+        p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
       v_DOC := blng.BLNG_API.document_add(P_CONTRACT => p_contract,P_AMOUNT => i.max_credit,
-        p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'UP_LIM_TRANS'));
+        p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'UP_LIM_TRANS'));
       commit;
     end loop;
 

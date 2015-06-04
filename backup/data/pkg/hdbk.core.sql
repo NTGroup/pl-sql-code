@@ -21,12 +21,22 @@ $obj_return: day of pay
     P_CONTRACT   in hdbk.dtype.t_id default null )
   return hdbk.dtype.t_date;
 
+  
+  procedure buy_run;
+  
+  
+  procedure DOC_TASK_LIST_run;
 
-procedure buy_run;
+  function dictionary_get_id (    p_dictionary_type  in hdbk.dtype.t_name default null,
+                                p_code in hdbk.dtype.t_code default null,
+                                p_name in hdbk.dtype.t_name default null
+                          )
+  return hdbk.dtype.t_id;
 
-
-procedure DOC_TASK_LIST_run;
-
+  function dictionary_get_name_by_code (    p_dictionary_type  in hdbk.dtype.t_name default null,
+                                p_code in hdbk.dtype.t_code default null
+                          )
+  return hdbk.dtype.t_name;
 
 end core;
 
@@ -109,7 +119,7 @@ dbms_output.put_line('7');
 --dbms_output.put_line('9');
       if to_char(v_calendar_day,'D') in ('6','7') then -- WEEKEND
         v_calendar_day := v_calendar_day + 1;
-      ELSIF v_custom_status = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'CALENDAR',p_code=>'HOLYDAY') THEN 
+      ELSIF v_custom_status = hdbk.core.dictionary_get_id(p_dictionary_type=>'CALENDAR',p_code=>'HOLYDAY') THEN 
         v_calendar_day := v_calendar_day + 1;
       else exit;
 --dbms_output.put_line('10');
@@ -120,8 +130,8 @@ dbms_output.put_line('7');
 -- 2. find custom day
     begin
       select min(date_to) into v_custom_day from hdbk.calendar where day_type in (
-        hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'CALENDAR',p_code=>'PAYDAY'),
-        hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'CALENDAR',p_code=>'WORKDAY')      
+        hdbk.core.dictionary_get_id(p_dictionary_type=>'CALENDAR',p_code=>'PAYDAY'),
+        hdbk.core.dictionary_get_id(p_dictionary_type=>'CALENDAR',p_code=>'WORKDAY')      
       )
       and amnd_state = 'A' and (contract_oid is null or contract_oid = P_CONTRACT)
       and date_to > trunc(sysdate);
@@ -163,7 +173,7 @@ begin
 ---  SELECT count(*) FROM DBA_SCHEDULER_JOB_DESTS where job_name in ('DOC_TASK_LIST_JOB','BUY_JOB','DOC_TASK_LIST_RUN','BUY_RUN')
   SELECT count(*) into job_count FROM ALL_SCHEDULER_JOB_DESTS where job_name in (/*'DOC_TASK_LIST_JOB',*/'BUY_JOB');
   select count(*) into BILL_count from ord.bill where amnd_state = 'A' and status = 'W'
-                      and trans_type_oid = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
+                      and trans_type_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
                       order by id desc;
   if job_count = 0 and BILL_count <>0 then
     BEGIN
@@ -194,7 +204,7 @@ begin
 ---  SELECT count(*) FROM DBA_SCHEDULER_JOB_DESTS where job_name in ('DOC_TASK_LIST_JOB','BUY_JOB','DOC_TASK_LIST_RUN','BUY_RUN')
   SELECT count(*) into job_count FROM ALL_SCHEDULER_JOB_DESTS where job_name in ('DOC_TASK_LIST_JOB','BUY_JOB');
   select count(*) into BILL_count from ord.bill where amnd_state = 'A' and status = 'W'
-                      and trans_type_oid = hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
+                      and trans_type_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
                       order by id desc;
   
   if job_count = 0 and BILL_count =0 
@@ -223,6 +233,75 @@ exception when others then
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
 --    RAISE_APPLICATION_ERROR(-20002,'DOC_TASK_LIST_RUN error. '||SQLERRM);
 end;
+
+
+  function dictionary_get_id (    p_dictionary_type  in hdbk.dtype.t_name default null,
+                                p_code in hdbk.dtype.t_code default null,
+                                p_name in hdbk.dtype.t_name default null
+                          )
+  return hdbk.dtype.t_id
+  is
+    r_obj hdbk.dtype.t_id;
+  begin
+    if p_dictionary_type is not null and p_code is not null then 
+      SELECT
+      id into r_obj
+      from dictionary 
+      where dictionary_type = p_dictionary_type
+      and code = p_code
+      and amnd_state = 'A';
+    elsif p_dictionary_type is not null and p_name is not null then 
+      SELECT
+      id into r_obj
+      from dictionary 
+      where dictionary_type = p_dictionary_type
+      and name = p_name
+      and amnd_state = 'A';
+    else raise NO_DATA_FOUND; 
+    end if;   
+    
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_get_id', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=dictionary,p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into dictionary error. '||SQLERRM);
+  end;
+
+
+  function dictionary_get_name_by_code (    p_dictionary_type  in hdbk.dtype.t_name default null,
+                                p_code in hdbk.dtype.t_code default null
+                          )
+  return hdbk.dtype.t_name
+  is
+    v_result hdbk.dtype.t_name;
+  begin
+    if p_dictionary_type is null and p_code is null then raise NO_DATA_FOUND; end if;
+
+    SELECT
+    name into v_result
+    from dictionary 
+    where dictionary_type = p_dictionary_type
+    and code = p_code
+    and amnd_state = 'A';
+    
+    return v_result;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_get_id', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into dictionary error. '||SQLERRM);
+  end;
+
 
 
 end core;

@@ -157,13 +157,6 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
   return dictionary%rowtype;
 
 
-  function dictionary_get_id (    p_dictionary_type  in hdbk.dtype.t_name default null,
-                                p_code in hdbk.dtype.t_code default null,
-                                p_name in hdbk.dtype.t_name default null
-                          )
-  return hdbk.dtype.t_id;
-
-
   function airline_get_id (     p_iata in hdbk.dtype.t_code default null
                           )
   return hdbk.dtype.t_id;
@@ -861,44 +854,6 @@ create or replace package body hdbk.hdbk_api as
       RAISE_APPLICATION_ERROR(-20002,'select row into dictionary error. '||SQLERRM);
   end;
 
-
-  function dictionary_get_id (    p_dictionary_type  in hdbk.dtype.t_name default null,
-                                p_code in hdbk.dtype.t_code default null,
-                                p_name in hdbk.dtype.t_name default null
-                          )
-  return hdbk.dtype.t_id
-  is
-    r_obj hdbk.dtype.t_id;
-  begin
-    if p_dictionary_type is not null and p_code is not null then 
-      SELECT
-      id into r_obj
-      from dictionary 
-      where dictionary_type = p_dictionary_type
-      and code = p_code
-      and amnd_state = 'A';
-    elsif p_dictionary_type is not null and p_name is not null then 
-      SELECT
-      id into r_obj
-      from dictionary 
-      where dictionary_type = p_dictionary_type
-      and name = p_name
-      and amnd_state = 'A';
-    else raise NO_DATA_FOUND; 
-    end if;   
-    
-    return r_obj;
-  exception 
-    when NO_DATA_FOUND then 
-      raise NO_DATA_FOUND;
-    when TOO_MANY_ROWS then 
-      raise NO_DATA_FOUND;  
-    when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_get_id', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=dictionary,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'select row into dictionary error. '||SQLERRM);
-  end;
 
 
   function airline_get_id (     p_iata in hdbk.dtype.t_code default null
