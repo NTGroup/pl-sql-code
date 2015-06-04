@@ -121,11 +121,11 @@ get back money and erase transactions by p\_document id
 
 
 
-- *function* **blng.core.pay\_contract\_by\_client**  
+- *function* **blng.core.pay\_contract\_by\_user**  
 *description:*  
-get contract which client can spend money documents like increase credit limit or loan days approve immediately docs like buy or cash\_in push to credit/debit\_online accounts.  
+get contract which user can spend money documents like increase credit limit or loan days approve immediately docs like buy or cash\_in push to credit/debit\_online accounts.  
 *parameters:*  
-**p\_client**: client id  
+**p\_user**: user id  
 *return:*  
 contract id  
 
@@ -137,7 +137,7 @@ contract id
 
 - *function* **blng.fwdr.get\_tenant**  
 *description:*  
-return tenant. tenant is contract identifire. tenant using for checking is client registered in the system.  
+return tenant. tenant is contract identifire. tenant using for checking is user registered in the system.  
 *parameters:*  
 **p\_email**: user email  
 *return:*  
@@ -145,13 +145,13 @@ contract identifire
 
 
 
-- *function* **blng.fwdr.company\_insteadof\_client**  
+- *function* **blng.fwdr.client\_insteadof\_user**  
 *description:*  
-return id of client with max id across company  
+return id of user with max id across client  
 *parameters:*  
-**p\_company**: company id where we looking for client  
+**p\_client**: client id where we looking for user  
 *return:*  
-client id  
+user id  
 
 
 
@@ -161,8 +161,8 @@ return info of contract for show balance to the client. function return this fil
 **DEPOSIT**: self money  
 **LOAN**: money thatspent from credit limit  
 **CREDIT\_LIMIT**: credit limit  
-**UNUSED\_CREDIT\_LIMIT**: credit limit - loan  
-**AVAILABLE**: credit limit + deposit - loan. if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ.  
+**UNUSED\_CREDIT\_LIMIT**: credit limit - abs(loan)  
+**AVAILABLE**: credit limit + deposit - abs(loan). if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ.  
 **BLOCK\_DATE**: expiration date of the next bill  
 **UNBLOCK\_SUM**: sum next neares bills (with one day) + all bills before current day  
 **NEAR\_UNBLOCK\_SUM**: unblock sum + bills for 2 next days after after first bill  
@@ -182,13 +182,13 @@ return info for user
 *parameters:*  
 **p\_user**: email  
 *return:*  
-SYS\_REFCURSOR[CLIENT\_ID, LAST\_NAME, FIRST\_NAME, EMAIL, PHONE, --TENANT\_ID,BIRTH\_DATE, GENDER, NATIONALITY, NLS\_NATIONALITY, DOC\_ID, DOC\_EXPIRY\_DATE,DOC\_NUMBER, DOC\_LAST\_NAME, DOC\_FIRST\_NAME, DOC\_OWNER, DOC\_GENDER,DOC\_BIRTH\_DATE, DOC\_NATIONALITY, DOC\_NLS\_NATIONALITY, DOC\_PHONE, COMPANY\_NAME,is\_tester]  
+SYS\_REFCURSOR[USER\_ID, LAST\_NAME, FIRST\_NAME, EMAIL, PHONE, --TENANT\_ID,BIRTH\_DATE, GENDER, NATIONALITY, NLS\_NATIONALITY, DOC\_ID, DOC\_EXPIRY\_DATE,DOC\_NUMBER, DOC\_LAST\_NAME, DOC\_FIRST\_NAME, DOC\_OWNER, DOC\_GENDER,DOC\_BIRTH\_DATE, DOC\_NATIONALITY, DOC\_NLS\_NATIONALITY, DOC\_PHONE, client\_NAME,is\_tester]  
 
 
 
-- *function* **blng.fwdr.client\_data\_edit**  
+- *function* **blng.fwdr.user\_data\_edit**  
 *description:*  
-update client documents. if success return true else false  
+update user documents. if success return true else false  
 *parameters:*  
 **p\_data**: data for update. format json[email, first\_name, last\_name, gender, birth\_date, nationality, phone, docs[doc\_expiry\_date, doc\_gender, doc\_first\_name, doc\_last\_name, doc\_number, doc\_owner, doc\_id, doc\_nationality, doc\_birth\_date,doc\_phone]]  
 *return:*  
@@ -198,7 +198,7 @@ SYS\_REFCURSOR[res:true/false]
 
 - *function* **blng.fwdr.statement**  
 *description:*  
-return list of transactions between dates in client timezone format  
+return list of transactions between dates in user timezone format  
 *parameters:*  
 **p\_email**: user email which request statement  
 **p\_row\_count**: count rows per page  
@@ -212,7 +212,7 @@ SYS\_REFCURSOR[rn(row\_number),all v\_statemen filds + amount\_cash\_in,amount\_
 
 - *function* **blng.fwdr.statement**  
 *description:*  
-return list of transactions in client timezone format by pages  
+return list of transactions in user timezone format by pages  
 *parameters:*  
 **p\_email**: user email which request statement  
 **p\_row\_count**: count rows per page  
@@ -245,17 +245,17 @@ SYS\_REFCURSOR[all v\_statemen fields]
 
 - *function* **blng.fwdr.contract\_get**  
 *description:*  
-return list of contract with company  
+return list of contract with client  
 *parameters:*  
 **p\_contract**: contract id  
 *return:*  
-SYS\_REFCURSOR[COMPANY\_ID, CONTRACT\_ID, COMPANY\_NAME, CONTRACT\_NUMBER]  
+SYS\_REFCURSOR[client\_ID, CONTRACT\_ID, client\_NAME, CONTRACT\_NUMBER]  
 
 
 
 - *function* **blng.fwdr.check\_tenant**  
 *description:*  
-return tenant. tenant is contract identifire. tenant using for checking is client registered in the system. if user dosnt exist then return NULL  
+return tenant. tenant is contract identifire. tenant using for checking is user registered in the system. if user dosnt exist then return NULL  
 *parameters:*  
 **p\_email**: user email  
 *return:*  
@@ -291,7 +291,7 @@ res[SUCCESS/ERROR/NO\_DATA\_FOUND]
 
 - *function* **blng.fwdr.client\_list()**  
 *description:*  
-return list of clients(company now).  
+return list of clients.  
 *return:*  
 on success SYS\_REFCURSOR[client\_id,name].on error SYS\_REFCURSOR[res]. res=ERROR  
 
@@ -299,7 +299,7 @@ on success SYS\_REFCURSOR[client\_id,name].on error SYS\_REFCURSOR[res]. res=ERR
 
 - *function* **blng.fwdr.client\_add**  
 *description:*  
-create client(company now) and return info about this new client(company now).  
+create client and return info about this new client.  
 *parameters:*  
 **p\_name**: name of client  
 *return:*  
@@ -309,7 +309,7 @@ on success SYS\_REFCURSOR[res,client\_id,name]on error SYS\_REFCURSOR[res]. res=
 
 - *function* **blng.fwdr.contract\_list**  
 *description:*  
-return list of contracts by client id (company now)  
+return list of contracts by client id  
 *parameters:*  
 **p\_client**: id of client  
 *return:*  
@@ -779,11 +779,11 @@ calculate commission for pnr\_id
 
 - *function* **ord.fwdr.order\_number\_generate**  
 *description:*  
-generate order number as last number + 1 by client id  
+generate order number as last number + 1 by user id  
 *parameters:*  
-**p\_client**: client id.  
+**p\_user**: user id.  
 *return:*  
-string like 0012410032, where 1241 - client id and 32 is a counter of order  
+string like 0012410032, where 1241 - user id and 32 is a counter of order  
 
 
 
@@ -919,9 +919,6 @@ SYS\_REFCURSOR[ID, TEMPLATE\_TYPE\_CODE, TEMPLATE\_VALUE]
 
 ## TODOs: ##  
 1. there must be check for users with ISSUES permission  
-2. there must be check for users with ISSUES permission  
-3. there must be check for users with ISSUES permission  
-4. there must be check for users with ISSUES permission  
 
 
 ## ORD.ORD\_API ##

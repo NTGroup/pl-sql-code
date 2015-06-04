@@ -1,11 +1,11 @@
 
-/*company*/
+/*client*/
 
 --------------------------------------------------------
 --  DDL for Table 
 --------------------------------------------------------
 
-  CREATE TABLE blng.company 
+  CREATE TABLE blng.client 
    (	ID NUMBER(18,0), 
    amnd_date date,
    amnd_user VARCHAR2(50),
@@ -23,29 +23,29 @@
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.cmp_ID_IDX ON blng.company ("ID") 
+  CREATE INDEX blng.clt_ID_IDX ON blng.client ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE blng.company MODIFY ("ID" CONSTRAINT "cmp_ID_NN" NOT NULL ENABLE);
- ALTER TABLE blng.company MODIFY (AMND_DATE CONSTRAINT "cmp_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.company MODIFY (AMND_USER CONSTRAINT "cmp_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.company MODIFY (AMND_STATE CONSTRAINT "cmp_AST_NN" NOT NULL ENABLE);
-  ALTER TABLE BLNG.company  MODIFY (AMND_DATE DEFAULT on null sysdate);
-  ALTER TABLE BLNG.company  MODIFY (AMND_USER DEFAULT  on null user );
-  ALTER TABLE BLNG.company  MODIFY (AMND_STATE DEFAULT  on null 'A' );
+  ALTER TABLE blng.client MODIFY ("ID" CONSTRAINT "clt_ID_NN" NOT NULL ENABLE);
+ ALTER TABLE blng.client MODIFY (AMND_DATE CONSTRAINT "clt_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.client MODIFY (AMND_USER CONSTRAINT "clt_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.client MODIFY (AMND_STATE CONSTRAINT "clt_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE BLNG.client  MODIFY (AMND_DATE DEFAULT on null sysdate);
+  ALTER TABLE BLNG.client  MODIFY (AMND_USER DEFAULT  on null user );
+  ALTER TABLE BLNG.client  MODIFY (AMND_STATE DEFAULT  on null 'A' );
 
-  ALTER TABLE blng.company ADD CONSTRAINT cmp_ID_PK PRIMARY KEY (ID)
-  USING INDEX BLNG.cmp_ID_IDX ENABLE;
+  ALTER TABLE blng.client ADD CONSTRAINT clt_ID_PK PRIMARY KEY (ID)
+  USING INDEX BLNG.clt_ID_IDX ENABLE;
 
 
 --------------------------------------------------------
 --  DDL for Secuence 
 --------------------------------------------------------
  
-  create sequence  BLNG.cmp_seq
+  create sequence  BLNG.clt_seq
   increment by 1
   start with 1
   nomaxvalue
@@ -57,18 +57,18 @@
 --  DDL for Trigger 
 --------------------------------------------------------
 
-CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.cmp_TRGR 
+CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.clt_TRGR 
 BEFORE
 INSERT
-ON BLNG.company
+ON BLNG.client
 REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
-  select BLNG.cmp_seq.nextval into :new.id from dual; 
+  select BLNG.clt_seq.nextval into :new.id from dual; 
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual;
 end;
 /
-ALTER TRIGGER BLNG.cmp_TRGR ENABLE;
+ALTER TRIGGER BLNG.clt_TRGR ENABLE;
 
 /
 
@@ -90,7 +90,7 @@ ALTER TRIGGER BLNG.cmp_TRGR ENABLE;
    amnd_user VARCHAR2(50),
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
-   company_oid NUMBER(18,0), 
+   client_oid NUMBER(18,0), 
    last_name varchar2(255),
    first_name varchar2(255),   
    birth_date date,
@@ -127,8 +127,8 @@ ALTER TRIGGER BLNG.cmp_TRGR ENABLE;
   ALTER TABLE blng.usr ADD CONSTRAINT usr_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.usr_ID_IDX ENABLE;
 
-ALTER TABLE BLNG.usr ADD CONSTRAINT usr_cmp_OID_FK FOREIGN KEY (company_oid)
-  REFERENCES BLNG.company ("ID") ENABLE;
+ALTER TABLE BLNG.usr ADD CONSTRAINT usr_clt_OID_FK FOREIGN KEY (client_oid)
+  REFERENCES BLNG.client ("ID") ENABLE;
 
 --------------------------------------------------------
 --  DDL for Secuence 
@@ -484,7 +484,7 @@ ALTER TRIGGER BLNG.u2cntr_TRGR ENABLE;
    amnd_prev NUMBER(18,0), 
    contract_number VARCHAR2(50),
    status VARCHAR2(1),
-   company_oid NUMBER(18,0),
+   client_oid NUMBER(18,0),
    utc_offset number,
    name  VARCHAR2(255),
    contact_name varchar2(255),
@@ -519,8 +519,8 @@ ALTER TABLE BLNG.CONTRACT  MODIFY (AMND_STATE DEFAULT on null 'A' );
   USING INDEX BLNG.CNTR_ID_IDX ENABLE;
 
 
-ALTER TABLE BLNG.contract ADD CONSTRAINT cntr_cmp_OID_FK FOREIGN KEY (company_oid)
-  REFERENCES BLNG.company ("ID") ENABLE;
+ALTER TABLE BLNG.contract ADD CONSTRAINT cntr_clt_OID_FK FOREIGN KEY (client_oid)
+  REFERENCES BLNG.client ("ID") ENABLE;
 
 --------------------------------------------------------
 --  DDL for Secuence 
@@ -1486,7 +1486,7 @@ ALTER TRIGGER BLNG.usrd_TRGR ENABLE;
 /
 
 
-CREATE bitmap INDEX blng.cmp_AS_IDX ON blng.company (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX blng.clt_AS_IDX ON blng.client (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX blng.usr_AS_IDX ON blng.usr (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX blng.cntr_AS_IDX ON blng.contract (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX blng.u2cntr_AS_IDX ON blng.USR2CONTRACT (amnd_state) TABLESPACE "USERS" ;
@@ -1513,7 +1513,7 @@ CREATE INDEX blng.dly_dt_IDX ON blng.delay (date_to) TABLESPACE "USERS" ;
 
 grant select on blng.contract to ord;
 grant select on blng.usr to ord;
-grant select on blng.company to ord;
+grant select on blng.client to ord;
 grant select on blng.domain to ord;
 grant select on blng.USR2CONTRACT to ord;
 grant select on blng.USR_DATA to ord;
@@ -1529,7 +1529,7 @@ grant select on blng.event_type to ord;
 
 grant select on blng.contract to ntg;
 grant select on blng.usr to ntg;
-grant select on blng.company to ntg;
+grant select on blng.client to ntg;
 grant select on blng.domain to ntg;
 grant select on blng.USR2CONTRACT to ntg;
 grant select on blng.USR_DATA to ntg;
@@ -1548,7 +1548,7 @@ grant select on blng.event_type to ntg;
 
 grant references on blng.contract to ord;
 grant references on blng.usr to ord;
-grant references on blng.company to ord;
+grant references on blng.client to ord;
 grant references on blng.domain to ord;
 grant references on blng.USR2CONTRACT to ord;
 grant references on blng.USR_DATA to ord;
@@ -1564,7 +1564,7 @@ grant references on blng.event_type to ord;
 
 grant references on blng.contract to ntg;
 grant references on blng.usr to ntg;
-grant references on blng.company to ntg;
+grant references on blng.client to ntg;
 grant references on blng.domain to ntg;
 grant references on blng.USR2CONTRACT to ntg;
 grant references on blng.USR_DATA to ntg;

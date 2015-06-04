@@ -16,12 +16,12 @@ $obj_return: contract identifire
 
 /*
 $obj_type: function
-$obj_name: company_insteadof_user
-$obj_desc: return id of user with max id across company
-$obj_param: p_company: company id where we looking for user
+$obj_name: client_insteadof_user
+$obj_desc: return id of user with max id across client
+$obj_param: p_client: client id where we looking for user
 $obj_return: user id
 */
-  function company_insteadof_user(p_company in hdbk.dtype.t_id)
+  function client_insteadof_user(p_client in hdbk.dtype.t_id)
   return hdbk.dtype.t_id;
 
 /*
@@ -56,7 +56,7 @@ $obj_param: p_user: email
 $obj_return: SYS_REFCURSOR[USER_ID, LAST_NAME, FIRST_NAME, EMAIL, PHONE, --TENANT_ID, 
 $obj_return: BIRTH_DATE, GENDER, NATIONALITY, NLS_NATIONALITY, DOC_ID, DOC_EXPIRY_DATE, 
 $obj_return: DOC_NUMBER, DOC_LAST_NAME, DOC_FIRST_NAME, DOC_OWNER, DOC_GENDER, 
-$obj_return: DOC_BIRTH_DATE, DOC_NATIONALITY, DOC_NLS_NATIONALITY, DOC_PHONE, COMPANY_NAME,is_tester]
+$obj_return: DOC_BIRTH_DATE, DOC_NATIONALITY, DOC_NLS_NATIONALITY, DOC_PHONE, client_NAME,is_tester]
 */
   function whoami(p_user in hdbk.dtype.t_name)
   return SYS_REFCURSOR;
@@ -139,9 +139,9 @@ $obj_return: SYS_REFCURSOR[all v_statemen fields]
 /*
 $obj_type: function
 $obj_name: contract_get
-$obj_desc: return list of contract with company
+$obj_desc: return list of contract with client
 $obj_param: p_contract: contract id
-$obj_return: SYS_REFCURSOR[COMPANY_ID, CONTRACT_ID, COMPANY_NAME, CONTRACT_NUMBER]
+$obj_return: SYS_REFCURSOR[client_ID, CONTRACT_ID, client_NAME, CONTRACT_NUMBER]
 */
   function contract_get(
                         p_contract  in hdbk.dtype.t_id default null
@@ -193,7 +193,7 @@ $obj_return: res[SUCCESS/ERROR/NO_DATA_FOUND]
 /*
 $obj_type: function
 $obj_name: client_list()
-$obj_desc: return list of clients(company now). 
+$obj_desc: return list of clients. 
 $obj_return: on success SYS_REFCURSOR[client_id,name].
 $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 */
@@ -204,7 +204,7 @@ $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 /*
 $obj_type: function
 $obj_name: client_add
-$obj_desc: create client(company now) and return info about this new client(company now). 
+$obj_desc: create client and return info about this new client. 
 $obj_param: p_name: name of client
 $obj_return: on success SYS_REFCURSOR[res,client_id,name]
 $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
@@ -215,7 +215,7 @@ $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 /*
 $obj_type: function
 $obj_name: contract_list
-$obj_desc: return list of contracts by client id (company now)
+$obj_desc: return list of contracts by client id 
 $obj_param: p_client: id of client
 $obj_return: on success SYS_REFCURSOR[CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, 
 $obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE]
@@ -259,10 +259,9 @@ create  or replace package BODY blng.fwdr as
   return hdbk.dtype.t_id
   is
     r_usr blng.usr%rowtype;
---    r_company blng.company%rowtype;
     v_user hdbk.dtype.t_id;
     v_contract hdbk.dtype.t_id;
-    r_company blng.company%rowtype;
+    r_client blng.client%rowtype;
     r_contract blng.contract%rowtype;
     r_domain blng.domain%rowtype;
     v_user_count hdbk.dtype.t_id;
@@ -298,15 +297,15 @@ create  or replace package BODY blng.fwdr as
         end;
 --dbms_output.put_line(sysdate||'3');
         r_contract:=blng.blng_api.contract_get_info_r(p_id=>r_domain.contract_oid);
-        r_company:=blng.blng_api.company_get_info_r(p_id=>r_contract.company_oid);  
+        r_client:=blng.blng_api.client_get_info_r(p_id=>r_contract.client_oid);  
 
         v_contract:=r_contract.id;
 --dbms_output.put_line(sysdate||'4');
-        select count(*) into v_user_count from blng.usr where amnd_state = 'A' and company_oid = r_company.id and amnd_date > sysdate-1/24/60;
+        select count(*) into v_user_count from blng.usr where amnd_state = 'A' and client_oid = r_client.id and amnd_date > sysdate-1/24/60;
 -- auto user registration stoper 10 user per minute
         if v_user_count>=10 then return null; end if;
 --dbms_output.put_line(sysdate||'5');
-        v_user := blng.BLNG_API.usr_add(P_last_NAME => REGEXP_SUBSTR ( lower(p_email), '^[^@]*' ), p_company => r_company.id,p_email=>p_email,p_utc_offset=>r_company.utc_offset);
+        v_user := blng.BLNG_API.usr_add(P_last_NAME => REGEXP_SUBSTR ( lower(p_email), '^[^@]*' ), p_client => r_client.id,p_email=>p_email,p_utc_offset=>r_client.utc_offset);
 --dbms_output.put_line(sysdate||'6');
         blng.BLNG_API.usr2contract_add(p_user => v_user, p_permission=> 'B', p_contract => r_contract.id);
         commit;
@@ -329,15 +328,15 @@ create  or replace package BODY blng.fwdr as
   end;
 
   
-  function company_insteadof_user(p_company in hdbk.dtype.t_id)
+  function client_insteadof_user(p_client in hdbk.dtype.t_id)
   return hdbk.dtype.t_id
   is
     v_result hdbk.dtype.t_id;
   begin
-    select max(id) into v_result from blng.usr where company_oid = p_company and amnd_state = 'A';
+    select max(id) into v_result from blng.usr where client_oid = p_client and amnd_state = 'A';
     return v_result;
   exception when others then 
-    hdbk.log_api.LOG_ADD(p_proc_name=>'company_insteadof_user', p_msg_type=>'UNHANDLED_ERROR', 
+    hdbk.log_api.LOG_ADD(p_proc_name=>'client_insteadof_user', p_msg_type=>'UNHANDLED_ERROR', 
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);      
     return null;
   end;
@@ -412,14 +411,14 @@ create  or replace package BODY blng.fwdr as
       to_char(usrd.birth_date,'yyyy-mm-dd') doc_birth_date,
       usrd.nationality doc_nationality,
       hdbk.hdbk_api.gds_nationality_get_info_name(usrd.nationality) doc_nls_nationality,usrd.phone doc_phone,
-      company.name company_name,
+      client.name client_name,
       usr.is_tester
-      from blng.usr usr, blng.usr_data usrd, blng.company
+      from blng.usr usr, blng.usr_data usrd, blng.client
       where 
       usr.amnd_state = 'A' 
       and usr.status = 'A'
       and usr.email = p_user
-      and usr.company_oid = company.id
+      and usr.client_oid = client.id
       and usr.id = usrd.user_oid(+)
       and usrd.amnd_state(+) = 'A' 
         ;
@@ -811,15 +810,15 @@ create  or replace package BODY blng.fwdr as
       OPEN v_results FOR
   
         select 
-        company.id company_id,
+        client.id client_id,
         contract.id contract_id,
-        company.name company_name,
+        client.name client_name,
         contract.name contract_name,
         contract.contract_number contract_number
-        from blng.contract, blng.company
+        from blng.contract, blng.client
         where contract.amnd_state = 'A'
-        and company.amnd_state = 'A'
-        and company.id = contract.company_oid
+        and client.amnd_state = 'A'
+        and client.id = contract.client_oid
         and contract.id = nvl(p_contract, contract.id)
         ;
         
@@ -944,7 +943,7 @@ create  or replace package BODY blng.fwdr as
     r_usr2contract:=blng.blng_api.usr2contract_get_info_r(p_user=>r_usr.id, p_permission=>'B');
     r_contract_to:=blng.blng_api.contract_get_info_r(p_id=>p_tenant);
 
-    blng.blng_api.usr_edit(p_id=>r_usr.id, p_company=>r_contract_to.company_oid);
+    blng.blng_api.usr_edit(p_id=>r_usr.id, p_client=>r_contract_to.client_oid);
     blng.blng_api.usr2contract_edit(p_id=>r_usr2contract.id, p_contract=>r_contract_to.id);
     commit;
       open v_results for
@@ -980,10 +979,10 @@ create  or replace package BODY blng.fwdr as
       OPEN v_results FOR
   
         select 
-        company.id client_id,
-        company.name name
-        from blng.company
-        where company.amnd_state = 'A'
+        client.id client_id,
+        client.name name
+        from blng.client
+        where client.amnd_state = 'A'
         order by id
         ;
 
@@ -1005,7 +1004,7 @@ create  or replace package BODY blng.fwdr as
     v_results SYS_REFCURSOR; 
     v_client hdbk.dtype.t_id;
   begin
-    v_client:=blng_api.company_add(p_name=>p_name);
+    v_client:=blng_api.client_add(p_name=>p_name);
     commit;    
       OPEN v_results FOR
   
@@ -1048,7 +1047,7 @@ create  or replace package BODY blng.fwdr as
         from blng.contract, blng.v_account
         where contract.amnd_state = 'A'
         and contract.id = v_account.contract_oid
-        and contract.company_oid = nvl(p_client,contract.company_oid)
+        and contract.client_oid = nvl(p_client,contract.client_oid)
         order by id
         ;
         
@@ -1089,7 +1088,7 @@ create  or replace package BODY blng.fwdr as
         ) 
     )
     loop
-      v_contract := blng.BLNG_API.contract_add( P_company => p_client, 
+      v_contract := blng.BLNG_API.contract_add( P_client => p_client, 
                                                 p_name=>i.contract_name, 
                                                 p_utc_offset=>i.utc_offset,
                                                 p_contact_name=>i.contact_name,
