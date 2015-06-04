@@ -17,7 +17,7 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
 
   function ord_add( p_date  in hdbk.dtype.t_date default null, 
                     p_order_number  in hdbk.dtype.t_long_code default null, 
-                    p_client in hdbk.dtype.t_id default null,
+                    p_user in hdbk.dtype.t_id default null,
                     p_status in hdbk.dtype.t_status default null
                     )
   return hdbk.dtype.t_id;
@@ -327,7 +327,7 @@ END ORD_API;
 
   function ord_add( p_date  in hdbk.dtype.t_date, 
                     p_order_number  in hdbk.dtype.t_long_code, 
-                    p_client in hdbk.dtype.t_id,
+                    p_user in hdbk.dtype.t_id,
                     p_status in hdbk.dtype.t_status
                     )
   return hdbk.dtype.t_id
@@ -337,7 +337,7 @@ END ORD_API;
   begin
     v_ord_row.order_date:=p_date;
     v_ord_row.order_number:=p_order_number;
-    v_ord_row.client_oid:=p_client;
+    v_ord_row.user_oid:=p_user;
     v_ord_row.status:=p_status;
     insert into ord.ord values v_ord_row returning id into v_id;
     return v_id;

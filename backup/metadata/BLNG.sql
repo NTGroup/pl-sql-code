@@ -77,14 +77,14 @@ ALTER TRIGGER BLNG.cmp_TRGR ENABLE;
 
 
 
-/*client*/
+/*usr*/
 
 
 --------------------------------------------------------
 --  DDL for Table 
 --------------------------------------------------------
 
-  CREATE TABLE blng.client 
+  CREATE TABLE blng.usr 
    (	ID NUMBER(18,0), 
    amnd_date date,
    amnd_user VARCHAR2(50),
@@ -110,31 +110,31 @@ ALTER TRIGGER BLNG.cmp_TRGR ENABLE;
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.CLT_ID_IDX ON blng.client ("ID") 
+  CREATE INDEX blng.usr_ID_IDX ON blng.usr ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE blng.client MODIFY ("ID" CONSTRAINT "CLT_ID_NN" NOT NULL ENABLE);
- ALTER TABLE blng.client MODIFY (AMND_DATE CONSTRAINT "CLT_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.client MODIFY (AMND_USER CONSTRAINT "CLT_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.client MODIFY (AMND_STATE CONSTRAINT "CLT_AST_NN" NOT NULL ENABLE);
-  ALTER TABLE BLNG.client  MODIFY (AMND_DATE DEFAULT on null sysdate);
-  ALTER TABLE BLNG.client  MODIFY (AMND_USER DEFAULT  on null user );
-  ALTER TABLE BLNG.client  MODIFY (AMND_STATE DEFAULT  on null 'A' );
+  ALTER TABLE blng.usr MODIFY ("ID" CONSTRAINT "usr_ID_NN" NOT NULL ENABLE);
+ ALTER TABLE blng.usr MODIFY (AMND_DATE CONSTRAINT "usr_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.usr MODIFY (AMND_USER CONSTRAINT "usr_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.usr MODIFY (AMND_STATE CONSTRAINT "usr_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE BLNG.usr  MODIFY (AMND_DATE DEFAULT on null sysdate);
+  ALTER TABLE BLNG.usr  MODIFY (AMND_USER DEFAULT  on null user );
+  ALTER TABLE BLNG.usr  MODIFY (AMND_STATE DEFAULT  on null 'A' );
 
-  ALTER TABLE blng.client ADD CONSTRAINT CLT_ID_PK PRIMARY KEY (ID)
-  USING INDEX BLNG.CLT_ID_IDX ENABLE;
+  ALTER TABLE blng.usr ADD CONSTRAINT usr_ID_PK PRIMARY KEY (ID)
+  USING INDEX BLNG.usr_ID_IDX ENABLE;
 
-ALTER TABLE BLNG.client ADD CONSTRAINT clt_cmp_OID_FK FOREIGN KEY (company_oid)
+ALTER TABLE BLNG.usr ADD CONSTRAINT usr_cmp_OID_FK FOREIGN KEY (company_oid)
   REFERENCES BLNG.company ("ID") ENABLE;
 
 --------------------------------------------------------
 --  DDL for Secuence 
 --------------------------------------------------------
  
-  create sequence  BLNG.clt_seq
+  create sequence  BLNG.usr_seq
   increment by 1
   start with 1
   nomaxvalue
@@ -146,18 +146,18 @@ ALTER TABLE BLNG.client ADD CONSTRAINT clt_cmp_OID_FK FOREIGN KEY (company_oid)
 --  DDL for Trigger 
 --------------------------------------------------------
 
-CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.CLT_TRGR 
+CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.usr_TRGR 
 BEFORE
 INSERT
-ON BLNG.client
+ON BLNG.usr
 REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
-  select BLNG.clt_seq.nextval into :new.id from dual; 
+  select BLNG.usr_seq.nextval into :new.id from dual; 
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual;
 end;
 /
-ALTER TRIGGER BLNG.CLT_TRGR ENABLE;
+ALTER TRIGGER BLNG.usr_TRGR ENABLE;
 
 /
 
@@ -236,19 +236,19 @@ ALTER TRIGGER BLNG.prm_TRGR ENABLE;
 /
 
 
-/*client2permission*/
+/*usr2permission*/
 /*
 --------------------------------------------------------
 --  DDL for Table 
 --------------------------------------------------------
 
-  CREATE TABLE blng.client2permission 
+  CREATE TABLE blng.usr2permission 
    (	ID NUMBER(18,0), 
    amnd_date date,
    amnd_user VARCHAR2(50),
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0),
-   client_oid NUMBER(18,0),
+   user_oid NUMBER(18,0),
    permission_oid NUMBER(18,0)
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
@@ -258,24 +258,24 @@ ALTER TRIGGER BLNG.prm_TRGR ENABLE;
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.cl2p_ID_IDX ON blng.client2permission ("ID") 
+  CREATE INDEX blng.cl2p_ID_IDX ON blng.usr2permission ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE blng.client2permission MODIFY ("ID" CONSTRAINT "cl2p_ID_NN" NOT NULL ENABLE);
-  ALTER TABLE BLNG.client2permission  MODIFY (AMND_DATE DEFAULT on null sysdate);
-  ALTER TABLE BLNG.client2permission  MODIFY (AMND_USER DEFAULT  on null user );
-  ALTER TABLE BLNG.client2permission  MODIFY (AMND_STATE DEFAULT  on null 'A' );
+  ALTER TABLE blng.usr2permission MODIFY ("ID" CONSTRAINT "cl2p_ID_NN" NOT NULL ENABLE);
+  ALTER TABLE BLNG.usr2permission  MODIFY (AMND_DATE DEFAULT on null sysdate);
+  ALTER TABLE BLNG.usr2permission  MODIFY (AMND_USER DEFAULT  on null user );
+  ALTER TABLE BLNG.usr2permission  MODIFY (AMND_STATE DEFAULT  on null 'A' );
 
-  ALTER TABLE blng.client2permission ADD CONSTRAINT cl2p_ID_PK PRIMARY KEY (ID)
+  ALTER TABLE blng.usr2permission ADD CONSTRAINT cl2p_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.cl2p_ID_IDX ENABLE;
 
 
-ALTER TABLE BLNG.client2permission ADD CONSTRAINT cl2p_clt_OID_FK FOREIGN KEY (client_oid)
-  REFERENCES BLNG.client ("ID") ENABLE;
-ALTER TABLE BLNG.client2permission ADD CONSTRAINT cl2p_prm_OID_FK FOREIGN KEY (permission_oid)
+ALTER TABLE BLNG.usr2permission ADD CONSTRAINT cl2p_usr_OID_FK FOREIGN KEY (user_oid)
+  REFERENCES BLNG.usr ("ID") ENABLE;
+ALTER TABLE BLNG.usr2permission ADD CONSTRAINT cl2p_prm_OID_FK FOREIGN KEY (permission_oid)
   REFERENCES BLNG.permission ("ID") ENABLE;
 
 --------------------------------------------------------
@@ -297,7 +297,7 @@ ALTER TABLE BLNG.client2permission ADD CONSTRAINT cl2p_prm_OID_FK FOREIGN KEY (p
 CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.cl2p_TRGR 
 BEFORE
 INSERT
-ON BLNG.client2permission
+ON BLNG.usr2permission
 REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
@@ -387,19 +387,19 @@ ALTER TRIGGER BLNG.p2cntr_TRGR ENABLE;
 
 /
 
-/*client2contract*/
+/*USR2CONTRACT*/
 
 --------------------------------------------------------
---  DDL for Table client2contract
+--  DDL for Table
 --------------------------------------------------------
 
-  CREATE TABLE blng.client2contract 
+  CREATE TABLE blng.USR2CONTRACT 
    (	ID NUMBER(18,0), 
    amnd_date date,
    amnd_user VARCHAR2(50),
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
-   client_oid NUMBER(18,0),
+   user_oid NUMBER(18,0),
    permission VARCHAR2(1),
    contract_oid NUMBER(18,0)
    
@@ -411,36 +411,36 @@ ALTER TRIGGER BLNG.p2cntr_TRGR ENABLE;
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.cl2cntr_ID_IDX ON blng.client2contract ("ID") 
+  CREATE INDEX blng.u2cntr_ID_IDX ON blng.USR2CONTRACT ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE blng.client2contract MODIFY ("ID" CONSTRAINT "cl2cntr_ID_NN" NOT NULL ENABLE);
- ALTER TABLE blng.client2contract MODIFY (AMND_DATE CONSTRAINT "cl2cntr_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.client2contract MODIFY (AMND_USER CONSTRAINT "cl2cntr_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.client2contract MODIFY (AMND_STATE CONSTRAINT "cl2cntr_AST_NN" NOT NULL ENABLE);
-  ALTER TABLE BLNG.client2contract  MODIFY (AMND_DATE DEFAULT on null sysdate);
-  ALTER TABLE BLNG.client2contract  MODIFY (AMND_USER DEFAULT  on null user );
-  ALTER TABLE BLNG.client2contract  MODIFY (AMND_STATE DEFAULT  on null 'A' );
+  ALTER TABLE blng.USR2CONTRACT MODIFY ("ID" CONSTRAINT "u2cntr_ID_NN" NOT NULL ENABLE);
+ ALTER TABLE blng.USR2CONTRACT MODIFY (AMND_DATE CONSTRAINT "u2cntr_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.USR2CONTRACT MODIFY (AMND_USER CONSTRAINT "u2cntr_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.USR2CONTRACT MODIFY (AMND_STATE CONSTRAINT "u2cntr_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE BLNG.USR2CONTRACT  MODIFY (AMND_DATE DEFAULT on null sysdate);
+  ALTER TABLE BLNG.USR2CONTRACT  MODIFY (AMND_USER DEFAULT  on null user );
+  ALTER TABLE BLNG.USR2CONTRACT  MODIFY (AMND_STATE DEFAULT  on null 'A' );
 
-  ALTER TABLE blng.client2contract ADD CONSTRAINT cl2cntr_ID_PK PRIMARY KEY (ID)
-  USING INDEX BLNG.cl2cntr_ID_IDX ENABLE;
+  ALTER TABLE blng.USR2CONTRACT ADD CONSTRAINT u2cntr_ID_PK PRIMARY KEY (ID)
+  USING INDEX BLNG.u2cntr_ID_IDX ENABLE;
 
 
 
-ALTER TABLE BLNG.client2contract ADD CONSTRAINT cl2cntr_cntr_OID_FK FOREIGN KEY (contract_oid)
+ALTER TABLE BLNG.USR2CONTRACT ADD CONSTRAINT u2cntr_cntr_OID_FK FOREIGN KEY (contract_oid)
   REFERENCES BLNG.contract ("ID") ENABLE;
-ALTER TABLE BLNG.client2contract ADD CONSTRAINT cl2cntr_clt_OID_FK FOREIGN KEY (client_oid)
-  REFERENCES BLNG.client ("ID") ENABLE;
+ALTER TABLE BLNG.USR2CONTRACT ADD CONSTRAINT u2cntr_usr_OID_FK FOREIGN KEY (user_oid)
+  REFERENCES BLNG.usr ("ID") ENABLE;
 
 
 --------------------------------------------------------
 --  DDL for Secuence 
 --------------------------------------------------------
  
-  create sequence  BLNG.cl2cntr_seq
+  create sequence  BLNG.u2cntr_seq
   increment by 1
   start with 1
   nomaxvalue
@@ -452,18 +452,18 @@ ALTER TABLE BLNG.client2contract ADD CONSTRAINT cl2cntr_clt_OID_FK FOREIGN KEY (
 --  DDL for Trigger 
 --------------------------------------------------------
 
-CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.cl2cntr_TRGR 
+CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.u2cntr_TRGR 
 BEFORE
 INSERT
-ON BLNG.client2contract
+ON BLNG.USR2CONTRACT
 REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
-  select BLNG.cl2cntr_seq.nextval into :new.id from dual; 
+  select BLNG.u2cntr_seq.nextval into :new.id from dual; 
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual;
 end;
 /
-ALTER TRIGGER BLNG.cl2cntr_TRGR ENABLE;
+ALTER TRIGGER BLNG.u2cntr_TRGR ENABLE;
 
 /
 
@@ -521,9 +521,6 @@ ALTER TABLE BLNG.CONTRACT  MODIFY (AMND_STATE DEFAULT on null 'A' );
 
 ALTER TABLE BLNG.contract ADD CONSTRAINT cntr_cmp_OID_FK FOREIGN KEY (company_oid)
   REFERENCES BLNG.company ("ID") ENABLE;
-
---ALTER TABLE BLNG.contract ADD CONSTRAINT CNTR_CLT_OID_FK FOREIGN KEY (client_oid)
---  REFERENCES BLNG.client ("ID") ENABLE;
 
 --------------------------------------------------------
 --  DDL for Secuence 
@@ -1398,20 +1395,20 @@ ALTER TRIGGER BLNG.dmn_TRGR ENABLE;
 
 /
 
-/*client_data*/
+/*USR_DATA*/
 
 
 --------------------------------------------------------
---  DDL for Table client_data
+--  DDL for Table 
 --------------------------------------------------------
 
-  CREATE TABLE blng.client_data 
+  CREATE TABLE blng.USR_DATA 
    (	ID NUMBER(18,0), 
    amnd_date date,
    amnd_user VARCHAR2(50),
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
-   client_oid NUMBER(18,0),
+   user_oid NUMBER(18,0),
    last_name varchar2(255),
    first_name varchar2(255),
    birth_date date,
@@ -1431,37 +1428,37 @@ ALTER TRIGGER BLNG.dmn_TRGR ENABLE;
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.cld_ID_IDX ON blng.client_data ("ID") 
+  CREATE INDEX blng.usrd_ID_IDX ON blng.USR_DATA ("ID") 
   TABLESPACE "USERS" ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
 
-  ALTER TABLE blng.client_data MODIFY ("ID" CONSTRAINT cld_ID_NN NOT NULL ENABLE);
-  ALTER TABLE blng.client_data MODIFY (AMND_DATE CONSTRAINT "cld_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.client_data MODIFY (AMND_USER CONSTRAINT "cld_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.client_data MODIFY (AMND_STATE CONSTRAINT "cld_AST_NN" NOT NULL ENABLE);
-ALTER TABLE BLNG.client_data  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
-ALTER TABLE BLNG.client_data  MODIFY (AMND_USER DEFAULT  on null  user );
-ALTER TABLE BLNG.client_data  MODIFY (AMND_STATE DEFAULT  on null  'A' );
-  ALTER TABLE blng.client_data ADD CONSTRAINT cld_ID_PK PRIMARY KEY (ID)
-  USING INDEX BLNG.cld_ID_IDX ENABLE;
+  ALTER TABLE blng.USR_DATA MODIFY ("ID" CONSTRAINT usrd_ID_NN NOT NULL ENABLE);
+  ALTER TABLE blng.USR_DATA MODIFY (AMND_DATE CONSTRAINT "usrd_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.USR_DATA MODIFY (AMND_USER CONSTRAINT "usrd_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.USR_DATA MODIFY (AMND_STATE CONSTRAINT "usrd_AST_NN" NOT NULL ENABLE);
+ALTER TABLE BLNG.USR_DATA  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE BLNG.USR_DATA  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE BLNG.USR_DATA  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE blng.USR_DATA ADD CONSTRAINT usrd_ID_PK PRIMARY KEY (ID)
+  USING INDEX BLNG.usrd_ID_IDX ENABLE;
 
 
 
 
 
 
-ALTER TABLE BLNG.client_data ADD CONSTRAINT cld_clt_OID_FK FOREIGN KEY (client_oid)
-  REFERENCES BLNG.client ("ID") ENABLE;
+ALTER TABLE BLNG.USR_DATA ADD CONSTRAINT usrd_usr_OID_FK FOREIGN KEY (user_oid)
+  REFERENCES BLNG.usr ("ID") ENABLE;
 
 
 --------------------------------------------------------
 --  DDL for Secuence 
 --------------------------------------------------------
  
-  create sequence  BLNG.cld_seq
+  create sequence  BLNG.usrd_seq
   increment by 1
   start with 1
   nomaxvalue
@@ -1473,32 +1470,32 @@ ALTER TABLE BLNG.client_data ADD CONSTRAINT cld_clt_OID_FK FOREIGN KEY (client_o
 --  DDL for Trigger 
 --------------------------------------------------------
 
-CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.cld_TRGR 
+CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.usrd_TRGR 
 BEFORE
 INSERT
-ON BLNG.client_data
+ON BLNG.USR_DATA
 REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
  WHEN (new.id is null) BEGIN
-  select BLNG.cld_seq.nextval into :new.id from dual; 
+  select BLNG.usrd_seq.nextval into :new.id from dual; 
   select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual;
 end;
 /
-ALTER TRIGGER BLNG.cld_TRGR ENABLE;
+ALTER TRIGGER BLNG.usrd_TRGR ENABLE;
 
 /
 
 
 CREATE bitmap INDEX blng.cmp_AS_IDX ON blng.company (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX blng.clt_AS_IDX ON blng.client (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX blng.usr_AS_IDX ON blng.usr (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX blng.cntr_AS_IDX ON blng.contract (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX blng.cl2cntr_AS_IDX ON blng.client2contract (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX blng.u2cntr_AS_IDX ON blng.USR2CONTRACT (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX blng.doc_AS_IDX ON blng.document (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX blng.trn_AS_IDX ON blng.transaction (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX blng.acc_AS_IDX ON blng.account (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX blng.dly_AS_IDX ON blng.delay (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX blng.dmn_AS_IDX ON blng.domain (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX blng.cld_AS_IDX ON blng.client_data (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX blng.usrd_AS_IDX ON blng.USR_DATA (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX blng.trt_AS_IDX ON blng.trans_type (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX blng.ett_AS_IDX ON blng.event_type (amnd_state) TABLESPACE "USERS" ;
 CREATE bitmap INDEX blng.stt_AS_IDX ON blng.status_type (amnd_state) TABLESPACE "USERS" ;
@@ -1515,11 +1512,11 @@ CREATE INDEX blng.dly_dt_IDX ON blng.delay (date_to) TABLESPACE "USERS" ;
 --------------------------------------------------------
 
 grant select on blng.contract to ord;
-grant select on blng.client to ord;
+grant select on blng.usr to ord;
 grant select on blng.company to ord;
 grant select on blng.domain to ord;
-grant select on blng.client2contract to ord;
-grant select on blng.client_data to ord;
+grant select on blng.USR2CONTRACT to ord;
+grant select on blng.USR_DATA to ord;
 grant select on blng.account to ord;
 grant select on blng.document to ord;
 grant select on blng.transaction to ord;
@@ -1531,11 +1528,11 @@ grant select on blng.trans_type to ord;
 grant select on blng.event_type to ord;
 
 grant select on blng.contract to ntg;
-grant select on blng.client to ntg;
+grant select on blng.usr to ntg;
 grant select on blng.company to ntg;
 grant select on blng.domain to ntg;
-grant select on blng.client2contract to ntg;
-grant select on blng.client_data to ntg;
+grant select on blng.USR2CONTRACT to ntg;
+grant select on blng.USR_DATA to ntg;
 grant select on blng.account to ntg;
 grant select on blng.document to ntg;
 grant select on blng.transaction to ntg;
@@ -1550,11 +1547,11 @@ grant select on blng.event_type to ntg;
 --Foreign keys between tables in different schemas
 
 grant references on blng.contract to ord;
-grant references on blng.client to ord;
+grant references on blng.usr to ord;
 grant references on blng.company to ord;
 grant references on blng.domain to ord;
-grant references on blng.client2contract to ord;
-grant references on blng.client_data to ord;
+grant references on blng.USR2CONTRACT to ord;
+grant references on blng.USR_DATA to ord;
 grant references on blng.account to ord;
 grant references on blng.document to ord;
 grant references on blng.transaction to ord;
@@ -1566,11 +1563,11 @@ grant references on blng.trans_type to ord;
 grant references on blng.event_type to ord;
 
 grant references on blng.contract to ntg;
-grant references on blng.client to ntg;
+grant references on blng.usr to ntg;
 grant references on blng.company to ntg;
 grant references on blng.domain to ntg;
-grant references on blng.client2contract to ntg;
-grant references on blng.client_data to ntg;
+grant references on blng.USR2CONTRACT to ntg;
+grant references on blng.USR_DATA to ntg;
 grant references on blng.account to ntg;
 grant references on blng.document to ntg;
 grant references on blng.transaction to ntg;

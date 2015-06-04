@@ -14,7 +14,7 @@
    order_date date,
    order_number varchar2(50),
    status VARCHAR2(1),
-   client_oid number(18,0)
+   user_oid number(18,0)
    ) SEGMENT CREATION IMMEDIATE
   TABLESPACE "USERS" ;
 --------------------------------------------------------
@@ -39,8 +39,8 @@ ALTER TABLE ord.ord  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   
 
   
-  ALTER TABLE ord.ord ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
-  REFERENCES blng.client ("ID") ENABLE;
+  ALTER TABLE ord.ord ADD CONSTRAINT bill_usr_OID_FK FOREIGN KEY (user_oid)
+  REFERENCES blng.usr ("ID") ENABLE;
    
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
@@ -1490,38 +1490,7 @@ ALTER TABLE ord.currency  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   ALTER TABLE ord.currency ADD CONSTRAINT curr_ID_PK PRIMARY KEY (ID)
   USING INDEX ord.curr_ID_IDX ENABLE;
   
-
   
-/*  ALTER TABLE ord.currency ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
-  REFERENCES blng.client ("ID") ENABLE;*/
-   
---------------------------------------------------------
---  DDL for Secuence MKP_SEQ
---------------------------------------------------------
- 
-/*  create sequence  ord.curr_seq
-  increment by 1
-  start with 1
-  nomaxvalue
-  nocache 
-  nocycle
-  order;*/
---------------------------------------------------------
---  DDL for Trigger MKP_TRGR
---------------------------------------------------------
-
-/*CREATE OR REPLACE EDITIONABLE TRIGGER ord.curr_TRGR 
-BEFORE
-INSERT
-ON ord.currency
-REFERENCING NEW AS NEW OLD AS OLD
-FOR EACH ROW
- WHEN (new.id is null) BEGIN
-  select curr_SEQ.nextval into :new.id from dual; 
-  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
-end;
-/
-ALTER TRIGGER ord.curr_TRGR ENABLE;*/
 /
 
 

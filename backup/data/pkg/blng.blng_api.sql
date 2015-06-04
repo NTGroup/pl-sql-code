@@ -31,7 +31,7 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
   return blng.company%rowtype;
 
 
-  function client_add(p_company in hdbk.dtype.t_id default null, 
+  function usr_add(p_company in hdbk.dtype.t_id default null, 
                   p_last_name in hdbk.dtype.t_name default null, 
                   p_first_name in hdbk.dtype.t_name default null, 
                   p_birth_date in hdbk.dtype.t_date default null, 
@@ -44,7 +44,7 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
                   )
   return hdbk.dtype.t_id;
 
-  procedure client_edit(p_id in hdbk.dtype.t_id, 
+  procedure usr_edit(p_id in hdbk.dtype.t_id, 
                           p_company in hdbk.dtype.t_id default null, 
                           p_last_name in hdbk.dtype.t_name default null, 
                           p_first_name in hdbk.dtype.t_name default null, 
@@ -58,7 +58,7 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
                         p_status in hdbk.dtype.t_status default null
   );
 
-  function client_get_info( p_id in hdbk.dtype.t_id  default null,
+  function usr_get_info( p_id in hdbk.dtype.t_id  default null,
                             p_company in hdbk.dtype.t_id default null, 
                             p_last_name in hdbk.dtype.t_name default null, 
                             p_first_name in hdbk.dtype.t_name default null, 
@@ -72,7 +72,7 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
   )
   return SYS_REFCURSOR;
 
-  function client_get_info_r ( p_id in hdbk.dtype.t_id default null,
+  function usr_get_info_r ( p_id in hdbk.dtype.t_id default null,
                               p_company in hdbk.dtype.t_id default null, 
                                 p_last_name in hdbk.dtype.t_name default null, 
                                 p_first_name in hdbk.dtype.t_name default null, 
@@ -84,32 +84,32 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
                   p_utc_offset in hdbk.dtype.t_id default null,
                         p_is_tester in hdbk.dtype.t_status default null
                             )
-  return blng.client%rowtype;
+  return blng.usr%rowtype;
 
-  procedure client2contract_add( p_client in hdbk.dtype.t_id,
+  procedure usr2contract_add( p_user in hdbk.dtype.t_id,
                                 p_permission in hdbk.dtype.t_status,
                                 p_contract in hdbk.dtype.t_id
                               );
 
-  procedure client2contract_edit( p_id in hdbk.dtype.t_id default null,
-                                   p_client in hdbk.dtype.t_id default null,
+  procedure usr2contract_edit( p_id in hdbk.dtype.t_id default null,
+                                   p_user in hdbk.dtype.t_id default null,
                                   p_contract in hdbk.dtype.t_id default null,
                                   p_status in hdbk.dtype.t_status default null
                                   );
 
-  function client2contract_get_info(  p_id in hdbk.dtype.t_id default null,
-                                      p_client in hdbk.dtype.t_id default null,
+  function usr2contract_get_info(  p_id in hdbk.dtype.t_id default null,
+                                      p_user in hdbk.dtype.t_id default null,
                                       p_contract in hdbk.dtype.t_id default null,
                                       p_permission in hdbk.dtype.t_status default null
                                     )
   return SYS_REFCURSOR;
 
-  function client2contract_get_info_r(  p_id in hdbk.dtype.t_id default null,
-                                      p_client in hdbk.dtype.t_id default null,
+  function usr2contract_get_info_r(  p_id in hdbk.dtype.t_id default null,
+                                      p_user in hdbk.dtype.t_id default null,
                                       p_contract in hdbk.dtype.t_id default null,
                                       p_permission in hdbk.dtype.t_status default null
                                     )
-  return blng.client2contract%rowtype;
+  return blng.usr2contract%rowtype;
 
   function contract_add( p_company in hdbk.dtype.t_id default null,
                          p_name in hdbk.dtype.t_name default null,
@@ -414,7 +414,7 @@ $obj_param: p_contract: contract id
                           )
   return domain%rowtype;
 
-  function client_data_add(p_client in hdbk.dtype.t_id default null, 
+  function usr_data_add(p_user in hdbk.dtype.t_id default null, 
                   p_last_name in hdbk.dtype.t_name default null, 
                   p_first_name in hdbk.dtype.t_name default null, 
                   p_birth_date in hdbk.dtype.t_date default null, 
@@ -427,8 +427,8 @@ $obj_param: p_contract: contract id
                   p_phone in hdbk.dtype.t_name default null)
   return hdbk.dtype.t_id;
 
-  procedure client_data_edit(p_id in hdbk.dtype.t_id, 
-                          p_client in hdbk.dtype.t_id default null, 
+  procedure usr_data_edit(p_id in hdbk.dtype.t_id, 
+                          p_user in hdbk.dtype.t_id default null, 
                           p_last_name in hdbk.dtype.t_name default null, 
                           p_first_name in hdbk.dtype.t_name default null, 
                           p_birth_date in hdbk.dtype.t_date default null, 
@@ -443,8 +443,8 @@ $obj_param: p_contract: contract id
                   
   );
 
-  function client_data_get_info( p_id in hdbk.dtype.t_id  default null,
-                            p_client in hdbk.dtype.t_id default null, 
+  function usr_data_get_info( p_id in hdbk.dtype.t_id  default null,
+                            p_user in hdbk.dtype.t_id default null, 
                             p_last_name in hdbk.dtype.t_name default null, 
                             p_first_name in hdbk.dtype.t_name default null, 
                             p_birth_date in hdbk.dtype.t_date default null, 
@@ -458,8 +458,8 @@ $obj_param: p_contract: contract id
   )
   return SYS_REFCURSOR;
 
-  function client_data_get_info_r ( p_id in hdbk.dtype.t_id default null,
-                                    p_client in hdbk.dtype.t_id default null, 
+  function usr_data_get_info_r ( p_id in hdbk.dtype.t_id default null,
+                                    p_user in hdbk.dtype.t_id default null, 
                                     p_last_name in hdbk.dtype.t_name default null, 
                                     p_first_name in hdbk.dtype.t_name default null, 
                                     p_birth_date in hdbk.dtype.t_date default null, 
@@ -471,7 +471,7 @@ $obj_param: p_contract: contract id
                                     p_owner in hdbk.dtype.t_status default null,
                   p_phone in hdbk.dtype.t_name default null
                             )
-  return blng.client_data%rowtype;
+  return blng.usr_data%rowtype;
 
 
 
@@ -518,7 +518,7 @@ end blng_api;
     v_company_row_new.utc_offset:=p_utc_offset;
     v_company_row_new.amnd_date:=sysdate;
     v_company_row_new.amnd_user:=user;
-    --v_client_row_new.amnd_user:=null;
+    --v_usr_row_new.amnd_user:=null;
     update blng.company set row = v_company_row_new where id = p_id;
 
   exception when others then
@@ -576,7 +576,7 @@ end blng_api;
       RAISE_APPLICATION_ERROR(-20002,'select row into company error. '||SQLERRM);
   end;
   
-  function client_add(
+  function usr_add(
                         p_company in hdbk.dtype.t_id default null, 
                         p_last_name in hdbk.dtype.t_name default null, 
                         p_first_name in hdbk.dtype.t_name default null, 
@@ -590,7 +590,7 @@ end blng_api;
                         )
   return hdbk.dtype.t_id
   is
-    v_obj_row blng.client%rowtype;
+    v_obj_row blng.usr%rowtype;
     v_id hdbk.dtype.t_id;
   begin
     v_obj_row.company_oid := p_company;
@@ -604,17 +604,17 @@ end blng_api;
     v_obj_row.utc_offset := nvl(p_utc_offset,3);
     v_obj_row.is_tester := nvl(p_is_tester,'N');
     v_obj_row.status := 'A';
-    insert into blng.client values v_obj_row returning id into v_id;
+    insert into blng.usr values v_obj_row returning id into v_id;
 
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'client_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=client,p_date='
+    hdbk.log_api.LOG_ADD(p_proc_name=>'usr_add', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=usr,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'insert row into client error. '||SQLERRM);
+    RAISE_APPLICATION_ERROR(-20002,'insert row into usr error. '||SQLERRM);
   end;
 
-  procedure client_edit(p_id in hdbk.dtype.t_id,
+  procedure usr_edit(p_id in hdbk.dtype.t_id,
                         p_company in hdbk.dtype.t_id default null, 
                         p_last_name in hdbk.dtype.t_name default null, 
                         p_first_name in hdbk.dtype.t_name default null, 
@@ -628,11 +628,11 @@ end blng_api;
                         p_status in hdbk.dtype.t_status default null
                         )
   is
-    v_obj_row_new blng.client%rowtype;
-    v_obj_row_old blng.client%rowtype;
+    v_obj_row_new blng.usr%rowtype;
+    v_obj_row_old blng.usr%rowtype;
     v_mess hdbk.dtype.t_msg;
   begin
-    select * into v_obj_row_old from blng.client where id = p_id;
+    select * into v_obj_row_old from blng.usr where id = p_id;
     v_obj_row_new := v_obj_row_old;
 
 
@@ -667,8 +667,8 @@ end blng_api;
       v_obj_row_new.amnd_user:=user;
       v_obj_row_old.amnd_state:='I';
       v_obj_row_old.id:=null;
-      insert into blng.client values v_obj_row_old;  
-      update blng.client set row = v_obj_row_new where id = p_id;
+      insert into blng.usr values v_obj_row_old;  
+      update blng.usr set row = v_obj_row_new where id = p_id;
     end if;
   exception 
     when NO_DATA_FOUND then 
@@ -676,14 +676,14 @@ end blng_api;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;    
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'client_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=client,p_date='
+      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_edit', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=usr,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'update row into client error. '||SQLERRM);
+      RAISE_APPLICATION_ERROR(-20002,'update row into usr error. '||SQLERRM);
   end;
 
 
-  function client_get_info(p_id in hdbk.dtype.t_id,
+  function usr_get_info(p_id in hdbk.dtype.t_id,
                         p_company in hdbk.dtype.t_id default null, 
                         p_last_name in hdbk.dtype.t_name default null, 
                         p_first_name in hdbk.dtype.t_name default null, 
@@ -701,7 +701,7 @@ end blng_api;
       OPEN v_results FOR
         SELECT
         *
-        from blng.client 
+        from blng.usr 
         where id = nvl(p_id,id)
 --        and last_name = nvl(p_last_name, last_name)
 --        and first_name = nvl(p_first_name, first_name)
@@ -714,13 +714,13 @@ end blng_api;
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'client_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date='
+    hdbk.log_api.LOG_ADD(p_proc_name=>'usr_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=usr,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+    RAISE_APPLICATION_ERROR(-20002,'select row into usr error. '||SQLERRM);
   end;
 
-  function client_get_info_r ( p_id in hdbk.dtype.t_id,
+  function usr_get_info_r ( p_id in hdbk.dtype.t_id,
                         p_company in hdbk.dtype.t_id default null, 
                         p_last_name in hdbk.dtype.t_name default null, 
                         p_first_name in hdbk.dtype.t_name default null, 
@@ -732,15 +732,15 @@ end blng_api;
                         p_utc_offset in hdbk.dtype.t_id default null,
                         p_is_tester in hdbk.dtype.t_status default null
                             )
-  return blng.client%rowtype
+  return blng.usr%rowtype
   is
-    r_obj blng.client%rowtype;
+    r_obj blng.usr%rowtype;
   begin
     if p_id is null and p_email is null then raise NO_DATA_FOUND; end if;   
   
     SELECT
     * into r_obj
-    from blng.client 
+    from blng.usr 
     where id = nvl(p_id,id)
     and email = nvl(lower(p_email), email)
     and amnd_state != 'I'
@@ -752,48 +752,48 @@ end blng_api;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'client_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date='
+      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=usr,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
-  end client_get_info_r;
+      RAISE_APPLICATION_ERROR(-20002,'select row into usr error. '||SQLERRM);
+  end usr_get_info_r;
 
 
 
 
-  procedure client2contract_add( p_client in hdbk.dtype.t_id,
+  procedure usr2contract_add( p_user in hdbk.dtype.t_id,
                                 p_permission in hdbk.dtype.t_status,
                                 p_contract in hdbk.dtype.t_id
                               )
   is
-    v_client2contract_row blng.client2contract%rowtype;
+    v_usr2contract_row blng.usr2contract%rowtype;
     v_id hdbk.dtype.t_id;
   begin
-    v_client2contract_row.client_oid := p_client;
-    v_client2contract_row.permission := p_permission;
-    v_client2contract_row.contract_oid := p_contract;
-    insert into blng.client2contract values v_client2contract_row;
+    v_usr2contract_row.user_oid := p_user;
+    v_usr2contract_row.permission := p_permission;
+    v_usr2contract_row.contract_oid := p_contract;
+    insert into blng.usr2contract values v_usr2contract_row;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'client2contract_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=client2contract,p_date='
+    hdbk.log_api.LOG_ADD(p_proc_name=>'usr2contract_add', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=usr2contract,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'insert row into client2contract error. '||SQLERRM);
+    RAISE_APPLICATION_ERROR(-20002,'insert row into usr2contract error. '||SQLERRM);
   end;
 
-  procedure client2contract_edit( 
+  procedure usr2contract_edit( 
                                   p_id in hdbk.dtype.t_id default null,
-                                  p_client in hdbk.dtype.t_id default null,
+                                  p_user in hdbk.dtype.t_id default null,
                                   p_contract in hdbk.dtype.t_id default null,
                                   p_status in hdbk.dtype.t_status default null)
   is
-    v_obj_row_new blng.client2contract%rowtype;
-    v_obj_row_old blng.client2contract%rowtype;
+    v_obj_row_new blng.usr2contract%rowtype;
+    v_obj_row_old blng.usr2contract%rowtype;
     v_mess hdbk.dtype.t_msg;
     v_id hdbk.dtype.t_id;
   begin
     if p_id is null and p_status is null then raise NO_DATA_FOUND; end if; 
     
-    select * into v_obj_row_old from blng.client2contract
+    select * into v_obj_row_old from blng.usr2contract
     where id = nvl(p_id,id);
 
     v_id := v_obj_row_old.id;
@@ -801,15 +801,15 @@ end blng_api;
 
     v_obj_row_old.amnd_state:='I';
     v_obj_row_old.id:=null;
-    insert into blng.client2contract values v_obj_row_old;
+    insert into blng.usr2contract values v_obj_row_old;
 
     v_obj_row_new.amnd_state:=nvl(p_status,v_obj_row_new.amnd_state);
     v_obj_row_new.contract_oid:=nvl(p_contract,v_obj_row_new.contract_oid);
-    v_obj_row_new.client_oid:=nvl(p_client,v_obj_row_new.client_oid);
+    v_obj_row_new.user_oid:=nvl(p_user,v_obj_row_new.user_oid);
     v_obj_row_new.amnd_date:=sysdate;
     v_obj_row_new.amnd_user:=user;
-    --v_client_row_new.amnd_user:=null;
-    update blng.client2contract set row = v_obj_row_new where id = v_id;
+    --v_usr_row_new.amnd_user:=null;
+    update blng.usr2contract set row = v_obj_row_new where id = v_id;
 --    commit;
   exception
     when NO_DATA_FOUND then 
@@ -817,15 +817,15 @@ end blng_api;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;    
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'client2contract_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=client2contract,p_date='
+      hdbk.log_api.LOG_ADD(p_proc_name=>'usr2contract_edit', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=usr2contract,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'update row into client2contract error. '||SQLERRM);
+      RAISE_APPLICATION_ERROR(-20002,'update row into usr2contract error. '||SQLERRM);
   end;
 
 
-  function client2contract_get_info(  p_id in hdbk.dtype.t_id default null,
-                                      p_client in hdbk.dtype.t_id default null,
+  function usr2contract_get_info(  p_id in hdbk.dtype.t_id default null,
+                                      p_user in hdbk.dtype.t_id default null,
                                       p_contract in hdbk.dtype.t_id default null,
                                       p_permission in hdbk.dtype.t_status default null
                                     )
@@ -836,44 +836,44 @@ end blng_api;
       OPEN v_results FOR
         SELECT
         *
-        from blng.client2contract
-        where client_oid = nvl(p_client,client_oid)
+        from blng.usr2contract
+        where user_oid = nvl(p_user,user_oid)
         and contract_oid = nvl(p_contract,contract_oid)
         and permission = nvl(p_permission,permission)
 
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'client2contract_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client2contract,p_date='
+    hdbk.log_api.LOG_ADD(p_proc_name=>'usr2contract_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=usr2contract,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into client2contract error. '||SQLERRM);
+    RAISE_APPLICATION_ERROR(-20002,'select row into usr2contract error. '||SQLERRM);
   end;
 
 
-  function client2contract_get_info_r(  p_id in hdbk.dtype.t_id default null,
-                                      p_client in hdbk.dtype.t_id default null,
+  function usr2contract_get_info_r(  p_id in hdbk.dtype.t_id default null,
+                                      p_user in hdbk.dtype.t_id default null,
                                       p_contract in hdbk.dtype.t_id default null,
                                       p_permission in hdbk.dtype.t_status default null
                                     )
-  return blng.client2contract%rowtype
+  return blng.usr2contract%rowtype
   is
-    v_results blng.client2contract%rowtype;
+    v_results blng.usr2contract%rowtype;
   begin
     SELECT
     * into v_results
-    from blng.client2contract
-    where client_oid = nvl(p_client,client_oid)
+    from blng.usr2contract
+    where user_oid = nvl(p_user,user_oid)
     and contract_oid = nvl(p_contract,contract_oid)
     and permission = nvl(p_permission,permission)
     and amnd_state <> 'I'
     order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'client2contract_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client2contract,p_date='
+    hdbk.log_api.LOG_ADD(p_proc_name=>'usr2contract_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=usr2contract,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into client2contract error. '||SQLERRM);
+    RAISE_APPLICATION_ERROR(-20002,'select row into usr2contract error. '||SQLERRM);
   end;
 
 
@@ -891,8 +891,8 @@ end blng_api;
   begin
 
     select to_char(sysdate,'yyyymmdd')||'-'||p_company||'-'||(count(*) + 1) into v_number from blng.contract where
-    id in (select contract_oid from blng.client2contract where client_oid in 
-              (select id from blng.client where company_oid = p_company and amnd_state = 'A')
+    id in (select contract_oid from blng.usr2contract where user_oid in 
+              (select id from blng.usr where company_oid = p_company and amnd_state = 'A')
                and amnd_state = 'A'
           ) 
           and amnd_state = 'A';
@@ -2324,8 +2324,8 @@ $TODO: all this nullable fields are bad. document_get_info
   end;
 
 
-  function client_data_add(
-                          p_client in hdbk.dtype.t_id default null, 
+  function usr_data_add(
+                          p_user in hdbk.dtype.t_id default null, 
                           p_last_name in hdbk.dtype.t_name default null, 
                           p_first_name in hdbk.dtype.t_name default null, 
                           p_birth_date in hdbk.dtype.t_date default null, 
@@ -2339,10 +2339,10 @@ $TODO: all this nullable fields are bad. document_get_info
                           )
   return hdbk.dtype.t_id
   is
-    v_obj_row blng.client_data%rowtype;
+    v_obj_row blng.usr_data%rowtype;
     v_id hdbk.dtype.t_id;
   begin
-    v_obj_row.client_oid := p_client;
+    v_obj_row.user_oid := p_user;
     v_obj_row.last_name := upper(p_last_name);
     v_obj_row.first_name := upper(p_first_name);
     v_obj_row.birth_date := p_birth_date;
@@ -2354,17 +2354,17 @@ $TODO: all this nullable fields are bad. document_get_info
     v_obj_row.owner := upper(p_owner);
     v_obj_row.phone := p_phone;
 
-    insert into blng.client_data values v_obj_row returning id into v_id;
+    insert into blng.usr_data values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'client_data_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=client_data,p_date='
+    hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_add', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=usr_data,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'insert row into client_data error. '||SQLERRM);
+    RAISE_APPLICATION_ERROR(-20002,'insert row into usr_data error. '||SQLERRM);
   end;
 
-  procedure client_data_edit(p_id in hdbk.dtype.t_id,
-                          p_client in hdbk.dtype.t_id default null, 
+  procedure usr_data_edit(p_id in hdbk.dtype.t_id,
+                          p_user in hdbk.dtype.t_id default null, 
                           p_last_name in hdbk.dtype.t_name default null, 
                           p_first_name in hdbk.dtype.t_name default null, 
                           p_birth_date in hdbk.dtype.t_date default null, 
@@ -2377,18 +2377,18 @@ $TODO: all this nullable fields are bad. document_get_info
                         p_phone in hdbk.dtype.t_name default null,
                         p_status in hdbk.dtype.t_status default null)
   is
-    v_obj_row_new blng.client_data%rowtype;
-    v_obj_row_old blng.client_data%rowtype;
+    v_obj_row_new blng.usr_data%rowtype;
+    v_obj_row_old blng.usr_data%rowtype;
     v_mess hdbk.dtype.t_msg;
   begin
-    select * into v_obj_row_old from blng.client_data where id = p_id;
+    select * into v_obj_row_old from blng.usr_data where id = p_id;
     v_obj_row_new := v_obj_row_old;
 
     v_obj_row_new.last_name:=nvl(upper(p_last_name), v_obj_row_new.last_name);
     v_obj_row_new.first_name:=nvl(upper(p_first_name), v_obj_row_new.first_name);
     v_obj_row_new.birth_date:=nvl(p_birth_date, v_obj_row_new.birth_date);
     v_obj_row_new.gender:=nvl(upper(p_gender), v_obj_row_new.gender);
-    v_obj_row_new.client_oid:=nvl(p_client, v_obj_row_new.client_oid);
+    v_obj_row_new.user_oid:=nvl(p_user, v_obj_row_new.user_oid);
     v_obj_row_new.nationality:=nvl(p_nationality, v_obj_row_new.nationality);
 --    v_obj_row_new.email:=nvl(p_email, v_obj_row_new.email);
     v_obj_row_new.doc_number:=nvl(upper(p_doc_number), v_obj_row_new.doc_number);
@@ -2403,7 +2403,7 @@ $TODO: all this nullable fields are bad. document_get_info
       nvl(v_obj_row_new.first_name,'X') = nvl(v_obj_row_old.first_name,'X') AND
       nvl(to_char(v_obj_row_new.birth_date,'ddmmyyyy'),'X') = nvl(to_char(v_obj_row_old.birth_date,'ddmmyyyy'),'X') and
       nvl(v_obj_row_new.gender,'X') = nvl(v_obj_row_old.gender,'X') and
-      v_obj_row_new.client_oid = v_obj_row_old.client_oid and
+      v_obj_row_new.user_oid = v_obj_row_old.user_oid and
       nvl(v_obj_row_new.nationality,'X') = nvl(v_obj_row_old.nationality,'X') and
   --    v_obj_row_new.email:=nvl(p_email, v_obj_row_new.email);
       nvl(v_obj_row_new.doc_number,'X') = nvl(v_obj_row_old.doc_number,'X') and 
@@ -2418,8 +2418,8 @@ $TODO: all this nullable fields are bad. document_get_info
       v_obj_row_new.amnd_user:=user;
       v_obj_row_old.amnd_state:='I';
       v_obj_row_old.id:=null;
-      insert into blng.client_data values v_obj_row_old;
-      update blng.client_data set row = v_obj_row_new where id = p_id;
+      insert into blng.usr_data values v_obj_row_old;
+      update blng.usr_data set row = v_obj_row_new where id = p_id;
     end if;  
 
   exception 
@@ -2428,15 +2428,15 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;    
   when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=client_data,p_date='
+    hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_edit', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=usr_data,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'update row into client_data error. '||SQLERRM);
+    RAISE_APPLICATION_ERROR(-20002,'update row into usr_data error. '||SQLERRM);
   end;
 
 
-  function client_data_get_info(p_id in hdbk.dtype.t_id, 
-                          p_client in hdbk.dtype.t_id default null, 
+  function usr_data_get_info(p_id in hdbk.dtype.t_id, 
+                          p_user in hdbk.dtype.t_id default null, 
                           p_last_name in hdbk.dtype.t_name default null, 
                           p_first_name in hdbk.dtype.t_name default null, 
                           p_birth_date in hdbk.dtype.t_date default null, 
@@ -2454,10 +2454,10 @@ $TODO: all this nullable fields are bad. document_get_info
       OPEN v_results FOR
         SELECT
         *
-        from blng.client_data 
+        from blng.usr_data 
         where id = nvl(p_id,id)
         and amnd_state = 'A'
-        and client_oid = nvl(p_client,client_oid)
+        and user_oid = nvl(p_user,user_oid)
         order by id;
     return v_results;
   exception 
@@ -2466,14 +2466,14 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;     
   when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'client_data_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client_data,p_date='
+    hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=usr_data,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into client_data error. '||SQLERRM);
+    RAISE_APPLICATION_ERROR(-20002,'select row into usr_data error. '||SQLERRM);
   end;
 
-  function client_data_get_info_r ( p_id in hdbk.dtype.t_id, 
-                          p_client in hdbk.dtype.t_id default null, 
+  function usr_data_get_info_r ( p_id in hdbk.dtype.t_id, 
+                          p_user in hdbk.dtype.t_id default null, 
                           p_last_name in hdbk.dtype.t_name default null, 
                           p_first_name in hdbk.dtype.t_name default null, 
                           p_birth_date in hdbk.dtype.t_date default null, 
@@ -2485,36 +2485,36 @@ $TODO: all this nullable fields are bad. document_get_info
                           p_owner in hdbk.dtype.t_status default null,
                         p_phone in hdbk.dtype.t_name default null
                             )
-  return blng.client_data%rowtype
+  return blng.usr_data%rowtype
   is
-    r_obj blng.client_data%rowtype;
+    r_obj blng.usr_data%rowtype;
   begin
 
         SELECT
         * into r_obj
-        from blng.client_data 
+        from blng.usr_data 
         where id = nvl(p_id,id)
-        and client_oid = nvl(p_client,client_oid)
+        and user_oid = nvl(p_user,user_oid)
         and amnd_state != 'I'
         order by id;
     return r_obj;
   exception 
     when NO_DATA_FOUND then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'client_data_get_info_r', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client_data,p_date='
+      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_get_info_r', p_msg_type=>'NO_DATA_FOUND',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=usr_data,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE;
     when TOO_MANY_ROWS then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'client_data_get_info_r', p_msg_type=>'TOO_MANY_ROWS',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client_data,p_date='
+      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_get_info_r', p_msg_type=>'TOO_MANY_ROWS',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=usr_data,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'client_data_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client_data,p_date='
+      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=usr_data,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'select row into client_data error. '||SQLERRM);
-  end client_data_get_info_r;
+      RAISE_APPLICATION_ERROR(-20002,'select row into usr_data error. '||SQLERRM);
+  end usr_data_get_info_r;
 
 end blng_api;
 

@@ -28,14 +28,14 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
   
   function note_add( 
                     p_name in hdbk.dtype.t_name default null,
-                    p_client in hdbk.dtype.t_id default null
+                    p_user in hdbk.dtype.t_id default null
                   )
   return hdbk.dtype.t_id;
 
 
   procedure note_edit(  P_ID  in hdbk.dtype.t_id default null,
                               p_name in hdbk.dtype.t_name default null,
-                    p_client in hdbk.dtype.t_id default null,
+                    p_user in hdbk.dtype.t_id default null,
                     p_status in hdbk.dtype.t_status default null
                       );
 
@@ -279,7 +279,7 @@ create or replace package body hdbk.hdbk_api as
 
   function note_add( 
                     p_name in hdbk.dtype.t_name default null,
-                    p_client in hdbk.dtype.t_id default null
+                    p_user in hdbk.dtype.t_id default null
                   )
   return hdbk.dtype.t_id
   is
@@ -287,7 +287,7 @@ create or replace package body hdbk.hdbk_api as
     v_id hdbk.dtype.t_id;
   begin
     v_obj_row.name:=  p_name;
-    v_obj_row.client_oid:=  p_client;
+    v_obj_row.user_oid:=  p_user;
     v_obj_row.guid :=   ntg.RandomUUID();
 
     insert into note values v_obj_row returning id into v_id;
@@ -302,7 +302,7 @@ create or replace package body hdbk.hdbk_api as
 
   procedure note_edit(    P_ID  in hdbk.dtype.t_id default null,
                               p_name in hdbk.dtype.t_name default null,
-                            p_client in hdbk.dtype.t_id default null,
+                            p_user in hdbk.dtype.t_id default null,
                             p_status in hdbk.dtype.t_status default null
                       )
   is

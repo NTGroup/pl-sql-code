@@ -24,7 +24,7 @@ $obj_return: id of created order
 */
   function order_create(p_date  in hdbk.dtype.t_date default null, 
                     p_order_number  in hdbk.dtype.t_long_code default null, 
-                    p_client in hdbk.dtype.t_id default null,
+                    p_user in hdbk.dtype.t_id default null,
                     p_status in hdbk.dtype.t_status default null
                     )
   return hdbk.dtype.t_id;
@@ -183,13 +183,13 @@ $obj_param: o_percent: in this paraveter returned percent commission value
 
 $obj_type: function
 $obj_name: order_number_generate
-$obj_desc: generate order number as last number + 1 by client id
-$obj_param: p_client: client id.
-$obj_return: string like 0012410032, where 1241 - client id and 32 is a counter of order
+$obj_desc: generate order number as last number + 1 by user id
+$obj_param: p_user: user id.
+$obj_return: string like 0012410032, where 1241 - user id and 32 is a counter of order
 
 */
 
-  function order_number_generate (p_client in hdbk.dtype.t_id)
+  function order_number_generate (p_user in hdbk.dtype.t_id)
   return hdbk.dtype.t_long_code;
 
 /*
@@ -379,7 +379,7 @@ END FWDR;
 
   function order_create(p_date  in hdbk.dtype.t_date default null, 
                         p_order_number  in hdbk.dtype.t_long_code default null, 
-                        p_client in hdbk.dtype.t_id default null,
+                        p_user in hdbk.dtype.t_id default null,
                         p_status in hdbk.dtype.t_status default null
   )
   return hdbk.dtype.t_id
@@ -389,8 +389,8 @@ END FWDR;
   begin
     
     v_id:=ord_api.ord_add(p_date => sysdate,
-                          p_order_number => fwdr.order_number_generate(p_client),
-                          p_client => p_client,
+                          p_order_number => fwdr.order_number_generate(p_user),
+                          p_user => p_user,
                           p_status => 'A'
     );
     return v_id;
@@ -440,7 +440,7 @@ END FWDR;
                           p_total_markup in hdbk.dtype.t_amount default null,
                           p_pnr_object in hdbk.dtype.t_clob default null,
                           p_nqt_status in  hdbk.dtype.t_long_code default null,
-                          p_client in hdbk.dtype.t_id default null,
+                          p_user in hdbk.dtype.t_id default null,
                           p_tenant_id  in  hdbk.dtype.t_long_code default null
                           )
   is
@@ -448,7 +448,7 @@ END FWDR;
     v_order hdbk.dtype.t_id;
     v_avia hdbk.dtype.t_id;
     v_bill hdbk.dtype.t_id;
-    v_client hdbk.dtype.t_id;
+    v_user hdbk.dtype.t_id;
     v_contract hdbk.dtype.t_id;
     r_item_avia item_avia%rowtype;
   begin
@@ -457,8 +457,8 @@ END FWDR;
       raise VALUE_ERROR;
     end if;
     
-    v_client := blng.fwdr.company_insteadof_client(to_number(p_tenant_id));
-    if v_client is null then
+    v_user := blng.fwdr.company_insteadof_user(to_number(p_tenant_id));
+    if v_user is null then
       raise VALUE_ERROR;
     end if;
     
@@ -477,7 +477,7 @@ END FWDR;
         p_po_status => null
         ) ;  
     else
-        v_order := fwdr.order_create(p_client=> v_client);
+        v_order := fwdr.order_create(p_user=> v_user);
         
         v_avia := ORD_API.item_avia_add(P_ORDER_OID => v_ORDER,
           P_PNR_locator => P_PNR_locator,
@@ -491,7 +491,7 @@ END FWDR;
           );        
 
 
-        v_contract := blng.core.pay_contract_by_client(v_client);
+        v_contract := blng.core.pay_contract_by_user(v_user);
         v_bill := ORD_API.bill_add( P_ORDER => v_order,
                                     P_AMOUNT => P_TOTAL_AMOUNT,
                                     P_DATE => sysdate,
@@ -525,12 +525,12 @@ END FWDR;
     v_order hdbk.dtype.t_id;
     v_avia hdbk.dtype.t_id;
     v_bill hdbk.dtype.t_id;
-    v_client hdbk.dtype.t_id;
+    v_user hdbk.dtype.t_id;
     v_contract hdbk.dtype.t_id;
     r_item_avia item_avia%rowtype;
     r_order ord%rowtype;
     r_ticket ticket%rowtype;
-    r_client blng.client%rowtype;
+    r_usr blng.usr%rowtype;
     r_item_avia_status item_avia_status%rowtype;
     v_tenant_id hdbk.dtype.t_id;
     v_ticket hdbk.dtype.t_id;
@@ -557,10 +557,10 @@ END FWDR;
       if v_tenant_id is null then raise NO_DATA_FOUND; end if;
       r_order := ord_api.ord_get_info_r(p_id=>r_item_avia.order_oid);
 
-      r_client := blng.blng_api.client_get_info_r(p_id=>r_order.client_oid);
-        --dbms_output.put_line(' p_id='||r_client.id);   
---      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.client_oid);
-      if blng.core.pay_contract_by_client(r_client.id)!=v_tenant_id then raise NO_DATA_FOUND; end if;
+      r_usr := blng.blng_api.usr_get_info_r(p_id=>r_order.user_oid);
+        --dbms_output.put_line(' p_id='||r_usr.id);   
+--      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.user_oid);
+      if blng.core.pay_contract_by_user(r_usr.id)!=v_tenant_id then raise NO_DATA_FOUND; end if;
 
     exception when NO_DATA_FOUND then
       hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'NO_DATA_FOUND',
@@ -722,7 +722,7 @@ END FWDR;
         SELECT
         ia.pnr_id, ia.nqt_status, ias.po_status, ias.nqt_status_cur, 
         null po_msg, 'avia' item_type, ia.pnr_locator, j.p_tenant_id tenant_id
-        from ord.item_avia ia, ord.item_avia_status ias, blng.client cl, ord.ord ord, blng.client2contract c2c,
+        from ord.item_avia ia, ord.item_avia_status ias, blng.usr, ord.ord, blng.usr2contract,
         json_table  
           ( p_pnr_list,'$[*]' 
           columns (p_pnr_id VARCHAR2(250) path '$.p_pnr_id',
@@ -736,11 +736,11 @@ END FWDR;
         and ia.id = ias.item_avia_oid
         and ord.amnd_state = 'A'
         and ord.id = ia.order_oid
-        and cl.amnd_state = 'A'
-        and cl.id = ord.client_oid
-        and c2c.contract_oid = j.p_tenant_id
-        and cl.id = c2c.client_oid
-        and c2c.permission = 'B'
+        and usr.amnd_state = 'A'
+        and usr.id = ord.user_oid
+        and usr2contract.contract_oid = j.p_tenant_id
+        and usr.id = usr2contract.user_oid
+        and usr2contract.permission = 'B'
         order by ia.time_limit asc; 
     return v_results;
   exception when others then
@@ -798,7 +798,7 @@ END FWDR;
   --  v_out number := null;
     r_json v_json%rowtype;
     r_item_avia item_avia%rowtype;
-    r_client blng.client%rowtype;
+    r_usr blng.usr%rowtype;
     r_order ord%rowtype;
 --    f_chs_VCeqMC number;  
 --    f_chs_MCneOC number;  
@@ -837,10 +837,10 @@ END FWDR;
       if v_tenant_id is null then raise NO_DATA_FOUND; end if;
       r_order := ord_api.ord_get_info_r(p_id=>r_item_avia.order_oid);
 
-      r_client := blng.blng_api.client_get_info_r(p_id=>r_order.client_oid);
+      r_usr := blng.blng_api.usr_get_info_r(p_id=>r_order.user_oid);
       
---      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.client_oid);
-      if blng.core.pay_contract_by_client(r_client.id)!=v_tenant_id then raise NO_DATA_FOUND; end if;
+--      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.user_oid);
+      if blng.core.pay_contract_by_user(r_usr.id)!=v_tenant_id then raise NO_DATA_FOUND; end if;
 
     exception when NO_DATA_FOUND then
       hdbk.log_api.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'NO_DATA_FOUND',
@@ -984,14 +984,14 @@ END FWDR;
     ---o_fix := null; o_percent:=5;
   end;
 
-  function order_number_generate (p_client in hdbk.dtype.t_id)
+  function order_number_generate (p_user in hdbk.dtype.t_id)
   return hdbk.dtype.t_long_code
   is
-    v_client_oid number;
+    v_user_oid number;
     v_order_count number;
   begin
-    select count(*) into v_order_count from ord.ord where client_oid = p_client and amnd_state <> 'I';
-    return lpad(p_client,6,'0')||lpad(v_order_count+1,4,'0');
+    select count(*) into v_order_count from ord.ord where user_oid = p_user and amnd_state <> 'I';
+    return lpad(p_user,6,'0')||lpad(v_order_count+1,4,'0');
   end;
 
   procedure avia_manual( p_pnr_id in hdbk.dtype.t_long_code default null, 
@@ -1005,8 +1005,8 @@ END FWDR;
     v_item_avia_status hdbk.dtype.t_id;
     r_item_avia item_avia%rowtype;
     r_order ord%rowtype;
---    r_client item_avia%rowtype;
-    r_client blng.client%rowtype;
+--    r_usr item_avia%rowtype;
+    r_usr blng.usr%rowtype;
     r_item_avia_status item_avia_status%rowtype;
     v_order_r ord%rowtype;
     v_bill hdbk.dtype.t_id;
@@ -1038,10 +1038,10 @@ END FWDR;
       if v_tenant_id is null then raise NO_DATA_FOUND; end if;
       r_order := ord_api.ord_get_info_r(p_id=>r_item_avia.order_oid);
 
-      r_client := blng.blng_api.client_get_info_r(p_id=>r_order.client_oid);
-        --dbms_output.put_line(' p_id='||r_client.id);   
---      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.client_oid);
-      if blng.core.pay_contract_by_client(r_client.id)!=v_tenant_id then raise NO_DATA_FOUND; end if;
+      r_usr := blng.blng_api.usr_get_info_r(p_id=>r_order.user_oid);
+        --dbms_output.put_line(' p_id='||r_usr.id);   
+--      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.user_oid);
+      if blng.core.pay_contract_by_user(r_usr.id)!=v_tenant_id then raise NO_DATA_FOUND; end if;
 
     exception when NO_DATA_FOUND then
       hdbk.log_api.LOG_ADD(p_proc_name=>'avia_manual', p_msg_type=>'NO_DATA_FOUND',
@@ -1144,7 +1144,7 @@ END FWDR;
     v_item_avia hdbk.dtype.t_id;
     v_item_avia_status hdbk.dtype.t_id;
     r_item_avia item_avia%rowtype;
-    r_client blng.client%rowtype;
+    r_usr blng.usr%rowtype;
   begin
     check_request(p_email => p_user_id,p_pnr_id =>p_pnr_id, p_is_create=>'Y');
 
@@ -1152,7 +1152,7 @@ END FWDR;
 -- check that cliemt with this user_id exist
       if p_user_id is null then raise NO_DATA_FOUND; end if;
       
-      r_client := blng.blng_api.client_get_info_r(p_email=>p_user_id);
+      r_usr := blng.blng_api.usr_get_info_r(p_email=>p_user_id);
     exception when NO_DATA_FOUND then
       hdbk.log_api.LOG_ADD(p_proc_name=>'avia_create', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => 'email not found',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
@@ -1180,9 +1180,9 @@ END FWDR;
         RAISE_APPLICATION_ERROR(-20002,'avia_create error. p_pnr_id is null');
     end;*/
     dbms_output.put_line(' p_id='||p_pnr_id);          
-    r_client := blng.blng_api.client_get_info_r(p_email=>p_user_id);
+    r_usr := blng.blng_api.usr_get_info_r(p_email=>p_user_id);
     
-    v_order := fwdr.order_create(p_client => r_client.id);
+    v_order := fwdr.order_create(p_user => r_usr.id);
     
     v_item_avia := ORD_API.item_avia_add(P_ORDER_OID => v_order,
       P_pnr_id => P_PNR_ID
@@ -1215,11 +1215,11 @@ END FWDR;
     v_order hdbk.dtype.t_id;
     v_avia hdbk.dtype.t_id;
     v_bill hdbk.dtype.t_id;
-    v_client hdbk.dtype.t_id;
+    v_user hdbk.dtype.t_id;
     v_contract hdbk.dtype.t_id;
     r_item_avia item_avia%rowtype;
     r_order ord%rowtype;
-    r_client blng.client%rowtype;
+    r_usr blng.usr%rowtype;
     v_tenant_id hdbk.dtype.t_id;
   begin
 
@@ -1241,14 +1241,14 @@ END FWDR;
 --    dbms_output.put_line(' p_id='||p_pnr_id);          
 
     begin 
-      -- check that client with this user_id exist
+      -- check that user with this user_id exist
       if v_tenant_id is null then raise NO_DATA_FOUND; end if;
       r_order := ord_api.ord_get_info_r(p_id=>r_item_avia.order_oid);
 
-      r_client := blng.blng_api.client_get_info_r(p_id=>r_order.client_oid);
+      r_usr := blng.blng_api.usr_get_info_r(p_id=>r_order.user_oid);
 
---      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.client_oid);
-      if blng.core.pay_contract_by_client(r_client.id)!=v_tenant_id then raise NO_DATA_FOUND; end if;
+--      r_company := blng.blng_api.company_get_info_r(p_id=>r_order.user_oid);
+      if blng.core.pay_contract_by_user(r_usr.id)!=v_tenant_id then raise NO_DATA_FOUND; end if;
 
     exception when NO_DATA_FOUND then
       hdbk.log_api.LOG_ADD(p_proc_name=>'avia_update', p_msg_type=>'NO_DATA_FOUND',
@@ -1288,7 +1288,7 @@ END FWDR;
     r_item_avia_status item_avia_status%rowtype;
     v_order_r ord%rowtype;
     v_bill hdbk.dtype.t_id;
-    r_client blng.client%rowtype;    
+    r_usr blng.usr%rowtype;    
     c_bill  SYS_REFCURSOR;
     r_bill bill%rowtype;
   begin
@@ -1302,7 +1302,7 @@ END FWDR;
 -- check that cliemt with this user_id exists
       if p_user_id is null then raise NO_DATA_FOUND; end if;
       
-      r_client := blng.blng_api.client_get_info_r(p_email=>p_user_id);
+      r_usr := blng.blng_api.usr_get_info_r(p_email=>p_user_id);
     exception when NO_DATA_FOUND then
       hdbk.log_api.LOG_ADD(p_proc_name=>'avia_pay', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => 'user_id not found',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
@@ -1351,7 +1351,7 @@ END FWDR;
                             )
   is
     r_item_avia item_avia%rowtype;
-    r_client blng.client%rowtype;
+    r_usr blng.usr%rowtype;
     v_bill hdbk.dtype.t_id;
     v_contract hdbk.dtype.t_id;
   begin
@@ -1366,7 +1366,7 @@ END FWDR;
 -- check that cliemt with this user_id exists
       if p_user_id is null then raise NO_DATA_FOUND; end if;
       
-      r_client := blng.blng_api.client_get_info_r(p_email=>p_user_id);
+      r_usr := blng.blng_api.usr_get_info_r(p_email=>p_user_id);
     exception when NO_DATA_FOUND then
       hdbk.log_api.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => 'user_id not found',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
@@ -1387,10 +1387,10 @@ END FWDR;
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
       RAISE_APPLICATION_ERROR(-20002,'avia_booked error. pnr_id not found. ');
     end;*/
-      r_client := blng.blng_api.client_get_info_r(p_email=>p_user_id);
+      r_usr := blng.blng_api.usr_get_info_r(p_email=>p_user_id);
       r_item_avia := ord_api.item_avia_get_info_r(p_pnr_id=>p_pnr_id);
 
-    v_contract := blng.core.pay_contract_by_client(r_client.id);
+    v_contract := blng.core.pay_contract_by_user(r_usr.id);
     v_bill := ORD_API.bill_add( P_ORDER => r_item_avia.order_oid,
                                 P_AMOUNT => r_item_avia.TOTAL_AMOUNT,
                                 P_DATE => sysdate,
@@ -1456,9 +1456,9 @@ END FWDR;
     v_results SYS_REFCURSOR; 
     v_id hdbk.dtype.t_id; 
     v_pos_rule hdbk.dtype.t_id; 
-    r_client pos_rule%rowtype;
+
   begin
--- first update client info. then if doc_number is not null then update client_data 
+
     for i in (
       select 
       dd.*
@@ -1507,19 +1507,17 @@ END FWDR;
   exception 
     when NO_DATA_FOUND then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
---      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'pos_rule_edit', p_msg_type=>'NO_DATA_FOUND',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+
       open v_results for
         select 'false' res from dual;
       return v_results;
     when others then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
---      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'pos_rule_edit', p_msg_type=>'UNHANDLED_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);      
+
       open v_results for
         select 'false' res from dual;
       return v_results;
@@ -1533,18 +1531,16 @@ END FWDR;
     v_id hdbk.dtype.t_id; 
     v_airline hdbk.dtype.t_id; 
     v_pos_rule hdbk.dtype.t_id; 
-    r_client pos_rule%rowtype;
+
 --    r_airline hdbk.airline%rowtype;
     v_commission hdbk.dtype.t_id:=null;
     v_commission_details hdbk.dtype.t_id:=null;
   begin
     hdbk.log_api.LOG_ADD(p_proc_name=>'rule_edit', p_msg_type=>'OK',
-      P_MSG => p_data,p_info => 'p_process=select,p_table=client,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      P_MSG => p_data,P_ALERT_LEVEL=>10);
      
     v_airline:=hdbk.hdbk_api.airline_get_id(p_iata => p_iata);    
   
--- first update client info. then if doc_number is not null then update client_data 
     for i in (
         select *
         from 
@@ -1649,18 +1645,18 @@ END FWDR;
     when NO_DATA_FOUND then
       ROLLBACK;
       hdbk.log_api.LOG_ADD(p_proc_name=>'rule_edit', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
---      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,
+          P_ALERT_LEVEL=>10);
+
       open v_results for
         select 'false' res from dual;
       return v_results;
     when others then
       ROLLBACK;
       hdbk.log_api.LOG_ADD(p_proc_name=>'rule_edit', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
---      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
+        P_ALERT_LEVEL=>10);      
+
       open v_results for
         select 'false' res from dual;
       return v_results;
@@ -1674,7 +1670,7 @@ END FWDR;
     v_id hdbk.dtype.t_id; 
     v_airline hdbk.dtype.t_id; 
     v_pos_rule hdbk.dtype.t_id; 
-    r_client pos_rule%rowtype;
+--    r_usr pos_rule%rowtype;
 --    r_airline hdbk.airline%rowtype;
     v_commission hdbk.dtype.t_id:=null;
     v_commission_details hdbk.dtype.t_id:=null;
@@ -1699,18 +1695,18 @@ END FWDR;
     when NO_DATA_FOUND then
       ROLLBACK;
       hdbk.log_api.LOG_ADD(p_proc_name=>'rule_delete', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
---      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,
+        P_ALERT_LEVEL=>10);
+
       open v_results for
         select 'NO_DATA_FOUND' res from dual;
       return v_results;
     when others then
       ROLLBACK;
       hdbk.log_api.LOG_ADD(p_proc_name=>'rule_delete', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
---      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
+        P_ALERT_LEVEL=>10);      
+
       open v_results for
         select 'NO_DATA_FOUND' res from dual;
       return v_results;
@@ -1975,7 +1971,7 @@ END FWDR;
     r_item_avia_status item_avia_status%rowtype;
     v_order_r ord%rowtype;
     v_bill hdbk.dtype.t_id;
-    r_client blng.client%rowtype;    
+    r_usr blng.usr%rowtype;    
     c_bill  SYS_REFCURSOR;
     r_bill bill%rowtype;
   begin
@@ -1998,8 +1994,8 @@ END FWDR;
 /* 
 $TODO: there must be check for users with ISSUES permission
 */
-      r_client := blng.blng_api.client_get_info_r(p_id=>r_order.client_oid);
-      if blng.core.pay_contract_by_client(r_client.id)!=p_contract then raise NO_DATA_FOUND; end if;
+      r_usr := blng.blng_api.usr_get_info_r(p_id=>r_order.user_oid);
+      if blng.core.pay_contract_by_user(r_usr.id)!=p_contract then raise NO_DATA_FOUND; end if;
 
     exception when NO_DATA_FOUND then
       hdbk.log_api.LOG_ADD(p_proc_name=>'check_request', p_msg_type=>'NO_DATA_FOUND',
@@ -2026,7 +2022,7 @@ $TODO: there must be check for users with ISSUES permission
     r_order ord%rowtype;
     v_order_r ord%rowtype;
     v_bill hdbk.dtype.t_id;
-    r_client blng.client%rowtype;    
+    r_usr blng.usr%rowtype;    
     c_bill  SYS_REFCURSOR;
     r_bill bill%rowtype;
   begin
@@ -2035,7 +2031,7 @@ $TODO: there must be check for users with ISSUES permission
       if p_email is null then raise NO_DATA_FOUND; end if;
       if p_email = 'god@ntg-one.com' then raise NOT_LOGGED_ON; end if;
       
-      r_client := blng.blng_api.client_get_info_r(p_email=>p_email);
+      r_usr := blng.blng_api.usr_get_info_r(p_email=>p_email);
     exception 
       when NO_DATA_FOUND then
         hdbk.log_api.LOG_ADD(p_proc_name=>'check_request', p_msg_type=>'NO_DATA_FOUND',

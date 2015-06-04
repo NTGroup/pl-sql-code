@@ -115,14 +115,14 @@ $obj_param: p_document: id of document
   
 /*
 $obj_type: function
-$obj_name: pay_contract_by_client
-$obj_desc: get contract which client can spend money 
+$obj_name: pay_contract_by_user
+$obj_desc: get contract which user can spend money 
 $obj_desc: documents like increase credit limit or loan days approve immediately
 $obj_desc: docs like buy or cash_in push to credit/debit_online accounts.
-$obj_param: p_client: client id
+$obj_param: p_user: user id
 $obj_return: contract id
 */
-  function pay_contract_by_client(p_client in hdbk.dtype.t_id)
+  function pay_contract_by_user(p_user in hdbk.dtype.t_id)
   return hdbk.dtype.t_id;
   
 end core;
@@ -1218,18 +1218,18 @@ null;
   end revoke_document;
 
   
-  function pay_contract_by_client(p_client in hdbk.dtype.t_id)
+  function pay_contract_by_user(p_user in hdbk.dtype.t_id)
   return hdbk.dtype.t_id
   is
-    r_client2contract blng.client2contract%rowtype;
+    r_usr2contract blng.usr2contract%rowtype;
   begin
-    r_client2contract:=blng.blng_api.client2contract_get_info_r(p_client=>p_client, p_permission=>'B');
-    return r_client2contract.contract_oid;
+    r_usr2contract:=blng.blng_api.usr2contract_get_info_r(p_user=>p_user, p_permission=>'B');
+    return r_usr2contract.contract_oid;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'pay_contract_by_client', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client2contract,p_date='
+    hdbk.log_api.LOG_ADD(p_proc_name=>'pay_contract_by_user', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=usr2contract,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into client2contract error. '||SQLERRM);
+    RAISE_APPLICATION_ERROR(-20002,'select row into usr2contract error. '||SQLERRM);
     return null;
   end;
 

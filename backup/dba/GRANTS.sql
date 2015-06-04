@@ -1,7 +1,7 @@
 -- special grants
 GRANT CREATE JOB TO HDBK;
 grant references on  ord.bill TO blng;
-grant references on blng.client TO hdbk;
+grant references on blng.usr TO hdbk;
 
 
 -- HDBK
@@ -43,7 +43,7 @@ grant debug on blng.fwdr to hdbk;
 grant execute on blng.blng_api to hdbk;
 grant debug on blng.blng_api to hdbk;
 
-grant select on blng.client TO hdbk;
+grant select on blng.usr TO hdbk;
 
 
 -- ORD
