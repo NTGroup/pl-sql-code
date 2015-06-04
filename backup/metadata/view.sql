@@ -124,7 +124,7 @@ decode(code,'do',1,0) debit_online,
 decode(code,'ult',1,0) max_loan_trans_amount,
 decode(code,'co',1,0) credit_online,
 decode(code,'dd',1,0) delay_days,
-case when code in ('l','cl','clb') then 1 else 0 end unused_credit_limit,
+case when code in ('l','cl') then 1 else 0 end unused_credit_limit,
 case when code in ('d','l','cl','clb') then 1 else 0 end available
 from blng.account_type act
 where amnd_state = 'A';

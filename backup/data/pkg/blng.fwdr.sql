@@ -31,8 +31,8 @@ $obj_desc: return info of contract for show balance to the client. function retu
 $obj_desc: DEPOSIT: self money
 $obj_desc: LOAN: money thatspent from credit limit
 $obj_desc: CREDIT_LIMIT: credit limit
-$obj_desc: UNUSED_CREDIT_LIMIT: credit limit - loan
-$obj_desc: AVAILABLE: credit limit + deposit - loan. if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ.
+$obj_desc: UNUSED_CREDIT_LIMIT: credit limit - abs(loan)
+$obj_desc: AVAILABLE: credit limit + deposit - abs(loan). if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ.
 $obj_desc: BLOCK_DATE: expiration date of the next bill
 $obj_desc: UNBLOCK_SUM: sum next neares bills (with one day) + all bills before current day
 $obj_desc: NEAR_UNBLOCK_SUM: unblock sum + bills for 2 next days after after first bill
