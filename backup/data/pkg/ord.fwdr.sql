@@ -246,11 +246,13 @@ $obj_name: avia_create
 $obj_desc: procedure create item_avia row only. it cant update item 
 $obj_param: p_pnr_id: id from NQT. search perform by this id
 $obj_param: p_user_id: user identifire. at this moment email
+$obj_param: p_data: user identifire. at this moment email
 
 */
 
   procedure avia_create(  p_pnr_id in hdbk.dtype.t_long_code default null,
-                          p_user_id  in  hdbk.dtype.t_long_code default null
+                          p_user_id  in  hdbk.dtype.t_long_code default null,
+                          p_data  in  hdbk.dtype.t_clob default null
                           );
 
 
@@ -369,7 +371,26 @@ $obj_return: SYS_REFCURSOR[ID, TEMPLATE_TYPE_CODE, TEMPLATE_VALUE]
                             p_pnr_id in hdbk.dtype.t_long_code default null,
                             p_is_create in hdbk.dtype.t_status default 'N'
                             );
+/*
+$obj_type: function
+$obj_name: task_get
+$obj_desc: return task for 1c
+$obj_return: SYS_REFCURSOR[email, TASK_ID, CONTRACT_ID, DESCRIPTION, QUANTITY, PRICE, VAT]
+*/  
+  function task_get
+  return SYS_REFCURSOR;
 
+/*
+$obj_type: function
+$obj_name: task_close
+$obj_desc: mark task as [C]losed
+$obj_param: p_task: task id
+$obj_param: p_number_1c: 1c bill number
+$obj_return: SYS_REFCURSOR[res]
+*/   
+  function task_close(p_task in hdbk.dtype.t_id default null,
+                      p_number_1c in hdbk.dtype.t_long_code default null)
+  return SYS_REFCURSOR;
 
 END FWDR;
 
@@ -444,10 +465,13 @@ END FWDR;
     v_bill hdbk.dtype.t_id;
     v_user hdbk.dtype.t_id;
     v_contract hdbk.dtype.t_id;
+    v_task1c hdbk.dtype.t_id;
+    v_bill2task hdbk.dtype.t_id;
     r_item_avia item_avia%rowtype;
     r_order ord%rowtype;
     r_ticket ticket%rowtype;
     r_usr blng.usr%rowtype;
+    r_bill bill%rowtype;
     r_item_avia_status item_avia_status%rowtype;
     v_tenant_id hdbk.dtype.t_id;
     v_ticket hdbk.dtype.t_id;
@@ -527,6 +551,11 @@ END FWDR;
     end;
     
   end loop;
+  
+  r_bill := ord_api.bill_get_info_r(p_order=>r_item_avia.order_oid);
+  
+  v_task1c := ord_api.task1c_add(p_task_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'1C',p_code=>'BILL_ADD'));
+  v_bill2task := ord_api.bill2task_add(p_bill=>r_bill.id,p_task=>v_task1c);
   
   commit;    
   
@@ -958,7 +987,8 @@ END FWDR;
 
 
   procedure avia_create(  p_pnr_id in hdbk.dtype.t_long_code default null,
-                          p_user_id in hdbk.dtype.t_long_code default null
+                          p_user_id in hdbk.dtype.t_long_code default null,
+                          p_data  in  hdbk.dtype.t_clob default null
                           )
   is
     v_order hdbk.dtype.t_id;
@@ -967,6 +997,10 @@ END FWDR;
     r_item_avia item_avia%rowtype;
     r_usr blng.usr%rowtype;
   begin
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_create', p_msg_type=>'ok',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)
+        || ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_data='|| p_data,P_ALERT_LEVEL=>10);
+
     check_request(p_email => p_user_id,p_pnr_id =>p_pnr_id, p_is_create=>'Y');
 
     dbms_output.put_line(' p_id='||p_pnr_id);          
@@ -985,8 +1019,7 @@ END FWDR;
       rollback;
       hdbk.log_api.LOG_ADD(p_proc_name=>'avia_create', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)
-        || ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=item_avia,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+        || ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'avia_create error. '||SQLERRM);
   end;
 
@@ -1801,6 +1834,152 @@ $TODO: there must be check for users with ISSUES permission
       RAISE_APPLICATION_ERROR(-20002,'select row error. '||SQLERRM);
   end;
 
+
+
+  function task_get
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    --v_contract hdbk.dtype.t_id;
+ --   r_account_info blng.v_account%rowtype;
+    v_task hdbk.dtype.t_id;
+  begin
+
+      select 
+      id into v_task from
+      ord.task1c
+      where amnd_state = 'A' 
+      and (status in ('A') 
+      or (status in ('W') and amnd_date < sysdate - to_number(hdbk.core.dictionary_get_name_by_code(p_dictionary_type=>'1C',p_code=>'TASK_INTERVAL')/24/60/60))
+      )
+      order by id
+      FETCH FIRST 1 ROWS ONLY;
+     
+  
+    OPEN v_results FOR
+    select 
+      (select email from blng.usr where id = (select user_oid from ord.ord where id = item_avia.order_oid)) email,
+       bill2task.task_oid task_id,
+       bill.contract_oid  contract_id,
+      'Авиабилет (электронный билет), пассажир ' || ticket.passenger_name description, 
+      1 quantity, 
+      nvl(ticket.fare_amount,0) + nvl(ticket.taxes_amount,0) price, 
+      18 vat      
+       from
+      ord.bill2task, ord.bill, ord.item_avia, ord.ticket
+      where bill2task.amnd_state = 'A' 
+      and item_avia.amnd_state = 'A' 
+      and ticket.amnd_state = 'A' 
+      and bill.amnd_state = 'A' 
+      and bill2task.bill_oid = bill.id
+      and bill.order_oid = item_avia.order_oid
+      and item_avia.id = ticket.item_avia_oid
+      and bill2task.task_oid = v_task
+      and (ticket.fare_amount is not null or ticket.taxes_amount is not null)
+union all
+      select 
+      (select email from blng.usr where id = (select user_oid from ord.ord where id = item_avia.order_oid)) email,
+       bill2task.task_oid task_id,
+       bill.contract_oid  contract_id,
+      'Сервисный сбор'  description, 
+      1 quantity, 
+      nvl(ticket.service_fee_amount,0) price, 
+      18 vat      
+       from
+      ord.bill2task, ord.bill, ord.item_avia, ord.ticket
+      where bill2task.amnd_state = 'A' 
+      and item_avia.amnd_state = 'A' 
+      and ticket.amnd_state = 'A' 
+      and bill.amnd_state = 'A' 
+      and bill2task.bill_oid = bill.id
+      and bill.order_oid = item_avia.order_oid
+      and item_avia.id = ticket.item_avia_oid
+      and bill2task.task_oid = v_task
+      and ticket.service_fee_amount is not null
+      ;    
+
+    ord_api.task1c_edit(p_id=>v_task, p_status=>'W');
+    COMMIT;
+ 
+      
+/*    OPEN v_results FOR
+      select  'test@ntg-one.com' email, 1 task_id, 313276 contract_id, 'Авиабилет (электронный билет), пассажир Sagiev Adel' description, 1 quantity, 12211 price, 18 vat from dual 
+        union all
+      select  'test@ntg-one.com' email, 1 task_id, 313276 contract_id, 'Комиссионный  сбор' description, 1 quantity, 321 price, 10 vat from dual 
+        union all
+      select  'test@ntg-one.com' email, 1 task_id, 313276 contract_id, 'Авиабилет (электронный билет), пассажир POPINEVSKIY SERGEY' description, 1 quantity, 54673 price, 0 vat from dual 
+        union all
+      select  'test@ntg-one.com' email, 1 task_id, 313276 contract_id, 'Комиссионный  сбор' description, 1 quantity, 45 price, 18 vat from dual 
+        union all
+      select  'test@ntg-one.com' email, 1 task_id, 313276 contract_id, 'Трансфер' description, 1 quantity, 34554 price, 0 vat from dual; 
+ */     
+    return v_results;
+  exception 
+    when VALUE_ERROR then 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'VALUE_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+        open v_results for
+          select 'ERROR' res from dual;
+        return v_results;
+    when NO_DATA_FOUND then 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'NO_DATA_FOUND', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+        open v_results for
+          select 'ERROR' res from dual;
+        return v_results;
+    when others then
+      rollback;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'UNHANDLED_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+        open v_results for
+          select 'ERROR' res from dual;
+        return v_results;
+  end;
+
+
+  function task_close(p_task in hdbk.dtype.t_id default null,
+                      p_number_1c in hdbk.dtype.t_long_code default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    --v_contract hdbk.dtype.t_id;
+--    r_account_info blng.v_account%rowtype;
+    v_task hdbk.dtype.t_id;
+  begin
+
+    ord_api.task1c_edit(p_id=>p_task,p_number_1c=>p_number_1c, p_status=>'C');
+    COMMIT;
+    
+    open v_results for
+      select 'SUCCESS' res from dual;
+    return v_results;
+  exception 
+    when VALUE_ERROR then 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'VALUE_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+        open v_results for
+          select 'ERROR' res from dual;
+        return v_results;
+    when NO_DATA_FOUND then 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'NO_DATA_FOUND', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+        open v_results for
+          select 'ERROR' res from dual;
+        return v_results;
+    when others then
+      rollback;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'UNHANDLED_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+        open v_results for
+          select 'ERROR' res from dual;
+        return v_results;
+  end;
 
 
 

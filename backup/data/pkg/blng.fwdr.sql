@@ -56,7 +56,7 @@ $obj_param: p_user: email
 $obj_return: SYS_REFCURSOR[USER_ID, LAST_NAME, FIRST_NAME, EMAIL, PHONE, --TENANT_ID, 
 $obj_return: BIRTH_DATE, GENDER, NATIONALITY, NLS_NATIONALITY, DOC_ID, DOC_EXPIRY_DATE, 
 $obj_return: DOC_NUMBER, DOC_LAST_NAME, DOC_FIRST_NAME, DOC_OWNER, DOC_GENDER, 
-$obj_return: DOC_BIRTH_DATE, DOC_NATIONALITY, DOC_NLS_NATIONALITY, DOC_PHONE, client_NAME,is_tester]
+$obj_return: DOC_BIRTH_DATE, DOC_NATIONALITY, DOC_NLS_NATIONALITY, DOC_PHONE, client_id, client_NAME,is_tester]
 */
   function whoami(p_user in hdbk.dtype.t_name)
   return SYS_REFCURSOR;
@@ -218,7 +218,7 @@ $obj_name: contract_list
 $obj_desc: return list of contracts by client id 
 $obj_param: p_client: id of client
 $obj_return: on success SYS_REFCURSOR[CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, 
-$obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE]
+$obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, contract_number,CONTACT_PHONE]
 $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 */
   function contract_list(p_client in hdbk.dtype.t_id default null)
@@ -230,7 +230,7 @@ $obj_name: contract_add
 $obj_desc: add contract for client and return info about this new contract. 
 $obj_param: p_client: id of client
 $obj_param: p_data: json[CONTRACT_NAME, CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE]
-$obj_return: on success SYS_REFCURSOR[res, CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, 
+$obj_return: on success SYS_REFCURSOR[client_id, CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, contract_number,
 $obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE
 $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 */
@@ -243,8 +243,8 @@ $obj_name: contract_update
 $obj_desc: update contract info for client and return info about this new contract. 
 $obj_param: p_contract: id of contract
 $obj_param: p_data: json[CONTRACT_NAME, CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE]
-$obj_return: on success SYS_REFCURSOR[res, CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, 
-$obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE
+$obj_return: on success SYS_REFCURSOR[client_id, CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, 
+$obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME,contract_number, CONTACT_PHONE
 $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 */
   function contract_update(p_contract in hdbk.dtype.t_id default null, p_data in hdbk.dtype.t_clob default null)
@@ -411,6 +411,7 @@ create  or replace package BODY blng.fwdr as
       to_char(usrd.birth_date,'yyyy-mm-dd') doc_birth_date,
       usrd.nationality doc_nationality,
       hdbk.hdbk_api.gds_nationality_get_info_name(usrd.nationality) doc_nls_nationality,usrd.phone doc_phone,
+      client.id client_id,
       client.name client_name,
       usr.is_tester
       from blng.usr usr, blng.usr_data usrd, blng.client
@@ -1038,6 +1039,7 @@ create  or replace package BODY blng.fwdr as
         contract.id tenant_id,
         decode(contract.status,'B','Y','N') is_blocked,
         contract.name contract_name,
+        contract.contract_number,
         v_account.credit_limit,
         v_account.delay_days,
         v_account.max_loan_trans_amount max_credit,
@@ -1107,10 +1109,12 @@ create  or replace package BODY blng.fwdr as
 
     OPEN v_results FOR
       select 
+      contract.client_oid client_id,
       contract.id contract_id,
       contract.id tenant_id,
       decode(contract.status,'B','Y','N') is_blocked,
       contract.name contract_name,
+      contract.contract_number,
       v_account.credit_limit,
       v_account.delay_days,
       v_account.max_loan_trans_amount max_credit,
@@ -1193,10 +1197,12 @@ create  or replace package BODY blng.fwdr as
 
     OPEN v_results FOR
       select 
+      contract.client_oid client_id,
       contract.id contract_id,
       contract.id tenant_id,
       decode(contract.status,'B','Y','N') is_blocked,
       contract.name contract_name,
+      contract.contract_number,
       v_account.credit_limit,
       v_account.delay_days,
       v_account.max_loan_trans_amount max_credit,

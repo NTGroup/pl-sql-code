@@ -317,6 +317,55 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
   return pos_rule%rowtype;
 
 
+  function task1c_add( 
+                    p_task_type in hdbk.dtype.t_id default null,
+                    p_number_1c in hdbk.dtype.t_long_code default null,
+                    p_status in hdbk.dtype.t_status default null
+                  )
+  return hdbk.dtype.t_id;
+
+
+  procedure task1c_edit(  P_ID  in hdbk.dtype.t_id default null,
+                    p_task_type in hdbk.dtype.t_id default null,
+                    p_number_1c in hdbk.dtype.t_long_code default null,
+                    p_status in hdbk.dtype.t_status default null
+                      );
+
+
+  function task1c_get_info(   P_ID  in hdbk.dtype.t_id default null
+                          )
+  return SYS_REFCURSOR;
+
+
+  function task1c_get_info_r (    P_ID  in hdbk.dtype.t_id default null
+                          )
+  return task1c%rowtype;
+
+
+  function bill2task_add( 
+                    p_bill in hdbk.dtype.t_id default null,
+                    p_task in hdbk.dtype.t_id default null
+                  )
+  return hdbk.dtype.t_id;
+
+
+  procedure bill2task_edit(  P_ID  in hdbk.dtype.t_id default null,
+                            p_bill in hdbk.dtype.t_id default null,
+                            p_task in hdbk.dtype.t_id default null,
+                            p_status in  hdbk.dtype.t_status default null
+                      );
+
+
+  function bill2task_get_info(   P_ID  in hdbk.dtype.t_id default null
+                          )
+  return SYS_REFCURSOR;
+
+
+  function bill2task_get_info_r (    P_ID  in hdbk.dtype.t_id default null
+                          )
+  return bill2task%rowtype;
+
+
   
 END ORD_API;
 
@@ -1214,15 +1263,22 @@ END ORD_API;
     c_obj  SYS_REFCURSOR;
     r_obj bill%rowtype;
   begin
-    SELECT
-    * into r_obj
-    from ord.bill 
-    where id = nvl(p_id,id)
-    and status = nvl(p_status,status)
-    and trans_type_oid = nvl(p_trans_type,trans_type_oid)
-    and amnd_state != 'I'
-    order by id;
-    return r_obj;
+    if p_order is not null then     
+      SELECT
+      * into r_obj
+      from ord.bill 
+      where order_oid = nvl(p_order,order_oid)    
+      and amnd_state != 'I'
+      order by id;
+    else
+      SELECT
+      * into r_obj
+      from ord.bill 
+      where id = nvl(p_id,id)
+      and amnd_state != 'I'
+      order by id;
+    end if;
+      return r_obj;
   exception 
     when NO_DATA_FOUND then 
       raise NO_DATA_FOUND;
@@ -1662,6 +1718,236 @@ END ORD_API;
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=pos_rule,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into pos_rule error. '||SQLERRM);
+  end;
+
+
+
+  function task1c_add( 
+                    p_task_type in hdbk.dtype.t_id default null,
+                    p_number_1c in hdbk.dtype.t_long_code default null,
+                    p_status in hdbk.dtype.t_status default null
+                  )
+  return hdbk.dtype.t_id
+  is
+    v_obj_row task1c%rowtype;
+    v_id hdbk.dtype.t_id;
+  begin
+    v_obj_row.task_type:=  p_task_type;
+    v_obj_row.number_1c:=  p_number_1c;
+    v_obj_row.status:=  nvl(p_status,'A');
+
+
+    insert into ord.task1c values v_obj_row returning id into v_id;
+    return v_id;
+  exception when others then
+    hdbk.log_api.LOG_ADD(p_proc_name=>'task1c_add', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'insert row into task1c error. '||SQLERRM);
+  end;
+
+
+  procedure task1c_edit(  P_ID  in hdbk.dtype.t_id default null,
+                    p_task_type in hdbk.dtype.t_id default null,
+                    p_number_1c in hdbk.dtype.t_long_code default null,
+                    p_status in hdbk.dtype.t_status default null
+                      )
+  is
+    v_obj_row_new task1c%rowtype;
+    v_obj_row_old task1c%rowtype;
+  begin
+    if p_id is null  then raise NO_DATA_FOUND; end if;   
+  
+    select * into v_obj_row_old from task1c 
+        where id = nvl(p_id,id)
+        and amnd_state = 'A'
+    ;
+    v_obj_row_new := v_obj_row_old;
+
+
+
+    v_obj_row_new.amnd_date:=sysdate;
+    v_obj_row_new.amnd_user:=user;
+    v_obj_row_new.task_type := nvl(p_task_type,v_obj_row_new.task_type);
+    v_obj_row_new.number_1c := nvl(p_number_1c,v_obj_row_new.number_1c);
+    v_obj_row_new.status := nvl(p_status,v_obj_row_new.status);
+
+    if p_status in ('C','D') then  v_obj_row_new.amnd_state := 'C'; end if;
+
+    v_obj_row_old.amnd_state:='I';
+    v_obj_row_old.id:=null;
+    insert into task1c values v_obj_row_old;
+
+    update task1c set row = v_obj_row_new where id = v_obj_row_new.id;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'task1c_edit', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'update row into task1c error. '||SQLERRM);
+  end;
+
+
+  function task1c_get_info(   P_ID  in hdbk.dtype.t_id default null
+                          )
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR;
+  begin
+      OPEN v_results FOR
+        SELECT
+        *
+        from ord.task1c 
+        where id = nvl(p_id,id)
+        and amnd_state = 'A'
+        order by id;
+    return v_results;
+  exception when others then
+    hdbk.log_api.LOG_ADD(p_proc_name=>'task1c_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'select row into task1c error. '||SQLERRM);
+  end;
+
+
+  function task1c_get_info_r (    P_ID  in hdbk.dtype.t_id default null
+                          )
+  return task1c%rowtype
+  is
+    r_obj task1c%rowtype;
+  begin
+    if p_id is null then raise NO_DATA_FOUND; end if;   
+    
+    SELECT
+    * into r_obj
+    from ord.task1c 
+    where id = nvl(p_id,id)
+    and amnd_state != 'I'
+    order by id;
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'task1c_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into task1c error. '||SQLERRM);
+  end;
+
+
+  function bill2task_add( 
+                    p_bill in hdbk.dtype.t_id default null,
+                    p_task in hdbk.dtype.t_id default null
+                  )
+  return hdbk.dtype.t_id
+  is
+    v_obj_row bill2task%rowtype;
+    v_id hdbk.dtype.t_id;
+  begin
+    if p_bill is null and p_task is null then raise NO_DATA_FOUND; end if;   
+    v_obj_row.bill_oid:=  p_bill;
+    v_obj_row.task_oid:=  p_task;
+
+    insert into ord.bill2task values v_obj_row returning id into v_id;
+    return v_id;
+  exception when others then
+    hdbk.log_api.LOG_ADD(p_proc_name=>'bill2task_add', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'insert row into bill2task error. '||SQLERRM);
+  end;
+
+
+  procedure bill2task_edit(  P_ID  in hdbk.dtype.t_id default null,
+                            p_bill in hdbk.dtype.t_id default null,
+                            p_task in hdbk.dtype.t_id default null,
+                            p_status in  hdbk.dtype.t_status default null
+                      )
+  is
+    v_obj_row_new bill2task%rowtype;
+    v_obj_row_old bill2task%rowtype;
+  begin
+    if p_id is null  then raise NO_DATA_FOUND; end if;   
+  
+    select * into v_obj_row_old from bill2task 
+        where id = nvl(p_id,id)
+        and amnd_state = 'A'
+    ;
+    v_obj_row_new := v_obj_row_old;
+
+
+
+    v_obj_row_new.amnd_date:=sysdate;
+    v_obj_row_new.amnd_user:=user;
+    v_obj_row_new.bill_oid := nvl(p_bill,v_obj_row_new.bill_oid);
+    v_obj_row_new.task_oid := nvl(p_task,v_obj_row_new.task_oid);
+
+    if p_status in ('C','D') then  v_obj_row_new.amnd_state := 'C'; end if;
+
+    v_obj_row_old.amnd_state:='I';
+    v_obj_row_old.id:=null;
+    insert into bill2task values v_obj_row_old;
+
+    update bill2task set row = v_obj_row_new where id = v_obj_row_new.id;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill2task_edit', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'update row into bill2task error. '||SQLERRM);
+  end;
+
+
+  function bill2task_get_info(   P_ID  in hdbk.dtype.t_id default null
+                          )
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR;
+  begin
+      OPEN v_results FOR
+        SELECT
+        *
+        from ord.bill2task 
+        where id = nvl(p_id,id)
+        and amnd_state = 'A'
+        order by id;
+    return v_results;
+  exception when others then
+    hdbk.log_api.LOG_ADD(p_proc_name=>'bill2task_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'select row into bill2task error. '||SQLERRM);
+  end;
+
+
+  function bill2task_get_info_r (    P_ID  in hdbk.dtype.t_id default null
+                          )
+  return bill2task%rowtype
+  is
+    r_obj bill2task%rowtype;
+  begin
+    if p_id is null then raise NO_DATA_FOUND; end if;   
+    
+    SELECT
+    * into r_obj
+    from ord.bill2task 
+    where id = nvl(p_id,id)
+    and amnd_state = 'A'
+    order by id;
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill2task_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into bill2task error. '||SQLERRM);
   end;
 
 

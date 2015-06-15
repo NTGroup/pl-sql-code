@@ -182,7 +182,7 @@ return info for user
 *parameters:*  
 **p\_user**: email  
 *return:*  
-SYS\_REFCURSOR[USER\_ID, LAST\_NAME, FIRST\_NAME, EMAIL, PHONE, --TENANT\_ID,BIRTH\_DATE, GENDER, NATIONALITY, NLS\_NATIONALITY, DOC\_ID, DOC\_EXPIRY\_DATE,DOC\_NUMBER, DOC\_LAST\_NAME, DOC\_FIRST\_NAME, DOC\_OWNER, DOC\_GENDER,DOC\_BIRTH\_DATE, DOC\_NATIONALITY, DOC\_NLS\_NATIONALITY, DOC\_PHONE, client\_NAME,is\_tester]  
+SYS\_REFCURSOR[USER\_ID, LAST\_NAME, FIRST\_NAME, EMAIL, PHONE, --TENANT\_ID,BIRTH\_DATE, GENDER, NATIONALITY, NLS\_NATIONALITY, DOC\_ID, DOC\_EXPIRY\_DATE,DOC\_NUMBER, DOC\_LAST\_NAME, DOC\_FIRST\_NAME, DOC\_OWNER, DOC\_GENDER,DOC\_BIRTH\_DATE, DOC\_NATIONALITY, DOC\_NLS\_NATIONALITY, DOC\_PHONE, client\_id, client\_NAME,is\_tester]  
 
 
 
@@ -313,7 +313,7 @@ return list of contracts by client id
 *parameters:*  
 **p\_client**: id of client  
 *return:*  
-on success SYS\_REFCURSOR[CONTRACT\_ID, TENANT\_ID, IS\_BLOCKED, CONTRACT\_NAME,CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, CONTACT\_PHONE]on error SYS\_REFCURSOR[res]. res=ERROR  
+on success SYS\_REFCURSOR[CONTRACT\_ID, TENANT\_ID, IS\_BLOCKED, CONTRACT\_NAME,CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, contract\_number,CONTACT\_PHONE]on error SYS\_REFCURSOR[res]. res=ERROR  
 
 
 
@@ -324,7 +324,7 @@ add contract for client and return info about this new contract.
 **p\_client**: id of client  
 **p\_data**: json[CONTRACT\_NAME, CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, CONTACT\_PHONE]  
 *return:*  
-on success SYS\_REFCURSOR[res, CONTRACT\_ID, TENANT\_ID, IS\_BLOCKED, CONTRACT\_NAME,CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, CONTACT\_PHONEon error SYS\_REFCURSOR[res]. res=ERROR  
+on success SYS\_REFCURSOR[client\_id, CONTRACT\_ID, TENANT\_ID, IS\_BLOCKED, CONTRACT\_NAME, contract\_number,CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, CONTACT\_PHONEon error SYS\_REFCURSOR[res]. res=ERROR  
 
 
 
@@ -335,86 +335,7 @@ update contract info for client and return info about this new contract.
 **p\_contract**: id of contract  
 **p\_data**: json[CONTRACT\_NAME, CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, CONTACT\_PHONE]  
 *return:*  
-on success SYS\_REFCURSOR[res, CONTRACT\_ID, TENANT\_ID, IS\_BLOCKED, CONTRACT\_NAME,CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, CONTACT\_PHONEon error SYS\_REFCURSOR[res]. res=ERROR  
-
-
-
-## erp.erp\_api ##
-
-
-
-*description:*  
-*****\_add**: insert row into table ***. could return id of new row.  
-*****\_edit**: update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api.  
-*****\_get\_info**: return data from table *** with format SYS\_REFCURSOR.  
-*****\_get\_info\_r**: return one row from table *** with format ***%rowtype.  
-
-
-
-## erp.gate ##
-
-
-
-- *function* **erp.gate.get\_cursor**  
-*description:*  
-test function. return cursor with rowcount <= p\_rowcount  
-*parameters:*  
-**p\_rowcount**: count rows in response  
-*return:*  
-SYS\_REFCURSOR[n,date\_to,str,int,double]. table with this columns.  
-
-
-
-- *procedure* **erp.gate.run\_proc**  
-*description:*  
-test procedure. do nothing, but return string "input p\_rowcount" in out parameter o\_result.  
-*parameters:*  
-**p\_rowcount**: its just parameter for input  
-**o\_result**: string out parameter for return "input p\_rowcount"  
-
-
-
-- *function* **erp.gate.pdf\_printer\_add**  
-*description:*  
-add new task for pdf printer  
-*parameters:*  
-**p\_payload**: json with booking data  
-**p\_filename**: name of generated file  
-**o\_id**: out parameter return row id  
-*return:*  
-row id  
-
-
-
-- *procedure* **erp.gate.pdf\_printer\_edit**  
-*description:*  
-edit task for pdf printer  
-*parameters:*  
-**p\_id**: task id  
-**p\_payload**: json with booking data  
-**p\_status**: wich status you want to set: [N]ew,[E]rror,[D]one  
-**p\_filename**: name of generated file  
-
-
-
-- *procedure* **erp.gate.pdf\_printer\_get**  
-*description:*  
-return data for task  
-*parameters:*  
-**p\_id**: task id  
-**o\_payload**: out parameter for return json with booking data  
-**o\_status**: out parameter for return status of task  
-**o\_filename**: out parameter for return file name  
-
-
-
-- *function* **erp.gate.check\_user**  
-*description:*  
-return user\_id. if user dosnt exist then return NULL  
-*parameters:*  
-**p\_email**: user email  
-*return:*  
-user identifire  
+on success SYS\_REFCURSOR[client\_id, CONTRACT\_ID, TENANT\_ID, IS\_BLOCKED, CONTRACT\_NAME,CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME,contract\_number, CONTACT\_PHONEon error SYS\_REFCURSOR[res]. res=ERROR  
 
 
 
@@ -827,6 +748,7 @@ procedure create item\_avia row only. it cant update item
 *parameters:*  
 **p\_pnr\_id**: id from NQT. search perform by this id  
 **p\_user\_id**: user identifire. at this moment email  
+**p\_data**: user identifire. at this moment email  
 
 
 
@@ -914,6 +836,25 @@ return all markup templates for rule id
 **p\_rule\_id**: id of rule  
 *return:*  
 SYS\_REFCURSOR[ID, TEMPLATE\_TYPE\_CODE, TEMPLATE\_VALUE]  
+
+
+
+- *function* **ord.fwdr.task\_get**  
+*description:*  
+return task for 1c  
+*return:*  
+SYS\_REFCURSOR[email, TASK\_ID, CONTRACT\_ID, DESCRIPTION, QUANTITY, PRICE, VAT]  
+
+
+
+- *function* **ord.fwdr.task\_close**  
+*description:*  
+mark task as [C]losed  
+*parameters:*  
+**p\_task**: task id  
+**p\_number\_1c**: 1c bill number  
+*return:*  
+SYS\_REFCURSOR[res]  
 
 
 
