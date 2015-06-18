@@ -475,7 +475,9 @@ END FWDR;
     r_item_avia_status item_avia_status%rowtype;
     v_tenant_id hdbk.dtype.t_id;
     v_ticket hdbk.dtype.t_id;
+    v_delay_count hdbk.dtype.t_id;
     v_is_ticket_received hdbk.dtype.t_status:='N';
+    
   begin
       hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'0',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
@@ -569,9 +571,13 @@ END FWDR;
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
         
     r_bill := ord_api.bill_get_info_r(p_order=>r_item_avia.order_oid);
-    
-    v_task1c := ord_api.task1c_add(p_task_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'1C',p_code=>'BILL_ADD'));
-    v_bill2task := ord_api.bill2task_add(p_bill=>r_bill.id,p_task=>v_task1c);
+
+    select count(*) into v_delay_count from blng.v_delay where bill_id = r_bill.id;
+    if v_delay_count <> 0 then
+-- This is prevent create task when whole bill payed from deposit
+      v_task1c := ord_api.task1c_add(p_task_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'1C',p_code=>'BILL_ADD'));
+      v_bill2task := ord_api.bill2task_add(p_bill=>r_bill.id,p_task=>v_task1c);
+    end if;
   end if;  
   commit;    
   
