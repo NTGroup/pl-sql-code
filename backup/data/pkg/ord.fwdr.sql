@@ -243,16 +243,16 @@ $obj_return: SYS_REFCURSOR[fields from v_rule view]
 
 $obj_type: procedure
 $obj_name: avia_create
-$obj_desc: procedure create item_avia row only. it cant update item 
+$obj_desc: procedure create item_avia row only. it cant update item. add PNR info like who, where, when
 $obj_param: p_pnr_id: id from NQT. search perform by this id
 $obj_param: p_user_id: user identifire. at this moment email
-$obj_param: p_data: user identifire. at this moment email
+$obj_param: p_itinerary: PNR info like who, where, when
 
 */
 
   procedure avia_create(  p_pnr_id in hdbk.dtype.t_long_code default null,
                           p_user_id  in  hdbk.dtype.t_long_code default null,
-                          p_data  in  hdbk.dtype.t_clob default null
+                          p_itinerary  in  hdbk.dtype.t_clob default null
                           );
 
 
@@ -475,7 +475,12 @@ END FWDR;
     r_item_avia_status item_avia_status%rowtype;
     v_tenant_id hdbk.dtype.t_id;
     v_ticket hdbk.dtype.t_id;
+    v_is_ticket_received hdbk.dtype.t_status:='N';
   begin
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'0',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
+        p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     
     v_tenant_id := to_number(p_tenant_id);
     check_request(p_contract=>v_tenant_id,p_pnr_id =>p_pnr_id);
@@ -498,14 +503,16 @@ END FWDR;
   )
   loop
     begin
-/*      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'1',
+      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'1',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
         p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);*/
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
 
 
     
       r_ticket:= ord_api.ticket_get_info_r(
+                            p_item_avia           => r_item_avia.id,
                             p_ticket_number       => i.p_number
                           );
 /*      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'2',
@@ -525,15 +532,17 @@ END FWDR;
                               p_partner_fee_amount  => i.p_markup_partner
                               
                             );    
+        v_is_ticket_received := 'Y';
+        
 /*      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'3',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
         p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);*/
     exception when NO_DATA_FOUND then
-/*      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'4',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'4',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
         p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);*/
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
       v_ticket:=ord_api.ticket_add( p_item_avia           => r_item_avia.id,
                               p_pnr_locator         => r_item_avia.pnr_locator,
                               p_ticket_number       => i.p_number,
@@ -544,19 +553,26 @@ END FWDR;
                               p_service_fee_amount  => i.p_markup_base,
                               p_partner_fee_amount  => i.p_markup_partner
                             );
-/*      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'5',
+      v_is_ticket_received := 'Y';
+      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'5',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
         p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);*/
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     end;
     
   end loop;
-  
-  r_bill := ord_api.bill_get_info_r(p_order=>r_item_avia.order_oid);
-  
-  v_task1c := ord_api.task1c_add(p_task_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'1C',p_code=>'BILL_ADD'));
-  v_bill2task := ord_api.bill2task_add(p_bill=>r_bill.id,p_task=>v_task1c);
-  
+  if v_is_ticket_received = 'Y' then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'6',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
+        p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+        
+    r_bill := ord_api.bill_get_info_r(p_order=>r_item_avia.order_oid);
+    
+    v_task1c := ord_api.task1c_add(p_task_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'1C',p_code=>'BILL_ADD'));
+    v_bill2task := ord_api.bill2task_add(p_bill=>r_bill.id,p_task=>v_task1c);
+  end if;  
   commit;    
   
   exception 
@@ -988,7 +1004,7 @@ END FWDR;
 
   procedure avia_create(  p_pnr_id in hdbk.dtype.t_long_code default null,
                           p_user_id in hdbk.dtype.t_long_code default null,
-                          p_data  in  hdbk.dtype.t_clob default null
+                          p_itinerary  in  hdbk.dtype.t_clob default null
                           )
   is
     v_order hdbk.dtype.t_id;
@@ -996,10 +1012,14 @@ END FWDR;
     v_item_avia_status hdbk.dtype.t_id;
     r_item_avia item_avia%rowtype;
     r_usr blng.usr%rowtype;
+    v_prev_leg hdbk.dtype.t_id :=0;
+    v_itinerary hdbk.dtype.t_id;
+    v_leg hdbk.dtype.t_id;
+    v_segment hdbk.dtype.t_id;
   begin
       hdbk.log_api.LOG_ADD(p_proc_name=>'avia_create', p_msg_type=>'ok',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)
-        || ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_data='|| p_data,P_ALERT_LEVEL=>10);
+        || ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_itinerary='|| p_itinerary,P_ALERT_LEVEL=>10);
 
     check_request(p_email => p_user_id,p_pnr_id =>p_pnr_id, p_is_create=>'Y');
 
@@ -1012,6 +1032,71 @@ END FWDR;
       P_pnr_id => P_PNR_ID
       ); 
     v_item_avia_status := ord_api.item_avia_status_add (  p_item_avia => v_item_avia) ;  
+
+    for i in (
+              select
+              leg_num,
+              leg_departure_iata,
+              (select id from hdbk.geo where id = (select city_id from hdbk.geo where iata = leg_departure_iata and amnd_state = 'A' and is_active = 'Y' and object_type='airport real')) leg_departure_city,
+              to_date(leg_departure_date,'yyyy-mm-dd"T"HH24:mi:ss') leg_departure_date,
+              leg_arrival_iata,
+              (select id from hdbk.geo where id = (select city_id from hdbk.geo where iata = leg_arrival_iata and amnd_state = 'A' and is_active = 'Y' and object_type='airport real')) leg_arrival_city,
+              to_date(leg_arrival_date,'yyyy-mm-dd"T"HH24:mi:ss') leg_arrival_date,
+              segment_num,
+              segment_departure_iata,
+              (select id from hdbk.geo where id = (select city_id from hdbk.geo where iata = segment_departure_iata and amnd_state = 'A' and is_active = 'Y' and object_type='airport real')) segment_departure_city,
+              to_date(segment_departure_date,'yyyy-mm-dd"T"HH24:mi:ss') segment_departure_date,
+              segment_arrival_iata,
+              (select id from hdbk.geo where id = (select city_id from hdbk.geo where iata = segment_arrival_iata and amnd_state = 'A' and is_active = 'Y' and object_type='airport real')) segment_arrival_city,
+              to_date(segment_arrival_date,'yyyy-mm-dd"T"HH24:mi:ss') segment_arrival_date
+              from 
+                  json_table  
+                    ( p_itinerary,'$[*]' 
+                    columns (leg_num number(18,0) path '$.leg_num',
+                            leg_departure_iata VARCHAR2(250) path '$.departure_location',
+                            leg_departure_date VARCHAR2(250) path '$.departure_datetime',
+                            leg_arrival_iata VARCHAR2(250) path '$.arrival_location',
+                            leg_arrival_date VARCHAR2(250) path '$.arrival_datetime',
+                            NESTED PATH '$.segments[*]' COLUMNS (
+                              segment_num number(20,2) path '$.segment_num',
+                              segment_departure_iata VARCHAR2(250) path '$.departure_location',
+                              segment_departure_date VARCHAR2(250) path '$.departure_datetime',
+                              segment_arrival_iata VARCHAR2(250) path '$.arrival_location',
+                              segment_arrival_date VARCHAR2(250) path '$.arrival_datetime'
+                              )
+                            )
+                    ) as j
+    )
+    loop
+      if v_prev_leg = 0 then
+        v_itinerary := ord_api.itinerary_add(p_item_avia=>v_item_avia);
+      end if;
+      
+      if v_prev_leg <> i.leg_num then
+        v_leg := ord_api.leg_add( p_itinerary => v_itinerary, 
+                                  p_sequence_number  => i.leg_num,
+                                  p_departure_iata  => i.leg_departure_iata,
+                                  p_departure_city => i.leg_departure_city,
+                                  p_departure_date => i.leg_departure_date,
+                                  p_arrival_iata  => i.leg_arrival_iata,
+                                  p_arrival_city  => i.leg_arrival_city,
+                                  p_arrival_date  => i.leg_arrival_date
+                        );
+        v_prev_leg:= i.leg_num;
+      
+      end if;
+
+        v_segment := ord_api.segment_add( p_leg => v_leg, 
+                                  p_sequence_number  => i.segment_num,
+                                  p_departure_iata  => i.segment_departure_iata,
+                                  p_departure_city => i.segment_departure_city,
+                                  p_departure_date => i.segment_departure_date,
+                                  p_arrival_iata  => i.segment_arrival_iata,
+                                  p_arrival_city  => i.segment_arrival_city,
+                                  p_arrival_date  => i.segment_arrival_date
+                        );
+      
+    end loop;
 
     commit;          
   exception 
@@ -1857,45 +1942,70 @@ $TODO: there must be check for users with ISSUES permission
      
   
     OPEN v_results FOR
-    select 
-      (select email from blng.usr where id = (select user_oid from ord.ord where id = item_avia.order_oid)) email,
-       bill2task.task_oid task_id,
-       bill.contract_oid  contract_id,
-      'Авиабилет (электронный билет), пассажир ' || ticket.passenger_name description, 
-      1 quantity, 
-      nvl(ticket.fare_amount,0) + nvl(ticket.taxes_amount,0) price, 
-      18 vat      
-       from
-      ord.bill2task, ord.bill, ord.item_avia, ord.ticket
-      where bill2task.amnd_state = 'A' 
-      and item_avia.amnd_state = 'A' 
-      and ticket.amnd_state = 'A' 
-      and bill.amnd_state = 'A' 
-      and bill2task.bill_oid = bill.id
-      and bill.order_oid = item_avia.order_oid
-      and item_avia.id = ticket.item_avia_oid
-      and bill2task.task_oid = v_task
-      and (ticket.fare_amount is not null or ticket.taxes_amount is not null)
-union all
       select 
-      (select email from blng.usr where id = (select user_oid from ord.ord where id = item_avia.order_oid)) email,
-       bill2task.task_oid task_id,
-       bill.contract_oid  contract_id,
-      'Сервисный сбор'  description, 
-      1 quantity, 
-      nvl(ticket.service_fee_amount,0) price, 
-      18 vat      
-       from
-      ord.bill2task, ord.bill, ord.item_avia, ord.ticket
-      where bill2task.amnd_state = 'A' 
-      and item_avia.amnd_state = 'A' 
-      and ticket.amnd_state = 'A' 
-      and bill.amnd_state = 'A' 
-      and bill2task.bill_oid = bill.id
-      and bill.order_oid = item_avia.order_oid
-      and item_avia.id = ticket.item_avia_oid
-      and bill2task.task_oid = v_task
-      and ticket.service_fee_amount is not null
+      email,
+      task_id,
+      contract_id,
+      PRODUCT,
+      description,
+      quantity,
+      price,
+      vat,
+      to_char((min(date_to) over()),'yyyy-mm-dd') date_to
+      from
+        (select 
+        (select email from blng.usr where id = (select user_oid from ord.ord where id = item_avia.order_oid)) email,
+         bill2task.task_oid task_id,
+         bill.contract_oid  contract_id,
+        'AVIATICKET_VAT_18'  PRODUCT, 
+  --      'Авиабилет (электронный билет), пассажир ' || ticket.passenger_name description, 
+        'Авиабилет (электронный билет) по маршруту '||
+        (SELECT LISTAGG(
+        (select nls_name from hdbk.geo where geo.id = leg.departure_city )||' - '||(select nls_name from hdbk.geo where geo.id = leg.arrival_city )
+        ||' ('||to_char(departure_date,'dd.mm.yyyy') ||')'
+        , ', ') WITHIN GROUP (ORDER BY id) AS description
+           FROM ord.leg
+           where itinerary_oid = (select id from ord.itinerary where itinerary.amnd_state = 'A' and itinerary.item_avia_oid = item_avia.id)
+           group by itinerary_oid)
+        ||', пассажир '|| ticket.passenger_name description, 
+        1 quantity, 
+        nvl(ticket.fare_amount,0) + nvl(ticket.taxes_amount,0) price, 
+        18 vat,
+        (select date_to -1 from blng.v_delay where bill_id = bill.id) date_to
+         from
+        ord.bill2task, ord.bill, ord.item_avia, ord.ticket
+        where bill2task.amnd_state = 'A' 
+        and item_avia.amnd_state = 'A' 
+        and ticket.amnd_state = 'A' 
+        and bill.amnd_state = 'A' 
+        and bill2task.bill_oid = bill.id
+        and bill.order_oid = item_avia.order_oid
+        and item_avia.id = ticket.item_avia_oid
+        and bill2task.task_oid = v_task
+        and (ticket.fare_amount is not null or ticket.taxes_amount is not null)
+  union all
+        select 
+        (select email from blng.usr where id = (select user_oid from ord.ord where id = item_avia.order_oid)) email,
+         bill2task.task_oid task_id,
+         bill.contract_oid  contract_id,
+        'SERVICE_FEE'  PRODUCT, 
+        'Сервисный сбор'  description, 
+        1 quantity, 
+        nvl(ticket.service_fee_amount,0) price, 
+        18 vat,
+        (select date_to -1 from blng.v_delay where bill_id = bill.id) date_to
+         from
+        ord.bill2task, ord.bill, ord.item_avia, ord.ticket
+        where bill2task.amnd_state = 'A' 
+        and item_avia.amnd_state = 'A' 
+        and ticket.amnd_state = 'A' 
+        and bill.amnd_state = 'A' 
+        and bill2task.bill_oid = bill.id
+        and bill.order_oid = item_avia.order_oid
+        and item_avia.id = ticket.item_avia_oid
+        and bill2task.task_oid = v_task
+        and ticket.service_fee_amount is not null
+        )
       ;    
 
     ord_api.task1c_edit(p_id=>v_task, p_status=>'W');
@@ -1922,12 +2032,9 @@ union all
         open v_results for
           select 'ERROR' res from dual;
         return v_results;
-    when NO_DATA_FOUND then 
-      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'NO_DATA_FOUND', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+    when NO_DATA_FOUND then      
         open v_results for
-          select 'ERROR' res from dual;
+          select 'NO_DATA_FOUND' res from dual;
         return v_results;
     when others then
       rollback;

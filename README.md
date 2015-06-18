@@ -313,7 +313,7 @@ return list of contracts by client id
 *parameters:*  
 **p\_client**: id of client  
 *return:*  
-on success SYS\_REFCURSOR[CONTRACT\_ID, TENANT\_ID, IS\_BLOCKED, CONTRACT\_NAME,CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, contract\_number,CONTACT\_PHONE]on error SYS\_REFCURSOR[res]. res=ERROR  
+on success SYS\_REFCURSOR[client\_id, CONTRACT\_ID, TENANT\_ID, IS\_BLOCKED, CONTRACT\_NAME,CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, contract\_number,CONTACT\_PHONE]on error SYS\_REFCURSOR[res]. res=ERROR  
 
 
 
@@ -744,11 +744,11 @@ SYS\_REFCURSOR[fields from v\_rule view]
 
 - *procedure* **ord.fwdr.avia\_create**  
 *description:*  
-procedure create item\_avia row only. it cant update item  
+procedure create item\_avia row only. it cant update item. add PNR info like who, where, when  
 *parameters:*  
 **p\_pnr\_id**: id from NQT. search perform by this id  
 **p\_user\_id**: user identifire. at this moment email  
-**p\_data**: user identifire. at this moment email  
+**p\_itinerary**: PNR info like who, where, when  
 
 
 

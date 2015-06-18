@@ -280,6 +280,7 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
   return SYS_REFCURSOR;
 
   function ticket_get_info_r (    P_ID  in hdbk.dtype.t_id default null,
+                          p_item_avia  in hdbk.dtype.t_id default null,
                           p_ticket_number in  hdbk.dtype.t_long_code default null
                           )
   return ticket%rowtype;
@@ -364,6 +365,100 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
   function bill2task_get_info_r (    P_ID  in hdbk.dtype.t_id default null
                           )
   return bill2task%rowtype;
+
+
+
+  function itinerary_add( 
+                    p_item_avia in hdbk.dtype.t_id default null
+                  )
+  return hdbk.dtype.t_id;
+
+
+  procedure itinerary_edit(  P_ID  in hdbk.dtype.t_id default null,
+                            p_item_avia in hdbk.dtype.t_id default null
+                      );
+
+
+  function itinerary_get_info(   P_ID  in hdbk.dtype.t_id default null
+                          )
+  return SYS_REFCURSOR;
+
+
+  function itinerary_get_info_r (    P_ID  in hdbk.dtype.t_id default null
+                          )
+  return itinerary%rowtype;
+
+
+  function leg_add( 
+                    p_itinerary in hdbk.dtype.t_id default null,
+                    p_sequence_number in hdbk.dtype.t_id default null,
+                    p_departure_iata in hdbk.dtype.t_code default null,
+                    p_departure_city in hdbk.dtype.t_id default null,
+                    p_departure_date in hdbk.dtype.t_date default null,
+                    p_arrival_iata in hdbk.dtype.t_code default null,
+                    p_arrival_city in hdbk.dtype.t_id default null,
+                    p_arrival_date in hdbk.dtype.t_date default null
+                  )
+  return hdbk.dtype.t_id;
+
+
+  procedure leg_edit(   P_ID  in hdbk.dtype.t_id default null,
+                        p_itinerary in hdbk.dtype.t_id default null,
+                        p_sequence_number in hdbk.dtype.t_id default null,
+                        p_departure_iata in hdbk.dtype.t_code default null,
+                        p_departure_city in hdbk.dtype.t_id default null,
+                        p_departure_date in hdbk.dtype.t_date default null,
+                        p_arrival_iata in hdbk.dtype.t_code default null,
+                        p_arrival_city in hdbk.dtype.t_id default null,
+                        p_arrival_date in hdbk.dtype.t_date default null
+                      );
+
+
+  function leg_get_info(   P_ID  in hdbk.dtype.t_id default null
+                          )
+  return SYS_REFCURSOR;
+
+
+  function leg_get_info_r (    P_ID  in hdbk.dtype.t_id default null
+                          )
+  return leg%rowtype;
+
+
+
+  function segment_add( 
+                    p_leg in hdbk.dtype.t_id default null,
+                    p_sequence_number in hdbk.dtype.t_id default null,
+                    p_departure_iata in hdbk.dtype.t_code default null,
+                    p_departure_city in hdbk.dtype.t_id default null,
+                    p_departure_date in hdbk.dtype.t_date default null,
+                    p_arrival_iata in hdbk.dtype.t_code default null,
+                    p_arrival_city in hdbk.dtype.t_id default null,
+                    p_arrival_date in hdbk.dtype.t_date default null
+                  )
+  return hdbk.dtype.t_id;
+
+
+  procedure segment_edit(   P_ID  in hdbk.dtype.t_id default null,
+                            p_leg in hdbk.dtype.t_id default null,
+                            p_sequence_number in hdbk.dtype.t_id default null,
+                            p_departure_iata in hdbk.dtype.t_code default null,
+                            p_departure_city in hdbk.dtype.t_id default null,
+                            p_departure_date in hdbk.dtype.t_date default null,
+                            p_arrival_iata in hdbk.dtype.t_code default null,
+                            p_arrival_city in hdbk.dtype.t_id default null,
+                            p_arrival_date in hdbk.dtype.t_date default null
+                      );
+
+
+  function segment_get_info(   P_ID  in hdbk.dtype.t_id default null
+                          )
+  return SYS_REFCURSOR;
+
+
+  function segment_get_info_r (    P_ID  in hdbk.dtype.t_id default null
+                          )
+  return segment%rowtype;
+
 
 
   
@@ -1540,18 +1635,20 @@ END ORD_API;
 
 
   function ticket_get_info_r (    P_ID  in hdbk.dtype.t_id default null,
+                          p_item_avia  in hdbk.dtype.t_id default null,
                           p_ticket_number in  hdbk.dtype.t_long_code default null
                           )
   return ticket%rowtype
   is
     r_obj ticket%rowtype;
   begin
-    if p_id is null and p_ticket_number is null then raise NO_DATA_FOUND; end if;   
+    if p_id is null and p_ticket_number is null and p_item_avia is null then raise NO_DATA_FOUND; end if;   
     
     SELECT
     * into r_obj
     from ord.ticket 
     where id = nvl(p_id,id)
+    and item_avia_oid = nvl(p_item_avia,item_avia_oid)
     and ticket_number = nvl(p_ticket_number,ticket_number)
     and amnd_state != 'I'
     order by id;
@@ -1948,6 +2045,383 @@ END ORD_API;
       hdbk.log_api.LOG_ADD(p_proc_name=>'bill2task_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into bill2task error. '||SQLERRM);
+  end;
+
+
+  function itinerary_add( 
+                    p_item_avia in hdbk.dtype.t_id default null
+                  )
+  return hdbk.dtype.t_id
+  is
+    v_obj_row itinerary%rowtype;
+    v_id hdbk.dtype.t_id;
+  begin
+    v_obj_row.item_avia_oid:=  p_item_avia;
+
+    insert into ord.itinerary values v_obj_row returning id into v_id;
+    return v_id;
+  exception when others then
+    hdbk.log_api.LOG_ADD(p_proc_name=>'itinerary_add', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'insert row into itinerary error. '||SQLERRM);
+  end;
+
+
+  procedure itinerary_edit(  P_ID  in hdbk.dtype.t_id default null,
+                            p_item_avia in hdbk.dtype.t_id default null
+                      )
+  is
+    v_obj_row_new itinerary%rowtype;
+    v_obj_row_old itinerary%rowtype;
+  begin
+    if p_id is null  then raise NO_DATA_FOUND; end if;   
+  
+    select * into v_obj_row_old from itinerary 
+        where id = nvl(p_id,id)
+        and amnd_state = 'A'
+    ;
+    v_obj_row_new := v_obj_row_old;
+
+
+
+    v_obj_row_new.amnd_date:=sysdate;
+    v_obj_row_new.amnd_user:=user;
+    v_obj_row_new.item_avia_oid := nvl(p_item_avia,v_obj_row_new.item_avia_oid);
+
+
+    v_obj_row_old.amnd_state:='I';
+    v_obj_row_old.id:=null;
+    insert into itinerary values v_obj_row_old;
+
+    update itinerary set row = v_obj_row_new where id = v_obj_row_new.id;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'itinerary_edit', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'update row into itinerary error. '||SQLERRM);
+  end;
+
+
+  function itinerary_get_info(   P_ID  in hdbk.dtype.t_id default null
+                          )
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR;
+  begin
+      OPEN v_results FOR
+        SELECT
+        *
+        from ord.itinerary 
+        where id = nvl(p_id,id)
+        and amnd_state = 'A'
+        order by id;
+    return v_results;
+  exception when others then
+    hdbk.log_api.LOG_ADD(p_proc_name=>'itinerary_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'select row into itinerary error. '||SQLERRM);
+  end;
+
+
+  function itinerary_get_info_r (    P_ID  in hdbk.dtype.t_id default null
+                          )
+  return itinerary%rowtype
+  is
+    r_obj itinerary%rowtype;
+  begin
+    if p_id is null then raise NO_DATA_FOUND; end if;   
+    
+    SELECT
+    * into r_obj
+    from ord.itinerary 
+    where id = nvl(p_id,id)
+    and amnd_state = 'A'
+    order by id;
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'itinerary_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into itinerary error. '||SQLERRM);
+  end;
+
+
+  function leg_add( 
+                    p_itinerary in hdbk.dtype.t_id default null,
+                    p_sequence_number in hdbk.dtype.t_id default null,
+                    p_departure_iata in hdbk.dtype.t_code default null,
+                    p_departure_city in hdbk.dtype.t_id default null,
+                    p_departure_date in hdbk.dtype.t_date default null,
+                    p_arrival_iata in hdbk.dtype.t_code default null,
+                    p_arrival_city in hdbk.dtype.t_id default null,
+                    p_arrival_date in hdbk.dtype.t_date default null
+
+                  )
+  return hdbk.dtype.t_id
+  is
+    v_obj_row leg%rowtype;
+    v_id hdbk.dtype.t_id;
+  begin
+    v_obj_row.itinerary_oid:=  p_itinerary;
+    v_obj_row.sequence_number:=  p_sequence_number;
+    v_obj_row.departure_iata:=  p_departure_iata;
+    v_obj_row.departure_city:=  p_departure_city;
+    v_obj_row.departure_date:=  p_departure_date;
+    v_obj_row.arrival_iata:=  p_arrival_iata;
+    v_obj_row.arrival_city:=  p_arrival_city;
+    v_obj_row.arrival_date:=  p_arrival_date;
+
+    insert into ord.leg values v_obj_row returning id into v_id;
+    return v_id;
+  exception when others then
+    hdbk.log_api.LOG_ADD(p_proc_name=>'leg_add', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'insert row into leg error. '||SQLERRM);
+  end;
+
+
+  procedure leg_edit(   P_ID  in hdbk.dtype.t_id default null,
+                        p_itinerary in hdbk.dtype.t_id default null,
+                        p_sequence_number in hdbk.dtype.t_id default null,
+                        p_departure_iata in hdbk.dtype.t_code default null,
+                        p_departure_city in hdbk.dtype.t_id default null,
+                        p_departure_date in hdbk.dtype.t_date default null,
+                        p_arrival_iata in hdbk.dtype.t_code default null,
+                        p_arrival_city in hdbk.dtype.t_id default null,
+                        p_arrival_date in hdbk.dtype.t_date default null
+
+                      )
+  is
+    v_obj_row_new leg%rowtype;
+    v_obj_row_old leg%rowtype;
+  begin
+    if p_id is null  then raise NO_DATA_FOUND; end if;   
+  
+    select * into v_obj_row_old from leg 
+        where id = nvl(p_id,id)
+        and amnd_state = 'A'
+    ;
+    v_obj_row_new := v_obj_row_old;
+
+
+
+    v_obj_row_new.amnd_date:=sysdate;
+    v_obj_row_new.amnd_user:=user;
+    v_obj_row_new.itinerary_oid := nvl(p_itinerary,v_obj_row_new.itinerary_oid);
+    v_obj_row_new.sequence_number := nvl(p_sequence_number,v_obj_row_new.sequence_number);
+    v_obj_row_new.departure_iata := nvl(p_departure_iata,v_obj_row_new.departure_iata);
+    v_obj_row_new.departure_city := nvl(p_departure_city,v_obj_row_new.departure_city);
+    v_obj_row_new.departure_date := nvl(p_departure_date,v_obj_row_new.departure_date);
+    v_obj_row_new.arrival_iata := nvl(p_arrival_iata,v_obj_row_new.arrival_iata);
+    v_obj_row_new.arrival_city := nvl(p_arrival_city,v_obj_row_new.arrival_city);
+    v_obj_row_new.arrival_date := nvl(p_arrival_date,v_obj_row_new.arrival_date);
+
+
+    v_obj_row_old.amnd_state:='I';
+    v_obj_row_old.id:=null;
+    insert into leg values v_obj_row_old;
+
+    update leg set row = v_obj_row_new where id = v_obj_row_new.id;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'leg_edit', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'update row into leg error. '||SQLERRM);
+  end;
+
+
+  function leg_get_info(   P_ID  in hdbk.dtype.t_id default null
+                          )
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR;
+  begin
+      OPEN v_results FOR
+        SELECT
+        *
+        from ord.leg 
+        where id = nvl(p_id,id)
+        and amnd_state = 'A'
+        order by id;
+    return v_results;
+  exception when others then
+    hdbk.log_api.LOG_ADD(p_proc_name=>'leg_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'select row into leg error. '||SQLERRM);
+  end;
+
+
+  function leg_get_info_r (    P_ID  in hdbk.dtype.t_id default null
+                          )
+  return leg%rowtype
+  is
+    r_obj leg%rowtype;
+  begin
+    if p_id is null then raise NO_DATA_FOUND; end if;   
+    
+    SELECT
+    * into r_obj
+    from ord.leg 
+    where id = nvl(p_id,id)
+    and amnd_state = 'A'
+    order by id;
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'leg_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into leg error. '||SQLERRM);
+  end;
+
+
+
+  function segment_add( 
+                    p_leg in hdbk.dtype.t_id default null,
+                    p_sequence_number in hdbk.dtype.t_id default null,
+                    p_departure_iata in hdbk.dtype.t_code default null,
+                    p_departure_city in hdbk.dtype.t_id default null,
+                    p_departure_date in hdbk.dtype.t_date default null,
+                    p_arrival_iata in hdbk.dtype.t_code default null,
+                    p_arrival_city in hdbk.dtype.t_id default null,
+                    p_arrival_date in hdbk.dtype.t_date default null
+                  )
+  return hdbk.dtype.t_id
+  is
+    v_obj_row segment%rowtype;
+    v_id hdbk.dtype.t_id;
+  begin
+    v_obj_row.leg_oid:=  p_leg;
+    v_obj_row.sequence_number:=  p_sequence_number;
+    v_obj_row.departure_iata:=  p_departure_iata;
+    v_obj_row.departure_city:=  p_departure_city;
+    v_obj_row.departure_date:=  p_departure_date;
+    v_obj_row.arrival_iata:=  p_arrival_iata;
+    v_obj_row.arrival_city:=  p_arrival_city;
+    v_obj_row.arrival_date:=  p_arrival_date;
+
+    insert into ord.segment values v_obj_row returning id into v_id;
+    return v_id;
+  exception when others then
+    hdbk.log_api.LOG_ADD(p_proc_name=>'segment_add', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'insert row into segment error. '||SQLERRM);
+  end;
+
+
+  procedure segment_edit(   P_ID  in hdbk.dtype.t_id default null,
+                            p_leg in hdbk.dtype.t_id default null,
+                            p_sequence_number in hdbk.dtype.t_id default null,
+                            p_departure_iata in hdbk.dtype.t_code default null,
+                            p_departure_city in hdbk.dtype.t_id default null,
+                            p_departure_date in hdbk.dtype.t_date default null,
+                            p_arrival_iata in hdbk.dtype.t_code default null,
+                            p_arrival_city in hdbk.dtype.t_id default null,
+                            p_arrival_date in hdbk.dtype.t_date default null
+                      )
+  is
+    v_obj_row_new segment%rowtype;
+    v_obj_row_old segment%rowtype;
+  begin
+    if p_id is null  then raise NO_DATA_FOUND; end if;   
+  
+    select * into v_obj_row_old from segment 
+        where id = nvl(p_id,id)
+        and amnd_state = 'A'
+    ;
+    v_obj_row_new := v_obj_row_old;
+
+
+
+    v_obj_row_new.amnd_date:=sysdate;
+    v_obj_row_new.amnd_user:=user;
+    v_obj_row_new.leg_oid := nvl(p_leg,v_obj_row_new.leg_oid);
+    v_obj_row_new.sequence_number := nvl(p_sequence_number,v_obj_row_new.sequence_number);
+    v_obj_row_new.departure_iata := nvl(p_departure_iata,v_obj_row_new.departure_iata);
+    v_obj_row_new.departure_city := nvl(p_departure_city,v_obj_row_new.departure_city);
+    v_obj_row_new.departure_date := nvl(p_departure_date,v_obj_row_new.departure_date);
+    v_obj_row_new.arrival_iata := nvl(p_arrival_iata,v_obj_row_new.arrival_iata);
+    v_obj_row_new.arrival_city := nvl(p_arrival_city,v_obj_row_new.arrival_city);
+    v_obj_row_new.arrival_date := nvl(p_arrival_date,v_obj_row_new.arrival_date);
+
+
+    v_obj_row_old.amnd_state:='I';
+    v_obj_row_old.id:=null;
+    insert into segment values v_obj_row_old;
+
+    update segment set row = v_obj_row_new where id = v_obj_row_new.id;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'segment_edit', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'update row into segment error. '||SQLERRM);
+  end;
+
+
+  function segment_get_info(   P_ID  in hdbk.dtype.t_id default null
+                          )
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR;
+  begin
+      OPEN v_results FOR
+        SELECT
+        *
+        from ord.segment 
+        where id = nvl(p_id,id)
+        and amnd_state = 'A'
+        order by id;
+    return v_results;
+  exception when others then
+    hdbk.log_api.LOG_ADD(p_proc_name=>'segment_get_info', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    RAISE_APPLICATION_ERROR(-20002,'select row into segment error. '||SQLERRM);
+  end;
+
+
+  function segment_get_info_r (    P_ID  in hdbk.dtype.t_id default null
+                          )
+  return segment%rowtype
+  is
+    r_obj segment%rowtype;
+  begin
+    if p_id is null then raise NO_DATA_FOUND; end if;   
+    
+    SELECT
+    * into r_obj
+    from ord.segment 
+    where id = nvl(p_id,id)
+    and amnd_state = 'A'
+    order by id;
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'segment_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into segment error. '||SQLERRM);
   end;
 
 

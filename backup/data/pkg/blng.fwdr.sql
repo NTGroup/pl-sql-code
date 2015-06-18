@@ -217,7 +217,7 @@ $obj_type: function
 $obj_name: contract_list
 $obj_desc: return list of contracts by client id 
 $obj_param: p_client: id of client
-$obj_return: on success SYS_REFCURSOR[CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, 
+$obj_return: on success SYS_REFCURSOR[client_id, CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, 
 $obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, contract_number,CONTACT_PHONE]
 $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 */
@@ -1035,6 +1035,7 @@ create  or replace package BODY blng.fwdr as
       OPEN v_results FOR
   
         select 
+        contract.client_oid client_id,
         contract.id contract_id,
         contract.id tenant_id,
         decode(contract.status,'B','Y','N') is_blocked,

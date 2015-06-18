@@ -37,6 +37,7 @@ grant select on hdbk.dictionary TO ord;
 grant select on hdbk.V_GEO_SUGGEST to po_fwdr;
 
 
+
 -- BLNG
 grant debug on blng.core to hdbk;
 grant execute on blng.core to hdbk;
@@ -45,6 +46,7 @@ grant execute on blng.blng_api to hdbk;
 grant debug on blng.blng_api to hdbk;
 
 grant select on blng.usr TO hdbk;
+grant select on blng.v_delay to ord;
 
 
 -- ORD
