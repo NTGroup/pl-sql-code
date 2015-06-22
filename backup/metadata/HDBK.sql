@@ -16,7 +16,8 @@
 	MSG VARCHAR2(4000 BYTE), 
 	MSG_TYPE VARCHAR2(50 BYTE), 
 	INFO VARCHAR2(4000 BYTE), 
-	ALERT_LEVEL NUMBER(18,0)
+	ALERT_LEVEL NUMBER(18,0),
+  error_stack clob
    ) SEGMENT CREATION IMMEDIATE
   TABLESPACE "USERS" ;
 --------------------------------------------------------
@@ -41,10 +42,6 @@ ALTER TABLE hdbk.log  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   USING INDEX hdbk.log_ID_IDX ENABLE;
 
 
-  /*
-  ALTER TABLE hdbk.log ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
-  REFERENCES blng.client ("ID") ENABLE;
-   */
 --------------------------------------------------------
 --  DDL for Secuence 
 --------------------------------------------------------
@@ -122,10 +119,6 @@ ALTER TABLE hdbk.airline  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   USING INDEX hdbk.al_ID_IDX ENABLE;
   
 
-  /*
-  ALTER TABLE hdbk.airline ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
-  REFERENCES blng.client ("ID") ENABLE;
-   */
 --------------------------------------------------------
 --  DDL for Secuence 
 --------------------------------------------------------
@@ -302,10 +295,6 @@ ALTER TABLE hdbk.geo MODIFY (UTC_OFFSET CONSTRAINT "geo_UOF_NN" NOT NULL ENABLE)
 ALTER TABLE hdbk.geo  MODIFY (UTC_OFFSET DEFAULT  on null  '0' );
   
 
-  /*
-  ALTER TABLE hdbk.geo ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
-  REFERENCES blng.client ("ID") ENABLE;
-   */
 --------------------------------------------------------
 --  DDL for Secuence 
 --------------------------------------------------------
@@ -366,10 +355,6 @@ nls_name varchar2(255)
   USING INDEX hdbk.gnt_ID_IDX ENABLE;
 
 
-  /*
-  ALTER TABLE hdbk.markup ADD CONSTRAINT bill_clt_OID_FK FOREIGN KEY (client_oid)
-  REFERENCES blng.client ("ID") ENABLE;
-   */
 --------------------------------------------------------
 --  DDL for Secuence 
 --------------------------------------------------------
@@ -487,7 +472,7 @@ ALTER TRIGGER hdbk.MKPT_TRGR ENABLE;
 	AMND_STATE VARCHAR2(1 BYTE), 
 	AMND_PREV NUMBER(18,0), 
 	NAME VARCHAR2(4000 BYTE), 
-	client_oid NUMBER(18,0),
+	user_oid NUMBER(18,0),
   guid VARCHAR2(255 BYTE)
   
    ) SEGMENT CREATION IMMEDIATE
@@ -513,10 +498,10 @@ ALTER TABLE hdbk.note  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   USING INDEX hdbk.note_ID_IDX ENABLE;
 
    
-grant references on blng.client TO hdbk;
+grant references on blng.usr TO hdbk;
  
-  ALTER TABLE hdbk.note ADD CONSTRAINT note_clt_OID_FK FOREIGN KEY (client_oid)
-  REFERENCES blng.client ("ID") ENABLE;
+  ALTER TABLE hdbk.note ADD CONSTRAINT note_usr_OID_FK FOREIGN KEY (user_oid)
+  REFERENCES blng.usr ("ID") ENABLE;
 
 
   create sequence  hdbk.note_seq
@@ -759,11 +744,6 @@ ALTER TABLE hdbk.calendar  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 
 
 
-
-/*
-ALTER TABLE hdbk.calendar ADD CONSTRAINT cal_clt_OID_FK FOREIGN KEY (client_oid)
-  REFERENCES hdbk.client ("ID") ENABLE;
-*/
 
 --------------------------------------------------------
 --  DDL for Secuence 

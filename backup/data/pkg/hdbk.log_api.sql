@@ -116,48 +116,59 @@ end log_api;
     BTDepth pls_integer := UTL_Call_Stack.BACKTRACE_DEPTH();  
     v_out hdbk.dtype.t_msg:='';
   begin
-    for j in reverse 1..Depth /* -1 */ loop
 v_out:=v_out||'CALL:'||chr(13)||chr(10);
-      DBMS_Output.Put_Line('lexical_depth='||utl_call_stack.lexical_depth(j)||' '||j);
-      DBMS_Output.Put_Line('Unit_Line='||UTL_Call_Stack.Unit_Line(j)||'');
-      DBMS_Output.Put_Line('UTL_Call_Stack.Subprogram='||UTL_Call_Stack.Concatenate_Subprogram(UTL_Call_Stack.Subprogram(j))||'');
-     DBMS_Output.Put_Line('CURRENT_EDITION='||UTL_Call_Stack.CURRENT_EDITION(j)||'');
+    for j in reverse 1..Depth /* -1 */ loop
+    if UTL_Call_Stack.OWNER(j)='SQL' or utl_call_stack.lexical_depth(j) = 0 then continue; end if;
+--      DBMS_Output.Put_Line('lexical_depth='||utl_call_stack.lexical_depth(j)||' '||j);
+--      DBMS_Output.Put_Line('Unit_Line='||UTL_Call_Stack.Unit_Line(j)||'');
+--      DBMS_Output.Put_Line('UTL_Call_Stack.Subprogram='||UTL_Call_Stack.Concatenate_Subprogram(UTL_Call_Stack.Subprogram(j))||'');
+--     DBMS_Output.Put_Line('CURRENT_EDITION='||UTL_Call_Stack.CURRENT_EDITION(j)||'');
 --      DBMS_Output.Put_Line('DYNAMIC_DEPTH='||UTL_Call_Stack.DYNAMIC_DEPTH ||'');
 --      DBMS_Output.Put_Line('LEXICAL_DEPTH='||UTL_Call_Stack.LEXICAL_DEPTH(j)||'');
-      DBMS_Output.Put_Line('OWNER='||UTL_Call_Stack.OWNER(j)||'');
-      DBMS_Output.Put_Line('INFO='||UTL_Call_Stack.OWNER(j)||UTL_Call_Stack.Concatenate_Subprogram(UTL_Call_Stack.Subprogram(j))||' line='||UTL_Call_Stack.Unit_Line(j)||'');
+--      DBMS_Output.Put_Line('OWNER='||UTL_Call_Stack.OWNER(j)||'');
+ --     DBMS_Output.Put_Line('INFO='||UTL_Call_Stack.OWNER(j)||UTL_Call_Stack.Concatenate_Subprogram(UTL_Call_Stack.Subprogram(j))||' line='||UTL_Call_Stack.Unit_Line(j)||'');
 
-      DBMS_Output.Put_Line('-------------------------------');
-      v_out:=v_out||'lexical_depth='||utl_call_stack.lexical_depth(j)||' '||j||chr(13)||chr(10);
+--      DBMS_Output.Put_Line('-------------------------------');
+/*      v_out:=v_out||'lexical_depth='||utl_call_stack.lexical_depth(j)||' '||j||chr(13)||chr(10);
       v_out:=v_out||'Unit_Line='||UTL_Call_Stack.Unit_Line(j)||chr(13)||chr(10);
       v_out:=v_out||'UTL_Call_Stack.Subprogram='||UTL_Call_Stack.Concatenate_Subprogram(UTL_Call_Stack.Subprogram(j))||chr(13)||chr(10);
      v_out:=v_out||'CURRENT_EDITION='||UTL_Call_Stack.CURRENT_EDITION(j)||chr(13)||chr(10);
       v_out:=v_out||'DYNAMIC_DEPTH='||UTL_Call_Stack.DYNAMIC_DEPTH ||chr(13)||chr(10);
       v_out:=v_out||'LEXICAL_DEPTH='||UTL_Call_Stack.LEXICAL_DEPTH(j)||chr(13)||chr(10);
-      v_out:=v_out||'OWNER='||UTL_Call_Stack.OWNER(j)||chr(13)||chr(10);
-      v_out:=v_out||'INFO='||UTL_Call_Stack.OWNER(j)||UTL_Call_Stack.Concatenate_Subprogram(UTL_Call_Stack.Subprogram(j))||' line='||UTL_Call_Stack.Unit_Line(j)||chr(13)||chr(10);
-      v_out:=v_out||'-------------------------------'||chr(13)||chr(10);
+      v_out:=v_out||'OWNER='||UTL_Call_Stack.OWNER(j)||chr(13)||chr(10);*/
+      v_out:=v_out||/*'INFO='||*/ UTL_Call_Stack.OWNER(j)||'.'||UTL_Call_Stack.Concatenate_Subprogram(UTL_Call_Stack.Subprogram(j))||' line='||UTL_Call_Stack.Unit_Line(j)||chr(13)||chr(10);
 
     end loop;
+      v_out:=v_out||'-------------------------------'||chr(13)||chr(10);
     
-    for j in reverse 1..EDepth /* -1 */ loop
       v_out:=v_out||'ERRORS:'||chr(13)||chr(10);
-       DBMS_Output.Put_Line('ERROR_MSG='||UTL_Call_Stack.ERROR_MSG(j)||'');
-      DBMS_Output.Put_Line('ERROR_NUMBER='||UTL_Call_Stack.ERROR_NUMBER(j)||'');
-      DBMS_Output.Put_Line('-------------------------------');
-       v_out:=v_out||'ERROR_MSG='||UTL_Call_Stack.ERROR_MSG(j)||chr(13)||chr(10);
-      v_out:=v_out||'ERROR_NUMBER='||UTL_Call_Stack.ERROR_NUMBER(j)||chr(13)||chr(10);
-      v_out:=v_out||'-------------------------------'||chr(13)||chr(10);
+    for j in reverse 1..EDepth /* -1 */ loop
+--       DBMS_Output.Put_Line('ERROR_MSG='||UTL_Call_Stack.ERROR_MSG(j)||'');
+--      DBMS_Output.Put_Line('ERROR_NUMBER='||UTL_Call_Stack.ERROR_NUMBER(j)||'');
+--      DBMS_Output.Put_Line('-------------------------------');
+      v_out:=v_out||j||' '||UTL_Call_Stack.ERROR_NUMBER(j)||' '||UTL_Call_Stack.ERROR_MSG(j);
+--      v_out:=v_out||'ERROR_NUMBER='||j||' '||UTL_Call_Stack.ERROR_NUMBER(j)||chr(13)||chr(10);
     end loop;
-    for j in reverse 1..BTDepth /* -1 */ loop
+      v_out:=v_out||'-------------------------------'||chr(13)||chr(10);
       v_out:=v_out||'BACKTRACE:'||chr(13)||chr(10);
-     DBMS_Output.Put_Line('BACKTRACE_LINE='||UTL_Call_Stack.BACKTRACE_LINE(j)||'');
-     DBMS_Output.Put_Line('BACKTRACE_UNIT='||UTL_Call_Stack.BACKTRACE_UNIT(j)||'');
-      DBMS_Output.Put_Line('-------------------------------');
-     v_out:=v_out||'BACKTRACE_LINE='||UTL_Call_Stack.BACKTRACE_LINE(j)||chr(13)||chr(10);
-     v_out:=v_out||'BACKTRACE_UNIT='||UTL_Call_Stack.BACKTRACE_UNIT(j)||chr(13)||chr(10);
-      v_out:=v_out||'-------------------------------'||chr(13)||chr(10);
+    for j in reverse 1..BTDepth /* -1 */ loop
+--     DBMS_Output.Put_Line('BACKTRACE_LINE='||UTL_Call_Stack.BACKTRACE_LINE(j)||'');
+--     DBMS_Output.Put_Line('BACKTRACE_UNIT='||UTL_Call_Stack.BACKTRACE_UNIT(j)||'');
+--      DBMS_Output.Put_Line('-------------------------------');
+     v_out:=v_out||j||' '||UTL_Call_Stack.BACKTRACE_UNIT(j)||' line='||UTL_Call_Stack.BACKTRACE_LINE(j)||chr(13)||chr(10);
+--     v_out:=v_out||'BACKTRACE_UNIT='||j||' '||UTL_Call_Stack.BACKTRACE_UNIT(j)||chr(13)||chr(10);
+    for i in (
+                SELECT * FROM ALL_SOURCE WHERE type = 'PACKAGE BODY'
+                and line  between to_number(UTL_Call_Stack.BACKTRACE_LINE(j)) and to_number(UTL_Call_Stack.BACKTRACE_LINE(j))+3
+                and owner||'.'||name = UTL_Call_Stack.BACKTRACE_UNIT(j)
+                order by owner, name, type, line
+              )
+    loop
+      v_out:=v_out||i.line||': '||i.text;
     end loop;
+     
+    end loop;
+      v_out:=v_out||'-------------------------------'||chr(13)||chr(10);
         
     return v_out;
   end;

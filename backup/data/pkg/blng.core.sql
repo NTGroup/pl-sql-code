@@ -81,7 +81,7 @@ $obj_param: p_transaction: link to transaction id. later by this id cash_in oper
   /*
 $obj_type: procedure
 $obj_name: delay_expire
-$obj_desc: calls from scheduler at 00:00 UTC. get list of expired delays, then block credit limit
+$obj_desc: calls from scheduler at 00.00 UTC. get list of expired delays, then block credit limit
 */
   procedure delay_expire;
 
@@ -115,14 +115,14 @@ $obj_param: p_document: id of document
   
 /*
 $obj_type: function
-$obj_name: pay_contract_by_client
-$obj_desc: get contract which client can spend money 
+$obj_name: pay_contract_by_user
+$obj_desc: get contract which user can spend money 
 $obj_desc: documents like increase credit limit or loan days approve immediately
 $obj_desc: docs like buy or cash_in push to credit/debit_online accounts.
-$obj_param: p_client: client id
+$obj_param: p_user: user id
 $obj_return: contract id
 */
-  function pay_contract_by_client(p_client in hdbk.dtype.t_id)
+  function pay_contract_by_user(p_user in hdbk.dtype.t_id)
   return hdbk.dtype.t_id;
   
 end core;
@@ -168,21 +168,21 @@ end core;
           r_account := blng.blng_api.account_get_info_r(p_contract => r_doc.contract_oid, p_code => 'cl'  );
           v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => r_doc.id,P_AMOUNT => abs(r_doc.amount)-abs(r_account.amount),
             P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'cl'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
-          blng.blng_api.document_edit(r_doc.id, p_account_trans_type=> hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT') );
+          blng.blng_api.document_edit(r_doc.id, p_account_trans_type=> hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT') );
         end if;
         if r_doc.TRANS_TYPE_OID in (blng_api.trans_type_get_id(p_code=>'ult')) then 
           if r_doc.amount < 0 then raise VALUE_ERROR; end if;
           r_account := blng.blng_api.account_get_info_r(p_contract => r_doc.contract_oid, p_code => 'ult'  );
           v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => r_doc.id,P_AMOUNT => abs(r_doc.amount)-abs(r_account.amount),
             P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'ult'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
-          blng.blng_api.document_edit(r_doc.id, p_account_trans_type=> hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'UP_LIM_TRANS') );
+          blng.blng_api.document_edit(r_doc.id, p_account_trans_type=> hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'UP_LIM_TRANS') );
         end if;
         if r_doc.TRANS_TYPE_OID in (blng_api.trans_type_get_id(p_code=>'dd')) then
           if r_doc.amount < 0 then raise VALUE_ERROR; end if;
           r_account := blng.blng_api.account_get_info_r(p_contract => r_doc.contract_oid, p_code => 'dd'  );
           v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => r_doc.id,P_AMOUNT => abs(r_doc.amount)-abs(r_account.amount),
             P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'dd'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
-          blng.blng_api.document_edit(r_doc.id, p_account_trans_type=> hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY') );
+          blng.blng_api.document_edit(r_doc.id, p_account_trans_type=> hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY') );
         end if;
         blng.blng_api.document_edit(r_doc.id, 'P');
         if r_doc.bill_oid is not null then 
@@ -364,6 +364,7 @@ end core;
     r_v_delay blng.v_delay%rowtype;
     r_bill_pay ord.bill%rowtype;
     v_bill_buy hdbk.dtype.t_id;
+    v_delay hdbk.dtype.t_id;
     r_contract_info blng.v_account%rowtype;
     v_msg hdbk.dtype.t_msg;
   begin
@@ -399,7 +400,7 @@ end core;
 
  --     hdbk.log_api.LOG_ADD(p_proc_name=>'pay_bill', p_msg_type=>'Warning', P_MSG => '9',p_info => 'p_doc=' || p_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
 
-    BLNG_API.delay_add( P_CONTRACT => p_doc.contract_oid,
+    v_delay:=BLNG_API.delay_add( P_CONTRACT => p_doc.contract_oid,
                       p_date_to => null,
                       P_AMOUNT => abs( p_doc.amount),
                       P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'ci'),
@@ -464,7 +465,7 @@ end core;
       r_credit_online:=blng_api.account_get_info_r(p_id =>r_transaction.target_account_oid);
       v_amount:=r_transaction.amount;
       v_doc := r_transaction.doc_oid;
---      blng.blng_api.document_edit(r_transaction.doc_oid, p_account_trans_type=> hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CASH_IN') );
+--      blng.blng_api.document_edit(r_transaction.doc_oid, p_account_trans_type=> hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CASH_IN') );
 
         -- send money to loan account
         r_loan := blng.blng_api.account_get_info_r(p_code => 'l', p_contract => r_credit_online.contract_oid);
@@ -531,6 +532,7 @@ end core;
     v_amount hdbk.dtype.t_amount;
     v_settlement_amount hdbk.dtype.t_amount;
     v_delay_amount  hdbk.dtype.t_amount;
+    v_delay hdbk.dtype.t_id;
 
     r_contract_info blng.v_account%rowtype;
   begin
@@ -565,7 +567,7 @@ end core;
             P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'ca'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_debit_online.id);
           v_delay_amount:=-abs(v_amount);
     
-          blng.blng_api.document_edit(v_doc, p_account_trans_type=> hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'LOAN') );
+          blng.blng_api.document_edit(v_doc, p_account_trans_type=> hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'LOAN') );
 
         elsif abs(v_amount) > abs(r_deposit.amount) then
         --deposit
@@ -586,7 +588,7 @@ end core;
             P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'ca'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_debit_online.id);
 
           v_delay_amount:= -abs(abs(v_amount) - abs(r_deposit.amount));
-          blng.blng_api.document_edit(v_doc, p_account_trans_type=> hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'LOAN') );
+          blng.blng_api.document_edit(v_doc, p_account_trans_type=> hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'LOAN') );
 
         elsif abs(v_amount) <= abs(r_deposit.amount) then
         --deposit
@@ -598,14 +600,14 @@ end core;
             P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'ca'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_debit_online.id);
 
           v_delay_amount:= 0;
---          blng.blng_api.document_edit(v_doc, p_account_trans_type=> hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'BUY') );
+--          blng.blng_api.document_edit(v_doc, p_account_trans_type=> hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'BUY') );
 
         end if;
 
         if v_delay_amount != 0 then
           r_contract_info := blng.fwdr.v_account_get_info_r(p_contract => r_debit_online.contract_oid);
           if r_contract_info.delay_days = 0 or r_contract_info.delay_days is null then r_contract_info.delay_days:= g_delay_days; end if;
-          BLNG_API.delay_add( P_CONTRACT => r_debit_online.contract_oid,
+          v_delay:=BLNG_API.delay_add( P_CONTRACT => r_debit_online.contract_oid,
 --                              p_date_to => trunc(sysdate)+r_contract_info.delay_days,
 -- add 1 day to let client pay bill
                               p_date_to => hdbk.core.delay_payday(P_DELAY => r_contract_info.delay_days,p_contract => r_debit_online.contract_oid) + 1,
@@ -656,7 +658,7 @@ end core;
       r_credit_online:=blng_api.account_get_info_r(p_id =>r_transaction.target_account_oid);
       v_amount:=r_transaction.amount;
       v_doc := r_transaction.doc_oid;
-      blng.blng_api.document_edit(r_transaction.doc_oid, p_account_trans_type=> hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CASH_IN') );
+      blng.blng_api.document_edit(r_transaction.doc_oid, p_account_trans_type=> hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CASH_IN') );
 
         -- send money to loan account
         r_loan := blng.blng_api.account_get_info_r(p_code => 'l', p_contract => r_credit_online.contract_oid);
@@ -728,6 +730,7 @@ end core;
     v_amount hdbk.dtype.t_amount;
     v_settlement_amount hdbk.dtype.t_amount;
     v_delay_amount  hdbk.dtype.t_amount;
+    v_delay hdbk.dtype.t_id;
 
     r_contract_info blng.v_account%rowtype;
   begin
@@ -765,7 +768,7 @@ end core;
             P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'ca'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_debit_online.id);
           v_delay_amount:=-abs(v_amount);
     
-          blng.blng_api.document_edit(v_doc, p_account_trans_type=> hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'LOAN') );
+          blng.blng_api.document_edit(v_doc, p_account_trans_type=> hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'LOAN') );
 
         elsif abs(v_amount) > abs(r_deposit.amount) then
         --deposit
@@ -786,7 +789,7 @@ end core;
             P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'ca'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_debit_online.id);
 
           v_delay_amount:= -abs(abs(v_amount) - abs(r_deposit.amount));
-          blng.blng_api.document_edit(v_doc, p_account_trans_type=> hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'LOAN') );
+          blng.blng_api.document_edit(v_doc, p_account_trans_type=> hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'LOAN') );
 
         elsif abs(v_amount) <= abs(r_deposit.amount) then
         --deposit
@@ -798,14 +801,14 @@ end core;
             P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'ca'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_debit_online.id);
 
           v_delay_amount:= 0;
-          blng.blng_api.document_edit(v_doc, p_account_trans_type=> hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'BUY') );
+          blng.blng_api.document_edit(v_doc, p_account_trans_type=> hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'BUY') );
 
         end if;
 
         if v_delay_amount != 0 then
           r_contract_info := blng.fwdr.v_account_get_info_r(p_contract => r_debit_online.contract_oid);
           if r_contract_info.delay_days = 0 or r_contract_info.delay_days is null then r_contract_info.delay_days:= g_delay_days; end if;
-          BLNG_API.delay_add( P_CONTRACT => r_debit_online.contract_oid,
+          v_delay:=BLNG_API.delay_add( P_CONTRACT => r_debit_online.contract_oid,
 --                              p_date_to => trunc(sysdate)+r_contract_info.delay_days,
 -- add 1 day to let client pay bill
                               p_date_to => hdbk.core.delay_payday(P_DELAY => r_contract_info.delay_days,p_contract => r_debit_online.contract_oid) + 1,
@@ -846,6 +849,7 @@ null;
     r_account blng.account%rowtype;
     v_transaction hdbk.dtype.t_id;
     v_delay_id  hdbk.dtype.t_id;
+    v_delay hdbk.dtype.t_id;
   begin
   -- concept of delay is a tree. root as loan amount and branches points is a credit amounts that payed that loan
   --     *      for example 100$ loan and 3 credit amounts: 20$ + 30$ + 50$. so, amount_have is a total of credit amounts, 
@@ -880,7 +884,7 @@ null;
         v_next_delay_date:= i_delay.date_to;
         if v_amount = 0 then exit; end if;
         if v_amount < abs(i_delay.amount_need) then
-          BLNG_API.delay_add( P_CONTRACT => p_contract,
+         v_delay:= BLNG_API.delay_add( P_CONTRACT => p_contract,
                               p_date_to => null,
                               P_AMOUNT => abs(v_amount),
                               P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'ci'),
@@ -890,7 +894,7 @@ null;
                             );        
           exit;
         else
-          BLNG_API.delay_add( P_CONTRACT => p_contract,
+         v_delay:= BLNG_API.delay_add( P_CONTRACT => p_contract,
                               p_date_to => null,
                               P_AMOUNT => abs(i_delay.amount_need),
                               P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'ci'),
@@ -1047,6 +1051,7 @@ null;
   is
     r_account blng.account%rowtype;
     v_transaction hdbk.dtype.t_id;
+    v_delay hdbk.dtype.t_id;
   begin
 -- executed by operators. can unblock contract for time, by adding unblock event/delay
     r_account := blng.blng_api.account_get_info_r(p_contract => p_contract, p_code => 'clb');
@@ -1055,7 +1060,7 @@ null;
     
       v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_AMOUNT => -r_account.amount,
         P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'clu'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
-      BLNG_API.delay_add(P_CONTRACT => p_contract, P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'clu'),P_PRIORITY => 20,
+      v_delay:=BLNG_API.delay_add(P_CONTRACT => p_contract, P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'clu'),P_PRIORITY => 20,
         p_transaction=>v_transaction,p_date_to => trunc(sysdate)+p_days);
         
     --end if;
@@ -1218,18 +1223,18 @@ null;
   end revoke_document;
 
   
-  function pay_contract_by_client(p_client in hdbk.dtype.t_id)
+  function pay_contract_by_user(p_user in hdbk.dtype.t_id)
   return hdbk.dtype.t_id
   is
-    r_client2contract blng.client2contract%rowtype;
+    r_usr2contract blng.usr2contract%rowtype;
   begin
-    r_client2contract:=blng.blng_api.client2contract_get_info_r(p_client=>p_client, p_permission=>'B');
-    return r_client2contract.contract_oid;
+    r_usr2contract:=blng.blng_api.usr2contract_get_info_r(p_user=>p_user, p_permission=>'B');
+    return r_usr2contract.contract_oid;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'pay_contract_by_client', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client2contract,p_date='
+    hdbk.log_api.LOG_ADD(p_proc_name=>'pay_contract_by_user', p_msg_type=>'UNHANDLED_ERROR',
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=usr2contract,p_date='
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-    RAISE_APPLICATION_ERROR(-20002,'select row into client2contract error. '||SQLERRM);
+    RAISE_APPLICATION_ERROR(-20002,'select row into usr2contract error. '||SQLERRM);
     return null;
   end;
 

@@ -7,7 +7,7 @@ $pkg: blng.fwdr
 $obj_type: function
 $obj_name: get_tenant
 $obj_desc: return tenant. tenant is contract identifire. tenant using 
-$obj_desc: for checking is client registered in the system.
+$obj_desc: for checking is user registered in the system.
 $obj_param: p_email: user email
 $obj_return: contract identifire
 */
@@ -16,29 +16,29 @@ $obj_return: contract identifire
 
 /*
 $obj_type: function
-$obj_name: company_insteadof_client
-$obj_desc: return id of client with max id across company
-$obj_param: p_company: company id where we looking for client
-$obj_return: client id
+$obj_name: client_insteadof_user
+$obj_desc: return id of user with max id across client
+$obj_param: p_client: client id where we looking for user
+$obj_return: user id
 */
-  function company_insteadof_client(p_company in hdbk.dtype.t_id)
+  function client_insteadof_user(p_client in hdbk.dtype.t_id)
   return hdbk.dtype.t_id;
 
 /*
 $obj_type: function
 $obj_name: balance
 $obj_desc: return info of contract for show balance to the client. function return this filds
-$obj_desc: **DEPOSIT:** self money
-$obj_desc: **LOAN:** money thatspent from credit limit
-$obj_desc: **CREDIT_LIMIT:** credit limit
-$obj_desc: **UNUSED_CREDIT_LIMIT:** credit limit - loan
-$obj_desc: **AVAILABLE:** credit limit + deposit - loan. if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ.
-$obj_desc: **BLOCK_DATE:** expiration date of the next bill
-$obj_desc: **UNBLOCK_SUM:** sum next neares bills (with one day) + all bills before current day
-$obj_desc: **NEAR_UNBLOCK_SUM:** unblock sum + bills for 2 next days after after first bill
-$obj_desc: **EXPIRY_DATE:** date of first expired bill
-$obj_desc: **EXPIRY_SUM:** summ of all expired bills
-$obj_desc: **STATUS:** if bills are expired and contract blocked then 'BLOCK', if bills are expired and contract unblocked then 'UNBLOCK', else 'ACTIVE'
+$obj_desc: DEPOSIT: self money
+$obj_desc: LOAN: money thatspent from credit limit
+$obj_desc: CREDIT_LIMIT: credit limit
+$obj_desc: UNUSED_CREDIT_LIMIT: credit limit - abs(loan)
+$obj_desc: AVAILABLE: credit limit + deposit - abs(loan). if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ.
+$obj_desc: BLOCK_DATE: expiration date of the next bill
+$obj_desc: UNBLOCK_SUM: sum next neares bills (with one day) + all bills before current day
+$obj_desc: NEAR_UNBLOCK_SUM: unblock sum + bills for 2 next days after after first bill
+$obj_desc: EXPIRY_DATE: date of first expired bill
+$obj_desc: EXPIRY_SUM: summ of all expired bills
+$obj_desc: STATUS: if bills are expired and contract blocked then 'BLOCK', if bills are expired and contract unblocked then 'UNBLOCK', else 'ACTIVE'
 $obj_param: P_TENANT_ID: contract id
 $obj_return: SYS_REFCURSOR[CONTRACT_OID, DEPOSIT, LOAN, CREDIT_LIMIT, UNUSED_CREDIT_LIMIT, 
 $obj_return: AVAILABLE, BLOCK_DATE, UNBLOCK_SUM, NEAR_UNBLOCK_SUM, EXPIRY_DATE, EXPIRY_SUM, status]
@@ -53,32 +53,32 @@ $obj_type: function
 $obj_name: whoami
 $obj_desc: return info for user
 $obj_param: p_user: email
-$obj_return: SYS_REFCURSOR[CLIENT_ID, LAST_NAME, FIRST_NAME, EMAIL, PHONE, --TENANT_ID, 
+$obj_return: SYS_REFCURSOR[USER_ID, LAST_NAME, FIRST_NAME, EMAIL, PHONE, --TENANT_ID, 
 $obj_return: BIRTH_DATE, GENDER, NATIONALITY, NLS_NATIONALITY, DOC_ID, DOC_EXPIRY_DATE, 
 $obj_return: DOC_NUMBER, DOC_LAST_NAME, DOC_FIRST_NAME, DOC_OWNER, DOC_GENDER, 
-$obj_return: DOC_BIRTH_DATE, DOC_NATIONALITY, DOC_NLS_NATIONALITY, DOC_PHONE, COMPANY_NAME,is_tester]
+$obj_return: DOC_BIRTH_DATE, DOC_NATIONALITY, DOC_NLS_NATIONALITY, DOC_PHONE, client_id, client_NAME,is_tester]
 */
   function whoami(p_user in hdbk.dtype.t_name)
   return SYS_REFCURSOR;
 
 /*
 $obj_type: function
-$obj_name: client_data_edit
-$obj_desc: update client documents. if success return true else false
+$obj_name: user_data_edit
+$obj_desc: update user documents. if success return true else false
 $obj_param: p_data: data for update. format json[email, first_name, last_name, 
 $obj_param: p_data: gender, birth_date, nationality, phone, docs[doc_expiry_date, 
 $obj_param: p_data: doc_gender, doc_first_name, doc_last_name, doc_number, doc_owner, 
 $obj_param: p_data: doc_id, doc_nationality, doc_birth_date,doc_phone]]
 $obj_return: SYS_REFCURSOR[res:true/false]
 */
-  function client_data_edit(p_data in hdbk.dtype.t_clob)
+  function user_data_edit(p_data in hdbk.dtype.t_clob)
   return SYS_REFCURSOR;
 
 
 /*
 $obj_type: function
 $obj_name: statement
-$obj_desc: return list of transactions between dates in client timezone format
+$obj_desc: return list of transactions between dates in user timezone format
 $obj_param: p_email: user email which request statement
 $obj_param: p_row_count: count rows per page
 $obj_param: p_page_number: page number to show
@@ -97,7 +97,7 @@ $obj_return: SYS_REFCURSOR[rn(row_number),all v_statemen filds + amount_cash_in,
 /*
 $obj_type: function
 $obj_name: statement
-$obj_desc: return list of transactions in client timezone format by pages
+$obj_desc: return list of transactions in user timezone format by pages
 $obj_param: p_email: user email which request statement
 $obj_param: p_row_count: count rows per page
 $obj_param: p_page_number: page number to show
@@ -139,9 +139,9 @@ $obj_return: SYS_REFCURSOR[all v_statemen fields]
 /*
 $obj_type: function
 $obj_name: contract_get
-$obj_desc: return list of contract with company
+$obj_desc: return list of contract with client
 $obj_param: p_contract: contract id
-$obj_return: SYS_REFCURSOR[COMPANY_ID, CONTRACT_ID, COMPANY_NAME, CONTRACT_NUMBER]
+$obj_return: SYS_REFCURSOR[client_ID, CONTRACT_ID, client_NAME, CONTRACT_NUMBER]
 */
   function contract_get(
                         p_contract  in hdbk.dtype.t_id default null
@@ -152,7 +152,7 @@ $obj_return: SYS_REFCURSOR[COMPANY_ID, CONTRACT_ID, COMPANY_NAME, CONTRACT_NUMBE
 $obj_type: function
 $obj_name: check_tenant
 $obj_desc: return tenant. tenant is contract identifire. tenant using 
-$obj_desc: for checking is client registered in the system. if user dosnt exist then return NULL
+$obj_desc: for checking is user registered in the system. if user dosnt exist then return NULL
 $obj_param: p_email: user email
 $obj_return: contract identifire
 */
@@ -193,7 +193,7 @@ $obj_return: res[SUCCESS/ERROR/NO_DATA_FOUND]
 /*
 $obj_type: function
 $obj_name: client_list()
-$obj_desc: return list of clients(company now). 
+$obj_desc: return list of clients. 
 $obj_return: on success SYS_REFCURSOR[client_id,name].
 $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 */
@@ -204,7 +204,7 @@ $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 /*
 $obj_type: function
 $obj_name: client_add
-$obj_desc: create client(company now) and return info about this new client(company now). 
+$obj_desc: create client and return info about this new client. 
 $obj_param: p_name: name of client
 $obj_return: on success SYS_REFCURSOR[res,client_id,name]
 $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
@@ -215,10 +215,10 @@ $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 /*
 $obj_type: function
 $obj_name: contract_list
-$obj_desc: return list of contracts by client id (company now)
+$obj_desc: return list of contracts by client id 
 $obj_param: p_client: id of client
-$obj_return: on success SYS_REFCURSOR[CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, 
-$obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE]
+$obj_return: on success SYS_REFCURSOR[client_id, CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, 
+$obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, contract_number,CONTACT_PHONE]
 $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 */
   function contract_list(p_client in hdbk.dtype.t_id default null)
@@ -230,7 +230,7 @@ $obj_name: contract_add
 $obj_desc: add contract for client and return info about this new contract. 
 $obj_param: p_client: id of client
 $obj_param: p_data: json[CONTRACT_NAME, CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE]
-$obj_return: on success SYS_REFCURSOR[res, CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, 
+$obj_return: on success SYS_REFCURSOR[client_id, CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, contract_number,
 $obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE
 $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 */
@@ -243,8 +243,8 @@ $obj_name: contract_update
 $obj_desc: update contract info for client and return info about this new contract. 
 $obj_param: p_contract: id of contract
 $obj_param: p_data: json[CONTRACT_NAME, CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE]
-$obj_return: on success SYS_REFCURSOR[res, CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, 
-$obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE
+$obj_return: on success SYS_REFCURSOR[client_id, CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, 
+$obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME,contract_number, CONTACT_PHONE
 $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 */
   function contract_update(p_contract in hdbk.dtype.t_id default null, p_data in hdbk.dtype.t_clob default null)
@@ -258,30 +258,29 @@ create  or replace package BODY blng.fwdr as
   function get_tenant (p_email in hdbk.dtype.t_name default null)
   return hdbk.dtype.t_id
   is
-    r_client blng.client%rowtype;
---    r_company blng.company%rowtype;
-    v_client hdbk.dtype.t_id;
+    r_usr blng.usr%rowtype;
+    v_user hdbk.dtype.t_id;
     v_contract hdbk.dtype.t_id;
-    r_company blng.company%rowtype;
+    r_client blng.client%rowtype;
     r_contract blng.contract%rowtype;
     r_domain blng.domain%rowtype;
-    v_client_count hdbk.dtype.t_id;
+    v_user_count hdbk.dtype.t_id;
   begin
 -- for authorization we have to return tenant_id.
 -- tenant_id is a identifire that user is valid. if function doesnt return tenant its mean user/email not valid.
 -- second process of function is creating valid users. its mean checking emails in domain table. if its valid then create user.
--- 1. check user email exists at client table then authorise(return tenant_id)
--- 2. check domain of email (example: "gmail.com") in the domain table. if exists then create user in client table and authorise.
--- 3. check full email address in domain table. if exists then create user in client table and authorise.
+-- 1. check user email exists at usr table then authorise(return tenant_id)
+-- 2. check domain of email (example: "gmail.com") in the domain table. if exists then create user in usr table and authorise.
+-- 3. check full email address in domain table. if exists then create user in usr table and authorise.
 -- 3.a. after creating user we must delete it from domain table.
 -- 4. else return exception
--- 5. to pretend attack i initialise stopper v_client_count. this variable equal count of new users last 1 minute.
+-- 5. to pretend attack i initialise stopper v_user_count. this variable equal count of new users last 1 minute.
 -- if its more than 10 users than stop creating users. 
 
 -- all emails must be in lower case
     begin
-      r_client:=blng.blng_api.client_get_info_r(p_email=>lower(p_email));
-      v_contract := blng.core.pay_contract_by_client(r_client.id);
+      r_usr:=blng.blng_api.usr_get_info_r(p_email=>lower(p_email));
+      v_contract := blng.core.pay_contract_by_user(r_usr.id);
     exception 
       when NO_DATA_FOUND then
         begin
@@ -298,17 +297,17 @@ create  or replace package BODY blng.fwdr as
         end;
 --dbms_output.put_line(sysdate||'3');
         r_contract:=blng.blng_api.contract_get_info_r(p_id=>r_domain.contract_oid);
-        r_company:=blng.blng_api.company_get_info_r(p_id=>r_contract.company_oid);  
+        r_client:=blng.blng_api.client_get_info_r(p_id=>r_contract.client_oid);  
 
         v_contract:=r_contract.id;
 --dbms_output.put_line(sysdate||'4');
-        select count(*) into v_client_count from blng.client where amnd_state = 'A' and company_oid = r_company.id and amnd_date > sysdate-1/24/60;
+        select count(*) into v_user_count from blng.usr where amnd_state = 'A' and client_oid = r_client.id and amnd_date > sysdate-1/24/60;
 -- auto user registration stoper 10 user per minute
-        if v_client_count>=10 then return null; end if;
+        if v_user_count>=10 then return null; end if;
 --dbms_output.put_line(sysdate||'5');
-        v_client := blng.BLNG_API.client_add(P_last_NAME => REGEXP_SUBSTR ( lower(p_email), '^[^@]*' ), p_company => r_company.id,p_email=>p_email,p_utc_offset=>r_company.utc_offset);
+        v_user := blng.BLNG_API.usr_add(P_last_NAME => REGEXP_SUBSTR ( lower(p_email), '^[^@]*' ), p_client => r_client.id,p_email=>p_email,p_utc_offset=>r_client.utc_offset);
 --dbms_output.put_line(sysdate||'6');
-        blng.BLNG_API.client2contract_add(P_client => v_client, p_permission=> 'B', p_contract => r_contract.id);
+        blng.BLNG_API.usr2contract_add(p_user => v_user, p_permission=> 'B', p_contract => r_contract.id);
         commit;
     end;
     return v_contract;
@@ -317,32 +316,28 @@ create  or replace package BODY blng.fwdr as
       rollback;
      -- CLOSE c_delay;
       hdbk.log_api.LOG_ADD(p_proc_name=>'get_tenant', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
---      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
       return null;
     when others then
       rollback;
       hdbk.log_api.LOG_ADD(p_proc_name=>'get_tenant', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=delay,p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      RAISE_APPLICATION_ERROR(-20002,'select row into usr error. '||SQLERRM);
 --      return null;
   end;
 
   
-  function company_insteadof_client(p_company in hdbk.dtype.t_id)
+  function client_insteadof_user(p_client in hdbk.dtype.t_id)
   return hdbk.dtype.t_id
   is
     v_result hdbk.dtype.t_id;
   begin
-    select max(id) into v_result from blng.client where company_oid = p_company and amnd_state = 'A';
+    select max(id) into v_result from blng.usr where client_oid = p_client and amnd_state = 'A';
     return v_result;
   exception when others then 
-    hdbk.log_api.LOG_ADD(p_proc_name=>'company_insteadof_client', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=client,p_date=' 
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
-    --RAISE_APPLICATION_ERROR(-20002,'cash_back error. '||SQLERRM);  
+    hdbk.log_api.LOG_ADD(p_proc_name=>'client_insteadof_user', p_msg_type=>'UNHANDLED_ERROR', 
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);      
     return null;
   end;
 
@@ -355,7 +350,7 @@ create  or replace package BODY blng.fwdr as
     v_results SYS_REFCURSOR; 
     v_contract hdbk.dtype.t_id;
   begin
---    v_contract:= blng.core.pay_contract_by_client(blng.fwdr.company_insteadof_client(P_TENANT_ID)) ;
+
     v_contract:= P_TENANT_ID;
       OPEN v_results FOR
         select
@@ -399,53 +394,53 @@ create  or replace package BODY blng.fwdr as
     v_contract hdbk.dtype.t_id;
   begin
 
---    v_results:=blng.blng_api.client_get_info(p_email=>p_user);
+
     OPEN v_results FOR
-      select clt.id client_id, INITCAP(clt.last_name) last_name, INITCAP(clt.first_name) first_name,clt.email,clt.phone,
-      /*blng.core.pay_contract_by_client() tenant_id,*/ to_char(clt.birth_date,'yyyy-mm-dd') birth_date,
-      clt.gender,
-      clt.nationality,
-      hdbk.hdbk_api.gds_nationality_get_info_name(clt.nationality) nls_nationality,
-      cld.id doc_id,   
-      to_char(cld.expiry_date,'yyyy-mm-dd') doc_expiry_date,
-      cld.doc_number,
-      INITCAP(cld.last_name) doc_last_name,
-      INITCAP(cld.first_name) doc_first_name,
-      cld.owner doc_owner,
-      cld.gender doc_gender,
-      to_char(cld.birth_date,'yyyy-mm-dd') doc_birth_date,
-      cld.nationality doc_nationality,
-      hdbk.hdbk_api.gds_nationality_get_info_name(cld.nationality) doc_nls_nationality,cld.phone doc_phone,
-      company.name company_name,
-      clt.is_tester
-      from blng.client clt, blng.client_data cld, blng.company
+      select usr.id user_id, INITCAP(usr.last_name) last_name, INITCAP(usr.first_name) first_name,usr.email,usr.phone,
+      to_char(usr.birth_date,'yyyy-mm-dd') birth_date,
+      usr.gender,
+      usr.nationality,
+      hdbk.hdbk_api.gds_nationality_get_info_name(usr.nationality) nls_nationality,
+      usrd.id doc_id,   
+      to_char(usrd.expiry_date,'yyyy-mm-dd') doc_expiry_date,
+      usrd.doc_number,
+      INITCAP(usrd.last_name) doc_last_name,
+      INITCAP(usrd.first_name) doc_first_name,
+      usrd.owner doc_owner,
+      usrd.gender doc_gender,
+      to_char(usrd.birth_date,'yyyy-mm-dd') doc_birth_date,
+      usrd.nationality doc_nationality,
+      hdbk.hdbk_api.gds_nationality_get_info_name(usrd.nationality) doc_nls_nationality,usrd.phone doc_phone,
+      client.id client_id,
+      client.name client_name,
+      usr.is_tester
+      from blng.usr usr, blng.usr_data usrd, blng.client
       where 
-      clt.amnd_state = 'A' 
-      and clt.status = 'A'
-      and clt.email = p_user
-      and clt.company_oid = company.id
-      and clt.id = cld.client_oid(+)
-      and cld.amnd_state(+) = 'A' 
+      usr.amnd_state = 'A' 
+      and usr.status = 'A'
+      and usr.email = p_user
+      and usr.client_oid = client.id
+      and usr.id = usrd.user_oid(+)
+      and usrd.amnd_state(+) = 'A' 
         ;
 
     return v_results;
   exception when others then 
     hdbk.log_api.LOG_ADD(p_proc_name=>'whoami', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_user='||p_user||',p_date=' 
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
-    RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_user='||p_user,P_ALERT_LEVEL=>10);      
+    RAISE_APPLICATION_ERROR(-20002,'select row into usr error. '||SQLERRM);
   end;
 
 
-  function client_data_edit(p_data in hdbk.dtype.t_clob)
+  function user_data_edit(p_data in hdbk.dtype.t_clob)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
     v_id hdbk.dtype.t_id; 
-    r_client blng.client%rowtype;
-    r_client_data blng.client_data%rowtype;
+    r_usr blng.usr%rowtype;
+    r_usr_data blng.usr_data%rowtype;
   begin
--- first update client info. then if doc_number is not null then update client_data 
+-- first update user info. then if doc_number is not null then update usr_data 
     for i in (
       select 
       dd.*
@@ -453,7 +448,6 @@ create  or replace package BODY blng.fwdr as
       json_table(p_data, '$'
         COLUMNS 
           (
---           client_id number PATH '$.client_id',
            email VARCHAR2(256 CHAR) PATH '$.email',
            first_name VARCHAR2(256 CHAR) PATH '$.first_name',
            last_name VARCHAR2(256 CHAR) PATH '$.last_name',
@@ -478,10 +472,10 @@ create  or replace package BODY blng.fwdr as
         ) dd
     )
     loop
---      r_client:=blng.blng_api.client_get_info_r(p_id=>i.client_id);
-      r_client:=blng.blng_api.client_get_info_r(p_email=>i.email);
-      if r_client.id is null then RAISE no_data_found; end if;
-      blng.blng_api.client_edit(p_id=>r_client.id,
+
+      r_usr:=blng.blng_api.usr_get_info_r(p_email=>i.email);
+      if r_usr.id is null then RAISE no_data_found; end if;
+      blng.blng_api.usr_edit(p_id=>r_usr.id,
                                 p_last_name=>i.last_name,
                                 p_first_name=>i.first_name,
                                 p_gender=>i.gender,
@@ -492,8 +486,8 @@ create  or replace package BODY blng.fwdr as
                                 );
       if i.doc_number is not null then                           
         if i.doc_id is null then 
-          v_id:=blng.blng_api.client_data_add(
-                                    p_client=>r_client.id,
+          v_id:=blng.blng_api.usr_data_add(
+                                    p_user=>r_usr.id,
                                     p_last_name=>i.doc_last_name,
                                     p_first_name=>i.doc_first_name,
                                     p_gender=>i.doc_gender,
@@ -505,10 +499,10 @@ create  or replace package BODY blng.fwdr as
                                     p_phone=>i.doc_phone
                                     );      
         else
-          r_client_data:=blng.blng_api.client_data_get_info_r(p_id=>i.doc_id,p_client => r_client.id);
-          if r_client_data.id is null then RAISE no_data_found; end if;
-          blng.blng_api.client_data_edit(p_id=>r_client_data.id,
-                                    p_client=>r_client.id,
+          r_usr_data:=blng.blng_api.usr_data_get_info_r(p_id=>i.doc_id,p_user => r_usr.id);
+          if r_usr_data.id is null then RAISE no_data_found; end if;
+          blng.blng_api.usr_data_edit(p_id=>r_usr_data.id,
+                                    p_user=>r_usr.id,
                                     p_last_name=>i.doc_last_name,
                                     p_first_name=>i.doc_first_name,
                                     p_gender=>i.doc_gender,
@@ -530,19 +524,16 @@ create  or replace package BODY blng.fwdr as
   exception 
     when NO_DATA_FOUND then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
---      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_edit', p_msg_type=>'NO_DATA_FOUND',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
       open v_results for
         select 'false' res from dual;
       return v_results;
     when others then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'client_data_edit', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
---      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_edit', p_msg_type=>'UNHANDLED_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);      
+
       open v_results for
         select 'false' res from dual;
       return v_results;
@@ -558,14 +549,14 @@ create  or replace package BODY blng.fwdr as
     v_results SYS_REFCURSOR; 
     v_contract hdbk.dtype.t_id;
 --    v_contract
-    r_client blng.client%rowtype;
-    --r_client
+    r_usr blng.usr%rowtype;
+    --r_usr
   begin
   
-      r_client:=blng.blng_api.client_get_info_r(p_email => p_email);
-      v_contract:=blng.core.pay_contract_by_client(r_client.id);        
+      r_usr:=blng.blng_api.usr_get_info_r(p_email => p_email);
+      v_contract:=blng.core.pay_contract_by_user(r_usr.id);        
 
---    v_results:=blng.blng_api.client_get_info(p_email=>p_user);
+--    v_results:=blng.blng_api.usr_get_info(p_email=>p_user);
       OPEN v_results FOR
               
       select 
@@ -602,9 +593,8 @@ create  or replace package BODY blng.fwdr as
     return v_results;
   exception when others then 
     hdbk.log_api.LOG_ADD(p_proc_name=>'statement', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date=' 
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
-    RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);      
+    RAISE_APPLICATION_ERROR(-20002,'select row into user error. '||SQLERRM);
   end;
 
   function statement(p_email  in hdbk.dtype.t_name, 
@@ -617,11 +607,11 @@ create  or replace package BODY blng.fwdr as
   is
     v_results SYS_REFCURSOR; 
     v_contract hdbk.dtype.t_id;
-    r_client blng.client%rowtype;
+    r_usr blng.usr%rowtype;
   begin
   
-      r_client:=blng.blng_api.client_get_info_r(p_email => p_email);
-      v_contract:=blng.core.pay_contract_by_client(r_client.id);        
+      r_usr:=blng.blng_api.usr_get_info_r(p_email => p_email);
+      v_contract:=blng.core.pay_contract_by_user(r_usr.id);        
 
       OPEN v_results FOR
               
@@ -724,9 +714,8 @@ create  or replace package BODY blng.fwdr as
     return v_results;
   exception when others then 
     hdbk.log_api.LOG_ADD(p_proc_name=>'statement', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date=' 
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
-    RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);      
+    RAISE_APPLICATION_ERROR(-20002,'select row into user error. '||SQLERRM);
   end;
 
 
@@ -750,9 +739,9 @@ create  or replace package BODY blng.fwdr as
         to_char(del.date_to - 1,'yyyy-mm-dd') date_to ,
         case when trunc(date_to) <= sysdate then 'Y' else 'N' end is_overdue
         from blng.delay del,blng.transaction,blng.document, ord.bill, ord.item_avia,
-          blng.client,
+          blng.usr,
           blng.contract,
-          blng.client2contract
+          blng.usr2contract
         where del.amnd_state = 'A'
         and transaction.amnd_state = 'A'
         and document.amnd_state = 'A'
@@ -769,24 +758,23 @@ create  or replace package BODY blng.fwdr as
         and document.contract_oid = contract.id
         and item_avia.order_oid = bill.order_oid
         
-        and client.email = p_email
-     --  and client.email = 's.popinevskiy@ntg-one.com'
+        and usr.email = p_email
+     --  and usr.email = 's.popinevskiy@ntg-one.com'
 
-        and client2contract.client_oid = client.id
-        and client2contract.amnd_state = 'A'
-        and client.amnd_state = 'A'
+        and usr2contract.user_oid = usr.id
+        and usr2contract.amnd_state = 'A'
+        and usr.amnd_state = 'A'
         and contract.amnd_state = 'A'
-        and client2contract.contract_oid = contract.id
-        and client2contract.permission = 'B'
+        and usr2contract.contract_oid = contract.id
+        and usr2contract.permission = 'B'
         order by del.contract_oid asc, del.date_to asc, del.id asc
 ;
         
     return v_results;
   exception when others then 
     hdbk.log_api.LOG_ADD(p_proc_name=>'loan_list', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=client,p_date=' 
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
-    RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);      
+    RAISE_APPLICATION_ERROR(-20002,'select row into usr error. '||SQLERRM);
     return null;
   end;
 
@@ -799,7 +787,7 @@ create  or replace package BODY blng.fwdr as
     r_account blng.v_account%rowtype;
     v_contract hdbk.dtype.t_id;
   begin
---    v_contract:=nvl(p_contract, blng.core.pay_contract_by_client(hdbk.dtype.p_client) );
+
     v_contract:=p_contract;
     select * into r_account from blng.v_account where contract_oid = v_contract;
     return r_account;
@@ -807,7 +795,7 @@ create  or replace package BODY blng.fwdr as
     hdbk.log_api.LOG_ADD(p_proc_name=>'contract_info', p_msg_type=>'UNHANDLED_ERROR', 
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=client,p_date=' 
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
-    RAISE_APPLICATION_ERROR(-20002,'insert row into client error. '||SQLERRM);
+    RAISE_APPLICATION_ERROR(-20002,'insert row into usr error. '||SQLERRM);
     return null;
   end v_account_get_info_r;
 
@@ -823,15 +811,15 @@ create  or replace package BODY blng.fwdr as
       OPEN v_results FOR
   
         select 
-        company.id company_id,
+        client.id client_id,
         contract.id contract_id,
-        company.name company_name,
+        client.name client_name,
         contract.name contract_name,
         contract.contract_number contract_number
-        from blng.contract, blng.company
+        from blng.contract, blng.client
         where contract.amnd_state = 'A'
-        and company.amnd_state = 'A'
-        and company.id = contract.company_oid
+        and client.amnd_state = 'A'
+        and client.id = contract.client_oid
         and contract.id = nvl(p_contract, contract.id)
         ;
         
@@ -848,14 +836,14 @@ create  or replace package BODY blng.fwdr as
   function check_tenant (p_email in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR
   is
-    r_client blng.client%rowtype;
+    r_usr blng.usr%rowtype;
     v_contract hdbk.dtype.t_id;
     v_results SYS_REFCURSOR;
   begin
-    r_client:=blng.blng_api.client_get_info_r(p_email=>lower(p_email));
---    v_contract := blng.core.pay_contract_by_client(r_client.id);
+    r_usr:=blng.blng_api.usr_get_info_r(p_email=>lower(p_email));
+
     open v_results for
-      select blng.core.pay_contract_by_client(r_client.id) tenant_id from dual;
+      select blng.core.pay_contract_by_user(r_usr.id) tenant_id from dual;
     return v_results;
 --    return v_contract;
   exception 
@@ -864,7 +852,7 @@ create  or replace package BODY blng.fwdr as
         select 'NO_DATA_FOUND' res from dual;
       return v_results;
     when others then
---      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+
       open v_results for
         select 'ERROR' res from dual;
       return v_results;
@@ -875,12 +863,12 @@ create  or replace package BODY blng.fwdr as
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
-    r_client blng.client%rowtype;
+    r_usr blng.usr%rowtype;
     v_god_email hdbk.dtype.t_name:='god@ntg-one.com';
   begin
-    r_client:=blng.blng_api.client_get_info_r(p_email=>v_god_email);
-    --dbms_output.put_line('r_client='||r_client.id);    
-    blng.blng_api.client_edit(p_id=>r_client.id, p_status=>'A');
+    r_usr:=blng.blng_api.usr_get_info_r(p_email=>v_god_email);
+    --dbms_output.put_line('r_usr='||r_usr.id);    
+    blng.blng_api.usr_edit(p_id=>r_usr.id, p_status=>'A');
     commit;    
       open v_results for
         select 'SUCCESS' res from dual;
@@ -891,7 +879,7 @@ create  or replace package BODY blng.fwdr as
       hdbk.log_api.LOG_ADD(p_proc_name=>'god_unblock', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => ''
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
---      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+
       open v_results for
         select 'NO_DATA_FOUND' res from dual;
       return v_results;
@@ -900,7 +888,7 @@ create  or replace package BODY blng.fwdr as
       hdbk.log_api.LOG_ADD(p_proc_name=>'god_unblock', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => '' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
---      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+
       open v_results for
         select 'ERROR' res from dual;
       return v_results;
@@ -910,11 +898,11 @@ create  or replace package BODY blng.fwdr as
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR;
-    r_client blng.client%rowtype;
+    r_usr blng.usr%rowtype;
     v_god_email hdbk.dtype.t_name:='god@ntg-one.com';
   begin
-    r_client:=blng.blng_api.client_get_info_r(p_email=>v_god_email);
-    blng.blng_api.client_edit(p_id=>r_client.id, p_status=>'C');
+    r_usr:=blng.blng_api.usr_get_info_r(p_email=>v_god_email);
+    blng.blng_api.usr_edit(p_id=>r_usr.id, p_status=>'C');
     commit;    
     
 
@@ -927,7 +915,7 @@ create  or replace package BODY blng.fwdr as
       hdbk.log_api.LOG_ADD(p_proc_name=>'god_block', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => ''
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
---      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+
       open v_results for
         select 'NO_DATA_FOUND' res from dual;
       return v_results;
@@ -936,7 +924,7 @@ create  or replace package BODY blng.fwdr as
       hdbk.log_api.LOG_ADD(p_proc_name=>'god_block', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => '' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
---      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+
       open v_results for
         select 'ERROR' res from dual;
       return v_results;
@@ -946,18 +934,18 @@ create  or replace package BODY blng.fwdr as
   function god_move(p_tenant in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR
   is
-    r_client blng.client%rowtype;
-    r_client2contract blng.client2contract%rowtype;
+    r_usr blng.usr%rowtype;
+    r_usr2contract blng.usr2contract%rowtype;
     r_contract_to blng.contract%rowtype;
     v_god_email hdbk.dtype.t_name:='god@ntg-one.com';
     v_results SYS_REFCURSOR;
   begin
-    r_client:=blng.blng_api.client_get_info_r(p_email=>v_god_email);
-    r_client2contract:=blng.blng_api.client2contract_get_info_r(p_client=>r_client.id, p_permission=>'B');
+    r_usr:=blng.blng_api.usr_get_info_r(p_email=>v_god_email);
+    r_usr2contract:=blng.blng_api.usr2contract_get_info_r(p_user=>r_usr.id, p_permission=>'B');
     r_contract_to:=blng.blng_api.contract_get_info_r(p_id=>p_tenant);
 
-    blng.blng_api.client_edit(p_id=>r_client.id, p_company=>r_contract_to.company_oid);
-    blng.blng_api.client2contract_edit(p_id=>r_client2contract.id, p_contract=>r_contract_to.id);
+    blng.blng_api.usr_edit(p_id=>r_usr.id, p_client=>r_contract_to.client_oid);
+    blng.blng_api.usr2contract_edit(p_id=>r_usr2contract.id, p_contract=>r_contract_to.id);
     commit;
       open v_results for
         select 'SUCCESS' res from dual;
@@ -968,7 +956,7 @@ create  or replace package BODY blng.fwdr as
       hdbk.log_api.LOG_ADD(p_proc_name=>'god_move', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => ''
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
---      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+
       open v_results for
         select 'NO_DATA_FOUND' res from dual;
       return v_results;
@@ -977,7 +965,7 @@ create  or replace package BODY blng.fwdr as
       hdbk.log_api.LOG_ADD(p_proc_name=>'god_move', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => '' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
---      RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
+
       open v_results for
         select 'ERROR' res from dual;
       return v_results;
@@ -992,10 +980,10 @@ create  or replace package BODY blng.fwdr as
       OPEN v_results FOR
   
         select 
-        company.id client_id,
-        company.name name
-        from blng.company
-        where company.amnd_state = 'A'
+        client.id client_id,
+        client.name name
+        from blng.client
+        where client.amnd_state = 'A'
         order by id
         ;
 
@@ -1017,7 +1005,7 @@ create  or replace package BODY blng.fwdr as
     v_results SYS_REFCURSOR; 
     v_client hdbk.dtype.t_id;
   begin
-    v_client:=blng_api.company_add(p_name=>p_name);
+    v_client:=blng_api.client_add(p_name=>p_name);
     commit;    
       OPEN v_results FOR
   
@@ -1047,10 +1035,12 @@ create  or replace package BODY blng.fwdr as
       OPEN v_results FOR
   
         select 
+        contract.client_oid client_id,
         contract.id contract_id,
         contract.id tenant_id,
         decode(contract.status,'B','Y','N') is_blocked,
         contract.name contract_name,
+        contract.contract_number,
         v_account.credit_limit,
         v_account.delay_days,
         v_account.max_loan_trans_amount max_credit,
@@ -1060,7 +1050,7 @@ create  or replace package BODY blng.fwdr as
         from blng.contract, blng.v_account
         where contract.amnd_state = 'A'
         and contract.id = v_account.contract_oid
-        and contract.company_oid = nvl(p_client,contract.company_oid)
+        and contract.client_oid = nvl(p_client,contract.client_oid)
         order by id
         ;
         
@@ -1090,7 +1080,6 @@ create  or replace package BODY blng.fwdr as
       json_table(p_data, '$'
         COLUMNS 
           (
---           client_id number PATH '$.client_id',
            contract_name VARCHAR2(256 CHAR) PATH '$.contract_name',
            credit_limit number PATH '$.credit_limit',
            delay_days number PATH '$.delay_days',
@@ -1102,7 +1091,7 @@ create  or replace package BODY blng.fwdr as
         ) 
     )
     loop
-      v_contract := blng.BLNG_API.contract_add( P_company => p_client, 
+      v_contract := blng.BLNG_API.contract_add( P_client => p_client, 
                                                 p_name=>i.contract_name, 
                                                 p_utc_offset=>i.utc_offset,
                                                 p_contact_name=>i.contact_name,
@@ -1111,20 +1100,22 @@ create  or replace package BODY blng.fwdr as
       BLNG.BLNG_API.account_init(v_contract);
     
       v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => i.credit_limit,
-        p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
+        p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
       v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => i.delay_days,
-        p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
+        p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
       v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => i.max_credit,
-        p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'UP_LIM_TRANS'));
+        p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'UP_LIM_TRANS'));
       commit;
     end loop;
 
     OPEN v_results FOR
       select 
+      contract.client_oid client_id,
       contract.id contract_id,
       contract.id tenant_id,
       decode(contract.status,'B','Y','N') is_blocked,
       contract.name contract_name,
+      contract.contract_number,
       v_account.credit_limit,
       v_account.delay_days,
       v_account.max_loan_trans_amount max_credit,
@@ -1165,7 +1156,7 @@ create  or replace package BODY blng.fwdr as
       json_table(p_data, '$'
         COLUMNS 
           (
---           client_id number PATH '$.client_id',
+
            contract_name VARCHAR2(256 CHAR) PATH '$.contract_name',
            credit_limit number PATH '$.credit_limit',
            delay_days number PATH '$.delay_days',
@@ -1197,20 +1188,22 @@ create  or replace package BODY blng.fwdr as
       if r_account_info.loan <> 0 and abs(r_account_info.loan)> i.credit_limit then raise VALUE_ERROR; end if;
     
       v_DOC := blng.BLNG_API.document_add(P_CONTRACT => p_contract,P_AMOUNT => i.credit_limit,
-        p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
+        p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CREDIT_LIMIT'));
       v_DOC := blng.BLNG_API.document_add(P_CONTRACT => p_contract,P_AMOUNT => i.delay_days,
-        p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
+        p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'DELAY_DAY'));
       v_DOC := blng.BLNG_API.document_add(P_CONTRACT => p_contract,P_AMOUNT => i.max_credit,
-        p_account_trans_type=>hdbk.hdbk_api.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'UP_LIM_TRANS'));
+        p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'UP_LIM_TRANS'));
       commit;
     end loop;
 
     OPEN v_results FOR
       select 
+      contract.client_oid client_id,
       contract.id contract_id,
       contract.id tenant_id,
       decode(contract.status,'B','Y','N') is_blocked,
       contract.name contract_name,
+      contract.contract_number,
       v_account.credit_limit,
       v_account.delay_days,
       v_account.max_loan_trans_amount max_credit,

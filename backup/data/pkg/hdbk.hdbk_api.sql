@@ -9,12 +9,12 @@ $pkg: hdbk.hdbk_api
 */
 
 /*
-$obj_desc: ***_add insert row into table ***. could return id of new row.
-$obj_desc: ***_edit update row into table ***. object have always one id. first, old data with amnd_state = [I]nactive
-$obj_desc: inserted as row with link to new row(amnd_prev). new data just update object row, 
-$obj_desc: amnd_date updates to sysdate and amnd_user to current user who called api.
-$obj_desc: ***_get_info return data from table *** with format SYS_REFCURSOR.
-$obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
+$obj_desc: ***_add: insert row into table ***. could return id of new row.
+$obj_desc: ***_edit: update row into table ***. object have always one id. first, old data with amnd_state = [I]nactive
+$obj_desc: ***_edit: inserted as row with link to new row(amnd_prev). new data just update object row, 
+$obj_desc: ***_edit: amnd_date updates to sysdate and amnd_user to current user who called api.
+$obj_desc: ***_get_info: return data from table *** with format SYS_REFCURSOR.
+$obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype.
 */
   
   function gds_nationality_get_info (p_code in hdbk.dtype.t_code)
@@ -28,14 +28,14 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   
   function note_add( 
                     p_name in hdbk.dtype.t_name default null,
-                    p_client in hdbk.dtype.t_id default null
+                    p_user in hdbk.dtype.t_id default null
                   )
   return hdbk.dtype.t_id;
 
 
   procedure note_edit(  P_ID  in hdbk.dtype.t_id default null,
                               p_name in hdbk.dtype.t_name default null,
-                    p_client in hdbk.dtype.t_id default null,
+                    p_user in hdbk.dtype.t_id default null,
                     p_status in hdbk.dtype.t_status default null
                       );
 
@@ -157,13 +157,6 @@ $obj_desc: ***_get_info_r return one row from table *** with format ***%rowtype.
   return dictionary%rowtype;
 
 
-  function dictionary_get_id (    p_dictionary_type  in hdbk.dtype.t_name default null,
-                                p_code in hdbk.dtype.t_code default null,
-                                p_name in hdbk.dtype.t_name default null
-                          )
-  return hdbk.dtype.t_id;
-
-
   function airline_get_id (     p_iata in hdbk.dtype.t_code default null
                           )
   return hdbk.dtype.t_id;
@@ -279,7 +272,7 @@ create or replace package body hdbk.hdbk_api as
 
   function note_add( 
                     p_name in hdbk.dtype.t_name default null,
-                    p_client in hdbk.dtype.t_id default null
+                    p_user in hdbk.dtype.t_id default null
                   )
   return hdbk.dtype.t_id
   is
@@ -287,7 +280,7 @@ create or replace package body hdbk.hdbk_api as
     v_id hdbk.dtype.t_id;
   begin
     v_obj_row.name:=  p_name;
-    v_obj_row.client_oid:=  p_client;
+    v_obj_row.user_oid:=  p_user;
     v_obj_row.guid :=   ntg.RandomUUID();
 
     insert into note values v_obj_row returning id into v_id;
@@ -302,7 +295,7 @@ create or replace package body hdbk.hdbk_api as
 
   procedure note_edit(    P_ID  in hdbk.dtype.t_id default null,
                               p_name in hdbk.dtype.t_name default null,
-                            p_client in hdbk.dtype.t_id default null,
+                            p_user in hdbk.dtype.t_id default null,
                             p_status in hdbk.dtype.t_status default null
                       )
   is
@@ -735,7 +728,7 @@ create or replace package body hdbk.hdbk_api as
     v_obj_row.code := p_code;
     v_obj_row.info := p_info;    
 
-    insert into hdbk.dictionary values v_obj_row returning id into v_id;
+    insert into dictionary values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
     hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_add', p_msg_type=>'UNHANDLED_ERROR',
@@ -861,44 +854,6 @@ create or replace package body hdbk.hdbk_api as
       RAISE_APPLICATION_ERROR(-20002,'select row into dictionary error. '||SQLERRM);
   end;
 
-
-  function dictionary_get_id (    p_dictionary_type  in hdbk.dtype.t_name default null,
-                                p_code in hdbk.dtype.t_code default null,
-                                p_name in hdbk.dtype.t_name default null
-                          )
-  return hdbk.dtype.t_id
-  is
-    r_obj hdbk.dtype.t_id;
-  begin
-    if p_dictionary_type is not null and p_code is not null then 
-      SELECT
-      id into r_obj
-      from dictionary 
-      where dictionary_type = p_dictionary_type
-      and code = p_code
-      and amnd_state = 'A';
-    elsif p_dictionary_type is not null and p_name is not null then 
-      SELECT
-      id into r_obj
-      from dictionary 
-      where dictionary_type = p_dictionary_type
-      and name = p_name
-      and amnd_state = 'A';
-    else raise NO_DATA_FOUND; 
-    end if;   
-    
-    return r_obj;
-  exception 
-    when NO_DATA_FOUND then 
-      raise NO_DATA_FOUND;
-    when TOO_MANY_ROWS then 
-      raise NO_DATA_FOUND;  
-    when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_get_id', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=dictionary,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-      RAISE_APPLICATION_ERROR(-20002,'select row into dictionary error. '||SQLERRM);
-  end;
 
 
   function airline_get_id (     p_iata in hdbk.dtype.t_code default null

@@ -124,7 +124,7 @@ decode(code,'do',1,0) debit_online,
 decode(code,'ult',1,0) max_loan_trans_amount,
 decode(code,'co',1,0) credit_online,
 decode(code,'dd',1,0) delay_days,
-case when code in ('l','cl','clb') then 1 else 0 end unused_credit_limit,
+case when code in ('l','cl') then 1 else 0 end unused_credit_limit,
 case when code in ('d','l','cl','clb') then 1 else 0 end available
 from blng.account_type act
 where amnd_state = 'A';
@@ -338,24 +338,24 @@ sum(amount) over (partition by contract_id order by trans_date RANGE UNBOUNDED P
         document.id doc_id,
         trans.id transaction_id,
         contract.id contract_id,
-        client.utc_offset,
+        usr.utc_offset,
         doc_trans.code doc_trans_code,
         1 one,
      --   row_number() over (order by trans.trans_date) rn,
         trans.trans_date,
-        to_char(trans.trans_date + client.utc_offset/24,'yyyy-mm-dd') transaction_date,
-        to_char(trans.trans_date + client.utc_offset/24,'HH24:mi:ss') transaction_time,
+        to_char(trans.trans_date + usr.utc_offset/24,'yyyy-mm-dd') transaction_date,
+        to_char(trans.trans_date + usr.utc_offset/24,'HH24:mi:ss') transaction_time,
 --        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid < trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_before,
         trans.amount,
 --        nvl((select sum(amount) from blng.transaction tr where tr.doc_oid <= trans.doc_oid and amnd_state = 'A' and target_account_oid in (select id from blng.account where amnd_state = 'A' and contract_oid = contract.id and account_type_oid in (1,2,3))),0) amount_after,
         (select code from hdbk.dictionary where id = document.account_trans_type_oid) transaction_type,
         pnr_id,
         pnr_locator order_number,
-        INITCAP(client.last_name) last_name,
-        INITCAP(client.first_name) first_name,
-        client.email 
+        INITCAP(usr.last_name) last_name,
+        INITCAP(usr.first_name) first_name,
+        usr.email 
         from 
-        blng.client,
+        blng.usr,
         ord.bill,
         blng.contract,
         ord.item_avia,
@@ -379,10 +379,10 @@ sum(amount) over (partition by contract_id order by trans_date RANGE UNBOUNDED P
         and document.bill_oid = bill.id
         and bill.contract_oid = contract.id
         and item_avia.order_oid = bill.order_oid
-        and item_avia.nqt_status in ('ISSUED')
+        and item_avia.id in (select item_avia_oid from ord.ticket where amnd_state = 'A')
         and item_avia.amnd_state = 'A'
         and bill.amnd_state = 'A'
-        and ord.client_oid = client.id
+        and ord.user_oid = usr.id
         and ord.amnd_state = 'A'
         and ord.id = bill.order_oid
        --         and contract.id = 22

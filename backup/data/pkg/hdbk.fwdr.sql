@@ -56,7 +56,7 @@ return SYS_REFCURSOR;
 
 $obj_type: function
 $obj_name: airline_commission_list
-$obj_desc: list of airlines with flag commission(means: is airline have rules for calc commission).
+$obj_desc: list of airlines with flag commission(it means, is airline have rules for calc commission).
 $obj_return: SYS_REFCURSOR[airline_oid,name,IATA,commission[Y/N]]
 
 */
@@ -92,43 +92,43 @@ $obj_return: SEGMENT, V_FROM, V_TO, ABSOLUT_AMOUNT, PERCENT_AMOUNT, MIN_ABSOLUT,
 */
 
 
-  function note_add(p_client in hdbk.dtype.t_name default null,
+  function note_add(p_user in hdbk.dtype.t_name default null,
                     p_name in hdbk.dtype.t_clob default null)
   return SYS_REFCURSOR;
 
   function note_edit(   p_id  in hdbk.dtype.t_id default null,
-                        p_client in hdbk.dtype.t_name default null,
+                        p_user in hdbk.dtype.t_name default null,
                         p_name in hdbk.dtype.t_clob default null)
   return SYS_REFCURSOR;
 
   function note_delete(   p_id  in hdbk.dtype.t_id default null,
-                        p_client in hdbk.dtype.t_name default null)
+                        p_user in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR;
 
   function note_recovery(   p_id  in hdbk.dtype.t_id default null,
-                        p_client in hdbk.dtype.t_name default null)
+                        p_user in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR;
 
   function note_ticket_add(   p_note  in hdbk.dtype.t_id default null,
-                        p_client in hdbk.dtype.t_name default null,
+                        p_user in hdbk.dtype.t_name default null,
                         p_tickets in hdbk.dtype.t_clob default null)
   return SYS_REFCURSOR;
 
   function note_ticket_delete(   p_note  in hdbk.dtype.t_id default null,
-                                p_client in hdbk.dtype.t_name default null,
+                                p_user in hdbk.dtype.t_name default null,
                                 p_ticket in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 
   function note_ticket_recovery(   p_note  in hdbk.dtype.t_id default null,
-                                p_client in hdbk.dtype.t_name default null,
+                                p_user in hdbk.dtype.t_name default null,
                                 p_ticket in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 
-  function note_list(     p_client in hdbk.dtype.t_name default null)
+  function note_list(     p_user in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR;
 
   function note_ticket_list(p_note in hdbk.dtype.t_id default null,
-                            p_client in hdbk.dtype.t_name default null)
+                            p_user in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR;
 
   function note_ticket_list(P_GUID  in hdbk.dtype.t_name default null)
@@ -249,7 +249,7 @@ begin
 --      and g.iata = iata_list.IATA
       group by g.iata;    
   end if;  
-  hdbk.log_api.LOG_ADD(p_proc_name=>'client_set_name', p_msg_type=>'Error');
+  hdbk.log_api.LOG_ADD(p_proc_name=>'get_utc_offset', p_msg_type=>'Error');
   return v_results;
 end;
 
@@ -420,22 +420,22 @@ end;
 */
 
 
-  function note_add(p_client in hdbk.dtype.t_name default null,
+  function note_add(p_user in hdbk.dtype.t_name default null,
                     p_name in hdbk.dtype.t_clob default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
-    r_client blng.client%rowtype; 
+    r_usr blng.usr%rowtype; 
     v_note hdbk.dtype.t_id; 
     note_count hdbk.dtype.t_id; 
     OVER_LIMIT exception;
   begin
-    r_client := blng.blng_api.client_get_info_r(p_email => p_client);
+    r_usr := blng.blng_api.usr_get_info_r(p_email => p_user);
     
-    select count(*) into note_count from hdbk.note where amnd_state = 'A' and client_oid = r_client.id;
+    select count(*) into note_count from hdbk.note where amnd_state = 'A' and user_oid = r_usr.id;
     if note_count >= 3 then raise OVER_LIMIT; end if;
     
-    v_note := hdbk.hdbk_api.note_add(p_client=>r_client.id, p_name=>p_name);    
+    v_note := hdbk.hdbk_api.note_add(p_user=>r_usr.id, p_name=>p_name);    
     
     commit;   
     open v_results FOR
@@ -455,19 +455,19 @@ end;
   end;
 
   function note_edit(   p_id  in hdbk.dtype.t_id default null,
-                        p_client in hdbk.dtype.t_name default null,
+                        p_user in hdbk.dtype.t_name default null,
                         p_name in hdbk.dtype.t_clob default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
-    r_client blng.client%rowtype; 
+    r_usr blng.usr%rowtype; 
     r_note note%rowtype; 
     v_note hdbk.dtype.t_id; 
   begin
         
     r_note := hdbk.hdbk_api.note_get_info_r(p_id => p_id);
-    r_client := blng.blng_api.client_get_info_r(p_email => p_client);
-    if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
+    r_usr := blng.blng_api.usr_get_info_r(p_email => p_user);
+    if r_usr.id <> r_note.user_oid then raise NO_DATA_FOUND; end if;
     hdbk.hdbk_api.note_edit(p_id=>r_note.id, p_name=>p_name);   
     commit;
     open v_results FOR
@@ -481,18 +481,18 @@ end;
   end;
 
   function note_delete(   p_id  in hdbk.dtype.t_id default null,
-                        p_client in hdbk.dtype.t_name default null)
+                        p_user in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
-    r_client blng.client%rowtype; 
+    r_usr blng.usr%rowtype; 
     r_note note%rowtype; 
     v_note hdbk.dtype.t_id; 
   begin
         
     r_note := hdbk.hdbk_api.note_get_info_r(p_id => p_id);
-    r_client := blng.blng_api.client_get_info_r(p_email => p_client);
-    if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
+    r_usr := blng.blng_api.usr_get_info_r(p_email => p_user);
+    if r_usr.id <> r_note.user_oid then raise NO_DATA_FOUND; end if;
     hdbk.hdbk_api.note_edit(p_id=>r_note.id, p_status=>'D');     
     commit;
     open v_results FOR
@@ -506,18 +506,18 @@ end;
   end;
 
   function note_recovery(   p_id  in hdbk.dtype.t_id default null,
-                        p_client in hdbk.dtype.t_name default null)
+                        p_user in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
-    r_client blng.client%rowtype; 
+    r_usr blng.usr%rowtype; 
     r_note note%rowtype; 
     v_note hdbk.dtype.t_id; 
   begin
         
     r_note := hdbk.hdbk_api.note_get_info_r(p_id => p_id);
-    r_client := blng.blng_api.client_get_info_r(p_email => p_client);
-    if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
+    r_usr := blng.blng_api.usr_get_info_r(p_email => p_user);
+    if r_usr.id <> r_note.user_oid then raise NO_DATA_FOUND; end if;
     hdbk.hdbk_api.note_edit(p_id=>r_note.id, p_status=>'A');        
     commit;
     open v_results FOR
@@ -531,19 +531,19 @@ end;
   end;
 
   function note_ticket_add(   p_note  in hdbk.dtype.t_id default null,
-                        p_client in hdbk.dtype.t_name default null,
+                        p_user in hdbk.dtype.t_name default null,
                         p_tickets in hdbk.dtype.t_clob default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
-    r_client blng.client%rowtype; 
+    r_usr blng.usr%rowtype; 
     r_note note%rowtype; 
     v_note_ticket hdbk.dtype.t_id; 
   begin
         
     r_note := hdbk.hdbk_api.note_get_info_r(p_id => p_note);
-    r_client := blng.blng_api.client_get_info_r(p_email => p_client);
-    if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
+    r_usr := blng.blng_api.usr_get_info_r(p_email => p_user);
+    if r_usr.id <> r_note.user_oid then raise NO_DATA_FOUND; end if;
     v_note_ticket := hdbk.hdbk_api.note_ticket_add(p_note=>r_note.id, p_tickets=>p_tickets);        
     commit;
     open v_results FOR
@@ -557,12 +557,12 @@ end;
   end;
 
   function note_ticket_delete(   p_note  in hdbk.dtype.t_id default null,
-                                p_client in hdbk.dtype.t_name default null,
+                                p_user in hdbk.dtype.t_name default null,
                                 p_ticket in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
-    r_client blng.client%rowtype; 
+    r_usr blng.usr%rowtype; 
     r_note note%rowtype; 
     r_note_ticket note_ticket%rowtype; 
     v_note_ticket hdbk.dtype.t_id; 
@@ -572,9 +572,9 @@ end;
     --dbms_output.put_line('1');
     r_note_ticket := hdbk.hdbk_api.note_ticket_get_info_r(p_id => p_ticket);
     ---dbms_output.put_line('2');
-    r_client := blng.blng_api.client_get_info_r(p_email => p_client);
+    r_usr := blng.blng_api.usr_get_info_r(p_email => p_user);
     --dbms_output.put_line('3');
-    if r_client.id <> r_note.client_oid then     --dbms_output.put_line('NO_DATA_FOUND');
+    if r_usr.id <> r_note.user_oid then     --dbms_output.put_line('NO_DATA_FOUND');
     raise NO_DATA_FOUND; end if;
     --dbms_output.put_line('4');
     hdbk.hdbk_api.note_ticket_edit(p_id=>r_note_ticket.id, p_status=>'D');       
@@ -591,12 +591,12 @@ end;
   end;
 
   function note_ticket_recovery(   p_note  in hdbk.dtype.t_id default null,
-                                p_client in hdbk.dtype.t_name default null,
+                                p_user in hdbk.dtype.t_name default null,
                                 p_ticket in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
-    r_client blng.client%rowtype; 
+    r_usr blng.usr%rowtype; 
     r_note note%rowtype; 
     r_note_ticket note_ticket%rowtype; 
     v_note_ticket hdbk.dtype.t_id; 
@@ -604,8 +604,8 @@ end;
         
     r_note := hdbk.hdbk_api.note_get_info_r(p_id => p_note);
     r_note_ticket := hdbk.hdbk_api.note_ticket_get_info_r(p_id => p_ticket);
-    r_client := blng.blng_api.client_get_info_r(p_email => p_client);
-    if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
+    r_usr := blng.blng_api.usr_get_info_r(p_email => p_user);
+    if r_usr.id <> r_note.user_oid then raise NO_DATA_FOUND; end if;
     hdbk.hdbk_api.note_ticket_edit(p_id=>r_note_ticket.id, p_status=>'A');        
     commit;
     open v_results FOR
@@ -618,20 +618,20 @@ end;
     return v_results;  
   end;
 
-  function note_list(     p_client in hdbk.dtype.t_name default null)
+  function note_list(     p_user in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
-    r_client blng.client%rowtype; 
+    r_usr blng.usr%rowtype; 
     r_note note%rowtype; 
     r_note_ticket note_ticket%rowtype; 
     v_note_ticket hdbk.dtype.t_id; 
   begin
         
-    r_client := blng.blng_api.client_get_info_r(p_email => p_client);
-    if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
+    r_usr := blng.blng_api.usr_get_info_r(p_email => p_user);
+    if r_usr.id <> r_note.user_oid then raise NO_DATA_FOUND; end if;
     open v_results FOR
-      select id note_id, name, guid from hdbk.note where amnd_state = 'A' and client_oid = r_client.id order by id desc;
+      select id note_id, name, guid from hdbk.note where amnd_state = 'A' and user_oid = r_usr.id order by id desc;
     return v_results;  
   exception when others then
     open v_results FOR
@@ -640,20 +640,20 @@ end;
   end;
 
   function note_ticket_list(p_note in hdbk.dtype.t_id default null,
-                            p_client in hdbk.dtype.t_name default null)
+                            p_user in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
-    r_client blng.client%rowtype; 
+    r_usr blng.usr%rowtype; 
     r_note note%rowtype; 
     r_note_ticket note_ticket%rowtype; 
     v_note_ticket hdbk.dtype.t_id; 
   begin
         
     r_note := hdbk.hdbk_api.note_get_info_r(p_id => p_note);
-    r_client := blng.blng_api.client_get_info_r(p_email => p_client);
+    r_usr := blng.blng_api.usr_get_info_r(p_email => p_user);
     
-    if r_client.id <> r_note.client_oid then raise NO_DATA_FOUND; end if;
+    if r_usr.id <> r_note.user_oid then raise NO_DATA_FOUND; end if;
     open v_results FOR
       select note.id note_id, note_ticket.id note_ticket_id, note.name,note.guid, note_ticket.tickets from hdbk.note, hdbk.note_ticket
       where note.id = p_note
@@ -673,7 +673,7 @@ end;
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
-    r_client blng.client%rowtype; 
+    r_usr blng.usr%rowtype; 
     r_note note%rowtype; 
     r_note_ticket note_ticket%rowtype; 
     v_note_ticket hdbk.dtype.t_id; 

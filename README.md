@@ -3,7 +3,10 @@
 
 
 *description:*  
-***\_add insert row into table ***. could return id of new row. ***\_edit update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api. ***\_get\_info return data from table *** with format SYS\_REFCURSOR. ***\_get\_info\_r return one row from table *** with format ***%rowtype.  
+*****\_add**: insert row into table ***. could return id of new row.  
+*****\_edit**: update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api.  
+*****\_get\_info**: return data from table *** with format SYS\_REFCURSOR.  
+*****\_get\_info\_r**: return one row from table *** with format ***%rowtype.  
 
 
 
@@ -89,7 +92,7 @@ calls from credit\_online and close loan delay
 
 - *procedure* **blng.core.delay\_expire**  
 *description:*  
-calls from scheduler at 00:00 UTC. get list of expired delays, then block credit limit  
+calls from scheduler at 00.00 UTC. get list of expired delays, then block credit limit  
 
 
 
@@ -118,11 +121,11 @@ get back money and erase transactions by p\_document id
 
 
 
-- *function* **blng.core.pay\_contract\_by\_client**  
+- *function* **blng.core.pay\_contract\_by\_user**  
 *description:*  
-get contract which client can spend money documents like increase credit limit or loan days approve immediately docs like buy or cash\_in push to credit/debit\_online accounts.  
+get contract which user can spend money documents like increase credit limit or loan days approve immediately docs like buy or cash\_in push to credit/debit\_online accounts.  
 *parameters:*  
-**p\_client**: client id  
+**p\_user**: user id  
 *return:*  
 contract id  
 
@@ -134,7 +137,7 @@ contract id
 
 - *function* **blng.fwdr.get\_tenant**  
 *description:*  
-return tenant. tenant is contract identifire. tenant using for checking is client registered in the system.  
+return tenant. tenant is contract identifire. tenant using for checking is user registered in the system.  
 *parameters:*  
 **p\_email**: user email  
 *return:*  
@@ -142,19 +145,30 @@ contract identifire
 
 
 
-- *function* **blng.fwdr.company\_insteadof\_client**  
+- *function* **blng.fwdr.client\_insteadof\_user**  
 *description:*  
-return id of client with max id across company  
+return id of user with max id across client  
 *parameters:*  
-**p\_company**: company id where we looking for client  
+**p\_client**: client id where we looking for user  
 *return:*  
-client id  
+user id  
 
 
 
 - *function* **blng.fwdr.balance**  
 *description:*  
-return info of contract for show balance to the client. function return this filds **DEPOSIT:** self money **LOAN:** money thatspent from credit limit **CREDIT\_LIMIT:** credit limit **UNUSED\_CREDIT\_LIMIT:** credit limit - loan **AVAILABLE:** credit limit + deposit - loan. if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ. **BLOCK\_DATE:** expiration date of the next bill **UNBLOCK\_SUM:** sum next neares bills (with one day) + all bills before current day **NEAR\_UNBLOCK\_SUM:** unblock sum + bills for 2 next days after after first bill **EXPIRY\_DATE:** date of first expired bill **EXPIRY\_SUM:** summ of all expired bills **STATUS:** if bills are expired and contract blocked then 'BLOCK', if bills are expired and contract unblocked then 'UNBLOCK', else 'ACTIVE'  
+return info of contract for show balance to the client. function return this filds  
+**DEPOSIT**: self money  
+**LOAN**: money thatspent from credit limit  
+**CREDIT\_LIMIT**: credit limit  
+**UNUSED\_CREDIT\_LIMIT**: credit limit - abs(loan)  
+**AVAILABLE**: credit limit + deposit - abs(loan). if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ.  
+**BLOCK\_DATE**: expiration date of the next bill  
+**UNBLOCK\_SUM**: sum next neares bills (with one day) + all bills before current day  
+**NEAR\_UNBLOCK\_SUM**: unblock sum + bills for 2 next days after after first bill  
+**EXPIRY\_DATE**: date of first expired bill  
+**EXPIRY\_SUM**: summ of all expired bills  
+**STATUS**: if bills are expired and contract blocked then 'BLOCK', if bills are expired and contract unblocked then 'UNBLOCK', else 'ACTIVE'  
 *parameters:*  
 **P\_TENANT\_ID**: contract id  
 *return:*  
@@ -168,13 +182,13 @@ return info for user
 *parameters:*  
 **p\_user**: email  
 *return:*  
-SYS\_REFCURSOR[CLIENT\_ID, LAST\_NAME, FIRST\_NAME, EMAIL, PHONE, --TENANT\_ID,BIRTH\_DATE, GENDER, NATIONALITY, NLS\_NATIONALITY, DOC\_ID, DOC\_EXPIRY\_DATE,DOC\_NUMBER, DOC\_LAST\_NAME, DOC\_FIRST\_NAME, DOC\_OWNER, DOC\_GENDER,DOC\_BIRTH\_DATE, DOC\_NATIONALITY, DOC\_NLS\_NATIONALITY, DOC\_PHONE, COMPANY\_NAME,is\_tester]  
+SYS\_REFCURSOR[USER\_ID, LAST\_NAME, FIRST\_NAME, EMAIL, PHONE, --TENANT\_ID,BIRTH\_DATE, GENDER, NATIONALITY, NLS\_NATIONALITY, DOC\_ID, DOC\_EXPIRY\_DATE,DOC\_NUMBER, DOC\_LAST\_NAME, DOC\_FIRST\_NAME, DOC\_OWNER, DOC\_GENDER,DOC\_BIRTH\_DATE, DOC\_NATIONALITY, DOC\_NLS\_NATIONALITY, DOC\_PHONE, client\_id, client\_NAME,is\_tester]  
 
 
 
-- *function* **blng.fwdr.client\_data\_edit**  
+- *function* **blng.fwdr.user\_data\_edit**  
 *description:*  
-update client documents. if success return true else false  
+update user documents. if success return true else false  
 *parameters:*  
 **p\_data**: data for update. format json[email, first\_name, last\_name, gender, birth\_date, nationality, phone, docs[doc\_expiry\_date, doc\_gender, doc\_first\_name, doc\_last\_name, doc\_number, doc\_owner, doc\_id, doc\_nationality, doc\_birth\_date,doc\_phone]]  
 *return:*  
@@ -184,7 +198,7 @@ SYS\_REFCURSOR[res:true/false]
 
 - *function* **blng.fwdr.statement**  
 *description:*  
-return list of transactions between dates in client timezone format  
+return list of transactions between dates in user timezone format  
 *parameters:*  
 **p\_email**: user email which request statement  
 **p\_row\_count**: count rows per page  
@@ -198,7 +212,7 @@ SYS\_REFCURSOR[rn(row\_number),all v\_statemen filds + amount\_cash\_in,amount\_
 
 - *function* **blng.fwdr.statement**  
 *description:*  
-return list of transactions in client timezone format by pages  
+return list of transactions in user timezone format by pages  
 *parameters:*  
 **p\_email**: user email which request statement  
 **p\_row\_count**: count rows per page  
@@ -231,17 +245,17 @@ SYS\_REFCURSOR[all v\_statemen fields]
 
 - *function* **blng.fwdr.contract\_get**  
 *description:*  
-return list of contract with company  
+return list of contract with client  
 *parameters:*  
 **p\_contract**: contract id  
 *return:*  
-SYS\_REFCURSOR[COMPANY\_ID, CONTRACT\_ID, COMPANY\_NAME, CONTRACT\_NUMBER]  
+SYS\_REFCURSOR[client\_ID, CONTRACT\_ID, client\_NAME, CONTRACT\_NUMBER]  
 
 
 
 - *function* **blng.fwdr.check\_tenant**  
 *description:*  
-return tenant. tenant is contract identifire. tenant using for checking is client registered in the system. if user dosnt exist then return NULL  
+return tenant. tenant is contract identifire. tenant using for checking is user registered in the system. if user dosnt exist then return NULL  
 *parameters:*  
 **p\_email**: user email  
 *return:*  
@@ -277,7 +291,7 @@ res[SUCCESS/ERROR/NO\_DATA\_FOUND]
 
 - *function* **blng.fwdr.client\_list()**  
 *description:*  
-return list of clients(company now).  
+return list of clients.  
 *return:*  
 on success SYS\_REFCURSOR[client\_id,name].on error SYS\_REFCURSOR[res]. res=ERROR  
 
@@ -285,7 +299,7 @@ on success SYS\_REFCURSOR[client\_id,name].on error SYS\_REFCURSOR[res]. res=ERR
 
 - *function* **blng.fwdr.client\_add**  
 *description:*  
-create client(company now) and return info about this new client(company now).  
+create client and return info about this new client.  
 *parameters:*  
 **p\_name**: name of client  
 *return:*  
@@ -295,11 +309,11 @@ on success SYS\_REFCURSOR[res,client\_id,name]on error SYS\_REFCURSOR[res]. res=
 
 - *function* **blng.fwdr.contract\_list**  
 *description:*  
-return list of contracts by client id (company now)  
+return list of contracts by client id  
 *parameters:*  
 **p\_client**: id of client  
 *return:*  
-on success SYS\_REFCURSOR[CONTRACT\_ID, TENANT\_ID, IS\_BLOCKED, CONTRACT\_NAME,CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, CONTACT\_PHONE]on error SYS\_REFCURSOR[res]. res=ERROR  
+on success SYS\_REFCURSOR[client\_id, CONTRACT\_ID, TENANT\_ID, IS\_BLOCKED, CONTRACT\_NAME,CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, contract\_number,CONTACT\_PHONE]on error SYS\_REFCURSOR[res]. res=ERROR  
 
 
 
@@ -310,7 +324,7 @@ add contract for client and return info about this new contract.
 **p\_client**: id of client  
 **p\_data**: json[CONTRACT\_NAME, CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, CONTACT\_PHONE]  
 *return:*  
-on success SYS\_REFCURSOR[res, CONTRACT\_ID, TENANT\_ID, IS\_BLOCKED, CONTRACT\_NAME,CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, CONTACT\_PHONEon error SYS\_REFCURSOR[res]. res=ERROR  
+on success SYS\_REFCURSOR[client\_id, CONTRACT\_ID, TENANT\_ID, IS\_BLOCKED, CONTRACT\_NAME, contract\_number,CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, CONTACT\_PHONEon error SYS\_REFCURSOR[res]. res=ERROR  
 
 
 
@@ -321,186 +335,7 @@ update contract info for client and return info about this new contract.
 **p\_contract**: id of contract  
 **p\_data**: json[CONTRACT\_NAME, CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, CONTACT\_PHONE]  
 *return:*  
-on success SYS\_REFCURSOR[res, CONTRACT\_ID, TENANT\_ID, IS\_BLOCKED, CONTRACT\_NAME,CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME, CONTACT\_PHONEon error SYS\_REFCURSOR[res]. res=ERROR  
-
-
-
-## dict.dict\_api ##
-
-
-
-*description:*  
-***\_add insert row into table ***. could return id of new row. ***\_edit update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api. ***\_get\_info return data from table *** with format SYS\_REFCURSOR. ***\_get\_info\_r return one row from table *** with format ***%rowtype.  
-
-
-
-## dict.DTYPE ##
-
-
-
-- *data\_type* **dict.DTYPE.t\_clob**  
-*description:*  
-for id. integer/number(18,0) for money. float/number(20,2) for 1 letter statuses. char(1) for long messages less 4000 chars. string(4000)/varchar2(4000) for client names or geo names less 255 chars. string(255)/varchar2(255) for short codes less 10 chars. string(10)/varchar2(10) for long codes less 50 chars. string(50)/varchar2(50) for boolean values. for date with time values. for big data clob.  
-
-
-
-- *exception variable* **dict.DTYPE.INVALID\_OPERATION**  
-*description:*  
--6502 -6502 -20000 -20001 -20002 -20003 -20004 -20005  
-
-
-
-## dict.fwdr ##
-
-
-
-- *function* **dict.fwdr.get\_utc\_offset**  
-*description:*  
-list of airlines with utc\_offset  
-*return:*  
-SYS\_REFCURSOR[iata,utc\_offset]  
-
-
-
-- *function* **dict.fwdr.geo\_get\_list**  
-*description:*  
-list of airports and city of airport  
-*return:*  
-SYS\_REFCURSOR[iata,name,NLS\_NAME,city\_iata,city\_name,city\_nls\_name]  
-
-
-
-- *function* **dict.fwdr.airline\_get\_list**  
-*description:*  
-list of airlines names and iata codes  
-*return:*  
-SYS\_REFCURSOR[iata,name,nls\_name]  
-
-
-
-- *function* **dict.fwdr.airplane\_get\_list**  
-*description:*  
-list of airplane names and iata codes  
-*return:*  
-SYS\_REFCURSOR[iata,name,nls\_name]  
-
-
-
-- *function* **dict.fwdr.airline\_commission\_list**  
-*description:*  
-list of airlines with flag commission(means: is airline have rules for calc commission).  
-*return:*  
-SYS\_REFCURSOR[airline\_oid,name,IATA,commission[Y/N]]  
-
-
-
-- *function* **dict.fwdr.get\_full**  
-*description:*  
-return all from v\_markup  
-*return:*  
-SYS\_REFCURSOR  
-
-
-
-- *function* **dict.fwdr.markup\_get**  
-*description:*  
-when p\_version is null then return all active rows. if not null then get all active and deleted rows that changed after p\_version id  
-*parameters:*  
-**p\_version**: id  
-*return:*  
-SYS\_REFCURSOR[ID, TENANT\_ID, VALIDATING\_CARRIER, CLASS\_OF\_SERVICE,SEGMENT, V\_FROM, V\_TO, ABSOLUT\_AMOUNT, PERCENT\_AMOUNT, MIN\_ABSOLUT, VERSION, IS\_ACTIVE, markup\_type]  
-
-
-
-## DICT.LOG\_API ##
-
-
-
-- *procedure* **DICT.LOG\_API.log\_add**  
-*description:*  
-procedure for write log. this procedure make autonomous\_transaction commits. its mean independent of other function commit/rollback and not affect to other function commit/rollback  
-*parameters:*  
-**P\_PROC\_NAME**: name of process  
-**P\_MSG**: message that wont be written to log  
-**P\_MSG\_TYPE**: Information/Error or etc. default Information  
-**P\_INFO**: some more details  
-**P\_ALERT\_LEVEL**: 0..10. priority level, default 0  
-
-
-
-## erp.erp\_api ##
-
-
-
-*description:*  
-***\_add insert row into table ***. could return id of new row. ***\_edit update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api. ***\_get\_info return data from table *** with format SYS\_REFCURSOR. ***\_get\_info\_r return one row from table *** with format ***%rowtype.  
-
-
-
-## erp.gate ##
-
-
-
-- *function* **erp.gate.get\_cursor**  
-*description:*  
-test function. return cursor with rowcount <= p\_rowcount  
-*parameters:*  
-**p\_rowcount**: count rows in response  
-*return:*  
-SYS\_REFCURSOR[n,date\_to,str,int,double]. table with this columns.  
-
-
-
-- *procedure* **erp.gate.run\_proc**  
-*description:*  
-test procedure. do nothing, but return string "input: p\_rowcount" in out parameter o\_result.  
-*parameters:*  
-**p\_rowcount**: its just parameter for input  
-**o\_result**: string out parameter for return "input: p\_rowcount"  
-
-
-
-- *function* **erp.gate.pdf\_printer\_add**  
-*description:*  
-add new task for pdf printer  
-*parameters:*  
-**p\_payload**: json with booking data  
-**p\_filename**: name of generated file  
-**o\_id**: out parameter return row id  
-*return:*  
-row id  
-
-
-
-- *procedure* **erp.gate.pdf\_printer\_edit**  
-*description:*  
-edit task for pdf printer  
-*parameters:*  
-**p\_id**: task id  
-**p\_payload**: json with booking data  
-**p\_status**: wich status you want to set: [N]ew,[E]rror,[D]one  
-**p\_filename**: name of generated file  
-
-
-
-- *procedure* **erp.gate.pdf\_printer\_get**  
-*description:*  
-return data for task  
-*parameters:*  
-**p\_id**: task id  
-**o\_payload**: out parameter for return json with booking data  
-**o\_status**: out parameter for return status of task  
-**o\_filename**: out parameter for return file name  
-
-
-
-- *function* **erp.gate.check\_user**  
-*description:*  
-return user\_id. if user dosnt exist then return NULL  
-*parameters:*  
-**p\_email**: user email  
-*return:*  
-user identifire  
+on success SYS\_REFCURSOR[client\_id, CONTRACT\_ID, TENANT\_ID, IS\_BLOCKED, CONTRACT\_NAME,CREDIT\_LIMIT, DELAY\_DAYS, MAX\_CREDIT, UTC\_OFFSET, CONTACT\_NAME,contract\_number, CONTACT\_PHONEon error SYS\_REFCURSOR[res]. res=ERROR  
 
 
 
@@ -519,19 +354,121 @@ day of pay
 
 
 
-## NTG.DTYPE ##
+## HDBK.DTYPE ##
 
 
 
-- *data\_type* **NTG.DTYPE.t\_clob**  
+- *data\_type* **HDBK.DTYPE.t\_id**  
 *description:*  
-for id. integer/number(18,0) for money. float/number(20,2) for 1 letter statuses. char(1) for long messages less 4000 chars. string(4000)/varchar2(4000) for client names or geo names less 255 chars. string(255)/varchar2(255) for short codes less 10 chars. string(10)/varchar2(10) for long codes less 50 chars. string(50)/varchar2(50) for boolean values. for date with time values. for big data clob.  
+for id. integer/number(18,0)  
 
 
 
-- *exception variable* **NTG.DTYPE.DEAD\_LOCK**  
+- *data\_type* **HDBK.DTYPE.t\_amount**  
 *description:*  
--6502 -6502 -20000 -20001 -20002 -20003 -20004 -20005 -60  
+for money. float/number(20,2)  
+
+
+
+- *data\_type* **HDBK.DTYPE.t\_status**  
+*description:*  
+for 1 letter statuses. char(1)  
+
+
+
+- *data\_type* **HDBK.DTYPE.t\_msg**  
+*description:*  
+for long messages less 4000 chars. string(4000)/varchar2(4000)  
+
+
+
+- *data\_type* **HDBK.DTYPE.t\_name**  
+*description:*  
+for client names or geo names less 255 chars. string(255)/varchar2(255)  
+
+
+
+- *data\_type* **HDBK.DTYPE.t\_code**  
+*description:*  
+for short codes less 10 chars. string(10)/varchar2(10)  
+
+
+
+- *data\_type* **HDBK.DTYPE.t\_long\_code**  
+*description:*  
+for long codes less 50 chars. string(50)/varchar2(50)  
+
+
+
+- *data\_type* **HDBK.DTYPE.t\_bool**  
+*description:*  
+for boolean values.  
+
+
+
+- *data\_type* **HDBK.DTYPE.t\_date**  
+*description:*  
+for date with time values.  
+
+
+
+- *data\_type* **HDBK.DTYPE.t\_clob**  
+*description:*  
+for big data clob.  
+
+
+
+- *exception variable* **HDBK.DTYPE.INVALID\_PARAMETER**  
+*description:*  
+-6502  
+
+
+
+- *exception variable* **HDBK.DTYPE.max\_loan\_transaction\_block**  
+*description:*  
+-6502  
+
+
+
+- *exception variable* **HDBK.DTYPE.doc\_waiting**  
+*description:*  
+-20000  
+
+
+
+- *exception variable* **HDBK.DTYPE.insufficient\_funds**  
+*description:*  
+-20001  
+
+
+
+- *exception variable* **HDBK.DTYPE.api\_error**  
+*description:*  
+-20002  
+
+
+
+- *exception variable* **HDBK.DTYPE.VALUE\_ERROR**  
+*description:*  
+-20003  
+
+
+
+- *exception variable* **HDBK.DTYPE.EXIT\_ALERT**  
+*description:*  
+-20004  
+
+
+
+- *exception variable* **HDBK.DTYPE.INVALID\_OPERATION**  
+*description:*  
+-20005  
+
+
+
+- *exception variable* **HDBK.DTYPE.DEAD\_LOCK**  
+*description:*  
+-60  
 
 
 
@@ -573,7 +510,7 @@ SYS\_REFCURSOR[iata,name,nls\_name]
 
 - *function* **hdbk.fwdr.airline\_commission\_list**  
 *description:*  
-list of airlines with flag commission(means: is airline have rules for calc commission).  
+list of airlines with flag commission(it means, is airline have rules for calc commission).  
 *return:*  
 SYS\_REFCURSOR[airline\_oid,name,IATA,commission[Y/N]]  
 
@@ -612,7 +549,10 @@ SYS\_REFCURSOR[code,rate,version,is\_active(Y,N)]
 
 
 *description:*  
-***\_add insert row into table ***. could return id of new row. ***\_edit update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api. ***\_get\_info return data from table *** with format SYS\_REFCURSOR. ***\_get\_info\_r return one row from table *** with format ***%rowtype.  
+*****\_add**: insert row into table ***. could return id of new row.  
+*****\_edit**: update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api.  
+*****\_get\_info**: return data from table *** with format SYS\_REFCURSOR.  
+*****\_get\_info\_r**: return one row from table *** with format ***%rowtype.  
 
 
 
@@ -629,113 +569,6 @@ procedure for write log. this procedure make autonomous\_transaction commits. it
 **P\_MSG\_TYPE**: Information/Error or etc. default Information  
 **P\_INFO**: some more details  
 **P\_ALERT\_LEVEL**: 0..10. priority level, default 0  
-
-
-
-##  ##
-
-
-
-## NTG.DTYPE ##
-
-
-
-- *data\_type* **NTG.DTYPE.t\_clob**  
-*description:*  
-for id. integer/number(18,0) for money. float/number(20,2) for 1 letter statuses. char(1) for long messages less 4000 chars. string(4000)/varchar2(4000) for client names or geo names less 255 chars. string(255)/varchar2(255) for short codes less 10 chars. string(10)/varchar2(10) for long codes less 50 chars. string(50)/varchar2(50) for boolean values. for date with time values. for big data clob.  
-
-
-
-- *exception variable* **NTG.DTYPE.INVALID\_OPERATION**  
-*description:*  
--6502 -6502 -20000 -20001 -20002 -20003 -20004 -20005  
-
-
-
-## hdbk.fwdr ##
-
-
-
-- *function* **hdbk.fwdr.get\_utc\_offset**  
-*description:*  
-list of airlines with utc\_offset  
-*return:*  
-SYS\_REFCURSOR[iata,utc\_offset]  
-
-
-
-- *function* **hdbk.fwdr.geo\_get\_list**  
-*description:*  
-list of airports and city of airport  
-*return:*  
-SYS\_REFCURSOR[iata,name,NLS\_NAME,city\_iata,city\_name,city\_nls\_name]  
-
-
-
-- *function* **hdbk.fwdr.airline\_get\_list**  
-*description:*  
-list of airlines names and iata codes  
-*return:*  
-SYS\_REFCURSOR[iata,name,nls\_name]  
-
-
-
-- *function* **hdbk.fwdr.airplane\_get\_list**  
-*description:*  
-list of airplane names and iata codes  
-*return:*  
-SYS\_REFCURSOR[iata,name,nls\_name]  
-
-
-
-- *function* **hdbk.fwdr.airline\_commission\_list**  
-*description:*  
-list of airlines with flag commission(means: is airline have rules for calc commission).  
-*return:*  
-SYS\_REFCURSOR[airline\_oid,name,IATA,commission[Y/N]]  
-
-
-
-- *function* **hdbk.fwdr.get\_full**  
-*description:*  
-return all from v\_markup  
-*return:*  
-SYS\_REFCURSOR  
-
-
-
-- *function* **hdbk.fwdr.markup\_get**  
-*description:*  
-when p\_version is null then return all active rows. if not null then get all active and deleted rows that changed after p\_version id  
-*parameters:*  
-**p\_version**: id  
-*return:*  
-SYS\_REFCURSOR[ID, TENANT\_ID, VALIDATING\_CARRIER, CLASS\_OF\_SERVICE,SEGMENT, V\_FROM, V\_TO, ABSOLUT\_AMOUNT, PERCENT\_AMOUNT, MIN\_ABSOLUT, VERSION, IS\_ACTIVE, markup\_type]  
-
-
-
-## NTG.LOG\_API ##
-
-
-
-- *procedure* **NTG.LOG\_API.log\_add**  
-*description:*  
-procedure for write log. this procedure make autonomous\_transaction commits. its mean independent of other function commit/rollback and not affect to other function commit/rollback  
-*parameters:*  
-**P\_PROC\_NAME**: name of process  
-**P\_MSG**: message that wont be written to log  
-**P\_MSG\_TYPE**: Information/Error or etc. default Information  
-**P\_INFO**: some more details  
-**P\_ALERT\_LEVEL**: 0..10. priority level, default 0  
-
-
-
-## hdbk.hdbk\_api ##
-
-
-
-*description:*  
-***\_add insert row into table ***. could return id of new row. ***\_edit update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api. ***\_get\_info return data from table *** with format SYS\_REFCURSOR. ***\_get\_info\_r return one row from table *** with format ***%rowtype.  
 
 
 
@@ -867,11 +700,11 @@ calculate commission for pnr\_id
 
 - *function* **ord.fwdr.order\_number\_generate**  
 *description:*  
-generate order number as last number + 1 by client id  
+generate order number as last number + 1 by user id  
 *parameters:*  
-**p\_client**: client id.  
+**p\_user**: user id.  
 *return:*  
-string like 0012410032, where 1241 - client id and 32 is a counter of order  
+string like 0012410032, where 1241 - user id and 32 is a counter of order  
 
 
 
@@ -911,10 +744,11 @@ SYS\_REFCURSOR[fields from v\_rule view]
 
 - *procedure* **ord.fwdr.avia\_create**  
 *description:*  
-procedure create item\_avia row only. it cant update item  
+procedure create item\_avia row only. it cant update item. add PNR info like who, where, when  
 *parameters:*  
 **p\_pnr\_id**: id from NQT. search perform by this id  
 **p\_user\_id**: user identifire. at this moment email  
+**p\_itinerary**: PNR info like who, where, when  
 
 
 
@@ -1005,11 +839,27 @@ SYS\_REFCURSOR[ID, TEMPLATE\_TYPE\_CODE, TEMPLATE\_VALUE]
 
 
 
+- *function* **ord.fwdr.task\_get**  
+*description:*  
+return task for 1c  
+*return:*  
+SYS\_REFCURSOR[email, TASK\_ID, CONTRACT\_ID, DESCRIPTION, QUANTITY, PRICE, VAT]  
+
+
+
+- *function* **ord.fwdr.task\_close**  
+*description:*  
+mark task as [C]losed  
+*parameters:*  
+**p\_task**: task id  
+**p\_number\_1c**: 1c bill number  
+*return:*  
+SYS\_REFCURSOR[res]  
+
+
+
 ## TODOs: ##  
 1. there must be check for users with ISSUES permission  
-2. there must be check for users with ISSUES permission  
-3. there must be check for users with ISSUES permission  
-4. there must be check for users with ISSUES permission  
 
 
 ## ORD.ORD\_API ##
@@ -1017,7 +867,10 @@ SYS\_REFCURSOR[ID, TEMPLATE\_TYPE\_CODE, TEMPLATE\_VALUE]
 
 
 *description:*  
-***\_add insert row into table ***. could return id of new row. ***\_edit update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api. ***\_get\_info return data from table *** with format SYS\_REFCURSOR. ***\_get\_info\_r return one row from table *** with format ***%rowtype.  
+*****\_add**: insert row into table ***. could return id of new row.  
+*****\_edit**: update row into table ***. object have always one id. first, old data with amnd\_state = [I]nactive inserted as row with link to new row(amnd\_prev). new data just update object row, amnd\_date updates to sysdate and amnd\_user to current user who called api.  
+*****\_get\_info**: return data from table *** with format SYS\_REFCURSOR.  
+*****\_get\_info\_r**: return one row from table *** with format ***%rowtype.  
 
 
 
