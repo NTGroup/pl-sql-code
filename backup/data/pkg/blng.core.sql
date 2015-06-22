@@ -364,6 +364,7 @@ end core;
     r_v_delay blng.v_delay%rowtype;
     r_bill_pay ord.bill%rowtype;
     v_bill_buy hdbk.dtype.t_id;
+    v_delay hdbk.dtype.t_id;
     r_contract_info blng.v_account%rowtype;
     v_msg hdbk.dtype.t_msg;
   begin
@@ -399,7 +400,7 @@ end core;
 
  --     hdbk.log_api.LOG_ADD(p_proc_name=>'pay_bill', p_msg_type=>'Warning', P_MSG => '9',p_info => 'p_doc=' || p_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
 
-    BLNG_API.delay_add( P_CONTRACT => p_doc.contract_oid,
+    v_delay:=BLNG_API.delay_add( P_CONTRACT => p_doc.contract_oid,
                       p_date_to => null,
                       P_AMOUNT => abs( p_doc.amount),
                       P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'ci'),
@@ -531,6 +532,7 @@ end core;
     v_amount hdbk.dtype.t_amount;
     v_settlement_amount hdbk.dtype.t_amount;
     v_delay_amount  hdbk.dtype.t_amount;
+    v_delay hdbk.dtype.t_id;
 
     r_contract_info blng.v_account%rowtype;
   begin
@@ -605,7 +607,7 @@ end core;
         if v_delay_amount != 0 then
           r_contract_info := blng.fwdr.v_account_get_info_r(p_contract => r_debit_online.contract_oid);
           if r_contract_info.delay_days = 0 or r_contract_info.delay_days is null then r_contract_info.delay_days:= g_delay_days; end if;
-          BLNG_API.delay_add( P_CONTRACT => r_debit_online.contract_oid,
+          v_delay:=BLNG_API.delay_add( P_CONTRACT => r_debit_online.contract_oid,
 --                              p_date_to => trunc(sysdate)+r_contract_info.delay_days,
 -- add 1 day to let client pay bill
                               p_date_to => hdbk.core.delay_payday(P_DELAY => r_contract_info.delay_days,p_contract => r_debit_online.contract_oid) + 1,
@@ -728,6 +730,7 @@ end core;
     v_amount hdbk.dtype.t_amount;
     v_settlement_amount hdbk.dtype.t_amount;
     v_delay_amount  hdbk.dtype.t_amount;
+    v_delay hdbk.dtype.t_id;
 
     r_contract_info blng.v_account%rowtype;
   begin
@@ -805,7 +808,7 @@ end core;
         if v_delay_amount != 0 then
           r_contract_info := blng.fwdr.v_account_get_info_r(p_contract => r_debit_online.contract_oid);
           if r_contract_info.delay_days = 0 or r_contract_info.delay_days is null then r_contract_info.delay_days:= g_delay_days; end if;
-          BLNG_API.delay_add( P_CONTRACT => r_debit_online.contract_oid,
+          v_delay:=BLNG_API.delay_add( P_CONTRACT => r_debit_online.contract_oid,
 --                              p_date_to => trunc(sysdate)+r_contract_info.delay_days,
 -- add 1 day to let client pay bill
                               p_date_to => hdbk.core.delay_payday(P_DELAY => r_contract_info.delay_days,p_contract => r_debit_online.contract_oid) + 1,
@@ -846,6 +849,7 @@ null;
     r_account blng.account%rowtype;
     v_transaction hdbk.dtype.t_id;
     v_delay_id  hdbk.dtype.t_id;
+    v_delay hdbk.dtype.t_id;
   begin
   -- concept of delay is a tree. root as loan amount and branches points is a credit amounts that payed that loan
   --     *      for example 100$ loan and 3 credit amounts: 20$ + 30$ + 50$. so, amount_have is a total of credit amounts, 
@@ -880,7 +884,7 @@ null;
         v_next_delay_date:= i_delay.date_to;
         if v_amount = 0 then exit; end if;
         if v_amount < abs(i_delay.amount_need) then
-          BLNG_API.delay_add( P_CONTRACT => p_contract,
+         v_delay:= BLNG_API.delay_add( P_CONTRACT => p_contract,
                               p_date_to => null,
                               P_AMOUNT => abs(v_amount),
                               P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'ci'),
@@ -890,7 +894,7 @@ null;
                             );        
           exit;
         else
-          BLNG_API.delay_add( P_CONTRACT => p_contract,
+         v_delay:= BLNG_API.delay_add( P_CONTRACT => p_contract,
                               p_date_to => null,
                               P_AMOUNT => abs(i_delay.amount_need),
                               P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'ci'),
@@ -1047,6 +1051,7 @@ null;
   is
     r_account blng.account%rowtype;
     v_transaction hdbk.dtype.t_id;
+    v_delay hdbk.dtype.t_id;
   begin
 -- executed by operators. can unblock contract for time, by adding unblock event/delay
     r_account := blng.blng_api.account_get_info_r(p_contract => p_contract, p_code => 'clb');
@@ -1055,7 +1060,7 @@ null;
     
       v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_AMOUNT => -r_account.amount,
         P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'clu'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
-      BLNG_API.delay_add(P_CONTRACT => p_contract, P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'clu'),P_PRIORITY => 20,
+      v_delay:=BLNG_API.delay_add(P_CONTRACT => p_contract, P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'clu'),P_PRIORITY => 20,
         p_transaction=>v_transaction,p_date_to => trunc(sysdate)+p_days);
         
     --end if;

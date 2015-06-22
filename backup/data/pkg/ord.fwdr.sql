@@ -298,7 +298,7 @@ $obj_return: SYS_REFCURSOR[res:true/false]
 
 /*
 $obj_type: function
-$obj_name: rule_edit
+$obj_name: rule_manage
 $obj_desc: update commission rules or create new commission rules. if success return true else false.
 $obj_desc: if status equals [C]lose or [D]elete then delete commission rule.
 $obj_param: p_data: data for update. format json[AIRLINE_ID, CONTRACT_ID, RULE_ID, 
@@ -308,7 +308,7 @@ $obj_param: p_data: TEMPLATE_NAME_NLS, TEMPLATE_VALUE]
 $obj_return: SYS_REFCURSOR[res:true/false]
 */
 
-  function rule_edit(p_iata in hdbk.dtype.t_code, p_tenant_id in hdbk.dtype.t_id, p_data in hdbk.dtype.t_clob)
+  function rule_manage(p_iata in hdbk.dtype.t_code, p_tenant_id in hdbk.dtype.t_id, p_data in hdbk.dtype.t_clob)
   return SYS_REFCURSOR;
   
 /*
@@ -1359,7 +1359,7 @@ END FWDR;
   end;
 
 
-  function rule_edit(p_iata in hdbk.dtype.t_code, p_tenant_id in hdbk.dtype.t_id, p_data in hdbk.dtype.t_clob)
+  function rule_manage(p_iata in hdbk.dtype.t_code, p_tenant_id in hdbk.dtype.t_id, p_data in hdbk.dtype.t_clob)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -1371,9 +1371,11 @@ END FWDR;
     v_commission hdbk.dtype.t_id:=null;
     v_commission_details hdbk.dtype.t_id:=null;
   begin
-    hdbk.log_api.LOG_ADD(p_proc_name=>'rule_edit', p_msg_type=>'OK',
+    hdbk.log_api.LOG_ADD(p_proc_name=>'rule_manage', p_msg_type=>'OK',
       P_MSG => p_data,P_ALERT_LEVEL=>10);
-     
+
+    if p_tenant_id is null then raise VALUE_ERROR; end if;
+         
     v_airline:=hdbk.hdbk_api.airline_get_id(p_iata => p_iata);    
   
     for i in (
@@ -1474,26 +1476,35 @@ END FWDR;
     
     commit;
       open v_results for
-        select 'true' res from dual;
+        select 'SUCCESS' res from dual;
       return v_results;
   exception 
     when NO_DATA_FOUND then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_edit', p_msg_type=>'NO_DATA_FOUND',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_manage', p_msg_type=>'NO_DATA_FOUND',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,
           P_ALERT_LEVEL=>10);
 
       open v_results for
-        select 'false' res from dual;
+        select 'NO_DATA_FOUND' res from dual;
+      return v_results;
+    when VALUE_ERROR then
+      ROLLBACK;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_manage', p_msg_type=>'VALUE_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,
+          P_ALERT_LEVEL=>10);
+
+      open v_results for
+        select 'ERROR' res from dual;
       return v_results;
     when others then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_edit', p_msg_type=>'UNHANDLED_ERROR', 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_manage', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
         P_ALERT_LEVEL=>10);      
 
       open v_results for
-        select 'false' res from dual;
+        select 'ERROR' res from dual;
       return v_results;
   end;
 
@@ -2011,6 +2022,7 @@ $TODO: there must be check for users with ISSUES permission
         and item_avia.id = ticket.item_avia_oid
         and bill2task.task_oid = v_task
         and ticket.service_fee_amount is not null
+        and ticket.service_fee_amount <> 0
         )
       ;    
 

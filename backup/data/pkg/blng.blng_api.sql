@@ -346,7 +346,7 @@ $obj_param: p_contract: contract id
   return SYS_REFCURSOR;
 
 
-  procedure delay_add( p_contract in hdbk.dtype.t_id default null,
+  function delay_add( p_contract in hdbk.dtype.t_id default null,
                       p_amount in hdbk.dtype.t_amount default null,
                       p_transaction in hdbk.dtype.t_id default null,
                       p_date_to in hdbk.dtype.t_date default null,
@@ -354,7 +354,8 @@ $obj_param: p_contract: contract id
                       p_status in hdbk.dtype.t_status default null,
                       p_priority in hdbk.dtype.t_id default null,
                       p_parent_id in hdbk.dtype.t_id default null
-                    );
+                    )
+  return hdbk.dtype.t_id;
 
   procedure delay_edit ( p_id in hdbk.dtype.t_id default null,
                         p_status in hdbk.dtype.t_status default null,
@@ -383,11 +384,12 @@ $obj_param: p_contract: contract id
                           )
   return blng.delay%rowtype;
   
-  procedure domain_add( p_name in hdbk.dtype.t_name default null,
+  function domain_add( p_name in hdbk.dtype.t_name default null,
                       p_contract in hdbk.dtype.t_id default null,
 --                      p_status in hdbk.dtype.t_id default null,
                       p_is_domain in hdbk.dtype.t_status default null
-                    );
+                    )
+  return hdbk.dtype.t_id;
 
   procedure domain_edit ( p_id in hdbk.dtype.t_id default null,
                         p_name in hdbk.dtype.t_name default null,
@@ -2027,7 +2029,7 @@ $TODO: all this nullable fields are bad. document_get_info
   end;
 
 
-  procedure delay_add( p_contract in hdbk.dtype.t_id default null,
+  function delay_add( p_contract in hdbk.dtype.t_id default null,
                       p_amount in hdbk.dtype.t_amount default null,
                       p_transaction in hdbk.dtype.t_id default null,
                       p_date_to in hdbk.dtype.t_date default null,
@@ -2036,19 +2038,21 @@ $TODO: all this nullable fields are bad. document_get_info
                       p_priority in hdbk.dtype.t_id default null,
                       p_parent_id in hdbk.dtype.t_id default null
                     )
+  return hdbk.dtype.t_id
   is
-    v_delay_row blng.delay%rowtype;
+    v_obj_row blng.delay%rowtype;
     v_id hdbk.dtype.t_id;
   begin
-    v_delay_row.contract_oid := p_contract;
-    v_delay_row.amount := p_amount;
-    v_delay_row.transaction_oid := p_transaction;
-    v_delay_row.date_to := nvl(p_date_to,trunc(sysdate));
-    v_delay_row.event_type_oid := p_event_type;
-    v_delay_row.priority := p_priority;
-    v_delay_row.parent_id := p_parent_id;
-    v_delay_row.status := 'A';
-    insert into blng.delay values v_delay_row;
+    v_obj_row.contract_oid := p_contract;
+    v_obj_row.amount := p_amount;
+    v_obj_row.transaction_oid := p_transaction;
+    v_obj_row.date_to := nvl(p_date_to,trunc(sysdate));
+    v_obj_row.event_type_oid := p_event_type;
+    v_obj_row.priority := p_priority;
+    v_obj_row.parent_id := p_parent_id;
+    v_obj_row.status := 'A';
+    insert into delay values v_obj_row returning id into v_id;
+    return v_id;
   exception when others then
     hdbk.log_api.LOG_ADD(p_proc_name=>'delay_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=delay,p_date='
@@ -2180,11 +2184,12 @@ $TODO: all this nullable fields are bad. document_get_info
   end delay_get_info_r;
 
 
-  procedure domain_add( p_name in hdbk.dtype.t_name default null,
+  function domain_add( p_name in hdbk.dtype.t_name default null,
                       p_contract in hdbk.dtype.t_id default null,
 --                      p_status in hdbk.dtype.t_id default null,
                       p_is_domain in hdbk.dtype.t_status default null
                     )
+  return hdbk.dtype.t_id
   is
     v_obj_row domain%rowtype;
     v_id hdbk.dtype.t_id;
@@ -2193,7 +2198,7 @@ $TODO: all this nullable fields are bad. document_get_info
     v_obj_row.contract_oid := p_contract;
     v_obj_row.is_domain := p_is_domain;
     v_obj_row.status := 'A';
-    insert into domain values v_obj_row;
+    insert into domain values v_obj_row returning id into v_id;
   exception when others then
     hdbk.log_api.LOG_ADD(p_proc_name=>'domain_add', p_msg_type=>'UNHANDLED_ERROR',
       P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=domain,p_date='
