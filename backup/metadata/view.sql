@@ -237,7 +237,7 @@ order by 2;
         to_char(cmn.date_from + hdbk.fwdr.utc_offset_mow / 24 ,'yyyy-mm-dd') rule_life_from,
         to_char(cmn.date_to + hdbk.fwdr.utc_offset_mow / 24 ,'yyyy-mm-dd') rule_life_to,
         dtl.condition_oid condition_id,
-        dtl.template_type_oid template_type_id,
+        nvl(dtl.template_type_oid,0) template_type_id,
         nvl(dtl.template_type,'default') template_type,
         dtl.template_type_code,
         dtl.template_value,
