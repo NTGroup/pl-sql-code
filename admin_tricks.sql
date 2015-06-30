@@ -163,3 +163,12 @@ alter user erp_gate
  identified by
 "NEW_PASS" replace "OLD_PASS";
 
+
+
+/* GET SEQUENCE DDL */
+SELECT trim(replace(replace(DBMS_METADATA.GET_DDL('SEQUENCE',a.OBJECT_NAME,a.owner),chr(10),''),chr(13),''))||';' asd,
+a.*
+from all_objects a where a.OBJECT_TYPE ='SEQUENCE' 
+and owner in ('BLNG','ORD','HDBK')
+order by a.OBJECT_NAME;
+

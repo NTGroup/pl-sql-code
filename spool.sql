@@ -16,7 +16,7 @@ SELECT dbms_metadata.get_ddl( 'PACKAGE', 'ORD_API', 'ORD') FROM dual;
 spool off;
 
 
-SELECT text FROM DBA_SOURCE WHERE OWNER IN ('BLNG','NTG','ORD') and type like '%PACKAGE%' order by owner, name, type, line;
+SELECT trim(replace(replace(TEXT,chr(10),''),chr(13),'')) FROM DBA_SOURCE WHERE OWNER IN ('BLNG','NTG','ORD') and type like '%PACKAGE%' order by owner, name, type, line;
 
 
 select owner, object_name, object_type from all_objects

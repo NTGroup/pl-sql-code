@@ -387,87 +387,6 @@ ALTER TRIGGER BLNG.p2cntr_TRGR ENABLE;
 
 /
 
-/*USR2CONTRACT*/
-
---------------------------------------------------------
---  DDL for Table
---------------------------------------------------------
-
-  CREATE TABLE blng.USR2CONTRACT 
-   (	ID NUMBER(18,0), 
-   amnd_date date,
-   amnd_user VARCHAR2(50),
-   amnd_state VARCHAR2(1), 
-   amnd_prev NUMBER(18,0), 
-   user_oid NUMBER(18,0),
-   permission VARCHAR2(1),
-   contract_oid NUMBER(18,0)
-   
-   ) SEGMENT CREATION IMMEDIATE 
-  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
- NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
---------------------------------------------------------
---  DDL for Index 
---------------------------------------------------------
-
-  CREATE INDEX blng.u2cntr_ID_IDX ON blng.USR2CONTRACT ("ID") 
-  TABLESPACE "USERS" ;
---------------------------------------------------------
---  Constraints for Table 
---------------------------------------------------------
-
-  ALTER TABLE blng.USR2CONTRACT MODIFY ("ID" CONSTRAINT "u2cntr_ID_NN" NOT NULL ENABLE);
- ALTER TABLE blng.USR2CONTRACT MODIFY (AMND_DATE CONSTRAINT "u2cntr_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.USR2CONTRACT MODIFY (AMND_USER CONSTRAINT "u2cntr_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.USR2CONTRACT MODIFY (AMND_STATE CONSTRAINT "u2cntr_AST_NN" NOT NULL ENABLE);
-  ALTER TABLE BLNG.USR2CONTRACT  MODIFY (AMND_DATE DEFAULT on null sysdate);
-  ALTER TABLE BLNG.USR2CONTRACT  MODIFY (AMND_USER DEFAULT  on null user );
-  ALTER TABLE BLNG.USR2CONTRACT  MODIFY (AMND_STATE DEFAULT  on null 'A' );
-
-  ALTER TABLE blng.USR2CONTRACT ADD CONSTRAINT u2cntr_ID_PK PRIMARY KEY (ID)
-  USING INDEX BLNG.u2cntr_ID_IDX ENABLE;
-
-
-
-ALTER TABLE BLNG.USR2CONTRACT ADD CONSTRAINT u2cntr_cntr_OID_FK FOREIGN KEY (contract_oid)
-  REFERENCES BLNG.contract ("ID") ENABLE;
-ALTER TABLE BLNG.USR2CONTRACT ADD CONSTRAINT u2cntr_usr_OID_FK FOREIGN KEY (user_oid)
-  REFERENCES BLNG.usr ("ID") ENABLE;
-
-
---------------------------------------------------------
---  DDL for Secuence 
---------------------------------------------------------
- 
-  create sequence  BLNG.u2cntr_seq
-  increment by 1
-  start with 1
-  nomaxvalue
-  nocache /*!!!*/
-  nocycle
-  order;
-  
---------------------------------------------------------
---  DDL for Trigger 
---------------------------------------------------------
-
-CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.u2cntr_TRGR 
-BEFORE
-INSERT
-ON BLNG.USR2CONTRACT
-REFERENCING NEW AS NEW OLD AS OLD
-FOR EACH ROW
- WHEN (new.id is null) BEGIN
-  select BLNG.u2cntr_seq.nextval into :new.id from dual; 
-  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual;
-end;
-/
-ALTER TRIGGER BLNG.u2cntr_TRGR ENABLE;
-
-/
-
-
 
 
 /*contract*/
@@ -550,6 +469,87 @@ FOR EACH ROW
 end;
 /
 ALTER TRIGGER BLNG.CNTR_TRGR ENABLE;
+
+/
+
+
+/*USR2CONTRACT*/
+
+--------------------------------------------------------
+--  DDL for Table
+--------------------------------------------------------
+
+  CREATE TABLE blng.USR2CONTRACT 
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+   user_oid NUMBER(18,0),
+   permission VARCHAR2(1),
+   contract_oid NUMBER(18,0)
+   
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index 
+--------------------------------------------------------
+
+  CREATE INDEX blng.u2cntr_ID_IDX ON blng.USR2CONTRACT ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table 
+--------------------------------------------------------
+
+  ALTER TABLE blng.USR2CONTRACT MODIFY ("ID" CONSTRAINT "u2cntr_ID_NN" NOT NULL ENABLE);
+ ALTER TABLE blng.USR2CONTRACT MODIFY (AMND_DATE CONSTRAINT "u2cntr_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.USR2CONTRACT MODIFY (AMND_USER CONSTRAINT "u2cntr_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.USR2CONTRACT MODIFY (AMND_STATE CONSTRAINT "u2cntr_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE BLNG.USR2CONTRACT  MODIFY (AMND_DATE DEFAULT on null sysdate);
+  ALTER TABLE BLNG.USR2CONTRACT  MODIFY (AMND_USER DEFAULT  on null user );
+  ALTER TABLE BLNG.USR2CONTRACT  MODIFY (AMND_STATE DEFAULT  on null 'A' );
+
+  ALTER TABLE blng.USR2CONTRACT ADD CONSTRAINT u2cntr_ID_PK PRIMARY KEY (ID)
+  USING INDEX BLNG.u2cntr_ID_IDX ENABLE;
+
+
+
+ALTER TABLE BLNG.USR2CONTRACT ADD CONSTRAINT u2cntr_cntr_OID_FK FOREIGN KEY (contract_oid)
+  REFERENCES BLNG.contract ("ID") ENABLE;
+ALTER TABLE BLNG.USR2CONTRACT ADD CONSTRAINT u2cntr_usr_OID_FK FOREIGN KEY (user_oid)
+  REFERENCES BLNG.usr ("ID") ENABLE;
+
+
+--------------------------------------------------------
+--  DDL for Secuence 
+--------------------------------------------------------
+ 
+  create sequence  BLNG.u2cntr_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+  
+--------------------------------------------------------
+--  DDL for Trigger 
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.u2cntr_TRGR 
+BEFORE
+INSERT
+ON BLNG.USR2CONTRACT
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select BLNG.u2cntr_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual;
+end;
+/
+ALTER TRIGGER BLNG.u2cntr_TRGR ENABLE;
 
 /
 
@@ -791,11 +791,9 @@ end;
 /
 ALTER TRIGGER BLNG.trt_TRGR ENABLE;
 
-end;
-
+/
 
 /* documents */
-begin
 
 --------------------------------------------------------
 --  DDL for Table 
@@ -886,12 +884,9 @@ end;
 /
 ALTER TRIGGER BLNG.doc_TRGR ENABLE;
 
-end;
 
-
-
+/
 /* transactions */
-begin
 
 --------------------------------------------------------
 --  DDL for Table 
@@ -975,13 +970,83 @@ end;
 /
 ALTER TRIGGER BLNG.trn_TRGR ENABLE;
 
+
+/
+
+/* event_type */
+--------------------------------------------------------
+--  DDL for Table 
+--------------------------------------------------------
+
+  CREATE TABLE blng.event_type 
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+   name varchar2(50),
+   code varchar2(10),
+   details varchar2(255)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+  
+  --drop table  blng.account 
+--------------------------------------------------------
+--  DDL for Index 
+--------------------------------------------------------
+
+  CREATE INDEX blng.ETT_ID_IDX ON blng.event_type ("ID") 
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table 
+--------------------------------------------------------
+
+  ALTER TABLE blng.event_type MODIFY ("ID" CONSTRAINT "ETT_ID_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.event_type MODIFY (AMND_DATE CONSTRAINT "ETT_ADT_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.event_type MODIFY (AMND_USER CONSTRAINT "ETT_AUR_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.event_type MODIFY (AMND_STATE CONSTRAINT "ETT_AST_NN" NOT NULL ENABLE);
+ALTER TABLE BLNG.event_type  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE BLNG.event_type  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE BLNG.event_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE blng.event_type ADD CONSTRAINT ETT_ID_PK PRIMARY KEY (ID)
+  USING INDEX BLNG.ETT_ID_IDX ENABLE;
+
+--------------------------------------------------------
+--  DDL for Secuence 
+--------------------------------------------------------
+ 
+  create sequence  BLNG.ett_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+  
+--------------------------------------------------------
+--  DDL for Trigger 
+--------------------------------------------------------
+
+
+CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.ett_TRGR 
+BEFORE
+INSERT
+ON BLNG.event_type
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select BLNG.ett_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
 end;
+/
 
+ALTER TRIGGER BLNG.ett_TRGR ENABLE;
 
-
+/
 
 /* event */
-begin
 
 --------------------------------------------------------
 --  DDL for Table 
@@ -1063,88 +1128,7 @@ end;
 /
 ALTER TRIGGER BLNG.evnt_TRGR ENABLE;
 
-end;
-
-
-
-/* event_type */
-begin
-
---------------------------------------------------------
---  DDL for Table 
---------------------------------------------------------
-
-  CREATE TABLE blng.event_type 
-   (	ID NUMBER(18,0), 
-   amnd_date date,
-   amnd_user VARCHAR2(50),
-   amnd_state VARCHAR2(1), 
-   amnd_prev NUMBER(18,0), 
-   name varchar2(50),
-   code varchar2(10),
-   details varchar2(255)
-   ) SEGMENT CREATION IMMEDIATE 
-  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
- NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
-  
-  --drop table  blng.account 
---------------------------------------------------------
---  DDL for Index 
---------------------------------------------------------
-
-  CREATE INDEX blng.ETT_ID_IDX ON blng.event_type ("ID") 
-  TABLESPACE "USERS" ;
---------------------------------------------------------
---  Constraints for Table 
---------------------------------------------------------
-
-  ALTER TABLE blng.event_type MODIFY ("ID" CONSTRAINT "ETT_ID_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.event_type MODIFY (AMND_DATE CONSTRAINT "ETT_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.event_type MODIFY (AMND_USER CONSTRAINT "ETT_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.event_type MODIFY (AMND_STATE CONSTRAINT "ETT_AST_NN" NOT NULL ENABLE);
-ALTER TABLE BLNG.event_type  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
-ALTER TABLE BLNG.event_type  MODIFY (AMND_USER DEFAULT  on null  user );
-ALTER TABLE BLNG.event_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
-  ALTER TABLE blng.event_type ADD CONSTRAINT ETT_ID_PK PRIMARY KEY (ID)
-  USING INDEX BLNG.ETT_ID_IDX ENABLE;
-
---------------------------------------------------------
---  DDL for Secuence 
---------------------------------------------------------
- 
-  create sequence  BLNG.ett_seq
-  increment by 1
-  start with 1
-  nomaxvalue
-  nocache /*!!!*/
-  nocycle
-  order;
-  
---------------------------------------------------------
---  DDL for Trigger 
---------------------------------------------------------
-
-
-CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.ett_TRGR 
-BEFORE
-INSERT
-ON BLNG.event_type
-REFERENCING NEW AS NEW OLD AS OLD
-FOR EACH ROW
- WHEN (new.id is null) BEGIN
-  select BLNG.ett_seq.nextval into :new.id from dual; 
-  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
-end;
 /
-
-ALTER TRIGGER BLNG.ett_TRGR ENABLE;
-
-
-end;
-
-/
-
 
 /* status_type */
 
@@ -1220,14 +1204,9 @@ end;
 ALTER TRIGGER BLNG.stt_TRGR ENABLE;
 
 
-
-
-
-
+/
 
 /* delay */
-begin
-
 --------------------------------------------------------
 --  DDL for Table 
 --------------------------------------------------------
@@ -1310,7 +1289,6 @@ end;
 /
 ALTER TRIGGER BLNG.DLY_TRGR ENABLE;
 
-end;
 
 /
 
@@ -1392,11 +1370,8 @@ end;
 ALTER TRIGGER BLNG.dmn_TRGR ENABLE;
 
 
-
 /
-
 /*USR_DATA*/
-
 
 --------------------------------------------------------
 --  DDL for Table 
@@ -1546,6 +1521,9 @@ grant select on blng.event_type to ntg;
 
 --Foreign keys between tables in different schemas
 
+/*
+?????????????????????????????????????????
+
 grant references on blng.contract to ord;
 grant references on blng.usr to ord;
 grant references on blng.client to ord;
@@ -1578,4 +1556,4 @@ grant references on blng.status_type to ntg;
 grant references on blng.trans_type to ntg;
 grant references on blng.event_type to ntg;
 
-
+*/

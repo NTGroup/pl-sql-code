@@ -238,12 +238,11 @@ end;
 
 ALTER TRIGGER ord.iav_TRGR ENABLE;
 
-end; 
-
+/
 
 
 /* item_hotel */
-begin
+
 /*
 --------------------------------------------------------
 --  DDL for Table MARKUP
@@ -314,11 +313,10 @@ end;
 
 ALTER TRIGGER ord.ihtl_TRGR ENABLE;
 */
-end; 
 
+/
 
 /* item_insurance */
-begin
 
 --------------------------------------------------------
 --  DDL for Table MARKUP
@@ -389,12 +387,12 @@ end;
 
 ALTER TRIGGER ord.iins_TRGR ENABLE;
 */
-end; 
 
+/
 
 
 /* pnr */
-begin
+
 
 --------------------------------------------------------
 --  DDL for Table MARKUP
@@ -465,12 +463,10 @@ end;
 
 ALTER TRIGGER ord.pnr_TRGR ENABLE;
 */
-end; 
 
-
+/
 
 /* ticket */
-begin
 
   CREATE TABLE ord.ticket
    (	ID NUMBER(18,0), 
@@ -544,11 +540,11 @@ end;
 /
 
 ALTER TRIGGER ord.tkt_TRGR ENABLE;
-*/
-end; 
+
+/
 
 /* price_quote */
-begin
+
 
 --------------------------------------------------------
 --  DDL for Table MARKUP
@@ -619,12 +615,12 @@ end;
 
 ALTER TRIGGER ord.pq_TRGR ENABLE;
 */
-end; 
 
+/
 
 
 /* passenger */
-begin
+
 
 --------------------------------------------------------
 --  DDL for Table MARKUP
@@ -695,12 +691,12 @@ end;
 
 ALTER TRIGGER ord.pax_TRGR ENABLE;
 */
-end; 
 
 
+/
 
 /* stop */
-begin
+
 
 --------------------------------------------------------
 --  DDL for Table MARKUP
@@ -969,15 +965,11 @@ end;
 /
 ALTER TRIGGER ord.CT_TRGR ENABLE;
 
-end;
 
-
-
-
+/
 
 
 /* commission_details */
-begin
 
 --------------------------------------------------------
 --  DDL for Table MARKUP
@@ -1054,14 +1046,11 @@ end;
 /
 ALTER TRIGGER ord.CD_TRGR ENABLE;
 
-end;
-
-
+/
 
 
 
 /* item_avia_status */
-begin
 
 --------------------------------------------------------
 --  DDL for Table MARKUP
@@ -1135,10 +1124,8 @@ end;
 
 ALTER TRIGGER ord.iavs_TRGR ENABLE;
 
-end; 
 
 /
-
 
 /* pos_rule */
 
@@ -1188,7 +1175,7 @@ ALTER TABLE ord.pos_rule  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   REFERENCES blng.contract ("ID") ENABLE;
 
   ALTER TABLE ord.pos_rule ADD CONSTRAINT posr_al_OID_FK FOREIGN KEY (airline_oid)
-  REFERENCES ntg.airline ("ID") ENABLE;
+  REFERENCES hdbk.airline ("ID") ENABLE;
 
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
@@ -1219,8 +1206,6 @@ end;
 
 ALTER TRIGGER ord.posr_TRGR ENABLE;
 /
-
-
 
 /* ord.currency */
 
@@ -1277,7 +1262,9 @@ ALTER TABLE ord.currency  MODIFY (AMND_STATE DEFAULT  on null  'A' );
    amnd_prev NUMBER(18,0), 
    task_type NUMBER(18,0), 
    number_1c VARCHAR2(50), 
-   status VARCHAR2(1)
+   status VARCHAR2(1),
+   request clob
+   
    ) SEGMENT CREATION IMMEDIATE
   TABLESPACE USERS ;
 --------------------------------------------------------
@@ -1484,8 +1471,6 @@ ALTER TRIGGER ord.itin_TRGR ENABLE;
 
 /
 
-
-
 /* leg */
 
 --------------------------------------------------------
@@ -1565,8 +1550,6 @@ end;
 ALTER TRIGGER ord.leg_TRGR ENABLE;
 
 /
-
-
 /* segment */
 
   CREATE TABLE ord.segment
@@ -1643,7 +1626,6 @@ ALTER TRIGGER ord.sgm_TRGR ENABLE;
 
 /
 
-
 CREATE bitmap INDEX ord.ord_AS_IDX ON ord.ord (amnd_state) TABLESPACE USERS ;
 CREATE bitmap INDEX ord.bill_AS_IDX ON ord.bill (amnd_state) TABLESPACE USERS ;
 CREATE bitmap INDEX ord.cmn_AS_IDX ON ord.commission (amnd_state) TABLESPACE USERS ;
@@ -1662,7 +1644,7 @@ CREATE bitmap INDEX ord.sgm_AS_IDX ON ord.segment (amnd_state) TABLESPACE USERS 
 --------------------------------------------------------
 --  DDL for Grants
 --------------------------------------------------------
-
+/*
 grant select on ord.bill to blng;
 grant select on ord.ord to blng;
 grant select on ord.ticket to blng;
@@ -1672,16 +1654,6 @@ grant select on ord.commission to blng;
 grant select on ord.commission_details to blng;
 grant select on ord.commission_template to blng;
 grant select on ord.pos_rule to blng;
-
-grant select on ord.bill to ntg;
-grant select on ord.ord to ntg;
-grant select on ord.ticket to ntg;
-grant select on ord.item_avia to ntg;
-grant select on ord.item_avia_status to ntg;
-grant select on ord.commission to ntg;
-grant select on ord.commission_details to ntg;
-grant select on ord.commission_template to ntg;
-grant select on ord.pos_rule to ntg;
 
 grant select on ord.bill to dict;
 grant select on ord.ord to dict;
@@ -1704,16 +1676,6 @@ grant references on ord.commission_details to blng;
 grant references on ord.commission_template to blng;
 grant references on ord.pos_rule to blng;
 
-grant references on ord.bill to ntg;
-grant references on ord.ord to ntg;
-grant references on ord.ticket to ntg;
-grant references on ord.item_avia to ntg;
-grant references on ord.item_avia_status to ntg;
-grant references on ord.commission to ntg;
-grant references on ord.commission_details to ntg;
-grant references on ord.commission_template to ntg;
-grant references on ord.pos_rule to ntg;
-
 grant references on ord.bill to dict;
 grant references on ord.ord to dict;
 grant references on ord.ticket to dict;
@@ -1722,4 +1684,4 @@ grant references on ord.item_avia_status to dict;
 grant references on ord.commission to dict;
 grant references on ord.commission_details to dict;
 grant references on ord.commission_template to dict;
-grant references on ord.pos_rule to dict;
+grant references on ord.pos_rule to dict;*/

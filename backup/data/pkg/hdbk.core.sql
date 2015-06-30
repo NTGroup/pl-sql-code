@@ -297,7 +297,7 @@ end;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_get_id', p_msg_type=>'UNHANDLED_ERROR',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_get_name_by_code', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into dictionary error. '||SQLERRM);
   end;

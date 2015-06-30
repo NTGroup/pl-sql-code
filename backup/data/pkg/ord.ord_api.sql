@@ -321,7 +321,8 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
   function task1c_add( 
                     p_task_type in hdbk.dtype.t_id default null,
                     p_number_1c in hdbk.dtype.t_long_code default null,
-                    p_status in hdbk.dtype.t_status default null
+                    p_status in hdbk.dtype.t_status default null,
+                    p_request in hdbk.dtype.t_clob default null
                   )
   return hdbk.dtype.t_id;
 
@@ -329,7 +330,8 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
   procedure task1c_edit(  P_ID  in hdbk.dtype.t_id default null,
                     p_task_type in hdbk.dtype.t_id default null,
                     p_number_1c in hdbk.dtype.t_long_code default null,
-                    p_status in hdbk.dtype.t_status default null
+                    p_status in hdbk.dtype.t_status default null,
+                    p_request in hdbk.dtype.t_clob default null
                       );
 
 
@@ -1822,7 +1824,8 @@ END ORD_API;
   function task1c_add( 
                     p_task_type in hdbk.dtype.t_id default null,
                     p_number_1c in hdbk.dtype.t_long_code default null,
-                    p_status in hdbk.dtype.t_status default null
+                    p_status in hdbk.dtype.t_status default null,
+                    p_request in hdbk.dtype.t_clob default null
                   )
   return hdbk.dtype.t_id
   is
@@ -1832,6 +1835,7 @@ END ORD_API;
     v_obj_row.task_type:=  p_task_type;
     v_obj_row.number_1c:=  p_number_1c;
     v_obj_row.status:=  nvl(p_status,'A');
+    v_obj_row.request:=  p_request;
 
 
     insert into ord.task1c values v_obj_row returning id into v_id;
@@ -1846,7 +1850,8 @@ END ORD_API;
   procedure task1c_edit(  P_ID  in hdbk.dtype.t_id default null,
                     p_task_type in hdbk.dtype.t_id default null,
                     p_number_1c in hdbk.dtype.t_long_code default null,
-                    p_status in hdbk.dtype.t_status default null
+                    p_status in hdbk.dtype.t_status default null,
+                    p_request in hdbk.dtype.t_clob default null
                       )
   is
     v_obj_row_new task1c%rowtype;
@@ -1867,6 +1872,7 @@ END ORD_API;
     v_obj_row_new.task_type := nvl(p_task_type,v_obj_row_new.task_type);
     v_obj_row_new.number_1c := nvl(p_number_1c,v_obj_row_new.number_1c);
     v_obj_row_new.status := nvl(p_status,v_obj_row_new.status);
+    v_obj_row_new.request := nvl(p_request,v_obj_row_new.request);
 
     if p_status in ('C','D') then  v_obj_row_new.amnd_state := 'C'; end if;
 

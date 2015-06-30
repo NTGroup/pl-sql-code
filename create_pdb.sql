@@ -216,35 +216,48 @@ GRANT create session TO po_fwdr;
 ALTER USER po_fwdr
     QUOTA 0 ON users
 
-
+-----------------------------------------------------------------------------------------------
 --create pdb from seed
 --alter system set db_create_file_dest='/home/oracle/app/oracle/oradata/orcl/ntg1';
 
 
-create pluggable database ntg1 
-admin user ntg identified by cccCCC111 --default tablespace USERS
+create pluggable database loc
+admin user ntg identified by cccCCC111 
 roles = (DBA)
 --FILE_NAME_CONVERT=('/home/oracle/app/oracle/oradata/ORCL/datafile','/home/oracle/app/oracle/oradata/orcl/ntg1');
-  DEFAULT TABLESPACE USERS 
-    DATAFILE SIZE 25M AUTOEXTEND ON
+  DEFAULT TABLESPACE USERS
+--  QUOTA UNLIMITED ON users
+    DATAFILE SIZE 25M AUTOEXTEND ON;
 
 
 
-alter pluggable database ntg1 open read write; 
+alter pluggable database loc open read write; 
 
---alter user ntg default tablespace USERS;
+alter user ntg DEFAULT TABLESPACE users TEMPORARY TABLESPACE temp QUOTA UNLIMITED ON users;
 
-create user BLNG IDENTIFIED BY ccc DEFAULT TABLESPACE users ;
-create user ORD IDENTIFIED BY ccc DEFAULT TABLESPACE users ;
-create user po_fwdr IDENTIFIED BY ccc DEFAULT TABLESPACE users ;
+create user BLNG IDENTIFIED BY cccCCC111 DEFAULT TABLESPACE users TEMPORARY TABLESPACE temp QUOTA UNLIMITED ON users;
+create user ORD IDENTIFIED BY cccCCC111 DEFAULT TABLESPACE users  TEMPORARY TABLESPACE temp QUOTA UNLIMITED ON users;
+create user po_fwdr IDENTIFIED BY cccCCC111 DEFAULT TABLESPACE users  TEMPORARY TABLESPACE temp QUOTA UNLIMITED ON users;
+create user erp IDENTIFIED BY cccCCC111 DEFAULT TABLESPACE users  TEMPORARY TABLESPACE temp QUOTA UNLIMITED ON users;
+create user erp_gate IDENTIFIED BY cccCCC111 DEFAULT TABLESPACE users  TEMPORARY TABLESPACE temp QUOTA UNLIMITED ON users;
+create user hdbk IDENTIFIED BY cccCCC111 DEFAULT TABLESPACE users  TEMPORARY TABLESPACE temp QUOTA UNLIMITED ON users;
 
-GRANT RESTRICTED SESSION to ord
-GRANT RESTRICTED SESSION to blng
-GRANT RESTRICTED SESSION to po_fwdr
 
-GRANT RESTRICTED SESSION to dict
+GRANT RESTRICTED SESSION to ntg;
+GRANT RESTRICTED SESSION to ord;
+GRANT RESTRICTED SESSION to blng;
+GRANT RESTRICTED SESSION to po_fwdr;
+GRANT RESTRICTED SESSION to erp;
+GRANT RESTRICTED SESSION to erp_gate;
+GRANT RESTRICTED SESSION to hdbk;
 
+------------------------------------------------------------
 ORA-01950: нет привилегий на раздел 'USERS'
+
+
+alter pluggable database loc close immediate;
+drop pluggable database loc including datafiles;
+
 
 
 SELECT PRIVILEGE

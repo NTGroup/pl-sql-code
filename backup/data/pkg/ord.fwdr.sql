@@ -409,9 +409,16 @@ $obj_param: p_number_1c: 1c bill number
 $obj_return: SYS_REFCURSOR[res]
 */   
   function task_close(p_task in hdbk.dtype.t_id default null,
-                      p_number_1c in hdbk.dtype.t_long_code default null)
+                      p_number_1c in hdbk.dtype.t_long_code default null,
+                      p_data in hdbk.dtype.t_clob default null)
   return SYS_REFCURSOR;
 
+
+  function bill_1c_payed(p_number_1c in hdbk.dtype.t_long_code default null)
+  return SYS_REFCURSOR;
+  
+  
+  
 END FWDR;
 
 /
@@ -497,10 +504,11 @@ END FWDR;
     v_ticket hdbk.dtype.t_id;
     v_delay_count hdbk.dtype.t_id;
     v_is_ticket_received hdbk.dtype.t_status:='N';
+    v_request hdbk.dtype.t_clob;
     
   begin
       hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'0',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
+        P_MSG => 'p_ticket='||p_ticket,
         p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     
@@ -598,6 +606,11 @@ END FWDR;
       v_task1c := ord_api.task1c_add(p_task_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'1C',p_code=>'BILL_ADD'));
       v_bill2task := ord_api.bill2task_add(p_bill=>r_bill.id,p_task=>v_task1c);
     end if;
+
+    v_request := '{"item_avia": '||r_item_avia.id||'}';
+    v_task1c := ord_api.task1c_add(p_task_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'TASK',p_code=>'AVIA_ETICKET'),
+                  p_request => v_request);
+    
   end if;  
   commit;    
   
@@ -1084,18 +1097,22 @@ END FWDR;
               to_date(segment_arrival_date,'yyyy-mm-dd"T"HH24:mi:ss') segment_arrival_date
               from 
                   json_table  
-                    ( p_itinerary,'$[*]' 
-                    columns (leg_num number(18,0) path '$.leg_num',
-                            leg_departure_iata VARCHAR2(250) path '$.departure_location',
-                            leg_departure_date VARCHAR2(250) path '$.departure_datetime',
-                            leg_arrival_iata VARCHAR2(250) path '$.arrival_location',
-                            leg_arrival_date VARCHAR2(250) path '$.arrival_datetime',
-                            NESTED PATH '$.segments[*]' COLUMNS (
-                              segment_num number(20,2) path '$.segment_num',
-                              segment_departure_iata VARCHAR2(250) path '$.departure_location',
-                              segment_departure_date VARCHAR2(250) path '$.departure_datetime',
-                              segment_arrival_iata VARCHAR2(250) path '$.arrival_location',
-                              segment_arrival_date VARCHAR2(250) path '$.arrival_datetime'
+                    ( p_itinerary,'$' 
+                    columns (
+                            validating_carrier VARCHAR2(250) path '$.validating_carrier',
+                            NESTED PATH '$.legs[*]' COLUMNS (
+                              leg_num number(18,0) path '$.leg_num',
+                              leg_departure_iata VARCHAR2(250) path '$.departure_location',
+                              leg_departure_date VARCHAR2(250) path '$.departure_datetime',
+                              leg_arrival_iata VARCHAR2(250) path '$.arrival_location',
+                              leg_arrival_date VARCHAR2(250) path '$.arrival_datetime',
+                              NESTED PATH '$.segments[*]' COLUMNS (
+                                segment_num number(20,2) path '$.segment_num',
+                                segment_departure_iata VARCHAR2(250) path '$.departure_location',
+                                segment_departure_date VARCHAR2(250) path '$.departure_datetime',
+                                segment_arrival_iata VARCHAR2(250) path '$.arrival_location',
+                                segment_arrival_date VARCHAR2(250) path '$.arrival_datetime'
+                                )
                               )
                             )
                     ) as j
@@ -2212,6 +2229,10 @@ $TODO: there must be check for users with ISSUES permission
     --v_contract hdbk.dtype.t_id;
  --   r_account_info blng.v_account%rowtype;
     v_task hdbk.dtype.t_id;
+    v_type_id hdbk.dtype.t_id;
+    v_type hdbk.dtype.t_long_code;
+    r_dictionary hdbk.dictionary%rowtype;
+    r_task1c task1c%rowtype;
   begin
 
       select 
@@ -2221,105 +2242,159 @@ $TODO: there must be check for users with ISSUES permission
       and (status in ('A') 
       or (status in ('W') and amnd_date < sysdate - to_number(hdbk.core.dictionary_get_name_by_code(p_dictionary_type=>'1C',p_code=>'TASK_INTERVAL')/24/60/60))
       )
+      --and task_type = hdbk.core.dictionary_get_id(p_dictionary_type=>'1C',p_code=>'BILL_ADD')
       order by id
       FETCH FIRST 1 ROWS ONLY;
-     
-  
-    OPEN v_results FOR
-      select 
-      email,
-      task_id,
-      contract_id,
-      PRODUCT,
-      description,
-      quantity,
-      price,
-      vat,
-      to_char((min(date_to) over()),'yyyy-mm-dd') date_to
-      from
-        (select 
-        1 rn,
-        bill.id bill_oid,
-        ticket.id ticket_oid,
-        (select email from blng.usr where id = (select user_oid from ord.ord where id = item_avia.order_oid)) email,
-         bill2task.task_oid task_id,
-         bill.contract_oid  contract_id,
-        'AVIATICKET_VAT_18'  PRODUCT, 
-  --      'Авиабилет (электронный билет), пассажир ' || ticket.passenger_name description, 
-        'Авиабилет (электронный билет) по маршруту '||
-        (SELECT LISTAGG(
-        (select nls_name from hdbk.geo where geo.id = leg.departure_city )||' - '||(select nls_name from hdbk.geo where geo.id = leg.arrival_city )
-        ||' ('||to_char(departure_date,'dd.mm.yyyy') ||')'
-        , ', ') WITHIN GROUP (ORDER BY id) AS description
-           FROM ord.leg
-           where itinerary_oid = (select id from ord.itinerary where itinerary.amnd_state = 'A' and itinerary.item_avia_oid = item_avia.id)
-           group by itinerary_oid)
-        ||', пассажир '|| ticket.passenger_name description, 
-        1 quantity, 
-        nvl(ticket.fare_amount,0) + nvl(ticket.taxes_amount,0) price, 
-        18 vat,
-        (select date_to -1 from blng.v_delay where bill_id = bill.id) date_to
-         from
-        ord.bill2task, ord.bill, ord.item_avia, ord.ticket
-        where bill2task.amnd_state = 'A' 
-        and item_avia.amnd_state = 'A' 
-        and ticket.amnd_state = 'A' 
-        and bill.amnd_state = 'A' 
-        and bill2task.bill_oid = bill.id
-        and bill.order_oid = item_avia.order_oid
-        and item_avia.id = ticket.item_avia_oid
-        and bill2task.task_oid = v_task
-        and (ticket.fare_amount is not null or ticket.taxes_amount is not null)
-        and nvl(ticket.fare_amount,0) + nvl(ticket.taxes_amount,0) <> 0
-  union all
-        select 
-        2 rn,
-        bill.id bill_oid,
-        ticket.id ticket_oid,
-        (select email from blng.usr where id = (select user_oid from ord.ord where id = item_avia.order_oid)) email,
-         bill2task.task_oid task_id,
-         bill.contract_oid  contract_id,
-        'SERVICE_FEE'  PRODUCT, 
-        'Сервисный сбор'  description, 
-        1 quantity, 
-        nvl(ticket.service_fee_amount,0) price, 
-        18 vat,
-        (select date_to -1 from blng.v_delay where bill_id = bill.id) date_to
-         from
-        ord.bill2task, ord.bill, ord.item_avia, ord.ticket
-        where bill2task.amnd_state = 'A' 
-        and item_avia.amnd_state = 'A' 
-        and ticket.amnd_state = 'A' 
-        and bill.amnd_state = 'A' 
-        and bill2task.bill_oid = bill.id
-        and bill.order_oid = item_avia.order_oid
-        and item_avia.id = ticket.item_avia_oid
-        and bill2task.task_oid = v_task
-        and ticket.service_fee_amount is not null
-        and ticket.service_fee_amount <> 0
-        )       
-        order by bill_oid, ticket_oid, rn
-      ;    
+      
+      r_task1c := ord_api.task1c_get_info_r(p_id => v_task );
 
-    ord_api.task1c_edit(p_id=>v_task, p_status=>'W');
+
+      r_dictionary := hdbk.hdbk_api.dictionary_get_info_r(p_id=>r_task1c.task_type);
+      v_type:=r_dictionary.code;
+      
+      if v_type = 'BILL_ADD' then 
+  
+        OPEN v_results FOR
+          select 
+          email,
+          task_id,
+          'BILL' task_type,
+          contract_id,
+          PRODUCT,
+          description,
+          quantity,
+          price,
+          vat,
+          to_char((min(date_to) over()),'yyyy-mm-dd') date_to
+          from
+            (select 
+            1 rn,
+            bill.id bill_oid,
+            ticket.id ticket_oid,
+            (select email from blng.usr where id = (select user_oid from ord.ord where id = item_avia.order_oid)) email,
+             bill2task.task_oid task_id,
+             bill.contract_oid  contract_id,
+            'AVIATICKET_VAT_18'  PRODUCT, 
+      --      'Авиабилет (электронный билет), пассажир ' || ticket.passenger_name description, 
+            'Авиабилет (электронный билет) по маршруту '||
+            (SELECT LISTAGG(
+            (select nls_name from hdbk.geo where geo.id = leg.departure_city )||' - '||(select nls_name from hdbk.geo where geo.id = leg.arrival_city )
+            ||' ('||to_char(departure_date,'dd.mm.yyyy') ||')'
+            , ', ') WITHIN GROUP (ORDER BY id) AS description
+               FROM ord.leg
+               where itinerary_oid = (select id from ord.itinerary where itinerary.amnd_state = 'A' and itinerary.item_avia_oid = item_avia.id)
+               group by itinerary_oid)
+            ||', пассажир '|| ticket.passenger_name description, 
+            1 quantity, 
+            nvl(ticket.fare_amount,0) + nvl(ticket.taxes_amount,0) price, 
+            18 vat,
+            (select date_to -1 from blng.v_delay where bill_id = bill.id) date_to
+             from
+            ord.bill2task, ord.bill, ord.item_avia, ord.ticket
+            where bill2task.amnd_state = 'A' 
+            and item_avia.amnd_state = 'A' 
+            and ticket.amnd_state = 'A' 
+            and bill.amnd_state = 'A' 
+            and bill2task.bill_oid = bill.id
+            and bill.order_oid = item_avia.order_oid
+            and item_avia.id = ticket.item_avia_oid
+            and bill2task.task_oid = v_task
+            and (ticket.fare_amount is not null or ticket.taxes_amount is not null)
+            and nvl(ticket.fare_amount,0) + nvl(ticket.taxes_amount,0) <> 0
+      union all
+            select 
+            2 rn,
+            bill.id bill_oid,
+            ticket.id ticket_oid,
+            (select email from blng.usr where id = (select user_oid from ord.ord where id = item_avia.order_oid)) email,
+             bill2task.task_oid task_id,
+             bill.contract_oid  contract_id,
+            'SERVICE_FEE'  PRODUCT, 
+            'Сервисный сбор'  description, 
+            1 quantity, 
+            nvl(ticket.service_fee_amount,0) price, 
+            18 vat,
+            (select date_to -1 from blng.v_delay where bill_id = bill.id) date_to
+             from
+            ord.bill2task, ord.bill, ord.item_avia, ord.ticket
+            where bill2task.amnd_state = 'A' 
+            and item_avia.amnd_state = 'A' 
+            and ticket.amnd_state = 'A' 
+            and bill.amnd_state = 'A' 
+            and bill2task.bill_oid = bill.id
+            and bill.order_oid = item_avia.order_oid
+            and item_avia.id = ticket.item_avia_oid
+            and bill2task.task_oid = v_task
+            and ticket.service_fee_amount is not null
+            and ticket.service_fee_amount <> 0
+            )       
+            order by bill_oid, ticket_oid, rn
+          ;    
+
+      ord_api.task1c_edit(p_id=>v_task, p_status=>'W');
+
+    elsif v_type = 'AVIA_ETICKET' then     
+
+      OPEN v_results FOR
+        select 
+        v_task task_id,
+        'ETICKET' task_type,  pnr_id, pnr_locator order_number,
+        (select email from blng.usr where id = (select user_oid from ord.ord where id = item_avia.order_oid)) email,
+        (select nls_name from hdbk.geo where id = (select departure_city from ord.leg where itinerary_oid = itinerary.id and sequence_number = 1 and amnd_state = 'A')) city_from,
+        (select nls_name from hdbk.geo where id = (select arrival_city from ord.leg where itinerary_oid = itinerary.id and sequence_number = 1 and amnd_state = 'A')) city_to,
+        (select case when count(*) = 1 then 'Y' else 'N' end from ord.leg where itinerary_oid = itinerary.id and amnd_state = 'A') IS_ONE_LEG
+
+        
+        
+        from ord.item_avia, ord.itinerary where 
+        item_avia.id = itinerary.item_avia_oid
+        and item_avia.amnd_state = 'A'
+        and itinerary.amnd_state = 'A'
+        and item_avia.id =  
+              (select item_avia from
+                json_table  
+                  ( r_task1c.request ,'$' 
+                  columns (item_avia number(18,0) path '$.item_avia'
+                          )
+                  ) as j);
+          
+      ord_api.task1c_edit(p_id=>v_task, p_status=>'W');
+      
+    elsif v_type = '1C_FIN_ACTS' then     
+
+      OPEN v_results FOR
+        select 
+        v_task task_id,
+        'FIN_ACTS' task_type,
+        (select email from blng.usr where id = (select user_oid from ord.ord where id = item_avia.order_oid)) email,
+        task1c.number_1c bill_number
+        from ord.task1c,
+        ord.bill2task, ord.bill, ord.item_avia,
+        json_table  
+                        ( r_task1c.request ,'$' 
+                        columns (bill_1c varchar2(255) path '$.bill_1c'
+                                )
+                        ) as j
+        where task1c.amnd_state <> 'I'
+        and bill2task.task_oid = task1c.id
+        and bill.id = bill2task.bill_oid
+        and bill.order_oid = item_avia.order_oid
+        and item_avia.amnd_state = 'A'
+        and task1c.number_1c = j.bill_1c
+        ;
+          
+      ord_api.task1c_edit(p_id=>v_task, p_status=>'W');
+          
+          
+    end if;
+
     COMMIT;
  
-      
-/*    OPEN v_results FOR
-      select  'test@ntg-one.com' email, 1 task_id, 313276 contract_id, 'Авиабилет (электронный билет), пассажир Sagiev Adel' description, 1 quantity, 12211 price, 18 vat from dual 
-        union all
-      select  'test@ntg-one.com' email, 1 task_id, 313276 contract_id, 'Комиссионный  сбор' description, 1 quantity, 321 price, 10 vat from dual 
-        union all
-      select  'test@ntg-one.com' email, 1 task_id, 313276 contract_id, 'Авиабилет (электронный билет), пассажир POPINEVSKIY SERGEY' description, 1 quantity, 54673 price, 0 vat from dual 
-        union all
-      select  'test@ntg-one.com' email, 1 task_id, 313276 contract_id, 'Комиссионный  сбор' description, 1 quantity, 45 price, 18 vat from dual 
-        union all
-      select  'test@ntg-one.com' email, 1 task_id, 313276 contract_id, 'Трансфер' description, 1 quantity, 34554 price, 0 vat from dual; 
- */     
+  
     return v_results;
   exception 
     when VALUE_ERROR then 
-      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'VALUE_ERROR', 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'task_get', p_msg_type=>'VALUE_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
         open v_results for
@@ -2331,7 +2406,7 @@ $TODO: there must be check for users with ISSUES permission
         return v_results;
     when others then
       rollback;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'UNHANDLED_ERROR', 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'task_get', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
         open v_results for
@@ -2341,16 +2416,38 @@ $TODO: there must be check for users with ISSUES permission
 
 
   function task_close(p_task in hdbk.dtype.t_id default null,
-                      p_number_1c in hdbk.dtype.t_long_code default null)
+                      p_number_1c in hdbk.dtype.t_long_code default null,
+                      p_data in hdbk.dtype.t_clob default null
+                      )
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
     --v_contract hdbk.dtype.t_id;
 --    r_account_info blng.v_account%rowtype;
     v_task hdbk.dtype.t_id;
+    v_type hdbk.dtype.t_long_code;
+    v_number_1c hdbk.dtype.t_long_code;
+    r_dictionary hdbk.dictionary%rowtype;
+    r_task1c task1c%rowtype;    
   begin
 
-    ord_api.task1c_edit(p_id=>p_task,p_number_1c=>p_number_1c, p_status=>'C');
+    r_task1c := ord_api.task1c_get_info_r(p_id => p_task );
+
+      r_dictionary := hdbk.hdbk_api.dictionary_get_info_r(p_id=>r_task1c.task_type);
+      v_type:=r_dictionary.code;
+      
+      if v_type = 'BILL_ADD' then 
+        if p_data is null then raise VALUE_ERROR; end if;
+        select number_1c into v_number_1c from
+                        json_table  
+                          ( p_data ,'$' 
+                          columns (number_1c varchar2(255) path '$.number_1c'
+                                  )
+                          ) ;
+        if v_number_1c is null then raise VALUE_ERROR; end if;                    
+      end if;
+
+    ord_api.task1c_edit(p_id=>p_task,p_number_1c=>v_number_1c, p_status=>'C');
     COMMIT;
     
     open v_results for
@@ -2358,14 +2455,14 @@ $TODO: there must be check for users with ISSUES permission
     return v_results;
   exception 
     when VALUE_ERROR then 
-      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'VALUE_ERROR', 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'task_close', p_msg_type=>'VALUE_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
         open v_results for
           select 'ERROR' res from dual;
         return v_results;
     when NO_DATA_FOUND then 
-      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'NO_DATA_FOUND', 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'task_close', p_msg_type=>'NO_DATA_FOUND', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
         open v_results for
@@ -2373,13 +2470,61 @@ $TODO: there must be check for users with ISSUES permission
         return v_results;
     when others then
       rollback;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'UNHANDLED_ERROR', 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'task_close', p_msg_type=>'UNHANDLED_ERROR', 
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
         || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
         open v_results for
           select 'ERROR' res from dual;
         return v_results;
   end;
+
+
+
+
+  function bill_1c_payed(p_number_1c in hdbk.dtype.t_long_code default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    v_task1c hdbk.dtype.t_id;
+    v_request hdbk.dtype.t_clob;
+  begin
+      if p_number_1c is null then raise VALUE_ERROR; end if;
+      v_request := '{"bill_1c": "'||p_number_1c||'"}';
+      v_task1c := ord_api.task1c_add(p_task_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'TASK',p_code=>'1C_FIN_ACTS'),
+                  p_request => v_request );
+
+    COMMIT;
+    
+    open v_results for
+      select 'SUCCESS' res from dual;
+    return v_results;
+  exception 
+    when VALUE_ERROR then 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_1c_payed', p_msg_type=>'VALUE_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+        open v_results for
+          select 'ERROR' res from dual;
+        return v_results;
+    when NO_DATA_FOUND then 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_1c_payed', p_msg_type=>'NO_DATA_FOUND', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+        open v_results for
+          select 'ERROR' res from dual;
+        return v_results;
+    when others then
+      rollback;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_1c_payed', p_msg_type=>'UNHANDLED_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+        open v_results for
+          select 'ERROR' res from dual;
+        return v_results;
+  end;
+
+
+
 
 
 
