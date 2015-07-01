@@ -1082,6 +1082,7 @@ END FWDR;
     for i in (
               select
               leg_num,
+              hdbk.hdbk_api.airline_get_id(p_iata => validating_carrier) validating_carrier,
               leg_departure_iata,
               (select id from hdbk.geo where id = (select city_id from hdbk.geo where iata = leg_departure_iata and amnd_state = 'A' and is_active = 'Y' and object_type='airport real')) leg_departure_city,
               to_date(leg_departure_date,'yyyy-mm-dd"T"HH24:mi:ss') leg_departure_date,
@@ -1089,6 +1090,8 @@ END FWDR;
               (select id from hdbk.geo where id = (select city_id from hdbk.geo where iata = leg_arrival_iata and amnd_state = 'A' and is_active = 'Y' and object_type='airport real')) leg_arrival_city,
               to_date(leg_arrival_date,'yyyy-mm-dd"T"HH24:mi:ss') leg_arrival_date,
               segment_num,
+              hdbk.hdbk_api.airline_get_id(p_iata => segment_marketing_carrier) segment_marketing_carrier,
+              hdbk.hdbk_api.airline_get_id(p_iata => segment_operating_carrier) segment_operating_carrier,
               segment_departure_iata,
               (select id from hdbk.geo where id = (select city_id from hdbk.geo where iata = segment_departure_iata and amnd_state = 'A' and is_active = 'Y' and object_type='airport real')) segment_departure_city,
               to_date(segment_departure_date,'yyyy-mm-dd"T"HH24:mi:ss') segment_departure_date,
@@ -1108,6 +1111,8 @@ END FWDR;
                               leg_arrival_date VARCHAR2(250) path '$.arrival_datetime',
                               NESTED PATH '$.segments[*]' COLUMNS (
                                 segment_num number(20,2) path '$.segment_num',
+                                segment_marketing_carrier VARCHAR2(250) path '$.marketing_carrier',
+                                segment_operating_carrier VARCHAR2(250) path '$.operating_carrier',
                                 segment_departure_iata VARCHAR2(250) path '$.departure_location',
                                 segment_departure_date VARCHAR2(250) path '$.departure_datetime',
                                 segment_arrival_iata VARCHAR2(250) path '$.arrival_location',
@@ -1119,7 +1124,8 @@ END FWDR;
     )
     loop
       if v_prev_leg = 0 then
-        v_itinerary := ord_api.itinerary_add(p_item_avia=>v_item_avia);
+        v_itinerary := ord_api.itinerary_add(p_item_avia=>v_item_avia,
+                                              p_validating_carrier=>i.validating_carrier);
       end if;
       
       if v_prev_leg <> i.leg_num then
@@ -1143,7 +1149,9 @@ END FWDR;
                                   p_departure_date => i.segment_departure_date,
                                   p_arrival_iata  => i.segment_arrival_iata,
                                   p_arrival_city  => i.segment_arrival_city,
-                                  p_arrival_date  => i.segment_arrival_date
+                                  p_arrival_date  => i.segment_arrival_date,
+                                  p_marketing_carrier  => i.segment_marketing_carrier,
+                                  p_operating_carrier  => i.segment_operating_carrier
                         );
       
     end loop;
@@ -1491,12 +1499,12 @@ END FWDR;
   exception 
     when NO_DATA_FOUND then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_add', p_msg_type=>'NO_DATA_FOUND',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_add', p_msg_type=>'VALUE_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,
           P_ALERT_LEVEL=>10);
 
       open v_results for
-        select 'NO_DATA_FOUND' res from dual;
+        select 'VALUE_ERROR' res from dual;
       return v_results;
     when VALUE_ERROR then
       ROLLBACK;
@@ -2284,6 +2292,7 @@ $TODO: there must be check for users with ISSUES permission
                FROM ord.leg
                where itinerary_oid = (select id from ord.itinerary where itinerary.amnd_state = 'A' and itinerary.item_avia_oid = item_avia.id)
                group by itinerary_oid)
+            ||', перевозчик '|| (select nls_name||' ('||iata||')' from hdbk.airline where id = (select validating_carrier from ord.itinerary where amnd_state = 'A' and item_avia_oid = item_avia.id))
             ||', пассажир '|| ticket.passenger_name description, 
             1 quantity, 
             nvl(ticket.fare_amount,0) + nvl(ticket.taxes_amount,0) price, 

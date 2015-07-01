@@ -1411,7 +1411,9 @@ ALTER TRIGGER ord.b2t_TRGR ENABLE;
    amnd_user VARCHAR2(50),
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
-   item_avia_oid NUMBER(18,0)
+   item_avia_oid NUMBER(18,0),
+   validating_carrier NUMBER(18,0)
+   
    ) SEGMENT CREATION IMMEDIATE
   TABLESPACE USERS ;
 --------------------------------------------------------
@@ -1565,7 +1567,9 @@ ALTER TRIGGER ord.leg_TRGR ENABLE;
    departure_date date,
    arrival_iata varchar2(10),
    arrival_city NUMBER(18,0),
-   arrival_date date
+   arrival_date date,
+   marketing_carrier number(18),
+  operating_carrier number(18)
 
    ) SEGMENT CREATION IMMEDIATE
   TABLESPACE USERS ;

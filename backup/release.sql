@@ -6,6 +6,34 @@ commit;
 
 alter table  ord.task1c add request clob;
 
+alter table  ORD.ITINERARY add validating_carrier number(18);
+alter table  ORD.segment add marketing_carrier number(18);
+alter table  ORD.segment add operating_carrier number(18);
+
+/*
+                  json_table  
+                    ( p_itinerary,'$[*]' 
+                    columns (
+                              validating_carrier VARCHAR2(250) path '$.validating_carrier',
+                              leg_num number(18,0) path '$.leg_num',
+                              leg_departure_iata VARCHAR2(250) path '$.departure_location',
+                              leg_departure_date VARCHAR2(250) path '$.departure_datetime',
+                              leg_arrival_iata VARCHAR2(250) path '$.arrival_location',
+                              leg_arrival_date VARCHAR2(250) path '$.arrival_datetime',
+                              NESTED PATH '$.segments[*]' COLUMNS (
+                                segment_num number(20,2) path '$.segment_num',
+                                segment_marketing_carrier VARCHAR2(250) path '$.marketing_carrier',
+                                segment_operating_carrier VARCHAR2(250) path '$.operating_carrier',
+                                segment_departure_iata VARCHAR2(250) path '$.departure_location',
+                                segment_departure_date VARCHAR2(250) path '$.departure_datetime',
+                                segment_arrival_iata VARCHAR2(250) path '$.arrival_location',
+                                segment_arrival_date VARCHAR2(250) path '$.arrival_datetime'
+                                )
+                              )
+                    ) as j
+*/
+
+
 
 
 @dba/GRANTS.sql;
