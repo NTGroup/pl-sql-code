@@ -2,12 +2,12 @@
 # BLNG.BLNG\_API
 ---
 _DESCRIPTION:_  
-***\_add: insert row into table ***. could return id of new row.  
-***\_edit: update row into table ***. object have always one id. first, old data with amnd\_state = [i]nactive  
-***\_edit: inserted as row with link to new row(amnd\_prev). new data just update object row,  
-***\_edit: amnd\_date updates to sysdate and amnd\_user to current user who called api.  
-***\_get\_info: return data from table *** with format sys\_refcursor.  
-***\_get\_info\_r: return one row from table *** with format ***%rowtype.  
+***\_add:** insert row into table *. could return id of new row.  
+***\_edit:** update row into table *. object have always one id. first, old data with amnd\_state = [i]nactive  
+inserted as row with link to new row(amnd\_prev). new data just update object row,  
+amnd\_date updates to sysdate and amnd\_user to current user who called api.  
+***\_get\_info:** return data from table * with format sys\_refcursor.  
+***\_get\_info\_r:** return one row from table * with format *%rowtype.  
 
 - _procedure_ **blng.blng\_api.account\_init**  
 _DESCRIPTION:_  
@@ -126,18 +126,20 @@ user id
 
 - _function_ **blng.fwdr.balance**  
 _DESCRIPTION:_  
-return info of contract for show balance to the client. function return this filds  
-deposit: self money  
-loan: money thatspent from credit limit  
-credit\_limit: credit limit  
-unused\_credit\_limit: credit limit - abs(loan)  
-available: credit limit + deposit - abs(loan). if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ.  
-block\_date: expiration date of the next bill  
-unblock\_sum: sum next neares bills (with one day) + all bills before current day  
-near\_unblock\_sum: unblock sum + bills for 2 next days after after first bill  
-expiry\_date: date of first expired bill  
-expiry\_sum: summ of all expired bills  
-status: if bills are expired and contract blocked then 'block', if bills are expired and contract unblocked then 'unblock', else 'active'  
+return info of contract for show balance to the client. function return this filds {  
+  - deposit: self money  
+  - loan: money thatspent from credit limit  
+  - credit\_limit: credit limit  
+  - unused\_credit\_limit: credit limit - abs(loan)  
+  - available: credit limit + deposit - abs(loan). if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ.  
+  - block\_date: expiration date of the next bill  
+  - unblock\_sum: sum next neares bills (with one day) + all bills before current day  
+  - near\_unblock\_sum: unblock sum + bills for 2 next days after after first bill  
+  - expiry\_date: date of first expired bill  
+  - expiry\_sum: summ of all expired bills  
+  - status: if bills are expired and contract blocked then 'block', if bills are expired and contract unblocked then 'unblock', else 'active'  
+
+    }  
 _PARAMETERS:_  
 **p\_tenant\_id:** contract id  
 _RETURN:_  
@@ -292,109 +294,6 @@ on success sys\_refcursor[client\_id, contract\_id, tenant\_id, is\_blocked, con
 credit\_limit, delay\_days, max\_credit, utc\_offset, contact\_name,contract\_number, contact\_phone  
 on error sys\_refcursor[res]. res=error  
 
-# ERP.ERP\_API
----
-***\_add: insert row into table ***. could return id of new row.  
-***\_edit: update row into table ***. object have always one id. first, old data with amnd\_state = [i]nactive  
-***\_edit: inserted as row with link to new row(amnd\_prev). new data just update object row,  
-***\_edit: amnd\_date updates to sysdate and amnd\_user to current user who called api.  
-***\_get\_info: return data from table *** with format sys\_refcursor.  
-***\_get\_info\_r: return one row from table *** with format ***%rowtype.  
-
-# ERP.GATE
----
-
-- _function_ **erp.gate.check\_user**  
-_DESCRIPTION:_  
-if user exists then return user id  
-if user not exists, but domain exists then create new user and return user id  
-if user not exists, domain not exists then return null  
-_PARAMETERS:_  
-**p\_email**(_t\_name_): user email  
-_RETURN:_  
-id(t\_id) is not null - user identifire  
-
-- _function_ **erp.gate.city\_list**  
-_DESCRIPTION:_  
-list of warehouse and production cities  
-_PARAMETERS:_  
-**p\_email**(_t\_name_): user email  
-_RETURN:_  
-sys\_refcursor {  
-id(t\_id) is not null - city id  
-name(t\_name) is not null  - name of city  
-}  
-
-- _function_ **erp.gate.material\_list**  
-_DESCRIPTION:_  
-list of warehouse cities  
-_PARAMETERS:_  
-**p\_city**(_t\_id_): warehouse city id  
-**p\_email**(_t\_name_): user email  
-_RETURN:_  
-sys\_refcursor{  
-material\_id(t\_id) is not null  - id of material  
-name(t\_name) is not null - name of material like wood, paper  
-type(t\_name) is null - material type like smooth, reinforced  
-specification(t\_name) is null - some specific information like size or colour  
-unit\_size(t\_id) is not null - numeric value of material size  
-measure(t\_code) is not null - measure like meter, litres  
-curr\_quantity(t\_id) is not null - current count of material  
-}  
-
-- _function_ **erp.gate.whs\_correction\_add**  
-_DESCRIPTION:_  
-add correction to warehouse  
-_PARAMETERS:_  
-**p\_data**(_t\_clob_): json{  
-user\_id(t\_name) - user email which add new data  
-material\_id(t\_id) - id of material  
-prev\_quantity(t\_id) - count of material that was at warehouse before this moment  
-curr\_quantity(t\_id) - real count of material for this moment  
-reason(t\_name) - reason why correction was added  
-city\_id(t\_id) - id of the city  
-}  
-_RETURN:_  
-id(t\_id) of new added correction  
-
-- _procedure_ **erp.gate.whs\_correction\_edit**  
-_DESCRIPTION:_  
-edit correction to warehouse  
-_PARAMETERS:_  
-**p\_data**(_t\_clob_): json{  
-correction\_id(t\_id) - id of correction  
-current\_user\_id(t\_name) - user email which edit this correction data  
-curr\_quantity(t\_id) - real count of material for this moment  
-reason(t\_name) - reason why correction was changed or added  
-}  
-
-- _procedure_ **erp.gate.whs\_correction\_delete**  
-_DESCRIPTION:_  
-delete correction  
-_PARAMETERS:_  
-**p\_data**(_t\_clob_): json{  
-correction\_id(t\_id) - id of correction  
-current\_user\_id(t\_name) - user email which edit this correction data  
-}  
-
-- _function_ **erp.gate.whs\_correction\_list**  
-_DESCRIPTION:_  
-list of warehouse cities  
-_PARAMETERS:_  
-**p\_city**(_t\_id_): city id where warehouse is situated  
-**p\_email**(_t\_name_): email of the user which ask the list  
-_RETURN:_  
-sys\_refcursor{  
-correction\_id(t\_id) - id of the correction  
-user\_id(t\_name) - email of the user which added or edit correction  
-material\_id(t\_id) - id of materials  
-prev\_quantity(t\_id) - count of the material before this correction  
-curr\_quantity(t\_id) - count of the material after this correction  
-reason(t\_name) - reason of this correction  
-city\_id(t\_id) - city id where warehouse is situated  
-correction\_date(t\_date) - last date when correction was added or edited  
-}  
-
 # HDBK.CORE
 ---
 
@@ -545,12 +444,13 @@ sys\_refcursor[code,rate,version,is\_active(y,n)]
 
 # HDBK.HDBK\_API
 ---
-***\_add: insert row into table ***. could return id of new row.  
-***\_edit: update row into table ***. object have always one id. first, old data with amnd\_state = [i]nactive  
-***\_edit: inserted as row with link to new row(amnd\_prev). new data just update object row,  
-***\_edit: amnd\_date updates to sysdate and amnd\_user to current user who called api.  
-***\_get\_info: return data from table *** with format sys\_refcursor.  
-***\_get\_info\_r: return one row from table *** with format ***%rowtype.  
+_DESCRIPTION:_  
+***\_add:** insert row into table *. could return id of new row.  
+***\_edit:** update row into table *. object have always one id. first, old data with amnd\_state = [i]nactive  
+inserted as row with link to new row(amnd\_prev). new data just update object row,  
+amnd\_date updates to sysdate and amnd\_user to current user who called api.  
+***\_get\_info:** return data from table * with format sys\_refcursor.  
+***\_get\_info\_r:** return one row from table * with format *%rowtype.  
 
 # HDBK.LOG\_API
 ---
@@ -819,10 +719,11 @@ sys\_refcursor[res]
 
 # ORD.ORD\_API
 ---
-***\_add: insert row into table ***. could return id of new row.  
-***\_edit: update row into table ***. object have always one id. first, old data with amnd\_state = [i]nactive  
-***\_edit: inserted as row with link to new row(amnd\_prev). new data just update object row,  
-***\_edit: amnd\_date updates to sysdate and amnd\_user to current user who called api.  
-***\_get\_info: return data from table *** with format sys\_refcursor.  
-***\_get\_info\_r: return one row from table *** with format ***%rowtype.  
+_DESCRIPTION:_  
+***\_add:** insert row into table *. could return id of new row.  
+***\_edit:** update row into table *. object have always one id. first, old data with amnd\_state = [i]nactive  
+inserted as row with link to new row(amnd\_prev). new data just update object row,  
+amnd\_date updates to sysdate and amnd\_user to current user who called api.  
+***\_get\_info:** return data from table * with format sys\_refcursor.  
+***\_get\_info\_r:** return one row from table * with format *%rowtype.  
 

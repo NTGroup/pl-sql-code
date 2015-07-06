@@ -4,7 +4,7 @@ SET PAGESIZE 0
 set serveroutput on
 set feedback OFF
 
-SPOOL ./metadata/out.md;
+SPOOL ../README.md;
 
 declare
 v_out varchar2(255);
