@@ -6,7 +6,7 @@ CREATE OR REPLACE PACKAGE ORD.FWDR AS
 
 /*
 
-$pkg: ord.fwdr
+$pkg: ORD.FWDR
 
 */
 
@@ -2297,7 +2297,7 @@ $TODO: there must be check for users with ISSUES permission
             1 quantity, 
             nvl(ticket.fare_amount,0) + nvl(ticket.taxes_amount,0) price, 
             18 vat,
-            (select date_to -1 from blng.v_delay where bill_id = bill.id) date_to
+            trunc(nvl((select date_to -1 from blng.v_delay where bill_id = bill.id),sysdate)) date_to
              from
             ord.bill2task, ord.bill, ord.item_avia, ord.ticket
             where bill2task.amnd_state = 'A' 
@@ -2323,7 +2323,7 @@ $TODO: there must be check for users with ISSUES permission
             1 quantity, 
             nvl(ticket.service_fee_amount,0) price, 
             18 vat,
-            (select date_to -1 from blng.v_delay where bill_id = bill.id) date_to
+            trunc(nvl((select date_to -1 from blng.v_delay where bill_id = bill.id),sysdate)) date_to
              from
             ord.bill2task, ord.bill, ord.item_avia, ord.ticket
             where bill2task.amnd_state = 'A' 

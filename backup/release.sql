@@ -49,7 +49,9 @@ alter table  ORD.segment add operating_carrier number(18);
 @data/pkg/ord.ord_api.sql;
 @data/pkg/ord.core.sql;
 @data/pkg/ord.fwdr.sql;
---@metadata/get_ddl.sql;
+-- @metadata/get_ddl.sql;
+-- @metadata/get_ddl_md.sql;
+@metadata/get_ddl_table.sql;
 
 
 

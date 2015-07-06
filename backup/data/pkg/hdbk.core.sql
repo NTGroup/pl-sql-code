@@ -2,7 +2,7 @@
 
  /*
  
- pkg: hdbk.core
+$pkg: HDBK.CORE
  
  */
   

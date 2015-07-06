@@ -2,7 +2,7 @@
 
   
 /*
- $pkg: HDBK.DTYPE
+$pkg: HDBK.DTYPE
  */
 
 
