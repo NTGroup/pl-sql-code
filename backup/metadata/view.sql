@@ -1,5 +1,5 @@
 
-  CREATE OR REPLACE  VIEW "ORD"."V_COMMISSION" 
+  CREATE OR REPLACE  VIEW ORD.V_COMMISSION 
   AS 
   select 
 al.id al_oid,
@@ -34,7 +34,7 @@ order by iata,cmn.priority desc, cmn.id, ct.priority desc;
 
 
 
-  CREATE OR REPLACE VIEW "ORD"."V_JSON" 
+  CREATE OR REPLACE VIEW ORD.V_JSON 
   AS 
   SELECT 
 ia.id,
@@ -112,7 +112,7 @@ order by ia.id desc;
 /
 
 
-  CREATE OR REPLACE  VIEW "BLNG"."V_ACCOUNT_TYPE" 
+  CREATE OR REPLACE  VIEW BLNG.V_ACCOUNT_TYPE 
   AS 
   select
 id,
@@ -130,7 +130,7 @@ from blng.account_type act
 where amnd_state = 'A';
 
 /
-  CREATE OR REPLACE VIEW "BLNG"."V_ACCOUNT" 
+  CREATE OR REPLACE VIEW BLNG.V_ACCOUNT 
   AS 
   select
 acc.contract_oid contract_oid,
@@ -310,7 +310,7 @@ create or replace view blng.v_total as
 
 
 /
-
+/*
         create or replace view blng.v_statement as
         select
         doc_id,
@@ -470,7 +470,11 @@ union all
         )
       --  where contract_id = 21
         order by contract_id, trans_date;
+        */
 /
+
+
+
 /*
 grant CREATE MATERIALIZED VIEW to blng;
 grant CREATE TABLE to blng;
@@ -512,3 +516,103 @@ order by delay_buy.contract_oid asc, date_to asc, delay_buy.id asc;
 /
 
                     
+create or replace view blng.v_document as 
+select
+document.id document_id,
+transaction.id transaction_id,
+document.bill_oid bill_id,
+contract.id contract_id,
+transaction.trans_date transaction_date,
+transaction.amount amount,
+dictionary.code transaction_type,
+contract.utc_offset
+from blng.document,blng.transaction,hdbk.dictionary, blng.contract where 
+document.amnd_state = 'A'
+and document.status = 'P'
+and transaction.amnd_state = 'A'
+and transaction.status = 'P'
+and transaction.doc_oid = document.id
+and transaction.trans_type_oid not in (5,6)
+and dictionary.id = document.account_trans_type_oid
+and document.contract_oid = contract.id
+and contract.amnd_state in  ('A','C')
+--and document.contract_oid = 27
+order by document.id desc
+/
+
+                    
+create or replace view ord.v_bill as 
+select
+ ord.id order_id,
+  item_avia.id item_avia_id,
+  bill.id bill_id,
+  bill.contract_oid contract_id,
+  ord.user_oid user_id,
+  item_avia.pnr_id,
+  item_avia.pnr_locator order_number,
+  item_avia.pnr_locator,
+  bill.amount,
+--  bill.bill_oid payed_bill_oid,
+ -- dictionary.code trans_type,
+  bill.bill_date,
+  usr.first_name,
+  usr.last_name,
+  usr.email,
+  usr.utc_offset
+from 
+--hdbk.dictionary,
+ord.bill,
+ord.item_avia,
+ord.ord,
+blng.usr
+where ord.amnd_state(+) = 'A'
+and ord.id(+) = bill.order_oid
+and ord.id = item_avia.order_oid
+and item_avia.amnd_state = 'A'
+and bill.amnd_state = 'A'
+and bill.status = 'P'
+--and bill.trans_type_oid = dictionary.id(+)
+and item_avia.id in (select item_avia_oid from ord.ticket where amnd_state = 'A')
+and usr.amnd_state in  ('A','C')
+and ord.user_oid = usr.id
+--and bill.contract_oid = 27
+order by bill.id desc
+
+/
+
+       
+
+create or replace view blng.v_statement as
+
+        select
+        v_document.document_id doc_id,
+        v_document.transaction_id,
+        v_document.contract_id,
+        nvl(nvl(v_bill.utc_offset,v_document.utc_offset),0) utc_offset,
+        --null doc_trans_code,
+        1 one,
+        v_document.transaction_date trans_date,
+        to_char(v_document.transaction_date + nvl(nvl(v_bill.utc_offset,v_document.utc_offset),0)/24,'yyyy-mm-dd') transaction_date,
+        to_char(v_document.transaction_date + nvl(nvl(v_bill.utc_offset,v_document.utc_offset),0)/24,'HH24:mi:ss') transaction_time,
+(sum(v_document.amount) over (partition by v_document.contract_id order by v_document.transaction_date RANGE UNBOUNDED PRECEDING))
+-
+v_document.amount amount_before,
+        v_document.amount,
+sum(v_document.amount) over (partition by v_document.contract_id order by v_document.transaction_date RANGE UNBOUNDED PRECEDING) amount_after,
+        v_document.transaction_type,
+         v_bill.pnr_id,
+         v_bill.order_number,
+         initcap(v_bill.last_name) last_name,
+        initcap(v_bill.first_name) first_name,
+        v_bill.email          
+
+from 
+blng.v_document, ord.v_bill
+where v_document.bill_id = v_bill.bill_id(+)
+and v_document.transaction_type not in ('DELAY_DAY','UP_LIM_TRANS')
+--and v_document.contract_id = 27
+order by v_document.contract_id desc, v_document.document_id desc;
+
+/
+
+

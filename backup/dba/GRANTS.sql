@@ -46,6 +46,7 @@ grant execute on blng.blng_api to hdbk;
 grant debug on blng.blng_api to hdbk;
 
 grant select on blng.usr TO hdbk;
+grant select on BLNG.USR TO ord with grant option;
 grant select on blng.v_delay to ord;
 
 
@@ -57,6 +58,8 @@ grant debug on ord.fwdr to hdbk;
 grant execute on ord.core to hdbk;
 grant select on ord.commission TO hdbk;
 grant select on ord.bill to hdbk;
+grant select on ord.v_bill to blng;
+
 
 -- ERP
 GRANT create SESSION to erp_gate;
