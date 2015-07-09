@@ -16,21 +16,21 @@
    status VARCHAR2(1),
    user_oid number(18,0)
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX ord.ord_ID_IDX ON ord.ord ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX ord.ord_ID_IDX ON ord.ord (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE ord.ord MODIFY ("ID" CONSTRAINT ord_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ord.ord MODIFY (AMND_DATE CONSTRAINT "ord_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.ord MODIFY (AMND_USER CONSTRAINT "ord_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.ord MODIFY (AMND_STATE CONSTRAINT "ord_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.ord MODIFY (ID CONSTRAINT ord_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.ord MODIFY (AMND_DATE CONSTRAINT ord_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE ord.ord MODIFY (AMND_USER CONSTRAINT ord_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE ord.ord MODIFY (AMND_STATE CONSTRAINT ord_AST_NN NOT NULL ENABLE);
 ALTER TABLE ord.ord  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE ord.ord  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE ord.ord  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -40,7 +40,7 @@ ALTER TABLE ord.ord  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 
   
   ALTER TABLE ord.ord ADD CONSTRAINT bill_usr_OID_FK FOREIGN KEY (user_oid)
-  REFERENCES blng.usr ("ID") ENABLE;
+  REFERENCES blng.usr (ID) ENABLE;
    
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
@@ -90,24 +90,26 @@ ALTER TRIGGER ord.ord_TRGR ENABLE;
    status VARCHAR2(1),
    contract_oid NUMBER(18,0), 
    bill_oid NUMBER(18,0), 
-   trans_type_oid NUMBER(18,0)
+   trans_type_oid NUMBER(18,0),
+   vat_type_oid NUMBER(18,0)
+   
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX ord.bill_ID_IDX ON ord.bill ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX ord.bill_ID_IDX ON ord.bill (ID) 
+  TABLESPACE USERS ;
   
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE ord.bill MODIFY ("ID" CONSTRAINT bill_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ord.bill MODIFY (AMND_DATE CONSTRAINT "bill_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.bill MODIFY (AMND_USER CONSTRAINT "bill_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.bill MODIFY (AMND_STATE CONSTRAINT "bill_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.bill MODIFY (ID CONSTRAINT bill_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.bill MODIFY (AMND_DATE CONSTRAINT bill_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE ord.bill MODIFY (AMND_USER CONSTRAINT bill_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE ord.bill MODIFY (AMND_STATE CONSTRAINT bill_AST_NN NOT NULL ENABLE);
 ALTER TABLE ord.bill  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE ord.bill  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE ord.bill  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -118,10 +120,10 @@ ALTER TABLE ord.bill  MODIFY (AMND_STATE DEFAULT  on null  'A' );
  
   
   ALTER TABLE ord.bill ADD CONSTRAINT bill_ord_OID_FK FOREIGN KEY (order_oid)
-  REFERENCES ord.ord ("ID") ENABLE;
+  REFERENCES ord.ord (ID) ENABLE;
 
   ALTER TABLE ord.bill ADD CONSTRAINT bill_cntr_OID_FK FOREIGN KEY (contract_oid)
-  REFERENCES blng.contract ("ID") ENABLE;
+  REFERENCES blng.contract (ID) ENABLE;
   
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
@@ -181,22 +183,22 @@ ALTER TRIGGER ord.bill_TRGR ENABLE;
 	PO_STATUS VARCHAR2(50 BYTE), 
 	NQT_STATUS_CUR VARCHAR2(50 BYTE)
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX ord.iav_ID_IDX ON ord.item_avia ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX ord.iav_ID_IDX ON ord.item_avia (ID) 
+  TABLESPACE USERS ;
   
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE ord.item_avia MODIFY ("ID" CONSTRAINT iav_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ord.item_avia MODIFY (AMND_DATE CONSTRAINT "iav_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.item_avia MODIFY (AMND_USER CONSTRAINT "iav_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.item_avia MODIFY (AMND_STATE CONSTRAINT "iav_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.item_avia MODIFY (ID CONSTRAINT iav_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.item_avia MODIFY (AMND_DATE CONSTRAINT iav_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE ord.item_avia MODIFY (AMND_USER CONSTRAINT iav_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE ord.item_avia MODIFY (AMND_STATE CONSTRAINT iav_AST_NN NOT NULL ENABLE);
 ALTER TABLE ord.item_avia  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE ord.item_avia  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE ord.item_avia  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -206,7 +208,7 @@ ALTER TABLE ord.item_avia  MODIFY (AMND_STATE DEFAULT  on null  'A' );
    ALTER TABLE ord.item_avia ADD CONSTRAINT iav_ensure_json CHECK (pnr_object IS JSON (STRICT));
   
   ALTER TABLE ord.item_avia ADD CONSTRAINT iav_ord_OID_FK FOREIGN KEY (order_oid)
-  REFERENCES ord.ord ("ID") ENABLE;
+  REFERENCES ord.ord (ID) ENABLE;
  
 
 --------------------------------------------------------
@@ -257,22 +259,22 @@ ALTER TRIGGER ord.iav_TRGR ENABLE;
    order_oid NUMBER(18,0), 
    status VARCHAR2(1)
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX ord.ihtl_ID_IDX ON ord.item_hotel ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX ord.ihtl_ID_IDX ON ord.item_hotel (ID) 
+  TABLESPACE USERS ;
   
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE ord.item_hotel MODIFY ("ID" CONSTRAINT ihtl_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ord.item_hotel MODIFY (AMND_DATE CONSTRAINT "ihtl_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.item_hotel MODIFY (AMND_USER CONSTRAINT "ihtl_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.item_hotel MODIFY (AMND_STATE CONSTRAINT "ihtl_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.item_hotel MODIFY (ID CONSTRAINT ihtl_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.item_hotel MODIFY (AMND_DATE CONSTRAINT ihtl_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE ord.item_hotel MODIFY (AMND_USER CONSTRAINT ihtl_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE ord.item_hotel MODIFY (AMND_STATE CONSTRAINT ihtl_AST_NN NOT NULL ENABLE);
 ALTER TABLE ord.item_hotel  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE ord.item_hotel  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE ord.item_hotel  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -282,7 +284,7 @@ ALTER TABLE ord.item_hotel  MODIFY (AMND_STATE DEFAULT  on null  'A' );
  
   
   ALTER TABLE ord.item_hotel ADD CONSTRAINT ihtl_ord_OID_FK FOREIGN KEY (order_oid)
-  REFERENCES ord.ord ("ID") ENABLE;
+  REFERENCES ord.ord (ID) ENABLE;
   
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
@@ -331,22 +333,22 @@ ALTER TRIGGER ord.ihtl_TRGR ENABLE;
    order_oid NUMBER(18,0), 
    status VARCHAR2(1)
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX ord.iins_ID_IDX ON ord.item_insurance ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX ord.iins_ID_IDX ON ord.item_insurance (ID) 
+  TABLESPACE USERS ;
   
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE ord.item_insurance MODIFY ("ID" CONSTRAINT iins_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ord.item_insurance MODIFY (AMND_DATE CONSTRAINT "iins_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.item_insurance MODIFY (AMND_USER CONSTRAINT "iins_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.item_insurance MODIFY (AMND_STATE CONSTRAINT "iins_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.item_insurance MODIFY (ID CONSTRAINT iins_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.item_insurance MODIFY (AMND_DATE CONSTRAINT iins_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE ord.item_insurance MODIFY (AMND_USER CONSTRAINT iins_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE ord.item_insurance MODIFY (AMND_STATE CONSTRAINT iins_AST_NN NOT NULL ENABLE);
 ALTER TABLE ord.item_insurance  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE ord.item_insurance  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE ord.item_insurance  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -356,7 +358,7 @@ ALTER TABLE ord.item_insurance  MODIFY (AMND_STATE DEFAULT  on null  'A' );
  
   
   ALTER TABLE ord.item_insurance ADD CONSTRAINT iins_ord_OID_FK FOREIGN KEY (order_oid)
-  REFERENCES ord.ord ("ID") ENABLE;
+  REFERENCES ord.ord (ID) ENABLE;
   
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
@@ -407,22 +409,22 @@ ALTER TRIGGER ord.iins_TRGR ENABLE;
    item_avia_oid NUMBER(18,0), 
    status VARCHAR2(1)
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX ord.pnr_ID_IDX ON ord.pnr ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX ord.pnr_ID_IDX ON ord.pnr (ID) 
+  TABLESPACE USERS ;
   
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE ord.pnr MODIFY ("ID" CONSTRAINT pnr_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ord.pnr MODIFY (AMND_DATE CONSTRAINT "pnr_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.pnr MODIFY (AMND_USER CONSTRAINT "pnr_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.pnr MODIFY (AMND_STATE CONSTRAINT "pnr_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.pnr MODIFY (ID CONSTRAINT pnr_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.pnr MODIFY (AMND_DATE CONSTRAINT pnr_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE ord.pnr MODIFY (AMND_USER CONSTRAINT pnr_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE ord.pnr MODIFY (AMND_STATE CONSTRAINT pnr_AST_NN NOT NULL ENABLE);
 ALTER TABLE ord.pnr  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE ord.pnr  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE ord.pnr  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -432,7 +434,7 @@ ALTER TABLE ord.pnr  MODIFY (AMND_STATE DEFAULT  on null  'A' );
  
   
   ALTER TABLE ord.pnr ADD CONSTRAINT pnr_iav_OID_FK FOREIGN KEY (item_avia_oid)
-  REFERENCES ord.item_avia ("ID") ENABLE;
+  REFERENCES ord.item_avia (ID) ENABLE;
  
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
@@ -485,22 +487,22 @@ ALTER TRIGGER ord.pnr_TRGR ENABLE;
     service_fee_amount number(20,2),
     partner_fee_amount number(20,2)   
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX ord.tkt_ID_IDX ON ord.ticket ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX ord.tkt_ID_IDX ON ord.ticket (ID) 
+  TABLESPACE USERS ;
   
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE ord.ticket MODIFY ("ID" CONSTRAINT tkt_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ord.ticket MODIFY (AMND_DATE CONSTRAINT "tkt_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.ticket MODIFY (AMND_USER CONSTRAINT "tkt_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.ticket MODIFY (AMND_STATE CONSTRAINT "tkt_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.ticket MODIFY (ID CONSTRAINT tkt_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.ticket MODIFY (AMND_DATE CONSTRAINT tkt_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE ord.ticket MODIFY (AMND_USER CONSTRAINT tkt_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE ord.ticket MODIFY (AMND_STATE CONSTRAINT tkt_AST_NN NOT NULL ENABLE);
 ALTER TABLE ord.ticket  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE ord.ticket  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE ord.ticket  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -510,7 +512,7 @@ ALTER TABLE ord.ticket  MODIFY (AMND_STATE DEFAULT  on null  'A' );
  
   
   ALTER TABLE ord.ticket ADD CONSTRAINT tkt_iav_OID_FK FOREIGN KEY (item_avia_oid)
-  REFERENCES ord.item_avia ("ID") ENABLE;
+  REFERENCES ord.item_avia (ID) ENABLE;
  
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
@@ -559,22 +561,22 @@ ALTER TRIGGER ord.tkt_TRGR ENABLE;
    pnr_oid NUMBER(18,0), 
    status VARCHAR2(1)
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX ord.pq_ID_IDX ON ord.price_quote ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX ord.pq_ID_IDX ON ord.price_quote (ID) 
+  TABLESPACE USERS ;
   
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE ord.price_quote MODIFY ("ID" CONSTRAINT pq_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ord.price_quote MODIFY (AMND_DATE CONSTRAINT "pq_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.price_quote MODIFY (AMND_USER CONSTRAINT "pq_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.price_quote MODIFY (AMND_STATE CONSTRAINT "pq_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.price_quote MODIFY (ID CONSTRAINT pq_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.price_quote MODIFY (AMND_DATE CONSTRAINT pq_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE ord.price_quote MODIFY (AMND_USER CONSTRAINT pq_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE ord.price_quote MODIFY (AMND_STATE CONSTRAINT pq_AST_NN NOT NULL ENABLE);
 ALTER TABLE ord.price_quote  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE ord.price_quote  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE ord.price_quote  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -584,7 +586,7 @@ ALTER TABLE ord.price_quote  MODIFY (AMND_STATE DEFAULT  on null  'A' );
  
   
   ALTER TABLE ord.price_quote ADD CONSTRAINT pq_pnr_OID_FK FOREIGN KEY (pnr_oid)
-  REFERENCES ord.pnr ("ID") ENABLE;
+  REFERENCES ord.pnr (ID) ENABLE;
  
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
@@ -635,22 +637,22 @@ ALTER TRIGGER ord.pq_TRGR ENABLE;
    pnr_oid NUMBER(18,0), 
    status VARCHAR2(1)
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX ord.pax_ID_IDX ON ord.passenger ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX ord.pax_ID_IDX ON ord.passenger (ID) 
+  TABLESPACE USERS ;
   
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE ord.passenger MODIFY ("ID" CONSTRAINT pax_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ord.passenger MODIFY (AMND_DATE CONSTRAINT "pax_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.passenger MODIFY (AMND_USER CONSTRAINT "pax_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.passenger MODIFY (AMND_STATE CONSTRAINT "pax_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.passenger MODIFY (ID CONSTRAINT pax_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.passenger MODIFY (AMND_DATE CONSTRAINT pax_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE ord.passenger MODIFY (AMND_USER CONSTRAINT pax_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE ord.passenger MODIFY (AMND_STATE CONSTRAINT pax_AST_NN NOT NULL ENABLE);
 ALTER TABLE ord.passenger  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE ord.passenger  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE ord.passenger  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -660,7 +662,7 @@ ALTER TABLE ord.passenger  MODIFY (AMND_STATE DEFAULT  on null  'A' );
  
   
   ALTER TABLE ord.passenger ADD CONSTRAINT pax_pnr_OID_FK FOREIGN KEY (pnr_oid)
-  REFERENCES ord.pnr ("ID") ENABLE;
+  REFERENCES ord.pnr (ID) ENABLE;
  
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
@@ -711,22 +713,22 @@ ALTER TRIGGER ord.pax_TRGR ENABLE;
    segment_oid NUMBER(18,0), 
    status VARCHAR2(1)
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX ord.stop_ID_IDX ON ord.flight_stop ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX ord.stop_ID_IDX ON ord.flight_stop (ID) 
+  TABLESPACE USERS ;
   
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE ord.flight_stop MODIFY ("ID" CONSTRAINT stop_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ord.flight_stop MODIFY (AMND_DATE CONSTRAINT "stop_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.flight_stop MODIFY (AMND_USER CONSTRAINT "stop_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.flight_stop MODIFY (AMND_STATE CONSTRAINT "stop_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.flight_stop MODIFY (ID CONSTRAINT stop_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.flight_stop MODIFY (AMND_DATE CONSTRAINT stop_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE ord.flight_stop MODIFY (AMND_USER CONSTRAINT stop_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE ord.flight_stop MODIFY (AMND_STATE CONSTRAINT stop_AST_NN NOT NULL ENABLE);
 ALTER TABLE ord.flight_stop  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE ord.flight_stop  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE ord.flight_stop  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -736,7 +738,7 @@ ALTER TABLE ord.flight_stop  MODIFY (AMND_STATE DEFAULT  on null  'A' );
  
   
   ALTER TABLE ord.flight_stop ADD CONSTRAINT stop_sgm_oid_FK FOREIGN KEY (segment_oid)
-  REFERENCES ord.segment ("ID") ENABLE;
+  REFERENCES ord.segment (ID) ENABLE;
  
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
@@ -801,23 +803,23 @@ ALTER TRIGGER ord.stop_TRGR ENABLE;
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
   
   --drop table  blng.account 
 --------------------------------------------------------
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX ord.CMN_ID_IDX ON ord.commission ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX ord.CMN_ID_IDX ON ord.commission (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE ord.commission MODIFY ("ID" CONSTRAINT CMN_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ord.commission MODIFY (AMND_DATE CONSTRAINT "CMN_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.commission MODIFY (AMND_USER CONSTRAINT "CMN_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.commission MODIFY (AMND_STATE CONSTRAINT "CMN_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.commission MODIFY (ID CONSTRAINT CMN_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.commission MODIFY (AMND_DATE CONSTRAINT CMN_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE ord.commission MODIFY (AMND_USER CONSTRAINT CMN_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE ord.commission MODIFY (AMND_STATE CONSTRAINT CMN_AST_NN NOT NULL ENABLE);
 ALTER TABLE ord.commission  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE ord.commission  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE ord.commission  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -827,15 +829,15 @@ ALTER TABLE ord.commission  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 
 /*
 ALTER TABLE ord.commission ADD CONSTRAINT CMN_ETT_OID_FK FOREIGN KEY (event_type_oid)
-  REFERENCES BLNG.event_type ("ID") ENABLE;
+  REFERENCES BLNG.event_type (ID) ENABLE;
 ALTER TABLE ord.commission ADD CONSTRAINT CMN_TRN_OID_FK FOREIGN KEY (transaction_oid)
-  REFERENCES BLNG.transaction ("ID") ENABLE;
+  REFERENCES BLNG.transaction (ID) ENABLE;
 ALTER TABLE ord.commission ADD CONSTRAINT CMN_CNTR_OID_FK FOREIGN KEY (contraCMN_oid)
-  REFERENCES BLNG.contract ("ID") ENABLE;
+  REFERENCES BLNG.contract (ID) ENABLE;
 */
 
 ALTER TABLE ord.commission ADD CONSTRAINT CMN_CNTR_OID_FK FOREIGN KEY (contract_oid)
-  REFERENCES BLNG.contract ("ID") ENABLE;
+  REFERENCES BLNG.contract (ID) ENABLE;
 
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
@@ -903,23 +905,23 @@ ALTER TRIGGER ord.CMN_TRGR ENABLE;
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
   
   --drop table  blng.account 
 --------------------------------------------------------
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX ord.CT_ID_IDX ON ord.commission_template ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX ord.CT_ID_IDX ON ord.commission_template (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE ord.commission_template MODIFY ("ID" CONSTRAINT CT_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ord.commission_template MODIFY (AMND_DATE CONSTRAINT "CT_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.commission_template MODIFY (AMND_USER CONSTRAINT "CT_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.commission_template MODIFY (AMND_STATE CONSTRAINT "CT_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.commission_template MODIFY (ID CONSTRAINT CT_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.commission_template MODIFY (AMND_DATE CONSTRAINT CT_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE ord.commission_template MODIFY (AMND_USER CONSTRAINT CT_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE ord.commission_template MODIFY (AMND_STATE CONSTRAINT CT_AST_NN NOT NULL ENABLE);
 ALTER TABLE ord.commission_template  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE ord.commission_template  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE ord.commission_template  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -929,11 +931,11 @@ ALTER TABLE ord.commission_template  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 
 /*
 ALTER TABLE ord.commission_template ADD CONSTRAINT CT_ETT_OID_FK FOREIGN KEY (event_type_oid)
-  REFERENCES BLNG.event_type ("ID") ENABLE;
+  REFERENCES BLNG.event_type (ID) ENABLE;
 ALTER TABLE ord.commission_template ADD CONSTRAINT CT_TRN_OID_FK FOREIGN KEY (transaction_oid)
-  REFERENCES BLNG.transaction ("ID") ENABLE;
+  REFERENCES BLNG.transaction (ID) ENABLE;
 ALTER TABLE ord.commission_template ADD CONSTRAINT CT_CNTR_OID_FK FOREIGN KEY (contract_oid)
-  REFERENCES BLNG.contract ("ID") ENABLE;
+  REFERENCES BLNG.contract (ID) ENABLE;
 */
 
 --------------------------------------------------------
@@ -987,23 +989,23 @@ ALTER TRIGGER ord.CT_TRGR ENABLE;
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
   
   --drop table  blng.account 
 --------------------------------------------------------
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX ord.CD_ID_IDX ON ord.commission_details ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX ord.CD_ID_IDX ON ord.commission_details (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE ord.commission_details MODIFY ("ID" CONSTRAINT CD_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ord.commission_details MODIFY (AMND_DATE CONSTRAINT "CD_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.commission_details MODIFY (AMND_USER CONSTRAINT "CD_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.commission_details MODIFY (AMND_STATE CONSTRAINT "CD_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.commission_details MODIFY (ID CONSTRAINT CD_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.commission_details MODIFY (AMND_DATE CONSTRAINT CD_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE ord.commission_details MODIFY (AMND_USER CONSTRAINT CD_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE ord.commission_details MODIFY (AMND_STATE CONSTRAINT CD_AST_NN NOT NULL ENABLE);
 ALTER TABLE ord.commission_details  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE ord.commission_details  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE ord.commission_details  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -1013,9 +1015,9 @@ ALTER TABLE ord.commission_details  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 
 
 ALTER TABLE ord.commission_details ADD CONSTRAINT CD_CMN_OID_FK FOREIGN KEY (commission_oid)
-  REFERENCES ord.commission ("ID") ENABLE;
+  REFERENCES ord.commission (ID) ENABLE;
 ALTER TABLE ord.commission_details ADD CONSTRAINT CD_CT_OID_FK FOREIGN KEY (commission_template_oid)
-  REFERENCES ord.commission_template ("ID") ENABLE;
+  REFERENCES ord.commission_template (ID) ENABLE;
 
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
@@ -1067,22 +1069,22 @@ ALTER TRIGGER ord.CD_TRGR ENABLE;
     NQT_STATUS_CUR VARCHAR2(50 BYTE)
     
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX ord.iavs_ID_IDX ON ord.item_avia_status ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX ord.iavs_ID_IDX ON ord.item_avia_status (ID) 
+  TABLESPACE USERS ;
   
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE ord.item_avia_status MODIFY ("ID" CONSTRAINT iavs_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ord.item_avia_status MODIFY (AMND_DATE CONSTRAINT "iavs_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.item_avia_status MODIFY (AMND_USER CONSTRAINT "iavs_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.item_avia_status MODIFY (AMND_STATE CONSTRAINT "iavs_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.item_avia_status MODIFY (ID CONSTRAINT iavs_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.item_avia_status MODIFY (AMND_DATE CONSTRAINT iavs_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE ord.item_avia_status MODIFY (AMND_USER CONSTRAINT iavs_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE ord.item_avia_status MODIFY (AMND_STATE CONSTRAINT iavs_AST_NN NOT NULL ENABLE);
 ALTER TABLE ord.item_avia_status  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE ord.item_avia_status  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE ord.item_avia_status  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -1092,7 +1094,7 @@ ALTER TABLE ord.item_avia_status  MODIFY (AMND_STATE DEFAULT  on null  'A' );
  
   
   ALTER TABLE ord.item_avia_status ADD CONSTRAINT iavs_iav_OID_FK FOREIGN KEY (item_avia_oid)
-  REFERENCES ord.item_avia ("ID") ENABLE;
+  REFERENCES ord.item_avia (ID) ENABLE;
 
 
 --------------------------------------------------------
@@ -1147,22 +1149,22 @@ ALTER TRIGGER ord.iavs_TRGR ENABLE;
    stock VARCHAR2(10),
    printer VARCHAR2(10)  
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX ord.posr_ID_IDX ON ord.pos_rule ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX ord.posr_ID_IDX ON ord.pos_rule (ID) 
+  TABLESPACE USERS ;
   
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE ord.pos_rule MODIFY ("ID" CONSTRAINT posr_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ord.pos_rule MODIFY (AMND_DATE CONSTRAINT "posr_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.pos_rule MODIFY (AMND_USER CONSTRAINT "posr_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.pos_rule MODIFY (AMND_STATE CONSTRAINT "posr_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.pos_rule MODIFY (ID CONSTRAINT posr_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.pos_rule MODIFY (AMND_DATE CONSTRAINT posr_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE ord.pos_rule MODIFY (AMND_USER CONSTRAINT posr_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE ord.pos_rule MODIFY (AMND_STATE CONSTRAINT posr_AST_NN NOT NULL ENABLE);
 ALTER TABLE ord.pos_rule  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE ord.pos_rule  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE ord.pos_rule  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -1172,10 +1174,10 @@ ALTER TABLE ord.pos_rule  MODIFY (AMND_STATE DEFAULT  on null  'A' );
  
   
   ALTER TABLE ord.pos_rule ADD CONSTRAINT posr_cntr_OID_FK FOREIGN KEY (contract_oid)
-  REFERENCES blng.contract ("ID") ENABLE;
+  REFERENCES blng.contract (ID) ENABLE;
 
   ALTER TABLE ord.pos_rule ADD CONSTRAINT posr_al_OID_FK FOREIGN KEY (airline_oid)
-  REFERENCES hdbk.airline ("ID") ENABLE;
+  REFERENCES hdbk.airline (ID) ENABLE;
 
 --------------------------------------------------------
 --  DDL for Secuence MKP_SEQ
@@ -1224,21 +1226,21 @@ ALTER TRIGGER ord.posr_TRGR ENABLE;
    nls_name varchar2(50),
    is_currency varchar2(1)
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX ord.curr_ID_IDX ON ord.currency ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX ord.curr_ID_IDX ON ord.currency (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE ord.currency MODIFY ("ID" CONSTRAINT curr_ID_NN NOT NULL ENABLE);
-  ALTER TABLE ord.currency MODIFY (AMND_DATE CONSTRAINT "curr_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.currency MODIFY (AMND_USER CONSTRAINT "curr_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE ord.currency MODIFY (AMND_STATE CONSTRAINT "curr_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE ord.currency MODIFY (ID CONSTRAINT curr_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.currency MODIFY (AMND_DATE CONSTRAINT curr_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE ord.currency MODIFY (AMND_USER CONSTRAINT curr_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE ord.currency MODIFY (AMND_STATE CONSTRAINT curr_AST_NN NOT NULL ENABLE);
 ALTER TABLE ord.currency  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE ord.currency  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE ord.currency  MODIFY (AMND_STATE DEFAULT  on null  'A' );

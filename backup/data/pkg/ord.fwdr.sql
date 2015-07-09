@@ -414,9 +414,29 @@ $obj_return: SYS_REFCURSOR[res]
   return SYS_REFCURSOR;
 
 
+/*
+$obj_type: function
+$obj_name: bill_1c_payed
+$obj_desc: create task that sends fin docs.
+$obj_param: p_number_1c: 1c bill number
+$obj_return: SYS_REFCURSOR{
+$obj_return: res - result. could get values ERROR, SUCCESS
+$obj_return: }
+*/  
   function bill_1c_payed(p_number_1c in hdbk.dtype.t_long_code default null)
   return SYS_REFCURSOR;
   
+
+/*
+$obj_type: function
+$obj_name: vat_calc
+$obj_desc: calculate vat. vat values saved at dictionary 1C_PRODUCT_W_VAT code.
+$obj_param: p_itinerary: itinerary id 
+$obj_return: ID of dictionary 1C_PRODUCT_W_VAT code
+
+*/  
+  function vat_calc(p_itinerary in hdbk.dtype.t_id default null)
+  return hdbk.dtype.t_id;
   
   
 END FWDR;
@@ -1263,6 +1283,7 @@ END FWDR;
                             )
   is
     r_item_avia item_avia%rowtype;
+    r_itinerary itinerary%rowtype;
     r_usr blng.usr%rowtype;
     v_bill hdbk.dtype.t_id;
     v_contract hdbk.dtype.t_id;
@@ -1276,6 +1297,7 @@ END FWDR;
   
       r_usr := blng.blng_api.usr_get_info_r(p_email=>p_user_id);
       r_item_avia := ord_api.item_avia_get_info_r(p_pnr_id=>p_pnr_id);
+      r_itinerary := ord_api.itinerary_get_info_r(p_item_avia=>r_item_avia.id);
 
     v_contract := blng.core.pay_contract_by_user(r_usr.id);
     v_bill := ORD_API.bill_add( P_ORDER => r_item_avia.order_oid,
@@ -1283,7 +1305,9 @@ END FWDR;
                                 P_DATE => sysdate,
                                 P_STATUS => 'M', --[M]anaging
                                 P_CONTRACT => v_contract,
-                                p_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY'));
+                                p_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY'),
+                                p_vat_type=>vat_calc(r_itinerary.id)
+                                );
                                 
     hdbk.log_api.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'OK',
       P_MSG => 'finish',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
@@ -2256,9 +2280,7 @@ $TODO: there must be check for users with ISSUES permission
       
       r_task1c := ord_api.task1c_get_info_r(p_id => v_task );
 
-
-      r_dictionary := hdbk.hdbk_api.dictionary_get_info_r(p_id=>r_task1c.task_type);
-      v_type:=r_dictionary.code;
+      v_type:= hdbk.core.dictionary_get_code(p_id=>r_task1c.task_type);
       
       if v_type = 'BILL_ADD' then 
   
@@ -2282,7 +2304,7 @@ $TODO: there must be check for users with ISSUES permission
             (select email from blng.usr where id = (select user_oid from ord.ord where id = item_avia.order_oid)) email,
              bill2task.task_oid task_id,
              bill.contract_oid  contract_id,
-            'AVIATICKET_VAT_18'  PRODUCT, 
+            hdbk.core.dictionary_get_code(bill.vat_type_oid)  PRODUCT, 
       --      'Авиабилет (электронный билет), пассажир ' || ticket.passenger_name description, 
             'Авиабилет (электронный билет) по маршруту '||
             (SELECT LISTAGG(
@@ -2296,7 +2318,7 @@ $TODO: there must be check for users with ISSUES permission
             ||', пассажир '|| ticket.passenger_name description, 
             1 quantity, 
             nvl(ticket.fare_amount,0) + nvl(ticket.taxes_amount,0) price, 
-            18 vat,
+            to_number(hdbk.core.dictionary_get_name(bill.vat_type_oid)) vat,
             trunc(nvl((select date_to -1 from blng.v_delay where bill_id = bill.id),sysdate)) date_to
              from
             ord.bill2task, ord.bill, ord.item_avia, ord.ticket
@@ -2442,8 +2464,8 @@ $TODO: there must be check for users with ISSUES permission
 
     r_task1c := ord_api.task1c_get_info_r(p_id => p_task );
 
-      r_dictionary := hdbk.hdbk_api.dictionary_get_info_r(p_id=>r_task1c.task_type);
-      v_type:=r_dictionary.code;
+
+      v_type:= hdbk.core.dictionary_get_code(p_id=>r_task1c.task_type);
       
       if v_type = 'BILL_ADD' then 
         if p_data is null then raise VALUE_ERROR; end if;
@@ -2533,6 +2555,70 @@ $TODO: there must be check for users with ISSUES permission
   end;
 
 
+  function vat_calc(p_itinerary in hdbk.dtype.t_id default null)
+  return hdbk.dtype.t_id
+  is
+    v_task1c hdbk.dtype.t_id;
+    v_request hdbk.dtype.t_clob;
+  begin
+      if p_itinerary is null then raise VALUE_ERROR; end if;
+      
+      --- NOT RUSSIA 
+      for i in (
+        select * from hdbk.geo where id in 
+          ( 
+          select departure_city from ord.leg where itinerary_oid = p_itinerary
+          union
+          select arrival_city from ord.leg where itinerary_oid = p_itinerary
+          )
+        )
+      loop
+        if i.country_id <> 390 then null; -- NOT RUSSIA VAT = 0
+          return hdbk.core.dictionary_get_id(p_dictionary_type=>'1C_PRODUCT_W_VAT',p_code=>'AVIATICKET_VAT_0');
+        end if;
+      end loop;
+
+      -- RUSSIA - KRYM
+      for i in (
+        select * from hdbk.geo where id in 
+          ( 
+          select departure_city from ord.leg where itinerary_oid = p_itinerary
+          union
+          select arrival_city from ord.leg where itinerary_oid = p_itinerary
+          )
+        )
+      loop
+        if i.id in ( 1130,11021,10762,5911,22521,20262) then null; --KRYM  VAT = ???
+          return hdbk.core.dictionary_get_id(p_dictionary_type=>'1C_PRODUCT_W_VAT',p_code=>'AVIATICKET_VAT_0');        
+        end if;
+      end loop;
+
+      -- RUSSIA
+      
+      if sysdate < to_date('31122017','ddmmyyyy') then null; -- RUSSIA VAT = 10
+        return hdbk.core.dictionary_get_id(p_dictionary_type=>'1C_PRODUCT_W_VAT',p_code=>'AVIATICKET_VAT_10');
+      else
+        return hdbk.core.dictionary_get_id(p_dictionary_type=>'1C_PRODUCT_W_VAT',p_code=>'AVIATICKET_VAT_18');       
+      end if;
+    
+  exception 
+    when VALUE_ERROR then 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_1c_payed', p_msg_type=>'VALUE_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      raise;
+    when NO_DATA_FOUND then 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_1c_payed', p_msg_type=>'NO_DATA_FOUND', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      raise;
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_1c_payed', p_msg_type=>'UNHANDLED_ERROR', 
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
+        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      raise;
+  end;
+  
 
 
 

@@ -1,14 +1,30 @@
+-- select * from  hdbk.dictionary  order by id desc
 
 insert into hdbk.dictionary (code, name, info, dictionary_type) values('1C_FIN_ACTS','1C_FIN_ACTS','fin doc ACTS from 1C','TASK');
 --insert into hdbk.dictionary (code, name, info, dictionary_type) values('1C_FIN_INVOICE','1C_FIN_INVOICE','fin doc INVOICE from 1C','TASK');
 insert into hdbk.dictionary (code, name, info, dictionary_type) values('AVIA_ETICKET','AVIA_ETICKET','avia eticket for client','TASK');
+
+insert into hdbk.dictionary (code, name, info, dictionary_type) values('AVIATICKET_VAT_18','18','1c product and vat value','1C_PRODUCT_W_VAT');
+insert into hdbk.dictionary (code, name, info, dictionary_type) values('AVIATICKET_VAT_0','0','1c product and vat value','1C_PRODUCT_W_VAT');
+insert into hdbk.dictionary (code, name, info, dictionary_type) values('AVIATICKET_VAT_10','10','1c product and vat value','1C_PRODUCT_W_VAT');
+insert into hdbk.dictionary (code, name, info, dictionary_type) values('SERVICE_FEE','18','1c product and vat value','1C_PRODUCT_W_VAT');
 commit;
+
+
+update hdbk.geo set country_id = 390 where id in ( 1130,11021,10762,5911,22521,20262);
+update hdbk.geo set parent_id = 390 where id in ( 1130);
+commit;
+
 
 alter table  ord.task1c add request clob;
 
 alter table  ORD.ITINERARY add validating_carrier number(18);
 alter table  ORD.segment add marketing_carrier number(18);
 alter table  ORD.segment add operating_carrier number(18);
+
+
+alter table  ORD.bill add vat_type_oid number(18);
+
 
 /*
                   json_table  

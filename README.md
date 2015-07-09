@@ -717,6 +717,25 @@ _PARAMETERS:_
 _RETURN:_  
 sys\_refcursor[res]  
 
+- _function_ **ord.fwdr.bill\_1c\_payed**  
+_DESCRIPTION:_  
+create task that sends fin docs.  
+_PARAMETERS:_  
+**p\_number\_1c:** 1c bill number  
+_RETURN:_  
+sys\_refcursor{  
+  - res - result. could get values error, success  
+
+    }  
+
+- _function_ **ord.fwdr.vat\_calc**  
+_DESCRIPTION:_  
+calculate vat. vat values saved at dictionary 1c\_product\_w\_vat code.  
+_PARAMETERS:_  
+**p\_itinerary:** itinerary id  
+_RETURN:_  
+id of dictionary 1c\_product\_w\_vat code  
+
 # ORD.ORD\_API
 ---
 _DESCRIPTION:_  

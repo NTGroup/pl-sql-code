@@ -188,7 +188,8 @@ $obj_desc: *_get_info_r: return one row from table * with format *%rowtype.
                     p_status in  hdbk.dtype.t_status default null,
                     p_contract in  hdbk.dtype.t_id default null,
                     p_bill in  hdbk.dtype.t_id default null,
-                    p_trans_type in  hdbk.dtype.t_id default null
+                    p_trans_type in  hdbk.dtype.t_id default null,
+                    p_vat_type in  hdbk.dtype.t_id default null
                     
                     
                   )
@@ -201,7 +202,9 @@ $obj_desc: *_get_info_r: return one row from table * with format *%rowtype.
                         p_status in  hdbk.dtype.t_status default null,
                         p_contract in  hdbk.dtype.t_id default null,
                     p_bill in  hdbk.dtype.t_id default null,
-                    p_trans_type in  hdbk.dtype.t_id default null
+                    p_trans_type in  hdbk.dtype.t_id default null,
+                    p_vat_type in  hdbk.dtype.t_id default null
+
 
                       );
 
@@ -388,7 +391,8 @@ $obj_desc: *_get_info_r: return one row from table * with format *%rowtype.
   return SYS_REFCURSOR;
 
 
-  function itinerary_get_info_r (    P_ID  in hdbk.dtype.t_id default null
+  function itinerary_get_info_r ( P_ID  in hdbk.dtype.t_id default null,
+                                  p_item_avia in hdbk.dtype.t_id default null
                           )
   return itinerary%rowtype;
 
@@ -1229,9 +1233,9 @@ END ORD_API;
                     p_status in  hdbk.dtype.t_status default null,
                     p_contract in  hdbk.dtype.t_id default null,
                     p_bill in  hdbk.dtype.t_id default null,
-                    p_trans_type in  hdbk.dtype.t_id default null
+                    p_trans_type in  hdbk.dtype.t_id default null,
+                    p_vat_type in  hdbk.dtype.t_id default null
 
-                    
                   )
   return hdbk.dtype.t_id
   is
@@ -1245,6 +1249,7 @@ END ORD_API;
     v_obj_row.contract_oid:=  p_contract;
     v_obj_row.bill_oid :=  p_bill;
     v_obj_row.trans_type_oid :=  p_trans_type;
+    v_obj_row.vat_type_oid :=  p_vat_type;
 
     insert into ord.bill values v_obj_row returning id into v_id;
     return v_id;
@@ -1268,7 +1273,9 @@ END ORD_API;
                         p_status in  hdbk.dtype.t_status default null,
                         p_contract in  hdbk.dtype.t_id default null,
                     p_bill in  hdbk.dtype.t_id default null,
-                    p_trans_type in  hdbk.dtype.t_id default null
+                    p_trans_type in  hdbk.dtype.t_id default null,
+                    p_vat_type in  hdbk.dtype.t_id default null
+
 
                       )
   is
@@ -1290,6 +1297,7 @@ END ORD_API;
     v_obj_row_new.amnd_date:=sysdate;
     v_obj_row_new.amnd_user:=user;
     v_obj_row_new.status := nvl(p_status,v_obj_row_new.status);
+    v_obj_row_new.vat_type_oid := nvl(p_vat_type,v_obj_row_new.vat_type_oid);
 
     update bill set row = v_obj_row_new where id = v_obj_row_new.id;
   exception 
@@ -2143,18 +2151,20 @@ END ORD_API;
   end;
 
 
-  function itinerary_get_info_r (    P_ID  in hdbk.dtype.t_id default null
+  function itinerary_get_info_r (    P_ID  in hdbk.dtype.t_id default null,
+                                  p_item_avia in hdbk.dtype.t_id default null
                           )
   return itinerary%rowtype
   is
     r_obj itinerary%rowtype;
   begin
-    if p_id is null then raise NO_DATA_FOUND; end if;   
+    if p_id is null and p_item_avia is null then raise NO_DATA_FOUND; end if;   
     
     SELECT
     * into r_obj
     from ord.itinerary 
     where id = nvl(p_id,id)
+    and item_avia_oid = nvl(p_item_avia,item_avia_oid)
     and amnd_state = 'A'
     order by id;
     return r_obj;
