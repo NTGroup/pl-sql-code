@@ -20,6 +20,7 @@ v_obj_param varchar2(255);
 v_obj_return varchar2(255);
 v_is_cursor varchar2(255):='N';
 v_is_tab varchar2(255):='N';
+v_text varchar2(255);
 
 begin 
 for i in  (
@@ -45,7 +46,9 @@ for i in  (
   order by name, line
 )
 loop
-if i.text like '$pkg%' then v_pkg := replace(trim(replace(i.text,'$pkg:','')),'_','\_'); 
+v_text:= replace(replace(i.text,'_','\_'),'*','\*');
+
+if v_text like '$pkg%' then v_pkg := trim(replace(v_text,'$pkg:','')); 
   dbms_output.put_line('');
   dbms_output.put_line(/*'package: '*/ '# '||upper(v_pkg));
   dbms_output.put_line(/*'package: '*/ '---');
@@ -61,7 +64,7 @@ if i.text like '$pkg%' then v_pkg := replace(trim(replace(i.text,'$pkg:','')),'_
   continue;
 end if;
 
-if i.text like '$obj_type:%' then v_obj_type := replace(trim(replace(i.text,'$obj_type:','')),'_','\_'); 
+if v_text like '$obj\_type:%' then v_obj_type := trim(replace(v_text,'$obj\_type:','')); 
 --  dbms_output.put_line('package: '||v_pkg);
   v_obj_name := null;
   v_obj_desc := null;
@@ -76,19 +79,19 @@ if i.text like '$obj_type:%' then v_obj_type := replace(trim(replace(i.text,'$ob
   continue;
 end if;
 
-if i.text like '$obj_name:%' then v_obj_name := replace(trim(replace(i.text,'$obj_name:','')),'_','\_'); 
+if v_text like '$obj\_name:%' then v_obj_name := trim(replace(v_text,'$obj\_name:','')); 
   dbms_output.put_line('');
-  dbms_output.put_line('- _'||v_obj_type||'_ **'||v_pkg||'.'||v_obj_name||'**  ');
+  dbms_output.put_line('### _'||v_obj_type||'_ '||upper(v_pkg||'.'||v_obj_name)||'  ');
   continue;
 end if;
 
-if i.text like '$obj_desc:%' then 
+if v_text like '$obj\_desc:%' then 
   if v_obj_desc is null then 
     dbms_output.put_line(upper('_description:_  '));
   end if;  
-  v_obj_desc := replace(trim(replace(i.text,'$obj_desc:','')),'_','\_'); 
+  v_obj_desc := trim(replace(v_text,'$obj\_desc:','')); 
 
-  if v_obj_desc like '*%' then 
+  if v_obj_desc like '\*%' then 
   
     if v_obj_desc_name is null 
       or  (v_obj_desc_name is not null and v_obj_desc not like v_obj_desc_name||'%' ) 
@@ -111,20 +114,20 @@ if i.text like '$obj_desc:%' then
   if v_obj_desc_desc like '}%' then 
     v_is_cursor := 'N'; 
     dbms_output.put_line('');    
-    v_obj_desc_desc:='    '||v_obj_desc_desc;    
+    v_obj_desc_desc:=''||v_obj_desc_desc;    
   end if; 
-  if v_is_cursor = 'Y' then v_obj_desc_desc:= '  - '||v_obj_desc_desc; end if;
+  if v_is_cursor = 'Y' then v_obj_desc_desc:= '  * '||v_obj_desc_desc; end if;
     
   dbms_output.put_line(v_obj_desc_desc||'  ');
-  if v_obj_desc_desc like '%{' then v_is_cursor := 'Y'; end if; 
+  if v_obj_desc_desc like '%{' then v_is_cursor := 'Y'; dbms_output.put_line(''); end if; 
   continue;
 end if;
 
-if i.text like '$obj_param:%' then 
+if v_text like '$obj\_param:%' then 
   if v_obj_param is null then 
     dbms_output.put_line(upper('_parameters:_  '));
   end if;  
-  v_obj_param := replace(trim(replace(i.text,'$obj_param:','')),'_','\_'); 
+  v_obj_param := trim(replace(v_text,'$obj\_param:','')); 
   if v_obj_param_name is null 
     or  (v_obj_param_name is not null and v_obj_param not like v_obj_param_name||'%' ) 
   then
@@ -143,32 +146,32 @@ if i.text like '$obj_param:%' then
   if v_obj_param_desc like '}%' then 
     v_is_cursor := 'N'; 
     dbms_output.put_line('');    
-    v_obj_param_desc:='    '||v_obj_param_desc;    
+    v_obj_param_desc:=''||v_obj_param_desc;    
   end if; 
-  if v_is_cursor = 'Y' then v_obj_param_desc:= '  - '||v_obj_param_desc; end if;
+  if v_is_cursor = 'Y' then v_obj_param_desc:= '  * '||v_obj_param_desc; end if;
   
   dbms_output.put_line(v_obj_param_desc||'  ');
-  if v_obj_param_desc like '%{' then v_is_cursor := 'Y'; end if; 
+  if v_obj_param_desc like '%{' then v_is_cursor := 'Y'; dbms_output.put_line(''); end if; 
   
   continue;
 end if;
 
-if i.text like '$obj_return:%' then 
+if v_text like '$obj\_return:%' then 
   if v_obj_return is null then 
     dbms_output.put_line(upper('_return:_  '));
   end if;  
-  v_obj_return := replace(trim(replace(i.text,'$obj_return:','')),'_','\_'); 
+  v_obj_return := trim(replace(v_text,'$obj\_return:','')); 
   
   if v_obj_return like '}%' then 
     v_is_cursor := 'N'; 
     dbms_output.put_line('');    
-    v_obj_return:='    '||v_obj_return; 
+    v_obj_return:=''||v_obj_return; 
   end if; 
-  if v_is_cursor = 'Y' then v_obj_return:= '  - '||v_obj_return; end if;
+  if v_is_cursor = 'Y' then v_obj_return:= '  * '||v_obj_return; end if;
 
   dbms_output.put_line(v_obj_return||'  ');
   
-  if v_obj_return like '%{' then v_is_cursor := 'Y'; end if; 
+  if v_obj_return like '%{' then v_is_cursor := 'Y'; dbms_output.put_line(''); end if; 
   
   continue;
 end if;
