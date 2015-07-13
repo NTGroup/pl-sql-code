@@ -1,20 +1,18 @@
 
-/
-
 create or replace package hdbk.hdbk_api as
 
   
 /*
-$pkg: hdbk.hdbk_api
+$pkg: HDBK.HDBK_API
 */
 
 /*
-$obj_desc: ***_add: insert row into table ***. could return id of new row.
-$obj_desc: ***_edit: update row into table ***. object have always one id. first, old data with amnd_state = [I]nactive
-$obj_desc: ***_edit: inserted as row with link to new row(amnd_prev). new data just update object row, 
-$obj_desc: ***_edit: amnd_date updates to sysdate and amnd_user to current user who called api.
-$obj_desc: ***_get_info: return data from table *** with format SYS_REFCURSOR.
-$obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype.
+$obj_desc: *_add: insert row into table *. Could return id of new row.
+$obj_desc: *_edit: update row into table *. Object have always one id. first, old data with amnd_state = [I]nactive
+$obj_desc: *_edit: inserted as row with link to new row(amnd_prev). new data just update object row, 
+$obj_desc: *_edit: amnd_date updates to sysdate and amnd_user to current user who called api.
+$obj_desc: *_get_info: return data from table * with format SYS_REFCURSOR.
+$obj_desc: *_get_info_r: return one row from table * with format *%rowtype.
 */
   
   function gds_nationality_get_info (p_code in hdbk.dtype.t_code)
@@ -143,14 +141,18 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
                       );
 
 
-  function dictionary_get_info(    p_dictionary_type  in hdbk.dtype.t_name default null,
+  function dictionary_get_info(    
+                                p_id  in hdbk.dtype.t_id default null,
+                                p_dictionary_type  in hdbk.dtype.t_name default null,
                                 p_code in hdbk.dtype.t_code default null,
                                 p_name in hdbk.dtype.t_name default null
                           )
   return SYS_REFCURSOR;
 
 
-  function dictionary_get_info_r (     p_dictionary_type  in hdbk.dtype.t_name default null,
+  function dictionary_get_info_r (     
+                                p_id  in hdbk.dtype.t_id default null,
+                                p_dictionary_type  in hdbk.dtype.t_name default null,
                                 p_code in hdbk.dtype.t_code default null,
                                 p_name in hdbk.dtype.t_name default null
                           )
@@ -781,7 +783,8 @@ create or replace package body hdbk.hdbk_api as
   end;
 
 
-  function dictionary_get_info(    p_dictionary_type  in hdbk.dtype.t_name default null,
+  function dictionary_get_info(   p_id  in hdbk.dtype.t_id default null,
+                                 p_dictionary_type  in hdbk.dtype.t_name default null,
                                 p_code in hdbk.dtype.t_code default null,
                                 p_name in hdbk.dtype.t_name default null
                           )
@@ -816,7 +819,8 @@ create or replace package body hdbk.hdbk_api as
   end;
 
 
-  function dictionary_get_info_r (     p_dictionary_type  in hdbk.dtype.t_name default null,
+  function dictionary_get_info_r (  p_id  in hdbk.dtype.t_id default null,
+                                 p_dictionary_type  in hdbk.dtype.t_name default null,
                                 p_code in hdbk.dtype.t_code default null,
                                 p_name in hdbk.dtype.t_name default null
                           )
@@ -828,15 +832,23 @@ create or replace package body hdbk.hdbk_api as
       SELECT
       * into r_obj
       from dictionary 
-      where dictionary_type = p_dictionary_type
-      and code = p_code
+      where dictionary_type = nvl(p_dictionary_type,dictionary_type)
+      and code = nvl(p_code,code)
+--      and id = nvl(p_id,id)
       and amnd_state = 'A';
     elsif p_dictionary_type is not null and p_name is not null then 
       SELECT
       * into r_obj
       from dictionary 
-      where dictionary_type = p_dictionary_type
-      and name = p_name
+      where dictionary_type = nvl(p_dictionary_type,dictionary_type)
+      and name = nvl(p_name,name)
+   --   and id = nvl(p_id,id)
+      and amnd_state = 'A';
+    elsif p_id is not null then 
+      SELECT
+      * into r_obj
+      from dictionary 
+      where id = p_id
       and amnd_state = 'A';
     else raise NO_DATA_FOUND; 
     end if;    

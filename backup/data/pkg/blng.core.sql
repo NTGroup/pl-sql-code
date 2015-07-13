@@ -1,7 +1,7 @@
   CREATE OR REPLACE PACKAGE BLNG.CORE as
 
 /*
-pkg: blng.core
+$pkg: BLNG.CORE
 */  
 
 /*

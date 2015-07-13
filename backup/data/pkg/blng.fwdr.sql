@@ -1,6 +1,6 @@
 create or replace package blng.fwdr as
 /*
-$pkg: blng.fwdr
+$pkg: BLNG.FWDR
 */
 
 /*
@@ -27,18 +27,19 @@ $obj_return: user id
 /*
 $obj_type: function
 $obj_name: balance
-$obj_desc: return info of contract for show balance to the client. function return this filds
-$obj_desc: DEPOSIT: self money
-$obj_desc: LOAN: money thatspent from credit limit
-$obj_desc: CREDIT_LIMIT: credit limit
-$obj_desc: UNUSED_CREDIT_LIMIT: credit limit - abs(loan)
-$obj_desc: AVAILABLE: credit limit + deposit - abs(loan). if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ.
-$obj_desc: BLOCK_DATE: expiration date of the next bill
-$obj_desc: UNBLOCK_SUM: sum next neares bills (with one day) + all bills before current day
-$obj_desc: NEAR_UNBLOCK_SUM: unblock sum + bills for 2 next days after after first bill
-$obj_desc: EXPIRY_DATE: date of first expired bill
-$obj_desc: EXPIRY_SUM: summ of all expired bills
-$obj_desc: STATUS: if bills are expired and contract blocked then 'BLOCK', if bills are expired and contract unblocked then 'UNBLOCK', else 'ACTIVE'
+$obj_desc: return info of contract for show balance to the client. function return this filds {
+$obj_desc:   DEPOSIT: self money
+$obj_desc:   LOAN: money thatspent from credit limit
+$obj_desc:   CREDIT_LIMIT: credit limit
+$obj_desc:   UNUSED_CREDIT_LIMIT: credit limit - abs(loan)
+$obj_desc:   AVAILABLE: credit limit + deposit - abs(loan). if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ.
+$obj_desc:   BLOCK_DATE: expiration date of the next bill
+$obj_desc:   UNBLOCK_SUM: sum next neares bills (with one day) + all bills before current day
+$obj_desc:   NEAR_UNBLOCK_SUM: unblock sum + bills for 2 next days after after first bill
+$obj_desc:   EXPIRY_DATE: date of first expired bill
+$obj_desc:   EXPIRY_SUM: summ of all expired bills
+$obj_desc:   STATUS: if bills are expired and contract blocked then 'BLOCK', if bills are expired and contract unblocked then 'UNBLOCK', else 'ACTIVE'
+$obj_desc: }
 $obj_param: P_TENANT_ID: contract id
 $obj_return: SYS_REFCURSOR[CONTRACT_OID, DEPOSIT, LOAN, CREDIT_LIMIT, UNUSED_CREDIT_LIMIT, 
 $obj_return: AVAILABLE, BLOCK_DATE, UNBLOCK_SUM, NEAR_UNBLOCK_SUM, EXPIRY_DATE, EXPIRY_SUM, status]
@@ -564,8 +565,8 @@ create  or replace package BODY blng.fwdr as
       doc_id,
       transaction_id,
       TRANSACTION_DATE,TRANSACTION_TIME,AMOUNT_BEFORE,AMOUNT,AMOUNT_AFTER,TRANSACTION_TYPE,pnr_id,ORDER_NUMBER,LAST_NAME,FIRST_NAME,EMAIL,
-      sum(case when doc_trans_code = 'b' then amount else 0 end)  over (partition by one) amount_buy,
-      sum(case when doc_trans_code = 'ci' then amount else 0 end) over (partition by one) amount_cash_in,
+      sum(case when TRANSACTION_TYPE in ('BUY','LOAN') then amount else 0 end)  over (partition by one) amount_buy,
+      sum(case when TRANSACTION_TYPE in ('CASH_IN','PAY_BILL') then amount else 0 end) over (partition by one) amount_cash_in,
       MAX(amount_before) KEEP (DENSE_RANK LAST ORDER BY trans_date desc) over (partition by one) amount_from,
       MIN(amount_after) KEEP (DENSE_RANK FIRST ORDER BY trans_date desc) over (partition by one) amount_to,
       page_count,
@@ -620,8 +621,8 @@ create  or replace package BODY blng.fwdr as
       doc_id,
       transaction_id,
       TRANSACTION_DATE,TRANSACTION_TIME,AMOUNT_BEFORE,AMOUNT,AMOUNT_AFTER,TRANSACTION_TYPE,pnr_id,ORDER_NUMBER,LAST_NAME,FIRST_NAME,EMAIL,
-      sum(case when docs.doc_trans_code = 'b' then amount else 0 end)  over (partition by docs.one) amount_buy,
-      sum(case when docs.doc_trans_code = 'ci' then amount else 0 end) over (partition by docs.one)  amount_cash_in,
+      sum(case when TRANSACTION_TYPE in ('BUY','LOAN') then amount else 0 end)  over (partition by docs.one) amount_buy,
+      sum(case when TRANSACTION_TYPE in ('CASH_IN','PAY_BILL') then amount else 0 end) over (partition by docs.one)  amount_cash_in,
       amount_from,
       amount_to,
       page_count,
@@ -792,10 +793,9 @@ create  or replace package BODY blng.fwdr as
     select * into r_account from blng.v_account where contract_oid = v_contract;
     return r_account;
   exception when others then 
-    hdbk.log_api.LOG_ADD(p_proc_name=>'contract_info', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=client,p_date=' 
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
-    RAISE_APPLICATION_ERROR(-20002,'insert row into usr error. '||SQLERRM);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'v_account_get_info_r', p_msg_type=>'UNHANDLED_ERROR', 
+      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack);      
+    RAISE_APPLICATION_ERROR(-20002,''||SQLERRM);
     return null;
   end v_account_get_info_r;
 

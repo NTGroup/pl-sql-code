@@ -6,7 +6,7 @@
 
  /*
  
- pkg: hdbk.LOG_API 
+$pkg: HDBK.LOG_API 
  
  */
   

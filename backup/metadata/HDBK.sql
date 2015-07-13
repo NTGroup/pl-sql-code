@@ -19,22 +19,22 @@
 	ALERT_LEVEL NUMBER(18,0),
   error_stack clob
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX hdbk.log_ID_IDX ON hdbk.log ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX hdbk.log_ID_IDX ON hdbk.log (ID) 
+  TABLESPACE USERS ;
  
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE hdbk.log MODIFY ("ID" CONSTRAINT log_ID_NN NOT NULL ENABLE);
-  ALTER TABLE hdbk.log MODIFY (AMND_DATE CONSTRAINT "log_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.log MODIFY (AMND_USER CONSTRAINT "log_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.log MODIFY (AMND_STATE CONSTRAINT "log_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE hdbk.log MODIFY (ID CONSTRAINT log_ID_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.log MODIFY (AMND_DATE CONSTRAINT log_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.log MODIFY (AMND_USER CONSTRAINT log_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.log MODIFY (AMND_STATE CONSTRAINT log_AST_NN NOT NULL ENABLE);
 ALTER TABLE hdbk.log  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE hdbk.log  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE hdbk.log  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -97,21 +97,21 @@ ALTER TRIGGER hdbk.log_TRGR ENABLE;
 	IS_AUTO_ISSUE_ENABLE NUMBER, 
 	STATUS VARCHAR2(1 BYTE)
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX hdbk.al_ID_IDX ON hdbk.airline ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX hdbk.al_ID_IDX ON hdbk.airline (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints
 --------------------------------------------------------
 
-  ALTER TABLE hdbk.airline MODIFY ("ID" CONSTRAINT al_ID_NN NOT NULL ENABLE);
-  ALTER TABLE hdbk.airline MODIFY (AMND_DATE CONSTRAINT "al_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.airline MODIFY (AMND_USER CONSTRAINT "al_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.airline MODIFY (AMND_STATE CONSTRAINT "al_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE hdbk.airline MODIFY (ID CONSTRAINT al_ID_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.airline MODIFY (AMND_DATE CONSTRAINT al_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.airline MODIFY (AMND_USER CONSTRAINT al_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.airline MODIFY (AMND_STATE CONSTRAINT al_AST_NN NOT NULL ENABLE);
 ALTER TABLE hdbk.airline  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE hdbk.airline  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE hdbk.airline  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -174,23 +174,23 @@ ALTER TRIGGER hdbk.al_TRGR ENABLE;
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
   
   --drop table  blng.account 
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX hdbk.AP_ID_IDX ON hdbk.airplane ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX hdbk.AP_ID_IDX ON hdbk.airplane (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE hdbk.airplane MODIFY ("ID" CONSTRAINT AP_ID_NN NOT NULL ENABLE);
-  ALTER TABLE hdbk.airplane MODIFY (AMND_DATE CONSTRAINT "AP_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.airplane MODIFY (AMND_USER CONSTRAINT "AP_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.airplane MODIFY (AMND_STATE CONSTRAINT "AP_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE hdbk.airplane MODIFY (ID CONSTRAINT AP_ID_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.airplane MODIFY (AMND_DATE CONSTRAINT AP_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.airplane MODIFY (AMND_USER CONSTRAINT AP_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.airplane MODIFY (AMND_STATE CONSTRAINT AP_AST_NN NOT NULL ENABLE);
 ALTER TABLE hdbk.airplane  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE hdbk.airplane  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE hdbk.airplane  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -200,11 +200,11 @@ ALTER TABLE hdbk.airplane  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 
 /*
 ALTER TABLE hdbk.airplane ADD CONSTRAINT AP_ETT_OID_FK FOREIGN KEY (event_type_oid)
-  REFERENCES BLNG.event_type ("ID") ENABLE;
+  REFERENCES BLNG.event_type (ID) ENABLE;
 ALTER TABLE hdbk.airplane ADD CONSTRAINT AP_TRN_OID_FK FOREIGN KEY (transaction_oid)
-  REFERENCES BLNG.transaction ("ID") ENABLE;
+  REFERENCES BLNG.transaction (ID) ENABLE;
 ALTER TABLE hdbk.airplane ADD CONSTRAINT AP_CNTR_OID_FK FOREIGN KEY (contract_oid)
-  REFERENCES BLNG.contract ("ID") ENABLE;
+  REFERENCES BLNG.contract (ID) ENABLE;
 */
 
 --------------------------------------------------------
@@ -271,27 +271,27 @@ ALTER TRIGGER hdbk.AP_TRGR ENABLE;
 	NLS_NAME_tp VARCHAR2(255 BYTE), 
 	NLS_NAME_pp VARCHAR2(255 BYTE) 
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX hdbk.geo_ID_IDX ON hdbk.geo ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX hdbk.geo_ID_IDX ON hdbk.geo (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE hdbk.geo MODIFY ("ID" CONSTRAINT geo_ID_NN NOT NULL ENABLE);
-  ALTER TABLE hdbk.geo MODIFY (AMND_DATE CONSTRAINT "geo_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.geo MODIFY (AMND_USER CONSTRAINT "geo_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.geo MODIFY (AMND_STATE CONSTRAINT "geo_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE hdbk.geo MODIFY (ID CONSTRAINT geo_ID_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.geo MODIFY (AMND_DATE CONSTRAINT geo_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.geo MODIFY (AMND_USER CONSTRAINT geo_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.geo MODIFY (AMND_STATE CONSTRAINT geo_AST_NN NOT NULL ENABLE);
 ALTER TABLE hdbk.geo  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE hdbk.geo  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE hdbk.geo  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   ALTER TABLE hdbk.geo ADD CONSTRAINT geo_ID_PK PRIMARY KEY (ID)
   USING INDEX hdbk.geo_ID_IDX ENABLE;
-ALTER TABLE hdbk.geo MODIFY (UTC_OFFSET CONSTRAINT "geo_UOF_NN" NOT NULL ENABLE);
+ALTER TABLE hdbk.geo MODIFY (UTC_OFFSET CONSTRAINT geo_UOF_NN NOT NULL ENABLE);
 ALTER TABLE hdbk.geo  MODIFY (UTC_OFFSET DEFAULT  on null  '0' );
   
 
@@ -337,20 +337,20 @@ id number(18,0),
 code varchar2(10),
 nls_name varchar2(255)
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX hdbk.gnt_ID_IDX ON hdbk.gds_nationality ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX hdbk.gnt_ID_IDX ON hdbk.gds_nationality (ID) 
+  TABLESPACE USERS ;
   CREATE INDEX hdbk.gnt_CD_IDX ON hdbk.gds_nationality (code) 
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE hdbk.gds_nationality MODIFY ("ID" CONSTRAINT gnt_ID_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.gds_nationality MODIFY (ID CONSTRAINT gnt_ID_NN NOT NULL ENABLE);
   ALTER TABLE hdbk.gds_nationality ADD CONSTRAINT gnt_ID_PK PRIMARY KEY (ID)
   USING INDEX hdbk.gnt_ID_IDX ENABLE;
 
@@ -403,22 +403,22 @@ ALTER TRIGGER hdbk.gnt_TRGR ENABLE;
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
   
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX hdbk.MKPT_ID_IDX ON hdbk.markup_type ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX hdbk.MKPT_ID_IDX ON hdbk.markup_type (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE hdbk.markup_type MODIFY ("ID" CONSTRAINT "MKPT_ID_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.markup_type MODIFY (AMND_DATE CONSTRAINT "MKPT_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.markup_type MODIFY (AMND_USER CONSTRAINT "MKPT_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.markup_type MODIFY (AMND_STATE CONSTRAINT "MKPT_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE hdbk.markup_type MODIFY (ID CONSTRAINT MKPT_ID_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.markup_type MODIFY (AMND_DATE CONSTRAINT MKPT_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.markup_type MODIFY (AMND_USER CONSTRAINT MKPT_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.markup_type MODIFY (AMND_STATE CONSTRAINT MKPT_AST_NN NOT NULL ENABLE);
 ALTER TABLE hdbk.markup_type  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE hdbk.markup_type  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE hdbk.markup_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -476,21 +476,21 @@ ALTER TRIGGER hdbk.MKPT_TRGR ENABLE;
   guid VARCHAR2(255 BYTE)
   
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX hdbk.note_ID_IDX ON hdbk.note ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX hdbk.note_ID_IDX ON hdbk.note (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints
 --------------------------------------------------------
 
-  ALTER TABLE hdbk.note MODIFY ("ID" CONSTRAINT note_ID_NN NOT NULL ENABLE);
-  ALTER TABLE hdbk.note MODIFY (AMND_DATE CONSTRAINT "note_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.note MODIFY (AMND_USER CONSTRAINT "note_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.note MODIFY (AMND_STATE CONSTRAINT "note_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE hdbk.note MODIFY (ID CONSTRAINT note_ID_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.note MODIFY (AMND_DATE CONSTRAINT note_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.note MODIFY (AMND_USER CONSTRAINT note_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.note MODIFY (AMND_STATE CONSTRAINT note_AST_NN NOT NULL ENABLE);
 ALTER TABLE hdbk.note  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE hdbk.note  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE hdbk.note  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -501,7 +501,7 @@ ALTER TABLE hdbk.note  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 grant references on blng.usr TO hdbk;
  
   ALTER TABLE hdbk.note ADD CONSTRAINT note_usr_OID_FK FOREIGN KEY (user_oid)
-  REFERENCES blng.usr ("ID") ENABLE;
+  REFERENCES blng.usr (ID) ENABLE;
 
 
   create sequence  hdbk.note_seq
@@ -546,21 +546,21 @@ ALTER TRIGGER hdbk.note_TRGR ENABLE;
 	note_oid NUMBER(18,0), 
 	tickets clob
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX hdbk.ntt_ID_IDX ON hdbk.note_ticket ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX hdbk.ntt_ID_IDX ON hdbk.note_ticket (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints
 --------------------------------------------------------
 
-  ALTER TABLE hdbk.note_ticket MODIFY ("ID" CONSTRAINT ntt_ID_NN NOT NULL ENABLE);
-  ALTER TABLE hdbk.note_ticket MODIFY (AMND_DATE CONSTRAINT "ntt_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.note_ticket MODIFY (AMND_USER CONSTRAINT "ntt_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.note_ticket MODIFY (AMND_STATE CONSTRAINT "ntt_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE hdbk.note_ticket MODIFY (ID CONSTRAINT ntt_ID_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.note_ticket MODIFY (AMND_DATE CONSTRAINT ntt_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.note_ticket MODIFY (AMND_USER CONSTRAINT ntt_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.note_ticket MODIFY (AMND_STATE CONSTRAINT ntt_AST_NN NOT NULL ENABLE);
 ALTER TABLE hdbk.note_ticket  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE hdbk.note_ticket  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE hdbk.note_ticket  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -569,7 +569,7 @@ ALTER TABLE hdbk.note_ticket  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 
 
   ALTER TABLE hdbk.note_ticket ADD CONSTRAINT ntt_note_OID_FK FOREIGN KEY (note_oid)
-  REFERENCES hdbk.note ("ID") ENABLE;
+  REFERENCES hdbk.note (ID) ENABLE;
 
   create sequence  hdbk.ntt_seq
   increment by 1
@@ -609,21 +609,21 @@ ALTER TRIGGER hdbk.ntt_TRGR ENABLE;
    nls_name varchar2(50),
    is_currency varchar2(1)
    ) SEGMENT CREATION IMMEDIATE
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index MKP_ID_IDX
 --------------------------------------------------------
 
-  CREATE INDEX hdbk.curr_ID_IDX ON hdbk.currency ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX hdbk.curr_ID_IDX ON hdbk.currency (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table MARKUP
 --------------------------------------------------------
 
-  ALTER TABLE hdbk.currency MODIFY ("ID" CONSTRAINT curr_ID_NN NOT NULL ENABLE);
-  ALTER TABLE hdbk.currency MODIFY (AMND_DATE CONSTRAINT "curr_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.currency MODIFY (AMND_USER CONSTRAINT "curr_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.currency MODIFY (AMND_STATE CONSTRAINT "curr_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE hdbk.currency MODIFY (ID CONSTRAINT curr_ID_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.currency MODIFY (AMND_DATE CONSTRAINT curr_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.currency MODIFY (AMND_USER CONSTRAINT curr_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.currency MODIFY (AMND_STATE CONSTRAINT curr_AST_NN NOT NULL ENABLE);
 ALTER TABLE hdbk.currency  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE hdbk.currency  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE hdbk.currency  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -653,21 +653,21 @@ ALTER TABLE hdbk.currency  MODIFY (AMND_STATE DEFAULT  on null  'A' );
     
     
      ) SEGMENT CREATION IMMEDIATE
-    TABLESPACE "USERS" ;
+    TABLESPACE USERS ;
   --------------------------------------------------------
   --  DDL for Index 
   --------------------------------------------------------
   
-    CREATE INDEX hdbk.rate_ID_IDX ON hdbk.rate ("ID") 
-    TABLESPACE "USERS" ;
+    CREATE INDEX hdbk.rate_ID_IDX ON hdbk.rate (ID) 
+    TABLESPACE USERS ;
   --------------------------------------------------------
   --  Constraints
   --------------------------------------------------------
   
-    ALTER TABLE hdbk.rate MODIFY ("ID" CONSTRAINT rate_ID_NN NOT NULL ENABLE);
-    ALTER TABLE hdbk.rate MODIFY (AMND_DATE CONSTRAINT "rate_ADT_NN" NOT NULL ENABLE);
-    ALTER TABLE hdbk.rate MODIFY (AMND_USER CONSTRAINT "rate_AUR_NN" NOT NULL ENABLE);
-    ALTER TABLE hdbk.rate MODIFY (AMND_STATE CONSTRAINT "rate_AST_NN" NOT NULL ENABLE);
+    ALTER TABLE hdbk.rate MODIFY (ID CONSTRAINT rate_ID_NN NOT NULL ENABLE);
+    ALTER TABLE hdbk.rate MODIFY (AMND_DATE CONSTRAINT rate_ADT_NN NOT NULL ENABLE);
+    ALTER TABLE hdbk.rate MODIFY (AMND_USER CONSTRAINT rate_AUR_NN NOT NULL ENABLE);
+    ALTER TABLE hdbk.rate MODIFY (AMND_STATE CONSTRAINT rate_AST_NN NOT NULL ENABLE);
   ALTER TABLE hdbk.rate  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
   ALTER TABLE hdbk.rate  MODIFY (AMND_USER DEFAULT  on null  user );
   ALTER TABLE hdbk.rate  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -676,7 +676,7 @@ ALTER TABLE hdbk.currency  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   
      
     ALTER TABLE hdbk.rate ADD CONSTRAINT rate_curr_OID_FK FOREIGN KEY (currency_oid)
-    REFERENCES hdbk.currency ("ID") ENABLE;
+    REFERENCES hdbk.currency (ID) ENABLE;
   
   
     create sequence  hdbk.rate_seq
@@ -719,22 +719,22 @@ ALTER TABLE hdbk.currency  MODIFY (AMND_STATE DEFAULT  on null  'A' );
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX hdbk.cal_ID_IDX ON hdbk.calendar ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX hdbk.cal_ID_IDX ON hdbk.calendar (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
 
-  ALTER TABLE hdbk.calendar MODIFY ("ID" CONSTRAINT cal_ID_NN NOT NULL ENABLE);
-  ALTER TABLE hdbk.calendar MODIFY (AMND_DATE CONSTRAINT "cal_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.calendar MODIFY (AMND_USER CONSTRAINT "cal_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.calendar MODIFY (AMND_STATE CONSTRAINT "cal_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE hdbk.calendar MODIFY (ID CONSTRAINT cal_ID_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.calendar MODIFY (AMND_DATE CONSTRAINT cal_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.calendar MODIFY (AMND_USER CONSTRAINT cal_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.calendar MODIFY (AMND_STATE CONSTRAINT cal_AST_NN NOT NULL ENABLE);
 ALTER TABLE hdbk.calendar  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE hdbk.calendar  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE hdbk.calendar  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -793,22 +793,22 @@ ALTER TRIGGER hdbk.cal_TRGR ENABLE;
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX hdbk.dict_ID_IDX ON hdbk.dictionary ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX hdbk.dict_ID_IDX ON hdbk.dictionary (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
 
-  ALTER TABLE hdbk.dictionary MODIFY ("ID" CONSTRAINT dict_ID_NN NOT NULL ENABLE);
-  ALTER TABLE hdbk.dictionary MODIFY (AMND_DATE CONSTRAINT "dict_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.dictionary MODIFY (AMND_USER CONSTRAINT "dict_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE hdbk.dictionary MODIFY (AMND_STATE CONSTRAINT "dict_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE hdbk.dictionary MODIFY (ID CONSTRAINT dict_ID_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.dictionary MODIFY (AMND_DATE CONSTRAINT dict_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.dictionary MODIFY (AMND_USER CONSTRAINT dict_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE hdbk.dictionary MODIFY (AMND_STATE CONSTRAINT dict_AST_NN NOT NULL ENABLE);
 ALTER TABLE hdbk.dictionary  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE hdbk.dictionary  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE hdbk.dictionary  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -849,13 +849,13 @@ ALTER TRIGGER hdbk.dict_TRGR ENABLE;
 
 
 /
-CREATE bitmap INDEX hdbk.log_AS_IDX ON hdbk.log (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX hdbk.geo_AS_IDX ON hdbk.geo (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX hdbk.al_AS_IDX ON hdbk.airline (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX hdbk.ap_AS_IDX ON hdbk.airplane (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX hdbk.rate_AS_IDX ON hdbk.rate (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX hdbk.cal_AS_IDX ON hdbk.calendar (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX hdbk.log_AS_IDX ON hdbk.log (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX hdbk.geo_AS_IDX ON hdbk.geo (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX hdbk.al_AS_IDX ON hdbk.airline (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX hdbk.ap_AS_IDX ON hdbk.airplane (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX hdbk.rate_AS_IDX ON hdbk.rate (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX hdbk.cal_AS_IDX ON hdbk.calendar (amnd_state) TABLESPACE USERS ;
 
-CREATE INDEX hdbk.cal_dtt_IDX ON hdbk.calendar (date_to) TABLESPACE "USERS" ;
+CREATE INDEX hdbk.cal_dtt_IDX ON hdbk.calendar (date_to) TABLESPACE USERS ;
 
 

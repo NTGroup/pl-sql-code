@@ -16,13 +16,14 @@ set wrap off
 --column text format a80
 SPOOL ./metadata/out.html;
 --SELECT dbms_metadata.get_ddl( 'PACKAGE', 'ORD_API', 'ORD') FROM dual;
-select '<!DOCTYPE html><html><head><meta charset="utf-8"><title>hello-backbonejs</title></head><body>'|| chr(13) || chr(10) text from dual
+select '<!DOCTYPE html><html><head><meta charset="utf-8"><title>hello-backbonejs</title></head><body>'---|| chr(13) || chr(10) 
+text from dual
 
 union all
 
 SELECT 
 
-case 
+/*case 
 when text like '$pkg:%' then '<hr><h1>'||trim(replace(replace(text,'$pkg:',''),chr(13) || chr(10),''))||'</h1>'|| chr(13) || chr(10) 
 when text like '$obj_type:%' then '<br><br><br><i>'||trim(replace(replace(text,'$obj_type:',''),chr(13) || chr(10),''))||'</i>'|| chr(13) || chr(10) 
 when text like '$obj_name:%' then '<b>'||trim(replace(replace(text,'$obj_name:',''),chr(13) || chr(10),''))||'</b><br>'|| chr(13) || chr(10) 
@@ -32,12 +33,22 @@ when text like '$obj_return:%' then '<i>return:</i><br>'||trim(replace(replace(t
 else trim(text)|| chr(13) || chr(10) 
 end
 text 
+*/
+case 
+when text like '$pkg:%' then '<hr><h1>'||replace(trim(replace(replace(TEXT,chr(10),''),chr(13),'')),'$pkg:','')||'</h1>'---|| chr(13) || chr(10) 
+when text like '$obj_type:%' then '<br><br><br><i>'||replace(trim(replace(replace(TEXT,chr(10),''),chr(13),'')),'$obj_type:','')||'</i>'---|| chr(13) || chr(10) 
+when text like '$obj_name:%' then '<b>'||replace(trim(replace(replace(TEXT,chr(10),''),chr(13),'')),'$obj_name:','')||'</b><br>'---|| chr(13) || chr(10) 
+when text like '$obj_desc:%' then '<i>description:</i><br>'||replace(trim(replace(replace(TEXT,chr(10),''),chr(13),'')),'$obj_desc:','')||'<br>'---|| chr(13) || chr(10) 
+when text like '$obj_param:%' then '<i>parameters:</i><br><b>'||regexp_replace(replace(trim(replace(replace(TEXT,chr(10),''),chr(13),'')),'$obj_param:',''),':',':</b>',1,1)||'</b><br>'---|| chr(13) || chr(10) 
+when text like '$obj_return:%' then '<i>return:</i><br>'||replace(trim(replace(replace(TEXT,chr(10),''),chr(13),'')),'$obj_return:','')||'<br>' ---|| chr(13) || chr(10) 
+else trim(replace(replace(TEXT,chr(10),''),chr(13),'')) ---|| chr(13) || chr(10) 
+end
+--trim(replace(replace(TEXT,chr(10),''),chr(13),'')) 
 
-FROM DBA_SOURCE WHERE OWNER IN ('BLNG','NTG','ORD') and type like 'PACKAGE%' 
+FROM DBA_SOURCE WHERE OWNER IN ('BLNG','NTG','ORD','ERP','HDBK') and type like 'PACKAGE%' 
 and (text like '$obj%' or text like '$pkg%')
 --order by owner, name, type, line
 
 union all
 select '</body></html>'  text from dual;
 spool off;
-exit;

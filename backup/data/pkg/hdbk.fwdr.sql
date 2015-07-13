@@ -3,7 +3,7 @@
 
 
 /*
-pkg: hdbk.fwdr
+$pkg: HDBK.FWDR
 */
 
 function utc_offset_mow return number;

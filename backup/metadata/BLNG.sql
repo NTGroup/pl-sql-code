@@ -18,21 +18,21 @@
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.clt_ID_IDX ON blng.client ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX blng.clt_ID_IDX ON blng.client (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE blng.client MODIFY ("ID" CONSTRAINT "clt_ID_NN" NOT NULL ENABLE);
- ALTER TABLE blng.client MODIFY (AMND_DATE CONSTRAINT "clt_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.client MODIFY (AMND_USER CONSTRAINT "clt_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.client MODIFY (AMND_STATE CONSTRAINT "clt_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.client MODIFY (ID CONSTRAINT clt_ID_NN NOT NULL ENABLE);
+ ALTER TABLE blng.client MODIFY (AMND_DATE CONSTRAINT clt_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE blng.client MODIFY (AMND_USER CONSTRAINT clt_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE blng.client MODIFY (AMND_STATE CONSTRAINT clt_AST_NN NOT NULL ENABLE);
   ALTER TABLE BLNG.client  MODIFY (AMND_DATE DEFAULT on null sysdate);
   ALTER TABLE BLNG.client  MODIFY (AMND_USER DEFAULT  on null user );
   ALTER TABLE BLNG.client  MODIFY (AMND_STATE DEFAULT  on null 'A' );
@@ -105,21 +105,21 @@ ALTER TRIGGER BLNG.clt_TRGR ENABLE;
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.usr_ID_IDX ON blng.usr ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX blng.usr_ID_IDX ON blng.usr (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE blng.usr MODIFY ("ID" CONSTRAINT "usr_ID_NN" NOT NULL ENABLE);
- ALTER TABLE blng.usr MODIFY (AMND_DATE CONSTRAINT "usr_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.usr MODIFY (AMND_USER CONSTRAINT "usr_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.usr MODIFY (AMND_STATE CONSTRAINT "usr_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.usr MODIFY (ID CONSTRAINT usr_ID_NN NOT NULL ENABLE);
+ ALTER TABLE blng.usr MODIFY (AMND_DATE CONSTRAINT usr_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE blng.usr MODIFY (AMND_USER CONSTRAINT usr_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE blng.usr MODIFY (AMND_STATE CONSTRAINT usr_AST_NN NOT NULL ENABLE);
   ALTER TABLE BLNG.usr  MODIFY (AMND_DATE DEFAULT on null sysdate);
   ALTER TABLE BLNG.usr  MODIFY (AMND_USER DEFAULT  on null user );
   ALTER TABLE BLNG.usr  MODIFY (AMND_STATE DEFAULT  on null 'A' );
@@ -128,7 +128,7 @@ ALTER TRIGGER BLNG.clt_TRGR ENABLE;
   USING INDEX BLNG.usr_ID_IDX ENABLE;
 
 ALTER TABLE BLNG.usr ADD CONSTRAINT usr_clt_OID_FK FOREIGN KEY (client_oid)
-  REFERENCES BLNG.client ("ID") ENABLE;
+  REFERENCES BLNG.client (ID) ENABLE;
 
 --------------------------------------------------------
 --  DDL for Secuence 
@@ -183,18 +183,18 @@ ALTER TRIGGER BLNG.usr_TRGR ENABLE;
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.prm_ID_IDX ON blng.permission ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX blng.prm_ID_IDX ON blng.permission (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE blng.permission MODIFY ("ID" CONSTRAINT "prm_ID_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.permission MODIFY (ID CONSTRAINT prm_ID_NN NOT NULL ENABLE);
   ALTER TABLE BLNG.permission  MODIFY (AMND_DATE DEFAULT on null sysdate);
   ALTER TABLE BLNG.permission  MODIFY (AMND_USER DEFAULT  on null user );
   ALTER TABLE BLNG.permission  MODIFY (AMND_STATE DEFAULT  on null 'A' );
@@ -253,18 +253,18 @@ ALTER TRIGGER BLNG.prm_TRGR ENABLE;
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.cl2p_ID_IDX ON blng.usr2permission ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX blng.cl2p_ID_IDX ON blng.usr2permission (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE blng.usr2permission MODIFY ("ID" CONSTRAINT "cl2p_ID_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.usr2permission MODIFY (ID CONSTRAINT cl2p_ID_NN NOT NULL ENABLE);
   ALTER TABLE BLNG.usr2permission  MODIFY (AMND_DATE DEFAULT on null sysdate);
   ALTER TABLE BLNG.usr2permission  MODIFY (AMND_USER DEFAULT  on null user );
   ALTER TABLE BLNG.usr2permission  MODIFY (AMND_STATE DEFAULT  on null 'A' );
@@ -274,9 +274,9 @@ ALTER TRIGGER BLNG.prm_TRGR ENABLE;
 
 
 ALTER TABLE BLNG.usr2permission ADD CONSTRAINT cl2p_usr_OID_FK FOREIGN KEY (user_oid)
-  REFERENCES BLNG.usr ("ID") ENABLE;
+  REFERENCES BLNG.usr (ID) ENABLE;
 ALTER TABLE BLNG.usr2permission ADD CONSTRAINT cl2p_prm_OID_FK FOREIGN KEY (permission_oid)
-  REFERENCES BLNG.permission ("ID") ENABLE;
+  REFERENCES BLNG.permission (ID) ENABLE;
 
 --------------------------------------------------------
 --  DDL for Secuence 
@@ -327,18 +327,18 @@ ALTER TRIGGER BLNG.cl2p_TRGR ENABLE;
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.p2cntr_ID_IDX ON blng.permission2contract ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX blng.p2cntr_ID_IDX ON blng.permission2contract (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE blng.permission2contract MODIFY ("ID" CONSTRAINT "p2cntr_ID_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.permission2contract MODIFY (ID CONSTRAINT p2cntr_ID_NN NOT NULL ENABLE);
   ALTER TABLE BLNG.permission2contract  MODIFY (AMND_DATE DEFAULT on null sysdate);
   ALTER TABLE BLNG.permission2contract  MODIFY (AMND_USER DEFAULT  on null user );
   ALTER TABLE BLNG.permission2contract  MODIFY (AMND_STATE DEFAULT  on null 'A' );
@@ -349,9 +349,9 @@ ALTER TRIGGER BLNG.cl2p_TRGR ENABLE;
 
 
 ALTER TABLE BLNG.permission2contract ADD CONSTRAINT p2cntr_cntr_OID_FK FOREIGN KEY (contract_oid)
-  REFERENCES BLNG.contract ("ID") ENABLE;
+  REFERENCES BLNG.contract (ID) ENABLE;
 ALTER TABLE BLNG.permission2contract ADD CONSTRAINT p2cntr_prm_OID_FK FOREIGN KEY (permission_oid)
-  REFERENCES BLNG.permission ("ID") ENABLE;
+  REFERENCES BLNG.permission (ID) ENABLE;
 
 
 --------------------------------------------------------
@@ -387,6 +387,92 @@ ALTER TRIGGER BLNG.p2cntr_TRGR ENABLE;
 
 /
 
+
+
+/*contract*/
+
+--------------------------------------------------------
+--  DDL for Table 
+--------------------------------------------------------
+
+  CREATE TABLE blng.contract 
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+   contract_number VARCHAR2(50),
+   status VARCHAR2(1),
+   client_oid NUMBER(18,0),
+   utc_offset number,
+   name  VARCHAR2(255),
+   contact_name varchar2(255),
+   contact_phone varchar2(50)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  TABLESPACE USERS ;
+  
+--------------------------------------------------------
+--  DDL for Index 
+--------------------------------------------------------
+
+  CREATE INDEX blng.CNTR_ID_IDX ON blng.contract (ID) 
+  TABLESPACE USERS ;
+--------------------------------------------------------
+--  Constraints for Table 
+--------------------------------------------------------
+
+ALTER TABLE blng.contract MODIFY (ID CONSTRAINT CNTR_ID_NN NOT NULL ENABLE);
+ALTER TABLE blng.contract MODIFY (AMND_STATE CONSTRAINT CNTR_AST_NN NOT NULL ENABLE);
+ALTER TABLE blng.contract MODIFY (AMND_DATE CONSTRAINT CNTR_ADT_NN NOT NULL ENABLE);
+ALTER TABLE blng.contract MODIFY (AMND_USER CONSTRAINT CNTR_AUR_NN NOT NULL ENABLE);
+
+ALTER TABLE BLNG.CONTRACT  MODIFY (AMND_DATE DEFAULT  on null sysdate );
+ALTER TABLE BLNG.CONTRACT  MODIFY (AMND_USER DEFAULT  on null user );
+ALTER TABLE BLNG.CONTRACT  MODIFY (AMND_STATE DEFAULT on null 'A' );
+
+
+
+  ALTER TABLE blng.contract ADD CONSTRAINT CNTR_ID_PK PRIMARY KEY (ID)
+  USING INDEX BLNG.CNTR_ID_IDX ENABLE;
+
+
+ALTER TABLE BLNG.contract ADD CONSTRAINT cntr_clt_OID_FK FOREIGN KEY (client_oid)
+  REFERENCES BLNG.client (ID) ENABLE;
+
+--------------------------------------------------------
+--  DDL for Secuence 
+--------------------------------------------------------
+ 
+  create sequence  BLNG.cntr_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+  
+--------------------------------------------------------
+--  DDL for Trigger 
+--------------------------------------------------------
+
+create or replace TRIGGER BLNG.cntr_TRGR 
+BEFORE
+INSERT
+ON BLNG.contract
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select BLNG.cntr_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
+end;
+/
+ALTER TRIGGER BLNG.CNTR_TRGR ENABLE;
+
+/
+
+
 /*USR2CONTRACT*/
 
 --------------------------------------------------------
@@ -406,21 +492,21 @@ ALTER TRIGGER BLNG.p2cntr_TRGR ENABLE;
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.u2cntr_ID_IDX ON blng.USR2CONTRACT ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX blng.u2cntr_ID_IDX ON blng.USR2CONTRACT (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE blng.USR2CONTRACT MODIFY ("ID" CONSTRAINT "u2cntr_ID_NN" NOT NULL ENABLE);
- ALTER TABLE blng.USR2CONTRACT MODIFY (AMND_DATE CONSTRAINT "u2cntr_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.USR2CONTRACT MODIFY (AMND_USER CONSTRAINT "u2cntr_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.USR2CONTRACT MODIFY (AMND_STATE CONSTRAINT "u2cntr_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.USR2CONTRACT MODIFY (ID CONSTRAINT u2cntr_ID_NN NOT NULL ENABLE);
+ ALTER TABLE blng.USR2CONTRACT MODIFY (AMND_DATE CONSTRAINT u2cntr_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE blng.USR2CONTRACT MODIFY (AMND_USER CONSTRAINT u2cntr_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE blng.USR2CONTRACT MODIFY (AMND_STATE CONSTRAINT u2cntr_AST_NN NOT NULL ENABLE);
   ALTER TABLE BLNG.USR2CONTRACT  MODIFY (AMND_DATE DEFAULT on null sysdate);
   ALTER TABLE BLNG.USR2CONTRACT  MODIFY (AMND_USER DEFAULT  on null user );
   ALTER TABLE BLNG.USR2CONTRACT  MODIFY (AMND_STATE DEFAULT  on null 'A' );
@@ -431,9 +517,9 @@ ALTER TRIGGER BLNG.p2cntr_TRGR ENABLE;
 
 
 ALTER TABLE BLNG.USR2CONTRACT ADD CONSTRAINT u2cntr_cntr_OID_FK FOREIGN KEY (contract_oid)
-  REFERENCES BLNG.contract ("ID") ENABLE;
+  REFERENCES BLNG.contract (ID) ENABLE;
 ALTER TABLE BLNG.USR2CONTRACT ADD CONSTRAINT u2cntr_usr_OID_FK FOREIGN KEY (user_oid)
-  REFERENCES BLNG.usr ("ID") ENABLE;
+  REFERENCES BLNG.usr (ID) ENABLE;
 
 
 --------------------------------------------------------
@@ -469,92 +555,6 @@ ALTER TRIGGER BLNG.u2cntr_TRGR ENABLE;
 
 
 
-
-/*contract*/
-
---------------------------------------------------------
---  DDL for Table 
---------------------------------------------------------
-
-  CREATE TABLE blng.contract 
-   (	ID NUMBER(18,0), 
-   amnd_date date,
-   amnd_user VARCHAR2(50),
-   amnd_state VARCHAR2(1), 
-   amnd_prev NUMBER(18,0), 
-   contract_number VARCHAR2(50),
-   status VARCHAR2(1),
-   client_oid NUMBER(18,0),
-   utc_offset number,
-   name  VARCHAR2(255),
-   contact_name varchar2(255),
-   contact_phone varchar2(50)
-   ) SEGMENT CREATION IMMEDIATE 
-  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
- NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
-  
---------------------------------------------------------
---  DDL for Index 
---------------------------------------------------------
-
-  CREATE INDEX blng.CNTR_ID_IDX ON blng.contract ("ID") 
-  TABLESPACE "USERS" ;
---------------------------------------------------------
---  Constraints for Table 
---------------------------------------------------------
-
-ALTER TABLE blng.contract MODIFY ("ID" CONSTRAINT "CNTR_ID_NN" NOT NULL ENABLE);
-ALTER TABLE blng.contract MODIFY ("AMND_STATE" CONSTRAINT "CNTR_AST_NN" NOT NULL ENABLE);
-ALTER TABLE blng.contract MODIFY ("AMND_DATE" CONSTRAINT "CNTR_ADT_NN" NOT NULL ENABLE);
-ALTER TABLE blng.contract MODIFY ("AMND_USER" CONSTRAINT "CNTR_AUR_NN" NOT NULL ENABLE);
-
-ALTER TABLE BLNG.CONTRACT  MODIFY (AMND_DATE DEFAULT  on null sysdate );
-ALTER TABLE BLNG.CONTRACT  MODIFY (AMND_USER DEFAULT  on null user );
-ALTER TABLE BLNG.CONTRACT  MODIFY (AMND_STATE DEFAULT on null 'A' );
-
-
-
-  ALTER TABLE blng.contract ADD CONSTRAINT CNTR_ID_PK PRIMARY KEY (ID)
-  USING INDEX BLNG.CNTR_ID_IDX ENABLE;
-
-
-ALTER TABLE BLNG.contract ADD CONSTRAINT cntr_clt_OID_FK FOREIGN KEY (client_oid)
-  REFERENCES BLNG.client ("ID") ENABLE;
-
---------------------------------------------------------
---  DDL for Secuence 
---------------------------------------------------------
- 
-  create sequence  BLNG.cntr_seq
-  increment by 1
-  start with 1
-  nomaxvalue
-  nocache /*!!!*/
-  nocycle
-  order;
-  
---------------------------------------------------------
---  DDL for Trigger 
---------------------------------------------------------
-
-create or replace TRIGGER BLNG.cntr_TRGR 
-BEFORE
-INSERT
-ON BLNG.contract
-REFERENCING NEW AS NEW OLD AS OLD
-FOR EACH ROW
- WHEN (new.id is null) BEGIN
-  select BLNG.cntr_seq.nextval into :new.id from dual; 
-  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
-end;
-/
-ALTER TRIGGER BLNG.CNTR_TRGR ENABLE;
-
-/
-
-
-
 /* account_type */
 
 --------------------------------------------------------
@@ -574,23 +574,23 @@ ALTER TRIGGER BLNG.CNTR_TRGR ENABLE;
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
   
   --drop table  blng.account 
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.ACCT_ID_IDX ON blng.account_type ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX blng.ACCT_ID_IDX ON blng.account_type (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE blng.account_type MODIFY ("ID" CONSTRAINT "ACCT_ID_NN" NOT NULL ENABLE);
- ALTER TABLE blng.account_type MODIFY (AMND_DATE CONSTRAINT "ACCT_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.account_type MODIFY (AMND_USER CONSTRAINT "ACCT_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.account_type MODIFY (AMND_STATE CONSTRAINT "ACCT_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.account_type MODIFY (ID CONSTRAINT ACCT_ID_NN NOT NULL ENABLE);
+ ALTER TABLE blng.account_type MODIFY (AMND_DATE CONSTRAINT ACCT_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE blng.account_type MODIFY (AMND_USER CONSTRAINT ACCT_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE blng.account_type MODIFY (AMND_STATE CONSTRAINT ACCT_AST_NN NOT NULL ENABLE);
 ALTER TABLE BLNG.account_type  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE BLNG.account_type  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE BLNG.account_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -657,23 +657,23 @@ ALTER TRIGGER BLNG.acct_TRGR ENABLE;
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
   
   --drop table  blng.account 
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.ACC_ID_IDX ON blng.account ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX blng.ACC_ID_IDX ON blng.account (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE blng.account MODIFY ("ID" CONSTRAINT "ACC_ID_NN" NOT NULL ENABLE);
- ALTER TABLE blng.account MODIFY (AMND_DATE CONSTRAINT "ACC_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.account MODIFY (AMND_USER CONSTRAINT "ACC_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.account MODIFY (AMND_STATE CONSTRAINT "ACC_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.account MODIFY (ID CONSTRAINT ACC_ID_NN NOT NULL ENABLE);
+ ALTER TABLE blng.account MODIFY (AMND_DATE CONSTRAINT ACC_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE blng.account MODIFY (AMND_USER CONSTRAINT ACC_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE blng.account MODIFY (AMND_STATE CONSTRAINT ACC_AST_NN NOT NULL ENABLE);
 ALTER TABLE BLNG.account  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE BLNG.account  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE BLNG.account  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -682,11 +682,11 @@ ALTER TABLE BLNG.account  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   USING INDEX BLNG.ACC_ID_IDX ENABLE;
 
 ALTER TABLE BLNG.account ADD CONSTRAINT ACC_CNTR_OID_FK FOREIGN KEY (contract_oid)
-  REFERENCES BLNG.contract ("ID") ENABLE;
+  REFERENCES BLNG.contract (ID) ENABLE;
 
   
 ALTER TABLE BLNG.account ADD CONSTRAINT ACC_ACCT_OID_FK FOREIGN KEY (account_type_oid)
-  REFERENCES BLNG.account_type ("ID") ENABLE;
+  REFERENCES BLNG.account_type (ID) ENABLE;
   
 --------------------------------------------------------
 --  DDL for Secuence 
@@ -738,23 +738,23 @@ ALTER TRIGGER BLNG.acc_TRGR ENABLE;
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
   
   --drop table  blng.account 
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.TRT_ID_IDX ON blng.trans_type ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX blng.TRT_ID_IDX ON blng.trans_type (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE blng.trans_type MODIFY ("ID" CONSTRAINT "TRT_ID_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.trans_type MODIFY (AMND_DATE CONSTRAINT "TRT_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.trans_type MODIFY (AMND_USER CONSTRAINT "TRT_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.trans_type MODIFY (AMND_STATE CONSTRAINT "TRT_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.trans_type MODIFY (ID CONSTRAINT TRT_ID_NN NOT NULL ENABLE);
+  ALTER TABLE blng.trans_type MODIFY (AMND_DATE CONSTRAINT TRT_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE blng.trans_type MODIFY (AMND_USER CONSTRAINT TRT_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE blng.trans_type MODIFY (AMND_STATE CONSTRAINT TRT_AST_NN NOT NULL ENABLE);
 ALTER TABLE BLNG.trans_type  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE BLNG.trans_type  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE BLNG.trans_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -791,11 +791,9 @@ end;
 /
 ALTER TRIGGER BLNG.trt_TRGR ENABLE;
 
-end;
-
+/
 
 /* documents */
-begin
 
 --------------------------------------------------------
 --  DDL for Table 
@@ -819,25 +817,25 @@ begin
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
   
   --drop table  blng.account 
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.doc_ID_IDX ON blng.document ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX blng.doc_ID_IDX ON blng.document (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE blng.document MODIFY ("ID" CONSTRAINT "DOC_ID_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.document MODIFY (ID CONSTRAINT DOC_ID_NN NOT NULL ENABLE);
 
-ALTER TABLE blng.document MODIFY ("AMND_STATE" CONSTRAINT "DOC_AST_NN" NOT NULL ENABLE);
-ALTER TABLE blng.document MODIFY ("AMND_DATE" CONSTRAINT "DOC_ADT_NN" NOT NULL ENABLE);
-ALTER TABLE blng.document MODIFY ("AMND_USER" CONSTRAINT "DOC_AUR_NN" NOT NULL ENABLE);
-ALTER TABLE blng.document MODIFY ("STATUS" CONSTRAINT "DOC_ST_NN" NOT NULL ENABLE);
+ALTER TABLE blng.document MODIFY (AMND_STATE CONSTRAINT DOC_AST_NN NOT NULL ENABLE);
+ALTER TABLE blng.document MODIFY (AMND_DATE CONSTRAINT DOC_ADT_NN NOT NULL ENABLE);
+ALTER TABLE blng.document MODIFY (AMND_USER CONSTRAINT DOC_AUR_NN NOT NULL ENABLE);
+ALTER TABLE blng.document MODIFY (STATUS CONSTRAINT DOC_ST_NN NOT NULL ENABLE);
 
 ALTER TABLE BLNG.document  MODIFY (AMND_DATE DEFAULT  on null sysdate );
 ALTER TABLE BLNG.document  MODIFY (AMND_USER DEFAULT  on null user );
@@ -850,13 +848,13 @@ ALTER TABLE BLNG.document  MODIFY (STATUS DEFAULT on null 'W' );
   USING INDEX BLNG.DOC_ID_IDX ENABLE;
 
 ALTER TABLE BLNG.document ADD CONSTRAINT DOC_CNTR_OID_FK FOREIGN KEY (contract_oid)
-  REFERENCES BLNG.contract ("ID") ENABLE;
+  REFERENCES BLNG.contract (ID) ENABLE;
 
 ALTER TABLE BLNG.document ADD CONSTRAINT DOC_TRT_OID_FK FOREIGN KEY (trans_type_oid)
-  REFERENCES BLNG.trans_type ("ID") ENABLE;
+  REFERENCES BLNG.trans_type (ID) ENABLE;
 
 ALTER TABLE BLNG.document ADD CONSTRAINT DOC_BILL_OID_FK FOREIGN KEY (bill_oid)
-  REFERENCES ord.bill ("ID") ENABLE;
+  REFERENCES ord.bill (ID) ENABLE;
 --------------------------------------------------------
 --  DDL for Secuence 
 --------------------------------------------------------
@@ -886,12 +884,9 @@ end;
 /
 ALTER TRIGGER BLNG.doc_TRGR ENABLE;
 
-end;
 
-
-
+/
 /* transactions */
-begin
 
 --------------------------------------------------------
 --  DDL for Table 
@@ -913,23 +908,23 @@ begin
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
   
   --drop table  blng.account 
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.trn_ID_IDX ON blng.transaction ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX blng.trn_ID_IDX ON blng.transaction (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE blng.transaction MODIFY ("ID" CONSTRAINT "TRN_ID_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.transaction MODIFY (AMND_DATE CONSTRAINT "TRN_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.transaction MODIFY (AMND_USER CONSTRAINT "TRN_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.transaction MODIFY (AMND_STATE CONSTRAINT "TRN_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.transaction MODIFY (ID CONSTRAINT TRN_ID_NN NOT NULL ENABLE);
+  ALTER TABLE blng.transaction MODIFY (AMND_DATE CONSTRAINT TRN_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE blng.transaction MODIFY (AMND_USER CONSTRAINT TRN_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE blng.transaction MODIFY (AMND_STATE CONSTRAINT TRN_AST_NN NOT NULL ENABLE);
 ALTER TABLE BLNG.transaction  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE BLNG.transaction  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE BLNG.transaction  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -937,14 +932,14 @@ ALTER TABLE BLNG.transaction  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   USING INDEX BLNG.trn_ID_IDX ENABLE;
 
 ALTER TABLE BLNG.transaction ADD CONSTRAINT TRN_ACC_OID_FK FOREIGN KEY (target_account_oid)
-  REFERENCES BLNG.account ("ID") ENABLE;
+  REFERENCES BLNG.account (ID) ENABLE;
 
 
 ALTER TABLE BLNG.transaction ADD CONSTRAINT TRN_TRT_OID_FK FOREIGN KEY (trans_type_oid)
-  REFERENCES BLNG.trans_type ("ID") ENABLE;
+  REFERENCES BLNG.trans_type (ID) ENABLE;
 
 ALTER TABLE BLNG.transaction ADD CONSTRAINT TRN_DOC_OID_FK FOREIGN KEY (doc_oid)
-  REFERENCES BLNG.document ("ID") ENABLE;
+  REFERENCES BLNG.document (ID) ENABLE;
 
 --------------------------------------------------------
 --  DDL for Secuence 
@@ -975,101 +970,10 @@ end;
 /
 ALTER TRIGGER BLNG.trn_TRGR ENABLE;
 
-end;
 
-
-
-
-/* event */
-begin
-
---------------------------------------------------------
---  DDL for Table 
---------------------------------------------------------
-
-  CREATE TABLE blng.event
-   (	ID NUMBER(18,0), 
-   amnd_date date,
-   amnd_user VARCHAR2(50),
-   amnd_state VARCHAR2(1), 
-   amnd_prev NUMBER(18,0), 
-   event_type_oid NUMBER(18,0),
-   transaction_oid NUMBER(18,0),
-   date_to date,
-   contract_oid number(18,0),
-   amount number(20,2),
-   status VARCHAR2(1),
-   priority number
-   ) SEGMENT CREATION IMMEDIATE 
-  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
- NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
-  
-  --drop table  blng.account 
---------------------------------------------------------
---  DDL for Index 
---------------------------------------------------------
-
-  CREATE INDEX blng.evnt_ID_IDX ON blng.event ("ID") 
-  TABLESPACE "USERS" ;
---------------------------------------------------------
---  Constraints for Table 
---------------------------------------------------------
-
-  ALTER TABLE blng.event MODIFY ("ID" CONSTRAINT "EVNT_ID_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.event MODIFY (AMND_DATE CONSTRAINT "EVNT_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.event MODIFY (AMND_USER CONSTRAINT "EVNT_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.event MODIFY (AMND_STATE CONSTRAINT "EVNT_AST_NN" NOT NULL ENABLE);
-ALTER TABLE BLNG.event  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
-ALTER TABLE BLNG.event  MODIFY (AMND_USER DEFAULT  on null  user );
-ALTER TABLE BLNG.event  MODIFY (AMND_STATE DEFAULT  on null  'A' );
-  ALTER TABLE blng.event ADD CONSTRAINT EVNT_ID_PK PRIMARY KEY (ID)
-  USING INDEX BLNG.EVNT_ID_IDX ENABLE;
- 
-ALTER TABLE BLNG.event ADD CONSTRAINT EVNT_ETT_OID_FK FOREIGN KEY (event_type_oid)
-  REFERENCES BLNG.event_type ("ID") ENABLE;
-ALTER TABLE BLNG.event ADD CONSTRAINT EVNT_TRN_OID_FK FOREIGN KEY (transaction_oid)
-  REFERENCES BLNG.transaction ("ID") ENABLE;
-ALTER TABLE BLNG.event ADD CONSTRAINT EVNT_CNTR_OID_FK FOREIGN KEY (contract_oid)
-  REFERENCES BLNG.contract ("ID") ENABLE;
-
-
---------------------------------------------------------
---  DDL for Secuence 
---------------------------------------------------------
- 
-  create sequence  BLNG.evnt_seq
-  increment by 1
-  start with 1
-  nomaxvalue
-  nocache /*!!!*/
-  nocycle
-  order;
-  
---------------------------------------------------------
---  DDL for Trigger 
---------------------------------------------------------
-
-CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.evnt_TRGR 
-BEFORE
-INSERT
-ON BLNG.event
-REFERENCING NEW AS NEW OLD AS OLD
-FOR EACH ROW
- WHEN (new.id is null) BEGIN
-  select BLNG.evnt_seq.nextval into :new.id from dual; 
-  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
-end;
 /
-ALTER TRIGGER BLNG.evnt_TRGR ENABLE;
-
-end;
-
-
 
 /* event_type */
-begin
-
 --------------------------------------------------------
 --  DDL for Table 
 --------------------------------------------------------
@@ -1086,23 +990,23 @@ begin
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
   
   --drop table  blng.account 
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.ETT_ID_IDX ON blng.event_type ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX blng.ETT_ID_IDX ON blng.event_type (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE blng.event_type MODIFY ("ID" CONSTRAINT "ETT_ID_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.event_type MODIFY (AMND_DATE CONSTRAINT "ETT_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.event_type MODIFY (AMND_USER CONSTRAINT "ETT_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.event_type MODIFY (AMND_STATE CONSTRAINT "ETT_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.event_type MODIFY (ID CONSTRAINT ETT_ID_NN NOT NULL ENABLE);
+  ALTER TABLE blng.event_type MODIFY (AMND_DATE CONSTRAINT ETT_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE blng.event_type MODIFY (AMND_USER CONSTRAINT ETT_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE blng.event_type MODIFY (AMND_STATE CONSTRAINT ETT_AST_NN NOT NULL ENABLE);
 ALTER TABLE BLNG.event_type  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE BLNG.event_type  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE BLNG.event_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -1140,11 +1044,91 @@ end;
 
 ALTER TRIGGER BLNG.ett_TRGR ENABLE;
 
-
-end;
-
 /
 
+/* event */
+
+--------------------------------------------------------
+--  DDL for Table 
+--------------------------------------------------------
+
+  CREATE TABLE blng.event
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+   event_type_oid NUMBER(18,0),
+   transaction_oid NUMBER(18,0),
+   date_to date,
+   contract_oid number(18,0),
+   amount number(20,2),
+   status VARCHAR2(1),
+   priority number
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  TABLESPACE USERS ;
+  
+  --drop table  blng.account 
+--------------------------------------------------------
+--  DDL for Index 
+--------------------------------------------------------
+
+  CREATE INDEX blng.evnt_ID_IDX ON blng.event (ID) 
+  TABLESPACE USERS ;
+--------------------------------------------------------
+--  Constraints for Table 
+--------------------------------------------------------
+
+  ALTER TABLE blng.event MODIFY (ID CONSTRAINT EVNT_ID_NN NOT NULL ENABLE);
+  ALTER TABLE blng.event MODIFY (AMND_DATE CONSTRAINT EVNT_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE blng.event MODIFY (AMND_USER CONSTRAINT EVNT_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE blng.event MODIFY (AMND_STATE CONSTRAINT EVNT_AST_NN NOT NULL ENABLE);
+ALTER TABLE BLNG.event  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE BLNG.event  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE BLNG.event  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE blng.event ADD CONSTRAINT EVNT_ID_PK PRIMARY KEY (ID)
+  USING INDEX BLNG.EVNT_ID_IDX ENABLE;
+ 
+ALTER TABLE BLNG.event ADD CONSTRAINT EVNT_ETT_OID_FK FOREIGN KEY (event_type_oid)
+  REFERENCES BLNG.event_type (ID) ENABLE;
+ALTER TABLE BLNG.event ADD CONSTRAINT EVNT_TRN_OID_FK FOREIGN KEY (transaction_oid)
+  REFERENCES BLNG.transaction (ID) ENABLE;
+ALTER TABLE BLNG.event ADD CONSTRAINT EVNT_CNTR_OID_FK FOREIGN KEY (contract_oid)
+  REFERENCES BLNG.contract (ID) ENABLE;
+
+
+--------------------------------------------------------
+--  DDL for Secuence 
+--------------------------------------------------------
+ 
+  create sequence  BLNG.evnt_seq
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache /*!!!*/
+  nocycle
+  order;
+  
+--------------------------------------------------------
+--  DDL for Trigger 
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER BLNG.evnt_TRGR 
+BEFORE
+INSERT
+ON BLNG.event
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select BLNG.evnt_seq.nextval into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
+end;
+/
+ALTER TRIGGER BLNG.evnt_TRGR ENABLE;
+
+/
 
 /* status_type */
 
@@ -1165,23 +1149,23 @@ end;
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
   
   --drop table  blng.account 
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.STT_ID_IDX ON blng.status_type ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX blng.STT_ID_IDX ON blng.status_type (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE blng.status_type MODIFY ("ID" CONSTRAINT "STT_ID_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.status_type MODIFY (AMND_DATE CONSTRAINT "STT_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.status_type MODIFY (AMND_USER CONSTRAINT "STT_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.status_type MODIFY (AMND_STATE CONSTRAINT "STT_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.status_type MODIFY (ID CONSTRAINT STT_ID_NN NOT NULL ENABLE);
+  ALTER TABLE blng.status_type MODIFY (AMND_DATE CONSTRAINT STT_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE blng.status_type MODIFY (AMND_USER CONSTRAINT STT_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE blng.status_type MODIFY (AMND_STATE CONSTRAINT STT_AST_NN NOT NULL ENABLE);
 ALTER TABLE BLNG.status_type  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE BLNG.status_type  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE BLNG.status_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -1220,14 +1204,9 @@ end;
 ALTER TRIGGER BLNG.stt_TRGR ENABLE;
 
 
-
-
-
-
+/
 
 /* delay */
-begin
-
 --------------------------------------------------------
 --  DDL for Table 
 --------------------------------------------------------
@@ -1250,23 +1229,23 @@ begin
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
   
   --drop table  blng.account 
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.dly_ID_IDX ON blng.delay ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX blng.dly_ID_IDX ON blng.delay (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE blng.delay MODIFY ("ID" CONSTRAINT dly_ID_NN NOT NULL ENABLE);
-  ALTER TABLE blng.delay MODIFY (AMND_DATE CONSTRAINT "DLY_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.delay MODIFY (AMND_USER CONSTRAINT "DLY_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.delay MODIFY (AMND_STATE CONSTRAINT "DLY_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.delay MODIFY (ID CONSTRAINT dly_ID_NN NOT NULL ENABLE);
+  ALTER TABLE blng.delay MODIFY (AMND_DATE CONSTRAINT DLY_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE blng.delay MODIFY (AMND_USER CONSTRAINT DLY_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE blng.delay MODIFY (AMND_STATE CONSTRAINT DLY_AST_NN NOT NULL ENABLE);
 ALTER TABLE BLNG.delay  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE BLNG.delay  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE BLNG.delay  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -1274,11 +1253,11 @@ ALTER TABLE BLNG.delay  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   USING INDEX BLNG.DLY_ID_IDX ENABLE;
 
 ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_ETT_OID_FK FOREIGN KEY (event_type_oid)
-  REFERENCES BLNG.event_type ("ID") ENABLE;
+  REFERENCES BLNG.event_type (ID) ENABLE;
 ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_TRN_OID_FK FOREIGN KEY (transaction_oid)
-  REFERENCES BLNG.transaction ("ID") ENABLE;
+  REFERENCES BLNG.transaction (ID) ENABLE;
 ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_CNTR_OID_FK FOREIGN KEY (contract_oid)
-  REFERENCES BLNG.contract ("ID") ENABLE;
+  REFERENCES BLNG.contract (ID) ENABLE;
 
 
 --------------------------------------------------------
@@ -1310,7 +1289,6 @@ end;
 /
 ALTER TRIGGER BLNG.DLY_TRGR ENABLE;
 
-end;
 
 /
 
@@ -1334,23 +1312,23 @@ end;
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
   
   --drop table  blng.account 
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.dmn_ID_IDX ON blng.domain ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX blng.dmn_ID_IDX ON blng.domain (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
-  ALTER TABLE blng.domain MODIFY ("ID" CONSTRAINT dmn_ID_NN NOT NULL ENABLE);
-  ALTER TABLE blng.domain MODIFY (AMND_DATE CONSTRAINT "dmn_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.domain MODIFY (AMND_USER CONSTRAINT "dmn_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.domain MODIFY (AMND_STATE CONSTRAINT "dmn_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.domain MODIFY (ID CONSTRAINT dmn_ID_NN NOT NULL ENABLE);
+  ALTER TABLE blng.domain MODIFY (AMND_DATE CONSTRAINT dmn_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE blng.domain MODIFY (AMND_USER CONSTRAINT dmn_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE blng.domain MODIFY (AMND_STATE CONSTRAINT dmn_AST_NN NOT NULL ENABLE);
 ALTER TABLE BLNG.domain  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE BLNG.domain  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE BLNG.domain  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -1359,7 +1337,7 @@ ALTER TABLE BLNG.domain  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 
 
 ALTER TABLE BLNG.domain ADD CONSTRAINT dmn_cntr_OID_FK FOREIGN KEY (contract_oid)
-  REFERENCES BLNG.contract ("ID") ENABLE;
+  REFERENCES BLNG.contract (ID) ENABLE;
 
 
 --------------------------------------------------------
@@ -1392,11 +1370,8 @@ end;
 ALTER TRIGGER BLNG.dmn_TRGR ENABLE;
 
 
-
 /
-
 /*USR_DATA*/
-
 
 --------------------------------------------------------
 --  DDL for Table 
@@ -1423,22 +1398,22 @@ ALTER TRIGGER BLNG.dmn_TRGR ENABLE;
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  DDL for Index 
 --------------------------------------------------------
 
-  CREATE INDEX blng.usrd_ID_IDX ON blng.USR_DATA ("ID") 
-  TABLESPACE "USERS" ;
+  CREATE INDEX blng.usrd_ID_IDX ON blng.USR_DATA (ID) 
+  TABLESPACE USERS ;
 --------------------------------------------------------
 --  Constraints for Table 
 --------------------------------------------------------
 
 
-  ALTER TABLE blng.USR_DATA MODIFY ("ID" CONSTRAINT usrd_ID_NN NOT NULL ENABLE);
-  ALTER TABLE blng.USR_DATA MODIFY (AMND_DATE CONSTRAINT "usrd_ADT_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.USR_DATA MODIFY (AMND_USER CONSTRAINT "usrd_AUR_NN" NOT NULL ENABLE);
-  ALTER TABLE blng.USR_DATA MODIFY (AMND_STATE CONSTRAINT "usrd_AST_NN" NOT NULL ENABLE);
+  ALTER TABLE blng.USR_DATA MODIFY (ID CONSTRAINT usrd_ID_NN NOT NULL ENABLE);
+  ALTER TABLE blng.USR_DATA MODIFY (AMND_DATE CONSTRAINT usrd_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE blng.USR_DATA MODIFY (AMND_USER CONSTRAINT usrd_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE blng.USR_DATA MODIFY (AMND_STATE CONSTRAINT usrd_AST_NN NOT NULL ENABLE);
 ALTER TABLE BLNG.USR_DATA  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
 ALTER TABLE BLNG.USR_DATA  MODIFY (AMND_USER DEFAULT  on null  user );
 ALTER TABLE BLNG.USR_DATA  MODIFY (AMND_STATE DEFAULT  on null  'A' );
@@ -1451,7 +1426,7 @@ ALTER TABLE BLNG.USR_DATA  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 
 
 ALTER TABLE BLNG.USR_DATA ADD CONSTRAINT usrd_usr_OID_FK FOREIGN KEY (user_oid)
-  REFERENCES BLNG.usr ("ID") ENABLE;
+  REFERENCES BLNG.usr (ID) ENABLE;
 
 
 --------------------------------------------------------
@@ -1486,26 +1461,26 @@ ALTER TRIGGER BLNG.usrd_TRGR ENABLE;
 /
 
 
-CREATE bitmap INDEX blng.clt_AS_IDX ON blng.client (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX blng.usr_AS_IDX ON blng.usr (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX blng.cntr_AS_IDX ON blng.contract (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX blng.u2cntr_AS_IDX ON blng.USR2CONTRACT (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX blng.doc_AS_IDX ON blng.document (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX blng.trn_AS_IDX ON blng.transaction (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX blng.acc_AS_IDX ON blng.account (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX blng.dly_AS_IDX ON blng.delay (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX blng.dmn_AS_IDX ON blng.domain (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX blng.usrd_AS_IDX ON blng.USR_DATA (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX blng.trt_AS_IDX ON blng.trans_type (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX blng.ett_AS_IDX ON blng.event_type (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX blng.stt_AS_IDX ON blng.status_type (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX blng.acct_AS_IDX ON blng.account_type (amnd_state) TABLESPACE "USERS" ;
-CREATE bitmap INDEX blng.evnt_AS_IDX ON blng.event (amnd_state) TABLESPACE "USERS" ;
+CREATE bitmap INDEX blng.clt_AS_IDX ON blng.client (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX blng.usr_AS_IDX ON blng.usr (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX blng.cntr_AS_IDX ON blng.contract (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX blng.u2cntr_AS_IDX ON blng.USR2CONTRACT (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX blng.doc_AS_IDX ON blng.document (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX blng.trn_AS_IDX ON blng.transaction (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX blng.acc_AS_IDX ON blng.account (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX blng.dly_AS_IDX ON blng.delay (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX blng.dmn_AS_IDX ON blng.domain (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX blng.usrd_AS_IDX ON blng.USR_DATA (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX blng.trt_AS_IDX ON blng.trans_type (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX blng.ett_AS_IDX ON blng.event_type (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX blng.stt_AS_IDX ON blng.status_type (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX blng.acct_AS_IDX ON blng.account_type (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX blng.evnt_AS_IDX ON blng.event (amnd_state) TABLESPACE USERS ;
 
 
-CREATE INDEX blng.doc_dd_IDX ON blng.document (doc_date) TABLESPACE "USERS" ;
-CREATE INDEX blng.trn_td_IDX ON blng.transaction (trans_date) TABLESPACE "USERS" ;
-CREATE INDEX blng.dly_dt_IDX ON blng.delay (date_to) TABLESPACE "USERS" ;
+CREATE INDEX blng.doc_dd_IDX ON blng.document (doc_date) TABLESPACE USERS ;
+CREATE INDEX blng.trn_td_IDX ON blng.transaction (trans_date) TABLESPACE USERS ;
+CREATE INDEX blng.dly_dt_IDX ON blng.delay (date_to) TABLESPACE USERS ;
 
 --------------------------------------------------------
 --  DDL for Grants
@@ -1546,6 +1521,9 @@ grant select on blng.event_type to ntg;
 
 --Foreign keys between tables in different schemas
 
+/*
+?????????????????????????????????????????
+
 grant references on blng.contract to ord;
 grant references on blng.usr to ord;
 grant references on blng.client to ord;
@@ -1578,4 +1556,4 @@ grant references on blng.status_type to ntg;
 grant references on blng.trans_type to ntg;
 grant references on blng.event_type to ntg;
 
-
+*/

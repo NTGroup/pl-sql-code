@@ -7,12 +7,12 @@ $pkg: ORD.ORD_API
 */
 
 /*
-$obj_desc: ***_add: insert row into table ***. could return id of new row.
-$obj_desc: ***_edit: update row into table ***. object have always one id. first, old data with amnd_state = [I]nactive
-$obj_desc: ***_edit: inserted as row with link to new row(amnd_prev). new data just update object row, 
-$obj_desc: ***_edit: amnd_date updates to sysdate and amnd_user to current user who called api.
-$obj_desc: ***_get_info: return data from table *** with format SYS_REFCURSOR.
-$obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype.
+$obj_desc: *_add: insert row into table *. Could return id of new row.
+$obj_desc: *_edit: update row into table *. Object have always one id. first, old data with amnd_state = [I]nactive
+$obj_desc: *_edit: inserted as row with link to new row(amnd_prev). new data just update object row, 
+$obj_desc: *_edit: amnd_date updates to sysdate and amnd_user to current user who called api.
+$obj_desc: *_get_info: return data from table * with format SYS_REFCURSOR.
+$obj_desc: *_get_info_r: return one row from table * with format *%rowtype.
 */
 
   function ord_add( p_date  in hdbk.dtype.t_date default null, 
@@ -188,7 +188,8 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
                     p_status in  hdbk.dtype.t_status default null,
                     p_contract in  hdbk.dtype.t_id default null,
                     p_bill in  hdbk.dtype.t_id default null,
-                    p_trans_type in  hdbk.dtype.t_id default null
+                    p_trans_type in  hdbk.dtype.t_id default null,
+                    p_vat_type in  hdbk.dtype.t_id default null
                     
                     
                   )
@@ -201,7 +202,9 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
                         p_status in  hdbk.dtype.t_status default null,
                         p_contract in  hdbk.dtype.t_id default null,
                     p_bill in  hdbk.dtype.t_id default null,
-                    p_trans_type in  hdbk.dtype.t_id default null
+                    p_trans_type in  hdbk.dtype.t_id default null,
+                    p_vat_type in  hdbk.dtype.t_id default null
+
 
                       );
 
@@ -321,7 +324,8 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
   function task1c_add( 
                     p_task_type in hdbk.dtype.t_id default null,
                     p_number_1c in hdbk.dtype.t_long_code default null,
-                    p_status in hdbk.dtype.t_status default null
+                    p_status in hdbk.dtype.t_status default null,
+                    p_request in hdbk.dtype.t_clob default null
                   )
   return hdbk.dtype.t_id;
 
@@ -329,7 +333,8 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
   procedure task1c_edit(  P_ID  in hdbk.dtype.t_id default null,
                     p_task_type in hdbk.dtype.t_id default null,
                     p_number_1c in hdbk.dtype.t_long_code default null,
-                    p_status in hdbk.dtype.t_status default null
+                    p_status in hdbk.dtype.t_status default null,
+                    p_request in hdbk.dtype.t_clob default null
                       );
 
 
@@ -369,13 +374,15 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
 
 
   function itinerary_add( 
-                    p_item_avia in hdbk.dtype.t_id default null
+                    p_item_avia in hdbk.dtype.t_id default null,
+                    p_validating_carrier in hdbk.dtype.t_id default null
                   )
   return hdbk.dtype.t_id;
 
 
   procedure itinerary_edit(  P_ID  in hdbk.dtype.t_id default null,
-                            p_item_avia in hdbk.dtype.t_id default null
+                            p_item_avia in hdbk.dtype.t_id default null,
+                            p_validating_carrier in hdbk.dtype.t_id default null
                       );
 
 
@@ -384,7 +391,8 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
   return SYS_REFCURSOR;
 
 
-  function itinerary_get_info_r (    P_ID  in hdbk.dtype.t_id default null
+  function itinerary_get_info_r ( P_ID  in hdbk.dtype.t_id default null,
+                                  p_item_avia in hdbk.dtype.t_id default null
                           )
   return itinerary%rowtype;
 
@@ -433,7 +441,9 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
                     p_departure_date in hdbk.dtype.t_date default null,
                     p_arrival_iata in hdbk.dtype.t_code default null,
                     p_arrival_city in hdbk.dtype.t_id default null,
-                    p_arrival_date in hdbk.dtype.t_date default null
+                    p_arrival_date in hdbk.dtype.t_date default null,
+                    p_marketing_carrier in hdbk.dtype.t_id default null,
+                    p_operating_carrier in hdbk.dtype.t_id default null
                   )
   return hdbk.dtype.t_id;
 
@@ -446,7 +456,9 @@ $obj_desc: ***_get_info_r: return one row from table *** with format ***%rowtype
                             p_departure_date in hdbk.dtype.t_date default null,
                             p_arrival_iata in hdbk.dtype.t_code default null,
                             p_arrival_city in hdbk.dtype.t_id default null,
-                            p_arrival_date in hdbk.dtype.t_date default null
+                            p_arrival_date in hdbk.dtype.t_date default null,
+                            p_marketing_carrier in hdbk.dtype.t_id default null,
+                            p_operating_carrier in hdbk.dtype.t_id default null
                       );
 
 
@@ -1221,9 +1233,9 @@ END ORD_API;
                     p_status in  hdbk.dtype.t_status default null,
                     p_contract in  hdbk.dtype.t_id default null,
                     p_bill in  hdbk.dtype.t_id default null,
-                    p_trans_type in  hdbk.dtype.t_id default null
+                    p_trans_type in  hdbk.dtype.t_id default null,
+                    p_vat_type in  hdbk.dtype.t_id default null
 
-                    
                   )
   return hdbk.dtype.t_id
   is
@@ -1237,6 +1249,7 @@ END ORD_API;
     v_obj_row.contract_oid:=  p_contract;
     v_obj_row.bill_oid :=  p_bill;
     v_obj_row.trans_type_oid :=  p_trans_type;
+    v_obj_row.vat_type_oid :=  p_vat_type;
 
     insert into ord.bill values v_obj_row returning id into v_id;
     return v_id;
@@ -1260,7 +1273,9 @@ END ORD_API;
                         p_status in  hdbk.dtype.t_status default null,
                         p_contract in  hdbk.dtype.t_id default null,
                     p_bill in  hdbk.dtype.t_id default null,
-                    p_trans_type in  hdbk.dtype.t_id default null
+                    p_trans_type in  hdbk.dtype.t_id default null,
+                    p_vat_type in  hdbk.dtype.t_id default null
+
 
                       )
   is
@@ -1282,6 +1297,7 @@ END ORD_API;
     v_obj_row_new.amnd_date:=sysdate;
     v_obj_row_new.amnd_user:=user;
     v_obj_row_new.status := nvl(p_status,v_obj_row_new.status);
+    v_obj_row_new.vat_type_oid := nvl(p_vat_type,v_obj_row_new.vat_type_oid);
 
     update bill set row = v_obj_row_new where id = v_obj_row_new.id;
   exception 
@@ -1822,7 +1838,8 @@ END ORD_API;
   function task1c_add( 
                     p_task_type in hdbk.dtype.t_id default null,
                     p_number_1c in hdbk.dtype.t_long_code default null,
-                    p_status in hdbk.dtype.t_status default null
+                    p_status in hdbk.dtype.t_status default null,
+                    p_request in hdbk.dtype.t_clob default null
                   )
   return hdbk.dtype.t_id
   is
@@ -1832,6 +1849,7 @@ END ORD_API;
     v_obj_row.task_type:=  p_task_type;
     v_obj_row.number_1c:=  p_number_1c;
     v_obj_row.status:=  nvl(p_status,'A');
+    v_obj_row.request:=  p_request;
 
 
     insert into ord.task1c values v_obj_row returning id into v_id;
@@ -1846,7 +1864,8 @@ END ORD_API;
   procedure task1c_edit(  P_ID  in hdbk.dtype.t_id default null,
                     p_task_type in hdbk.dtype.t_id default null,
                     p_number_1c in hdbk.dtype.t_long_code default null,
-                    p_status in hdbk.dtype.t_status default null
+                    p_status in hdbk.dtype.t_status default null,
+                    p_request in hdbk.dtype.t_clob default null
                       )
   is
     v_obj_row_new task1c%rowtype;
@@ -1867,6 +1886,7 @@ END ORD_API;
     v_obj_row_new.task_type := nvl(p_task_type,v_obj_row_new.task_type);
     v_obj_row_new.number_1c := nvl(p_number_1c,v_obj_row_new.number_1c);
     v_obj_row_new.status := nvl(p_status,v_obj_row_new.status);
+    v_obj_row_new.request := nvl(p_request,v_obj_row_new.request);
 
     if p_status in ('C','D') then  v_obj_row_new.amnd_state := 'C'; end if;
 
@@ -2049,7 +2069,8 @@ END ORD_API;
 
 
   function itinerary_add( 
-                    p_item_avia in hdbk.dtype.t_id default null
+                    p_item_avia in hdbk.dtype.t_id default null,
+                    p_validating_carrier in hdbk.dtype.t_id default null
                   )
   return hdbk.dtype.t_id
   is
@@ -2057,6 +2078,7 @@ END ORD_API;
     v_id hdbk.dtype.t_id;
   begin
     v_obj_row.item_avia_oid:=  p_item_avia;
+    v_obj_row.validating_carrier:=  p_validating_carrier;
 
     insert into ord.itinerary values v_obj_row returning id into v_id;
     return v_id;
@@ -2068,7 +2090,8 @@ END ORD_API;
 
 
   procedure itinerary_edit(  P_ID  in hdbk.dtype.t_id default null,
-                            p_item_avia in hdbk.dtype.t_id default null
+                            p_item_avia in hdbk.dtype.t_id default null,
+                            p_validating_carrier in hdbk.dtype.t_id default null
                       )
   is
     v_obj_row_new itinerary%rowtype;
@@ -2087,6 +2110,7 @@ END ORD_API;
     v_obj_row_new.amnd_date:=sysdate;
     v_obj_row_new.amnd_user:=user;
     v_obj_row_new.item_avia_oid := nvl(p_item_avia,v_obj_row_new.item_avia_oid);
+    v_obj_row_new.validating_carrier := nvl(p_validating_carrier,v_obj_row_new.validating_carrier);
 
 
     v_obj_row_old.amnd_state:='I';
@@ -2127,18 +2151,20 @@ END ORD_API;
   end;
 
 
-  function itinerary_get_info_r (    P_ID  in hdbk.dtype.t_id default null
+  function itinerary_get_info_r (    P_ID  in hdbk.dtype.t_id default null,
+                                  p_item_avia in hdbk.dtype.t_id default null
                           )
   return itinerary%rowtype
   is
     r_obj itinerary%rowtype;
   begin
-    if p_id is null then raise NO_DATA_FOUND; end if;   
+    if p_id is null and p_item_avia is null then raise NO_DATA_FOUND; end if;   
     
     SELECT
     * into r_obj
     from ord.itinerary 
     where id = nvl(p_id,id)
+    and item_avia_oid = nvl(p_item_avia,item_avia_oid)
     and amnd_state = 'A'
     order by id;
     return r_obj;
@@ -2299,7 +2325,9 @@ END ORD_API;
                     p_departure_date in hdbk.dtype.t_date default null,
                     p_arrival_iata in hdbk.dtype.t_code default null,
                     p_arrival_city in hdbk.dtype.t_id default null,
-                    p_arrival_date in hdbk.dtype.t_date default null
+                    p_arrival_date in hdbk.dtype.t_date default null,
+                    p_marketing_carrier in hdbk.dtype.t_id default null,
+                    p_operating_carrier in hdbk.dtype.t_id default null
                   )
   return hdbk.dtype.t_id
   is
@@ -2314,6 +2342,8 @@ END ORD_API;
     v_obj_row.arrival_iata:=  p_arrival_iata;
     v_obj_row.arrival_city:=  p_arrival_city;
     v_obj_row.arrival_date:=  p_arrival_date;
+    v_obj_row.marketing_carrier:=  p_marketing_carrier;
+    v_obj_row.operating_carrier:=  p_operating_carrier;
 
     insert into ord.segment values v_obj_row returning id into v_id;
     return v_id;
@@ -2332,7 +2362,9 @@ END ORD_API;
                             p_departure_date in hdbk.dtype.t_date default null,
                             p_arrival_iata in hdbk.dtype.t_code default null,
                             p_arrival_city in hdbk.dtype.t_id default null,
-                            p_arrival_date in hdbk.dtype.t_date default null
+                            p_arrival_date in hdbk.dtype.t_date default null,
+                            p_marketing_carrier in hdbk.dtype.t_id default null,
+                            p_operating_carrier in hdbk.dtype.t_id default null
                       )
   is
     v_obj_row_new segment%rowtype;
@@ -2358,6 +2390,8 @@ END ORD_API;
     v_obj_row_new.arrival_iata := nvl(p_arrival_iata,v_obj_row_new.arrival_iata);
     v_obj_row_new.arrival_city := nvl(p_arrival_city,v_obj_row_new.arrival_city);
     v_obj_row_new.arrival_date := nvl(p_arrival_date,v_obj_row_new.arrival_date);
+    v_obj_row_new.marketing_carrier := nvl(p_marketing_carrier,v_obj_row_new.marketing_carrier);
+    v_obj_row_new.operating_carrier := nvl(p_operating_carrier,v_obj_row_new.operating_carrier);
 
 
     v_obj_row_old.amnd_state:='I';

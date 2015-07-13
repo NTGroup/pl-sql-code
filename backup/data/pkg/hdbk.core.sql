@@ -2,7 +2,7 @@
 
  /*
  
- pkg: hdbk.core
+$pkg: HDBK.CORE
  
  */
   
@@ -35,6 +35,14 @@ $obj_return: day of pay
 
   function dictionary_get_name_by_code (    p_dictionary_type  in hdbk.dtype.t_name default null,
                                 p_code in hdbk.dtype.t_code default null
+                          )
+  return hdbk.dtype.t_name;
+
+  function dictionary_get_code (    p_id  in hdbk.dtype.t_id default null
+                          )
+  return hdbk.dtype.t_name;
+  
+  function dictionary_get_name (    p_id  in hdbk.dtype.t_id default null
                           )
   return hdbk.dtype.t_name;
 
@@ -297,10 +305,64 @@ end;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_get_id', p_msg_type=>'UNHANDLED_ERROR',
+      hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_get_name_by_code', p_msg_type=>'UNHANDLED_ERROR',
         P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
       RAISE_APPLICATION_ERROR(-20002,'select row into dictionary error. '||SQLERRM);
   end;
+
+
+  function dictionary_get_code (    p_id  in hdbk.dtype.t_id default null
+                          )
+  return hdbk.dtype.t_name
+  is
+    v_result hdbk.dtype.t_name;
+  begin
+--    if p_dictionary_type is null and p_code is null then raise NO_DATA_FOUND; end if;
+
+    SELECT
+    code into v_result
+    from dictionary 
+    where id = p_id;
+    
+    return v_result;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_get_code', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into dictionary error. '||SQLERRM);
+  end;
+
+
+  function dictionary_get_name (    p_id  in hdbk.dtype.t_id default null
+                          )
+  return hdbk.dtype.t_name
+  is
+    v_result hdbk.dtype.t_name;
+  begin
+--    if p_dictionary_type is null and p_code is null then raise NO_DATA_FOUND; end if;
+
+    SELECT
+    name into v_result
+    from dictionary 
+    where id = p_id;
+    
+    return v_result;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_get_name', p_msg_type=>'UNHANDLED_ERROR',
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      RAISE_APPLICATION_ERROR(-20002,'select row into dictionary error. '||SQLERRM);
+  end;
+
+
 
 
 

@@ -133,7 +133,7 @@ END;
 /
 */
 
-
+/*
 BEGIN
 
 
@@ -171,14 +171,14 @@ BEGIN
     DBMS_SCHEDULER.DROP_SCHEDULE(schedule_name => 'NTG.DELAY_EXPIRE_SCHEDULE',
                                 force => false);
 
-/*    DBMS_SCHEDULER.DROP_JOB(job_name => 'HDBK.DELAY_EXPIRE_JOB',
+    DBMS_SCHEDULER.DROP_JOB(job_name => 'HDBK.DELAY_EXPIRE_JOB',
                                 defer => false,
                                 force => false);
                                 
     DBMS_SCHEDULER.DROP_SCHEDULE(schedule_name => 'HDBK.DELAY_EXPIRE_SCHEDULE',
-                                force => false);*/
+                                force => false);
 END;
-
+*/
 
 
 /*

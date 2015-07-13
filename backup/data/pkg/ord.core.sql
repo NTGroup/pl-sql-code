@@ -3,7 +3,7 @@
 
 /*
 
-pkg: ORD.CORE
+$pkg: ORD.CORE
 
 */
 
