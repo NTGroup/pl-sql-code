@@ -2579,7 +2579,7 @@ $TODO: there must be check for users with ISSUES permission
       end loop;
 
       -- RUSSIA - KRYM
-/*      for i in (
+      for i in (
         select * from hdbk.geo where id in 
           ( 
           select departure_city from ord.leg where itinerary_oid = p_itinerary
@@ -2588,11 +2588,11 @@ $TODO: there must be check for users with ISSUES permission
           )
         )
       loop
-        if i.id in ( 1130,11021,10762,5911,22521,20262) then null; --KRYM  VAT = ???
+        if i.id in ( 1130,11021,10762,5911,22521,20262) then null; --KRYM  VAT = 0
           return hdbk.core.dictionary_get_id(p_dictionary_type=>'1C_PRODUCT_W_VAT',p_code=>'AVIATICKET_VAT_0');        
         end if;
       end loop;
-*/
+
       -- RUSSIA
       
       if sysdate < to_date('31122017','ddmmyyyy') then null; -- RUSSIA VAT = 10
