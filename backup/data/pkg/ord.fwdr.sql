@@ -438,6 +438,12 @@ $obj_return: ID of dictionary 1C_PRODUCT_W_VAT code
   function vat_calc(p_itinerary in hdbk.dtype.t_id default null)
   return hdbk.dtype.t_id;
   
+
+  function bill_deposit(p_user_id in hdbk.dtype.t_long_code default null,
+                        p_amount in hdbk.dtype.t_amount default null)
+  return SYS_REFCURSOR;
+
+  
   
 END FWDR;
 
@@ -464,9 +470,7 @@ END FWDR;
     return v_id;
   exception when others then
     rollback;
-    hdbk.log_api.LOG_ADD(p_proc_name=>'order_create', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=ord,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'order_create', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into ord error. '||SQLERRM);
     return null;
   end;
@@ -494,9 +498,7 @@ END FWDR;
     return v_id;
   exception when others then
     rollback;
-    hdbk.log_api.LOG_ADD(p_proc_name=>'item_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=item_avia,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'item_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into item_avia error. '||SQLERRM);
     return null;
   end;
@@ -528,9 +530,7 @@ END FWDR;
     
   begin
       hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'0',
-        P_MSG => 'p_ticket='||p_ticket,
-        p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+        P_MSG => 'p_ticket='||p_ticket);
     
     v_tenant_id := to_number(p_tenant_id);
     check_request(p_contract=>v_tenant_id,p_pnr_id =>p_pnr_id);
@@ -553,22 +553,10 @@ END FWDR;
   )
   loop
     begin
-      
-      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'1',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
-        p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
-
-
-    
       r_ticket:= ord_api.ticket_get_info_r(
                             p_item_avia           => r_item_avia.id,
                             p_ticket_number       => i.p_number
                           );
-/*      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'2',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
-        p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);*/
 
       ord_api.ticket_edit( p_id => r_ticket.id,
                               --p_item_avia           => r_item_avia.id,
@@ -584,15 +572,8 @@ END FWDR;
                             );    
         v_is_ticket_received := 'Y';
         
-/*      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'3',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
-        p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);*/
     exception when NO_DATA_FOUND then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'4',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
-        p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+
       v_ticket:=ord_api.ticket_add( p_item_avia           => r_item_avia.id,
                               p_pnr_locator         => r_item_avia.pnr_locator,
                               p_ticket_number       => i.p_number,
@@ -605,18 +586,10 @@ END FWDR;
                             );
       v_is_ticket_received := 'Y';
       
-      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'5',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
-        p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     end;
     
   end loop;
   if v_is_ticket_received = 'Y' then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'6',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
-        p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
         
     r_bill := ord_api.bill_get_info_r(p_order=>r_item_avia.order_oid);
 
@@ -637,10 +610,7 @@ END FWDR;
   exception 
     when others then    
       rollback;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
-        p_info => 'p_tenant_id='||v_tenant_id||',p_pnr_id='||p_pnr_id||',p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_reg_ticket', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'avia_reg_ticket error. '||SQLERRM);
   end;
 
@@ -660,9 +630,7 @@ END FWDR;
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'item_list', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=item_avia,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'item_list', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
     return null;
   end;
@@ -690,9 +658,7 @@ END FWDR;
         order by ia.time_limit asc; --, ia.id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'pnr_list', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=item_avia,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'pnr_list', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
     return null;    
   end;
@@ -729,9 +695,7 @@ END FWDR;
         order by ia.time_limit asc; 
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'pnr_list', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=item_avia,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'pnr_list', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
     return null;
   end;
@@ -748,9 +712,7 @@ END FWDR;
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'item_list', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=item_avia,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'item_list', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
     return null;    
   end;
@@ -767,9 +729,7 @@ END FWDR;
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'order_get', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=ord,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'order_get', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into ord error. '||SQLERRM);
     return null;
   end;
@@ -805,9 +765,7 @@ END FWDR;
     check_request(p_contract=>v_tenant_id,p_pnr_id =>p_pnr_id);
 
 
-    hdbk.log_api.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'STARTED',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'STARTED');
         
     r_item_avia := ord_api.item_avia_get_info_r(p_pnr_id => p_pnr_id);
     if r_item_avia.id is null then
@@ -834,9 +792,7 @@ END FWDR;
         if i_json.o_airline != i_json.m_airline then f_MCeqOC := 0; end if;
       end loop; --json
     exception when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'commission_get error. json not found. '||SQLERRM);
       --      o_fix := null; o_percent:=5;
     end;
@@ -927,14 +883,10 @@ END FWDR;
   exception 
     WHEN NO_DATA_FOUND then 
       dbms_output.put_line(' p_id='||v_id||' v_iata='||v_iata||' o_fix='||o_fix||' o_percent='||o_percent);        
-      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'NO_DATA_FOUND');
       return;
     when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)|| ' '||sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'commission_get', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'commission_get error. '||SQLERRM);
     ---o_fix := null; o_percent:=5;
   end;
@@ -988,9 +940,7 @@ END FWDR;
   exception 
     when others then
     rollback;
-    hdbk.log_api.LOG_ADD(p_proc_name=>'avia_manual', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=item_avia_status,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'avia_manual', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'avia_manual error. '||SQLERRM);
   end;
 
@@ -1012,9 +962,7 @@ END FWDR;
           blng.core.revoke_document(p_document =>r_document.id );
         exception when others then
           rollback;
-          hdbk.log_api.LOG_ADD(p_proc_name=>'cash_back', p_msg_type=>'UNHANDLED_ERROR', 
-            P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'pnr_id='||p_pnr_id||',p_date='
-            || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+          hdbk.log_api.LOG_ADD(p_proc_name=>'cash_back', p_msg_type=>'UNHANDLED_ERROR');      
           CLOSE c_bill;
           raise;
         end;
@@ -1023,9 +971,7 @@ END FWDR;
 
   exception when others then 
     rollback;
-    hdbk.log_api.LOG_ADD(p_proc_name=>'cash_back', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'pnr_id='||p_pnr_id||',p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+    hdbk.log_api.LOG_ADD(p_proc_name=>'cash_back', p_msg_type=>'UNHANDLED_ERROR');      
     RAISE_APPLICATION_ERROR(-20002,'cash_back error. '||SQLERRM);
   end;
 
@@ -1083,9 +1029,7 @@ END FWDR;
     v_leg hdbk.dtype.t_id;
     v_segment hdbk.dtype.t_id;
   begin
-      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_create', p_msg_type=>'ok',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)
-        || ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_itinerary='|| p_itinerary,P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_create', p_msg_type=>'ok');
 
     check_request(p_email => p_user_id,p_pnr_id =>p_pnr_id, p_is_create=>'Y');
 
@@ -1180,9 +1124,7 @@ END FWDR;
   exception 
     when others then    
       rollback;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_create', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10)
-        || ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_create', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'avia_create error. '||SQLERRM);
   end;
 
@@ -1228,9 +1170,7 @@ END FWDR;
   exception 
     when others then    
       rollback;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_update', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=item_avia,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_update', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'avia_update error. '||SQLERRM);
   end;
 
@@ -1247,9 +1187,7 @@ END FWDR;
     c_bill  SYS_REFCURSOR;
     r_bill bill%rowtype;
   begin
-      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_pay', p_msg_type=>'ok',
-        P_MSG => 'start',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'avia_pay', p_msg_type=>'ok');
 
     check_request(p_email => p_user_id,p_pnr_id =>p_pnr_id);
 
@@ -1271,9 +1209,7 @@ END FWDR;
     when NO_DATA_FOUND then return;  
     when others then
     rollback;
-    hdbk.log_api.LOG_ADD(p_proc_name=>'avia_pay', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10) || ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=item_avia_status,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'avia_pay', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'avia_pay error. '||SQLERRM);
   end;
 
@@ -1289,9 +1225,7 @@ END FWDR;
     v_contract hdbk.dtype.t_id;
   begin
 
-    hdbk.log_api.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'OK',
-      P_MSG => 'start',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);                                
+    hdbk.log_api.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'OK');                                
 
     check_request(p_email => p_user_id,p_pnr_id =>p_pnr_id);
   
@@ -1309,17 +1243,13 @@ END FWDR;
                                 p_vat_type=>vat_calc(r_itinerary.id)
                                 );
                                 
-    hdbk.log_api.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'OK',
-      P_MSG => 'finish',p_info => 'p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);                                
+    hdbk.log_api.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'OK');                                
                                     
     commit;             
   exception 
     when others then
     rollback;
-    hdbk.log_api.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM || ' '|| chr(13)||chr(10) || ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=item_avia_status,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'avia_booked error. '||SQLERRM);
   end;
 
@@ -1354,9 +1284,7 @@ END FWDR;
           );
     return v_results;
   exception when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'get_full', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select,p_table=markup,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'get_full', p_msg_type=>'UNHANDLED_ERROR');      
       RAISE_APPLICATION_ERROR(-20002,'select row into markup error. '||SQLERRM);
     return null;  
   end;
@@ -1418,16 +1346,14 @@ END FWDR;
   exception 
     when NO_DATA_FOUND then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'pos_rule_edit', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'pos_rule_edit', p_msg_type=>'NO_DATA_FOUND');
 
       open v_results for
         select 'false' res from dual;
       return v_results;
     when others then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'pos_rule_edit', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'pos_rule_edit', p_msg_type=>'UNHANDLED_ERROR');      
 
       open v_results for
         select 'false' res from dual;
@@ -1446,8 +1372,7 @@ END FWDR;
     v_rule hdbk.dtype.t_id:=null;
     v_commission_details hdbk.dtype.t_id:=null;
   begin
-    hdbk.log_api.LOG_ADD(p_proc_name=>'rule_add', p_msg_type=>'OK',
-      P_MSG => p_data,P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'rule_add', p_msg_type=>'OK',P_MSG => p_data);
 
   
     for i in (
@@ -1523,27 +1448,21 @@ END FWDR;
   exception 
     when NO_DATA_FOUND then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_add', p_msg_type=>'VALUE_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,
-          P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_add', p_msg_type=>'VALUE_ERROR');
 
       open v_results for
         select 'VALUE_ERROR' res from dual;
       return v_results;
     when VALUE_ERROR then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_add', p_msg_type=>'VALUE_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,
-          P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_add', p_msg_type=>'VALUE_ERROR');
 
       open v_results for
         select 'VALUE_ERROR' res from dual;
       return v_results;
     when others then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_add', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
-        P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_add', p_msg_type=>'UNHANDLED_ERROR');      
 
       open v_results for
         select 'ERROR' res from dual;
@@ -1563,8 +1482,7 @@ END FWDR;
     v_commission hdbk.dtype.t_id:=null;
     v_commission_details hdbk.dtype.t_id:=null;
   begin
-    hdbk.log_api.LOG_ADD(p_proc_name=>'rule_edit', p_msg_type=>'OK',
-      P_MSG => p_data,P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'rule_edit', p_msg_type=>'OK',P_MSG => p_data);
 
 --    if p_tenant_id is null then raise VALUE_ERROR; end if;
          
@@ -1648,27 +1566,21 @@ END FWDR;
   exception 
     when NO_DATA_FOUND then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_edit', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,
-          P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_edit', p_msg_type=>'NO_DATA_FOUND');
 
       open v_results for
         select 'NO_DATA_FOUND' res from dual;
       return v_results;
     when VALUE_ERROR then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_edit', p_msg_type=>'VALUE_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,
-          P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_edit', p_msg_type=>'VALUE_ERROR');
 
       open v_results for
         select 'VALUE_ERROR' res from dual;
       return v_results;
     when others then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_edit', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
-        P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_edit', p_msg_type=>'UNHANDLED_ERROR');      
 
       open v_results for
         select 'ERROR' res from dual;
@@ -1687,8 +1599,7 @@ END FWDR;
     v_commission hdbk.dtype.t_id:=null;
     v_commission_details hdbk.dtype.t_id:=null;
   begin
-    hdbk.log_api.LOG_ADD(p_proc_name=>'rule_manage', p_msg_type=>'OK',
-      P_MSG => p_data,P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'rule_manage', p_msg_type=>'OK',P_MSG => p_data);
 
     if p_tenant_id is null then raise VALUE_ERROR; end if;
          
@@ -1797,9 +1708,7 @@ END FWDR;
   exception 
     when NO_DATA_FOUND then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_manage', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,
-          P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_manage', p_msg_type=>'NO_DATA_FOUND');
 
       open v_results for
         select 'NO_DATA_FOUND' res from dual;
@@ -1807,17 +1716,14 @@ END FWDR;
     when VALUE_ERROR then
       ROLLBACK;
       hdbk.log_api.LOG_ADD(p_proc_name=>'rule_manage', p_msg_type=>'VALUE_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,
-          P_ALERT_LEVEL=>10);
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack);
 
       open v_results for
         select 'ERROR' res from dual;
       return v_results;
     when others then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_manage', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
-        P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_manage', p_msg_type=>'UNHANDLED_ERROR');      
 
       open v_results for
         select 'ERROR' res from dual;
@@ -1857,17 +1763,14 @@ END FWDR;
     when NO_DATA_FOUND then
       ROLLBACK;
       hdbk.log_api.LOG_ADD(p_proc_name=>'rule_delete', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,
-        P_ALERT_LEVEL=>10);
+        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack);
 
       open v_results for
         select 'NO_DATA_FOUND' res from dual;
       return v_results;
     when others then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_delete', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
-        P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'rule_delete', p_msg_type=>'UNHANDLED_ERROR');      
 
       open v_results for
         select 'ERROR' res from dual;
@@ -1924,9 +1827,7 @@ END FWDR;
 
     return v_results;
   exception when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_template_get', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select,p_table=commission_template,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_template_get', p_msg_type=>'UNHANDLED_ERROR');      
       RAISE_APPLICATION_ERROR(-20002,'select row into commission_template_get error. '||SQLERRM);
     return null;  
   end;
@@ -1984,9 +1885,7 @@ END FWDR;
 
     return v_results;
   exception when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_import_list', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_import_list', p_msg_type=>'UNHANDLED_ERROR');      
       RAISE_APPLICATION_ERROR(-20002,'select row error. '||SQLERRM);
     return null;  
   end;
@@ -1997,9 +1896,7 @@ END FWDR;
   is
     v_results SYS_REFCURSOR; 
   begin
-/*      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_rule_get', p_msg_type=>'OK', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);*/      
+/*      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_rule_get', p_msg_type=>'OK');*/      
     OPEN v_results FOR
       select 
       cmn.id,
@@ -2067,9 +1964,7 @@ END FWDR;
       ;      
     return v_results;
   exception when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_rule_get', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_rule_get', p_msg_type=>'UNHANDLED_ERROR');      
       RAISE_APPLICATION_ERROR(-20002,'select row error. '||SQLERRM);
 --    return null;  
   end;
@@ -2116,9 +2011,7 @@ END FWDR;
 
     return v_results;
   exception when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_templ_get', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_templ_get', p_msg_type=>'UNHANDLED_ERROR');      
       RAISE_APPLICATION_ERROR(-20002,'select row error. '||SQLERRM);
     return null;  
   end;
@@ -2143,9 +2036,7 @@ END FWDR;
       r_item_avia := ord_api.item_avia_get_info_r(p_pnr_id=>p_pnr_id);
     exception 
       when NO_DATA_FOUND then 
-        hdbk.log_api.LOG_ADD(p_proc_name=>'check_request', p_msg_type=>'NO_DATA_FOUND',
-          P_MSG => 'p_pnr_id does not exists',p_info => 'p_pnr_id='||p_pnr_id||',p_date='
-          || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
+        hdbk.log_api.LOG_ADD(p_proc_name=>'check_request', p_msg_type=>'NO_DATA_FOUND');
         RAISE_APPLICATION_ERROR(-20002,'p_pnr_id does not found.');
     end;
 
@@ -2160,16 +2051,12 @@ $TODO: there must be check for users with ISSUES permission
       if blng.core.pay_contract_by_user(r_usr.id)!=p_contract then raise NO_DATA_FOUND; end if;
 
     exception when NO_DATA_FOUND then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'check_request', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => 'tenant_id not found',p_info => 'p_tenant_id='||p_contract||',p_pnr_id='||p_pnr_id||',p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'check_request', p_msg_type=>'NO_DATA_FOUND');
       RAISE_APPLICATION_ERROR(-20002,'user_id not found. ');
     end;
     
   exception when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'check_request', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'check_request', p_msg_type=>'UNHANDLED_ERROR');      
       RAISE_APPLICATION_ERROR(-20002,'select row error. '||SQLERRM);
   end;
 
@@ -2196,14 +2083,10 @@ $TODO: there must be check for users with ISSUES permission
       r_usr := blng.blng_api.usr_get_info_r(p_email=>p_email);
     exception 
       when NO_DATA_FOUND then
-        hdbk.log_api.LOG_ADD(p_proc_name=>'check_request', p_msg_type=>'NO_DATA_FOUND',
-          P_MSG => 'email not found',p_info => 'p_user_id='||p_email||',p_pnr_id='||p_pnr_id||',p_date='
-          || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
+        hdbk.log_api.LOG_ADD(p_proc_name=>'check_request', p_msg_type=>'NO_DATA_FOUND');
         RAISE_APPLICATION_ERROR(-20002,'user_id not found. ');
       when NOT_LOGGED_ON then
-        hdbk.log_api.LOG_ADD(p_proc_name=>'check_request', p_msg_type=>'NOT_LOGGED_ON',
-          P_MSG => 'permission denied',p_info => 'p_user_id='||p_email||',p_pnr_id='||p_pnr_id||',p_date='
-          || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
+        hdbk.log_api.LOG_ADD(p_proc_name=>'check_request', p_msg_type=>'NOT_LOGGED_ON');
         RAISE_APPLICATION_ERROR(-20002,'permission denied');
     end;
 
@@ -2223,9 +2106,7 @@ $TODO: there must be check for users with ISSUES permission
           null;
         when VALUE_ERROR then 
         -- its not ok      
-          hdbk.log_api.LOG_ADD(p_proc_name=>'check_request', p_msg_type=>'VALUE_ERROR',
-            P_MSG => 'p_pnr_id is null',p_info => 'p_user_id='||p_email||',p_pnr_id='||p_pnr_id||',p_date='
-            || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'check_request', p_msg_type=>'VALUE_ERROR');
           RAISE_APPLICATION_ERROR(-20002,'check_request error. p_pnr_id is null');
       end;
     else  
@@ -2238,17 +2119,13 @@ $TODO: there must be check for users with ISSUES permission
   --     if r_item_avia.order_oid is null then raise NO_DATA_FOUND; end if;
         
       exception when NO_DATA_FOUND then
-        hdbk.log_api.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'NO_DATA_FOUND',
-          P_MSG => 'pnr_id not found',p_info => 'p_user_id='||p_email||',p_pnr_id='||p_pnr_id||',p_date='
-          || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>1);
+        hdbk.log_api.LOG_ADD(p_proc_name=>'avia_booked', p_msg_type=>'NO_DATA_FOUND');
         RAISE_APPLICATION_ERROR(-20002,'check_request error. pnr_id not found. ');
       end;
     end if;
       
   exception when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'check_request', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'check_request', p_msg_type=>'UNHANDLED_ERROR');      
       RAISE_APPLICATION_ERROR(-20002,'select row error. '||SQLERRM);
   end;
 
@@ -2416,6 +2293,35 @@ $TODO: there must be check for users with ISSUES permission
           
       ord_api.task1c_edit(p_id=>v_task, p_status=>'W');
           
+    elsif v_type = 'BILL_DEPOSIT' then     
+
+      OPEN v_results FOR
+        select 
+          j.email email,
+          'BILL_DEPOSIT' task_type,
+          r_task1c.id task_id,
+          contract.id  contract_id,
+          'DEPOSIT'  PRODUCT, 
+          'Пополнение счета по договору №'||contract.contract_number description, 
+          1 quantity, 
+          nvl(j.amount,0) price, 
+          '0' vat
+        from blng.contract,
+        json_table  
+                        ( r_task1c.request ,'$' 
+                        columns (contract number(18,0) path '$.contract',
+                                  amount number(20,2) path '$.amount',
+                                  email VARCHAR2(255) path '$.email'
+                                )
+                        ) as j
+        where contract.id = j.contract
+        --and contract.amnd_state = 'A'
+        
+        ;
+          
+      ord_api.task1c_edit(p_id=>v_task, p_status=>'W');
+          
+          
           
     end if;
 
@@ -2425,9 +2331,7 @@ $TODO: there must be check for users with ISSUES permission
     return v_results;
   exception 
     when VALUE_ERROR then 
-      hdbk.log_api.LOG_ADD(p_proc_name=>'task_get', p_msg_type=>'VALUE_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'task_get', p_msg_type=>'VALUE_ERROR');      
         open v_results for
           select 'ERROR' res from dual;
         return v_results;
@@ -2437,9 +2341,7 @@ $TODO: there must be check for users with ISSUES permission
         return v_results;
     when others then
       rollback;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'task_get', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'task_get', p_msg_type=>'UNHANDLED_ERROR');      
         open v_results for
           select 'ERROR' res from dual;
         return v_results;
@@ -2467,7 +2369,7 @@ $TODO: there must be check for users with ISSUES permission
 
       v_type:= hdbk.core.dictionary_get_code(p_id=>r_task1c.task_type);
       
-      if v_type = 'BILL_ADD' then 
+      if v_type in ('BILL_ADD','BILL_DEPOSIT') then 
         if p_data is null then raise VALUE_ERROR; end if;
         select number_1c into v_number_1c from
                         json_table  
@@ -2486,24 +2388,18 @@ $TODO: there must be check for users with ISSUES permission
     return v_results;
   exception 
     when VALUE_ERROR then 
-      hdbk.log_api.LOG_ADD(p_proc_name=>'task_close', p_msg_type=>'VALUE_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'task_close', p_msg_type=>'VALUE_ERROR');      
         open v_results for
           select 'ERROR' res from dual;
         return v_results;
     when NO_DATA_FOUND then 
-      hdbk.log_api.LOG_ADD(p_proc_name=>'task_close', p_msg_type=>'NO_DATA_FOUND', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'task_close', p_msg_type=>'NO_DATA_FOUND');      
         open v_results for
           select 'ERROR' res from dual;
         return v_results;
     when others then
       rollback;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'task_close', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'task_close', p_msg_type=>'UNHANDLED_ERROR');      
         open v_results for
           select 'ERROR' res from dual;
         return v_results;
@@ -2531,24 +2427,18 @@ $TODO: there must be check for users with ISSUES permission
     return v_results;
   exception 
     when VALUE_ERROR then 
-      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_1c_payed', p_msg_type=>'VALUE_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_1c_payed', p_msg_type=>'VALUE_ERROR');      
         open v_results for
           select 'ERROR' res from dual;
         return v_results;
     when NO_DATA_FOUND then 
-      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_1c_payed', p_msg_type=>'NO_DATA_FOUND', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_1c_payed', p_msg_type=>'NO_DATA_FOUND');      
         open v_results for
           select 'ERROR' res from dual;
         return v_results;
     when others then
       rollback;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_1c_payed', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_1c_payed', p_msg_type=>'UNHANDLED_ERROR');      
         open v_results for
           select 'ERROR' res from dual;
         return v_results;
@@ -2603,22 +2493,69 @@ $TODO: there must be check for users with ISSUES permission
     
   exception 
     when VALUE_ERROR then 
-      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_1c_payed', p_msg_type=>'VALUE_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_1c_payed', p_msg_type=>'VALUE_ERROR');      
       raise;
     when NO_DATA_FOUND then 
-      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_1c_payed', p_msg_type=>'NO_DATA_FOUND', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_1c_payed', p_msg_type=>'NO_DATA_FOUND');      
       raise;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_1c_payed', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_1c_payed', p_msg_type=>'UNHANDLED_ERROR');      
       raise;
   end;
   
+
+
+  function bill_deposit(p_user_id in hdbk.dtype.t_long_code default null,
+                        p_amount in hdbk.dtype.t_amount default null)
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR; 
+    v_contract hdbk.dtype.t_id;
+    v_task1c hdbk.dtype.t_id;
+    v_request hdbk.dtype.t_clob;
+    r_user blng.usr%rowtype;
+  begin
+
+      if p_user_id is null or p_amount <= 0 then raise VALUE_ERROR; end if;
+      
+      begin
+        r_user := blng.blng_api.usr_get_info_r(p_email=>p_user_id);
+        v_contract := blng.core.pay_contract_by_user(r_user.id);
+      exception when others then RAISE hdbk.dtype.not_authorized;
+      end;
+      
+      v_request := '{"contract": '||v_contract||', "amount": '||p_amount||', "email": "'||p_user_id||'"}';
+      v_task1c := ord_api.task1c_add(p_task_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'TASK',p_code=>'BILL_DEPOSIT'),
+                    p_request => v_request);
+    
+    COMMIT;
+    
+    open v_results for
+      select 'SUCCESS' res from dual;
+    return v_results;
+  exception 
+    when VALUE_ERROR then 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_deposit', p_msg_type=>'VALUE_ERROR');      
+        open v_results for
+          select 'VALUE_ERROR' res from dual;
+        return v_results;
+    when hdbk.dtype.not_authorized then 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_deposit', p_msg_type=>'NOT_AUTHORIZED');      
+        open v_results for
+          select 'NOT_AUTHORIZED' res from dual;
+        return v_results;
+    when NO_DATA_FOUND then 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_deposit', p_msg_type=>'NO_DATA_FOUND');      
+        open v_results for
+          select 'NO_DATA_FOUND' res from dual;
+        return v_results;
+    when others then
+      rollback;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_deposit', p_msg_type=>'UNHANDLED_ERROR');      
+        open v_results for
+          select 'ERROR' res from dual;
+        return v_results;
+  end;
 
 
 

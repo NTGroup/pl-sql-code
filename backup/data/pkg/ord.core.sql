@@ -186,6 +186,7 @@ END CORE;
     v_order hdbk.dtype.t_id;
     v_avia hdbk.dtype.t_id;
     r_item_avia item_avia%rowtype;
+    r_bill_buy bill%rowtype;
     r_item_avia_status item_avia_status%rowtype;
     r_order ord%rowtype;
     v_bill hdbk.dtype.t_id;
@@ -227,6 +228,9 @@ END CORE;
             P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
   */
+
+          if r_bill.bill_oid is not null then raise hdbk.dtype.exit_alert; end if;
+
           v_DOC := blng.BLNG_API.document_add(P_CONTRACT => r_bill.contract_oid,
                                               P_AMOUNT => r_bill.amount,
                                               P_TRANS_TYPE => blng.blng_api.trans_type_get_id(p_code=>'ci'),
@@ -283,7 +287,13 @@ END CORE;
           hdbk.log_api.LOG_ADD(p_proc_name=>'doc_task_list2', p_msg_type=>'start',
             P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
             || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
-  
+
+          if r_bill.bill_oid is null then raise hdbk.dtype.exit_alert; end if;
+          
+          r_bill_buy:= ord_api.bill_get_info_r(p_id=>r_bill.bill_oid);
+          
+          if r_bill_buy.contract_oid <> r_bill.contract_oid then raise hdbk.dtype.exit_alert; end if;
+          
           v_DOC := blng.BLNG_API.document_add(P_CONTRACT => r_bill.contract_oid,
                                               P_AMOUNT => r_bill.amount,
                                               P_TRANS_TYPE => blng.blng_api.trans_type_get_id(p_code=>'ci'),

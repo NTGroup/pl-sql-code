@@ -1225,7 +1225,8 @@ ALTER TRIGGER BLNG.stt_TRGR ENABLE;
    status VARCHAR2(1),
    priority number,
    amnd_amount number(20,2),
-   parent_id number(18,0)
+   parent_id number(18,0),
+   doc_oid  number(18,0)
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
@@ -1258,6 +1259,8 @@ ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_TRN_OID_FK FOREIGN KEY (transaction_oi
   REFERENCES BLNG.transaction (ID) ENABLE;
 ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_CNTR_OID_FK FOREIGN KEY (contract_oid)
   REFERENCES BLNG.contract (ID) ENABLE;
+ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_DOC_OID_FK FOREIGN KEY (DOC_oid)
+  REFERENCES BLNG.DOCUMENT (ID) ENABLE;
 
 
 --------------------------------------------------------

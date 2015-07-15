@@ -353,7 +353,8 @@ $obj_param: p_contract: contract id
                       p_event_type in hdbk.dtype.t_id default null,
                       p_status in hdbk.dtype.t_status default null,
                       p_priority in hdbk.dtype.t_id default null,
-                      p_parent_id in hdbk.dtype.t_id default null
+                      p_parent_id in hdbk.dtype.t_id default null,
+                      p_doc  in hdbk.dtype.t_id default null
                     )
   return hdbk.dtype.t_id;
 
@@ -362,7 +363,8 @@ $obj_param: p_contract: contract id
                         p_amount in hdbk.dtype.t_amount default null,
                         p_event_type   in hdbk.dtype.t_id default null,
                         p_transaction  in hdbk.dtype.t_id default null,
-                        p_parent_id  in hdbk.dtype.t_id default null
+                        p_parent_id  in hdbk.dtype.t_id default null,
+                        p_doc  in hdbk.dtype.t_id default null
                       );
 
   function delay_get_info ( p_id in hdbk.dtype.t_id default null,
@@ -371,7 +373,8 @@ $obj_param: p_contract: contract id
                             p_event_type in hdbk.dtype.t_id default null,
                             p_transaction in hdbk.dtype.t_id default null,
                             p_priority in hdbk.dtype.t_id default null,
-                            p_parent_id in hdbk.dtype.t_id default null
+                            p_parent_id in hdbk.dtype.t_id default null,
+                            p_doc  in hdbk.dtype.t_id default null
                           )
   return SYS_REFCURSOR;
 
@@ -380,7 +383,8 @@ $obj_param: p_contract: contract id
                             p_date_to in hdbk.dtype.t_date default NULL,
                             p_event_type in hdbk.dtype.t_id default null,
                             p_transaction in hdbk.dtype.t_id default null,
-                            p_priority in hdbk.dtype.t_id default null
+                            p_priority in hdbk.dtype.t_id default null,
+                            p_doc  in hdbk.dtype.t_id default null
                           )
   return blng.delay%rowtype;
   
@@ -496,8 +500,7 @@ end blng_api;
     insert into blng.client values v_client_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'client_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'client_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into client error. '||SQLERRM);
   end;
 
@@ -523,8 +526,7 @@ end blng_api;
     update blng.client set row = v_client_row_new where id = p_id;
 
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'client_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'client_edit', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'update row into client error. '||SQLERRM);
   end;
 
@@ -543,8 +545,7 @@ end blng_api;
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'client_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'client_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
   end;
 
@@ -569,9 +570,7 @@ end blng_api;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'client_get_info', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,
-        P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'client_get_info', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into client error. '||SQLERRM);
   end;
   
@@ -607,9 +606,7 @@ end blng_api;
 
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'usr_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=usr,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'usr_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into usr error. '||SQLERRM);
   end;
 
@@ -675,9 +672,7 @@ end blng_api;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;    
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=usr,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into usr error. '||SQLERRM);
   end;
 
@@ -713,9 +708,7 @@ end blng_api;
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'usr_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=usr,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'usr_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into usr error. '||SQLERRM);
   end;
 
@@ -751,9 +744,7 @@ end blng_api;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=usr,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into usr error. '||SQLERRM);
   end usr_get_info_r;
 
@@ -773,9 +764,7 @@ end blng_api;
     v_usr2contract_row.contract_oid := p_contract;
     insert into blng.usr2contract values v_usr2contract_row;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'usr2contract_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=usr2contract,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'usr2contract_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into usr2contract error. '||SQLERRM);
   end;
 
@@ -816,9 +805,7 @@ end blng_api;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;    
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'usr2contract_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=usr2contract,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'usr2contract_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into usr2contract error. '||SQLERRM);
   end;
 
@@ -843,9 +830,7 @@ end blng_api;
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'usr2contract_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=usr2contract,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'usr2contract_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into usr2contract error. '||SQLERRM);
   end;
 
@@ -869,9 +854,7 @@ end blng_api;
     order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'usr2contract_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=usr2contract,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'usr2contract_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into usr2contract error. '||SQLERRM);
   end;
 
@@ -905,9 +888,7 @@ end blng_api;
     insert into blng.contract values v_contract_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'contract_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=contract,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'contract_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into contract error. '||SQLERRM);
   end;
 
@@ -952,9 +933,7 @@ end blng_api;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
   when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'contract_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=contract,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'contract_edit', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'update row into contract error. '||SQLERRM);
   end;
 
@@ -972,9 +951,7 @@ end blng_api;
       order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'contract_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'contract_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into contract error. '||SQLERRM);
   end;
 
@@ -997,9 +974,7 @@ end blng_api;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;        
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_get_info', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_get_info', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into contract error. '||SQLERRM);
   end;
 
@@ -1019,9 +994,7 @@ end blng_api;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'account_init', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=account,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'account_init', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'insert row into account error. '||SQLERRM);
   end;
 
@@ -1067,9 +1040,7 @@ end blng_api;
     when hdbk.dtype.dead_lock then
       raise hdbk.dtype.dead_lock;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'account_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=account,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'account_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into account error. '||SQLERRM);
   end;
 
@@ -1097,9 +1068,7 @@ end blng_api;
       ;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'account_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=account,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'account_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into account error. '||SQLERRM);
   end account_get_info;
 
@@ -1128,9 +1097,7 @@ end blng_api;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'account_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=account,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'account_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into account error. '||SQLERRM);
   end account_get_info_r;
 
@@ -1157,9 +1124,7 @@ end blng_api;
     when hdbk.dtype.dead_lock then
       raise hdbk.dtype.dead_lock;
   when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'document_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=document,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'document_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into document error. '||SQLERRM);
   end;
 
@@ -1193,9 +1158,7 @@ end blng_api;
     when hdbk.dtype.dead_lock then
       raise hdbk.dtype.dead_lock;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'document_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=document,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'document_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into document error. '||SQLERRM);
   end;
 
@@ -1242,9 +1205,7 @@ $TODO: all this nullable fields are bad. document_get_info
     return v_results;
   exception
     when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'document_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=document,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'document_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into document error. '||SQLERRM);
   end;
 
@@ -1284,9 +1245,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;    
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'document_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=document,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'document_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into document error. '||SQLERRM);
   end document_get_info_r;
 
@@ -1325,19 +1284,13 @@ $TODO: all this nullable fields are bad. document_get_info
     when hdbk.dtype.dead_lock then
       raise hdbk.dtype.dead_lock;
     when hdbk.dtype.exit_alert then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_add', p_msg_type=>'hdbk.dtype.exit_alert',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=transaction,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_add', p_msg_type=>'hdbk.dtype.exit_alert');
       raise;
     when hdbk.dtype.value_error then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_add', p_msg_type=>'hdbk.dtype.value_error',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=transaction,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_add', p_msg_type=>'hdbk.dtype.value_error');
       raise;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_add', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=transaction,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_add', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'insert row into transaction error. '||SQLERRM);
   end;
 
@@ -1370,19 +1323,13 @@ $TODO: all this nullable fields are bad. document_get_info
     when hdbk.dtype.dead_lock then
       raise hdbk.dtype.dead_lock;
     when hdbk.dtype.exit_alert then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_add_with_acc', p_msg_type=>'hdbk.dtype.exit_alert',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_add_with_acc', p_msg_type=>'hdbk.dtype.exit_alert');
       raise;
     when hdbk.dtype.value_error then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_add_with_acc', p_msg_type=>'hdbk.dtype.value_error',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_add_with_acc', p_msg_type=>'hdbk.dtype.value_error');
       raise;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_add_with_acc', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_add_with_acc', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'insert row into transaction error. '||SQLERRM);
   end;
 
@@ -1415,9 +1362,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when hdbk.dtype.dead_lock then
       raise hdbk.dtype.dead_lock;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=transaction,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into transaction error. '||SQLERRM);
   end;
 
@@ -1445,9 +1390,7 @@ $TODO: all this nullable fields are bad. document_get_info
     return v_results;
   exception 
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_get_info', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=transaction,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_get_info', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into transaction error. '||SQLERRM);
   end;
 
@@ -1479,9 +1422,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;    
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=transaction,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'transaction_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into transaction error. '||SQLERRM);
   end;
 
@@ -1511,9 +1452,7 @@ $TODO: all this nullable fields are bad. document_get_info
     insert into blng.event values v_event_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'event_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=event,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'event_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into event error. '||SQLERRM);
   end;
 
@@ -1545,9 +1484,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'eventn_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=event,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'eventn_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into event error. '||SQLERRM);
   end;
 
@@ -1580,9 +1517,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
   when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'event_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=event,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'event_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into event error. '||SQLERRM);
   end;
 
@@ -1602,9 +1537,7 @@ $TODO: all this nullable fields are bad. document_get_info
     insert into blng.status_type values v_status_type_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'status_type_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=status_type,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'status_type_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into status_type error. '||SQLERRM);
   end;
 
@@ -1623,9 +1556,7 @@ $TODO: all this nullable fields are bad. document_get_info
     insert into blng.event_type values v_event_type_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'event_type_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=event_type,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'event_type_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into event_type error. '||SQLERRM);
   end;
 
@@ -1647,9 +1578,7 @@ $TODO: all this nullable fields are bad. document_get_info
     return v_id;
   exception 
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'account_type_add', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=account_type,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'account_type_add', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'insert row into account_type error. '||SQLERRM);
   end;
 
@@ -1668,9 +1597,7 @@ $TODO: all this nullable fields are bad. document_get_info
     insert into blng.trans_type values v_trans_type_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'trans_type_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=trans_type,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'trans_type_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into trans_type error. '||SQLERRM);
   end;
 
@@ -1713,9 +1640,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
   when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'status_type_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=status_type,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'status_type_edit', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'update row into status_type error. '||SQLERRM);
   end;
 
@@ -1757,9 +1682,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
   when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'trans_type_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=trans_type,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'trans_type_edit', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'update row into trans_type error. '||SQLERRM);
   end;
 
@@ -1801,9 +1724,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
   when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'event_type_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=event_type,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'event_type_edit', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'update row into event_type error. '||SQLERRM);
   end;
 
@@ -1849,9 +1770,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
   when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'account_type_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=account_type,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'account_type_edit', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'update row into account_type error. '||SQLERRM);
   end;
 
@@ -1882,9 +1801,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
   when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'account_type_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=account_type,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'account_type_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into account_type error. '||SQLERRM);
   end;
 
@@ -1911,9 +1828,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
   when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'trans_type_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=trans_type,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'trans_type_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into trans_type error. '||SQLERRM);
   end;
 
@@ -1936,9 +1851,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
   when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'trans_type_get_id', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=trans_type,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'trans_type_get_id', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into trans_type error. '||SQLERRM);
   end;
 
@@ -1965,9 +1878,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
   when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'event_type_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=event_type,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'event_type_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into event_type error. '||SQLERRM);
   end;
 
@@ -1990,9 +1901,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
   when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'event_type_get_id', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=event_type,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'event_type_get_id', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into event_type error. '||SQLERRM);
   end;
 
@@ -2022,9 +1931,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
   when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'status_type_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=status_type,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'status_type_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into status_type error. '||SQLERRM);
   end;
 
@@ -2036,7 +1943,8 @@ $TODO: all this nullable fields are bad. document_get_info
                       p_event_type in hdbk.dtype.t_id default null,
                       p_status in hdbk.dtype.t_status default null,
                       p_priority in hdbk.dtype.t_id default null,
-                      p_parent_id in hdbk.dtype.t_id default null
+                      p_parent_id in hdbk.dtype.t_id default null,
+                            p_doc  in hdbk.dtype.t_id default null
                     )
   return hdbk.dtype.t_id
   is
@@ -2050,13 +1958,12 @@ $TODO: all this nullable fields are bad. document_get_info
     v_obj_row.event_type_oid := p_event_type;
     v_obj_row.priority := p_priority;
     v_obj_row.parent_id := p_parent_id;
+    v_obj_row.doc_oid := p_doc;
     v_obj_row.status := 'A';
     insert into delay values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'delay_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=delay,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'delay_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into delay error. '||SQLERRM);
   end;
 
@@ -2065,7 +1972,8 @@ $TODO: all this nullable fields are bad. document_get_info
                         p_amount in hdbk.dtype.t_amount default null,
                         p_event_type   in hdbk.dtype.t_id default null,
                         p_transaction  in hdbk.dtype.t_id default null,
-                        p_parent_id  in hdbk.dtype.t_id default null
+                        p_parent_id  in hdbk.dtype.t_id default null,
+                            p_doc  in hdbk.dtype.t_id default null
                       )
   is
     v_mess hdbk.dtype.t_msg;
@@ -2087,6 +1995,7 @@ $TODO: all this nullable fields are bad. document_get_info
     v_delay_row_new.amnd_date:=sysdate;
     v_delay_row_new.amnd_user:=user;
     v_delay_row_new.transaction_oid:=nvl(p_transaction, v_delay_row_new.transaction_oid);
+    v_delay_row_new.doc_oid:=nvl(p_doc, v_delay_row_new.doc_oid);
     v_delay_row_new.event_type_oid := nvl(p_event_type, v_delay_row_new.event_type_oid);
     if p_status in ('C') then v_delay_row_new.amnd_state :='C'; v_delay_row_new.status :='C'; end if;
     if p_status in ('A') then v_delay_row_new.amnd_state :='A'; v_delay_row_new.status :='A'; end if;
@@ -2103,9 +2012,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
   when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'delay_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=delay,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'delay_edit', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'update row into delay error. '||SQLERRM);
   end;
 
@@ -2115,7 +2022,8 @@ $TODO: all this nullable fields are bad. document_get_info
                             p_event_type in hdbk.dtype.t_id default null,
                             p_transaction in hdbk.dtype.t_id default null,
                             p_priority in hdbk.dtype.t_id default null,
-                            p_parent_id in hdbk.dtype.t_id default null
+                            p_parent_id in hdbk.dtype.t_id default null,
+                            p_doc  in hdbk.dtype.t_id default null
                             
                           )
   return SYS_REFCURSOR
@@ -2128,7 +2036,8 @@ $TODO: all this nullable fields are bad. document_get_info
       from blng.delay
       where id = nvl(p_id,id)
       and contract_oid = nvl(p_contract,contract_oid)
-      and transaction_oid = nvl(p_transaction,transaction_oid)
+--      and transaction_oid = nvl(p_transaction,transaction_oid)
+      and doc_oid = nvl(p_doc,doc_oid)
       and event_type_oid = nvl(p_event_type,event_type_oid)
       and priority = nvl(p_priority,priority)
       and amnd_state != 'I'
@@ -2140,9 +2049,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;    
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'delay_get_info', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=delay,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'delay_get_info', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into delay error. '||SQLERRM);
   end;
 
@@ -2152,7 +2059,8 @@ $TODO: all this nullable fields are bad. document_get_info
                             p_date_to in hdbk.dtype.t_date default NULL,
                             p_event_type in hdbk.dtype.t_id default null,
                             p_transaction in hdbk.dtype.t_id default null,
-                            p_priority in hdbk.dtype.t_id default null
+                            p_priority in hdbk.dtype.t_id default null,
+                            p_doc  in hdbk.dtype.t_id default null
                           )
   return blng.delay%rowtype
   is
@@ -2165,7 +2073,8 @@ $TODO: all this nullable fields are bad. document_get_info
       from blng.delay
       where id = nvl(p_id,id)
       and contract_oid = nvl(p_contract,contract_oid)
-      and transaction_oid = nvl(p_transaction,transaction_oid)
+      and doc_oid = nvl(p_doc,doc_oid)
+--      and transaction_oid = nvl(p_transaction,transaction_oid)
       and event_type_oid = nvl(p_event_type,event_type_oid)
       and priority = nvl(p_priority,priority)
       and amnd_state != 'I'
@@ -2177,9 +2086,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;    
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'delay_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=delay,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'delay_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into delay error. '||SQLERRM);
   end delay_get_info_r;
 
@@ -2200,9 +2107,7 @@ $TODO: all this nullable fields are bad. document_get_info
     v_obj_row.status := 'A';
     insert into domain values v_obj_row returning id into v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'domain_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=domain,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'domain_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into domain error. '||SQLERRM);
   end;
 
@@ -2247,9 +2152,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
   when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'delay_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=domain,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'delay_edit', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'update row into domain error. '||SQLERRM);
   end;
 
@@ -2283,9 +2186,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;    
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'domain_get_info', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=domain,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'domain_get_info', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into domain error. '||SQLERRM);
   end;
 
@@ -2309,19 +2210,13 @@ $TODO: all this nullable fields are bad. document_get_info
     return r_obj;
   exception 
     when NO_DATA_FOUND then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'domain_get_info_r', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=domain,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'domain_get_info_r', p_msg_type=>'NO_DATA_FOUND');
         raise;
     when TOO_MANY_ROWS then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'domain_get_info_r', p_msg_type=>'TOO_MANY_ROWS',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=domain,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'domain_get_info_r', p_msg_type=>'TOO_MANY_ROWS');
         raise;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'domain_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=domain,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'domain_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into domain error. '||SQLERRM);
   end;
 
@@ -2359,9 +2254,7 @@ $TODO: all this nullable fields are bad. document_get_info
     insert into blng.usr_data values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=usr_data,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into usr_data error. '||SQLERRM);
   end;
 
@@ -2430,9 +2323,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;    
   when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_edit', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=usr_data,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_edit', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'update row into usr_data error. '||SQLERRM);
   end;
 
@@ -2468,9 +2359,7 @@ $TODO: all this nullable fields are bad. document_get_info
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;     
   when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=usr_data,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into usr_data error. '||SQLERRM);
   end;
 
@@ -2502,19 +2391,13 @@ $TODO: all this nullable fields are bad. document_get_info
     return r_obj;
   exception 
     when NO_DATA_FOUND then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_get_info_r', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=usr_data,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_get_info_r', p_msg_type=>'NO_DATA_FOUND');
       RAISE;
     when TOO_MANY_ROWS then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_get_info_r', p_msg_type=>'TOO_MANY_ROWS',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=usr_data,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_get_info_r', p_msg_type=>'TOO_MANY_ROWS');
       RAISE;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=usr_data,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into usr_data error. '||SQLERRM);
   end usr_data_get_info_r;
 

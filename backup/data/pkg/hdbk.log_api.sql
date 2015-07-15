@@ -169,7 +169,10 @@ v_out:=v_out||'CALL:'||chr(13)||chr(10);
      
     end loop;
       v_out:=v_out||'-------------------------------'||chr(13)||chr(10);
-        
+      
+      v_out:=v_out||to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)
+      || ' '|| sys.DBMS_UTILITY.format_call_stack;  
+      
     return v_out;
   end;
   

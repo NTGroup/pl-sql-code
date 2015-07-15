@@ -503,15 +503,13 @@ delay_buy.amount,
 nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = delay_buy.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount_have,
 delay_buy.amount - nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = delay_buy.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount_need,
 delay_buy.date_to
-from blng.delay delay_buy, blng.document, blng.transaction
+from blng.delay delay_buy, blng.document
 where delay_buy.amnd_state = 'A'
 and parent_id is null
 --      and contract_oid = p_contract
 and delay_buy.EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'b')
-and transaction.id = delay_buy.transaction_oid
-and transaction.amnd_state = 'A'
 and document.amnd_state = 'A'
-and document.id = transaction.doc_oid
+and document.id = delay_buy.doc_oid
 order by delay_buy.contract_oid asc, date_to asc, delay_buy.id asc;
 /
 

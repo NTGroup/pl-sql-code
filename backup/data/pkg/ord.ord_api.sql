@@ -498,9 +498,7 @@ END ORD_API;
     insert into ord.ord values v_ord_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'ord_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert,p_table=ord,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'ord_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into ord error. '||SQLERRM);
     return null;
   end;
@@ -535,9 +533,7 @@ END ORD_API;
     insert into ord.item_avia values v_item_avia_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'item_avia_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=insert,p_table=item_avia,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'item_avia_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into item_avia error. '||SQLERRM);
     return null;
   end;
@@ -554,9 +550,7 @@ END ORD_API;
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'ord_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=ord,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'ord_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into ord error. '||SQLERRM);
   end;
 
@@ -577,9 +571,7 @@ END ORD_API;
   exception 
     when NO_DATA_FOUND then raise;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'ord_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=ord,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'ord_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into ord error. '||SQLERRM);
   end;
 
@@ -608,9 +600,7 @@ END ORD_API;
   exception 
     when NO_DATA_FOUND then raise;
     when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'item_avia_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select,p_table=item_avia,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'item_avia_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
   end;
 
@@ -640,9 +630,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'item_avia_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=select,p_table=item_avia,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'item_avia_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into item_avia error. '||SQLERRM);
   end item_avia_get_info_r;
 
@@ -694,9 +682,7 @@ END ORD_API;
     when NO_DATA_FOUND then raise NO_DATA_FOUND;
     when TOO_MANY_ROWS then raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'item_avia_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM,p_info => 'p_process=update,p_table=item_avia,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'item_avia_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into item_avia error. '||SQLERRM);
   end item_avia_edit;
 
@@ -741,9 +727,7 @@ END ORD_API;
     insert into ord.commission values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'commission_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=commission,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'commission_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into commission error. '||SQLERRM);
   end;
 
@@ -828,9 +812,7 @@ END ORD_API;
     when NO_DATA_FOUND then
       raise;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=commission,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into commission error. '||SQLERRM);
   end commission_edit;
 
@@ -853,9 +835,7 @@ END ORD_API;
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'commission_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'commission_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into commission error. '||SQLERRM);
   end;
 
@@ -883,9 +863,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-        hdbk.log_api.LOG_ADD(p_proc_name=>'commission_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-          P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission,p_date='
-          || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+        hdbk.log_api.LOG_ADD(p_proc_name=>'commission_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
         RAISE_APPLICATION_ERROR(-20002,'select row into commission error. '||SQLERRM);
   end commission_get_info_r;
 
@@ -927,9 +905,7 @@ END ORD_API;
     insert into ord.commission_template values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'commission_template_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=commission_template,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'commission_template_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into commission_template error. '||SQLERRM);
   end;
 
@@ -989,9 +965,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_template_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=commission_template,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_template_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into commission_template error. '||SQLERRM);
   end commission_template_edit;
 
@@ -1011,9 +985,7 @@ END ORD_API;
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'commission_template_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission_template,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'commission_template_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into commission_template error. '||SQLERRM);
   end;
 
@@ -1039,9 +1011,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_template_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission_template,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_template_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into commission_template error. '||SQLERRM);
   end commission_template_get_info_r;
 
@@ -1063,9 +1033,7 @@ END ORD_API;
     insert into ord.commission_details values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'commission_details_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=commission_details,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'commission_details_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into commission_details error. '||SQLERRM);
   end;
 
@@ -1114,9 +1082,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_details_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=commission_details,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_details_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into commission_details error. '||SQLERRM);
   end commission_details_edit;
 
@@ -1144,9 +1110,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;    
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_details_get_info', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission_details,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_details_get_info', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into commission_details error. '||SQLERRM);
   end;
 
@@ -1173,9 +1137,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;    
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_details_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission_details,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_details_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into commission_details error. '||SQLERRM);
   end commission_details_get_info_r;
 
@@ -1199,9 +1161,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;      
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_template_get_id', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=commission_template,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'commission_template_get_id', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into commission_template error. '||SQLERRM);
   end;
 
@@ -1221,9 +1181,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;       
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'v_json_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=v_json,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'v_json_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into v_json error. '||SQLERRM);
   end v_json_r;
 
@@ -1259,9 +1217,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;     
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_add', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=bill,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_add', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'insert row into bill error. '||SQLERRM);
   end;
 
@@ -1308,9 +1264,7 @@ END ORD_API;
     when hdbk.dtype.dead_lock then
       raise hdbk.dtype.dead_lock;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=bill,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into bill error. '||SQLERRM);
   end;
 
@@ -1355,9 +1309,7 @@ END ORD_API;
         
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'bill_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=bill,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'bill_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into bill error. '||SQLERRM);
   end;
 
@@ -1396,9 +1348,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=bill,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into bill error. '||SQLERRM);
   end;
 
@@ -1419,9 +1369,7 @@ END ORD_API;
     insert into ord.item_avia_status values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'item_avia_status_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=item_avia_status,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'item_avia_status_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into item_avia_status error. '||SQLERRM);
   end;
 
@@ -1461,9 +1409,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'item_avia_status_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=item_avia_status,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'item_avia_status_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into item_avia_status error. '||SQLERRM);
   end;
 
@@ -1485,9 +1431,7 @@ END ORD_API;
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'item_avia_status_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=item_avia_status,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'item_avia_status_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into item_avia_status error. '||SQLERRM);
   end;
 
@@ -1515,9 +1459,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'item_avia_status_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=item_avia_status,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'item_avia_status_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into item_avia_status error. '||SQLERRM);
   end;
 
@@ -1552,9 +1494,7 @@ END ORD_API;
     insert into ord.ticket values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'ticket_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=ticket,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'ticket_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into ticket error. '||SQLERRM);
   end;
 
@@ -1615,9 +1555,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'ticket_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=ticket,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'ticket_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into ticket error. '||SQLERRM);
   end;
 
@@ -1643,9 +1581,7 @@ END ORD_API;
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'ticket_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=ticket,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'ticket_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into ticket error. '||SQLERRM);
   end;
 
@@ -1675,9 +1611,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'ticket_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=ticket,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'ticket_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into ticket error. '||SQLERRM);
   end;
 
@@ -1706,9 +1640,7 @@ END ORD_API;
     insert into ord.pos_rule values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'pos_rule_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=pos_rule,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'pos_rule_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into pos_rule error. '||SQLERRM);
   end;
 
@@ -1769,9 +1701,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'pos_rule_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=pos_rule,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'pos_rule_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into pos_rule error. '||SQLERRM);
   end;
 
@@ -1795,9 +1725,7 @@ END ORD_API;
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'pos_rule_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=pos_rule,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'pos_rule_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into pos_rule error. '||SQLERRM);
   end;
 
@@ -1827,9 +1755,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'pos_rule_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=pos_rule,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'pos_rule_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into pos_rule error. '||SQLERRM);
   end;
 
@@ -1855,8 +1781,7 @@ END ORD_API;
     insert into ord.task1c values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'task1c_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'task1c_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into task1c error. '||SQLERRM);
   end;
 
@@ -1901,8 +1826,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'task1c_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'task1c_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into task1c error. '||SQLERRM);
   end;
 
@@ -1922,8 +1846,7 @@ END ORD_API;
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'task1c_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'task1c_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into task1c error. '||SQLERRM);
   end;
 
@@ -1949,8 +1872,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'task1c_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'task1c_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into task1c error. '||SQLERRM);
   end;
 
@@ -1971,8 +1893,7 @@ END ORD_API;
     insert into ord.bill2task values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'bill2task_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'bill2task_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into bill2task error. '||SQLERRM);
   end;
 
@@ -2014,8 +1935,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'bill2task_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill2task_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into bill2task error. '||SQLERRM);
   end;
 
@@ -2035,8 +1955,7 @@ END ORD_API;
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'bill2task_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'bill2task_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into bill2task error. '||SQLERRM);
   end;
 
@@ -2062,8 +1981,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'bill2task_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'bill2task_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into bill2task error. '||SQLERRM);
   end;
 
@@ -2083,8 +2001,7 @@ END ORD_API;
     insert into ord.itinerary values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'itinerary_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'itinerary_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into itinerary error. '||SQLERRM);
   end;
 
@@ -2124,8 +2041,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'itinerary_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'itinerary_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into itinerary error. '||SQLERRM);
   end;
 
@@ -2145,8 +2061,7 @@ END ORD_API;
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'itinerary_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'itinerary_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into itinerary error. '||SQLERRM);
   end;
 
@@ -2174,8 +2089,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'itinerary_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'itinerary_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into itinerary error. '||SQLERRM);
   end;
 
@@ -2208,8 +2122,7 @@ END ORD_API;
     insert into ord.leg values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'leg_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'leg_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into leg error. '||SQLERRM);
   end;
 
@@ -2262,8 +2175,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'leg_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'leg_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into leg error. '||SQLERRM);
   end;
 
@@ -2283,8 +2195,7 @@ END ORD_API;
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'leg_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'leg_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into leg error. '||SQLERRM);
   end;
 
@@ -2310,8 +2221,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'leg_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'leg_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into leg error. '||SQLERRM);
   end;
 
@@ -2348,8 +2258,7 @@ END ORD_API;
     insert into ord.segment values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'segment_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'segment_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into segment error. '||SQLERRM);
   end;
 
@@ -2405,8 +2314,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'segment_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'segment_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into segment error. '||SQLERRM);
   end;
 
@@ -2426,8 +2334,7 @@ END ORD_API;
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'segment_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'segment_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into segment error. '||SQLERRM);
   end;
 
@@ -2453,8 +2360,7 @@ END ORD_API;
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'segment_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'segment_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into segment error. '||SQLERRM);
   end;
 

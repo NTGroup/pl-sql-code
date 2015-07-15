@@ -316,14 +316,11 @@ create  or replace package BODY blng.fwdr as
     when NO_DATA_FOUND then
       rollback;
      -- CLOSE c_delay;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'get_tenant', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'get_tenant', p_msg_type=>'NO_DATA_FOUND');
       return null;
     when others then
       rollback;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'get_tenant', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=delay,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'get_tenant', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into usr error. '||SQLERRM);
 --      return null;
   end;
@@ -337,8 +334,7 @@ create  or replace package BODY blng.fwdr as
     select max(id) into v_result from blng.usr where client_oid = p_client and amnd_state = 'A';
     return v_result;
   exception when others then 
-    hdbk.log_api.LOG_ADD(p_proc_name=>'client_insteadof_user', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);      
+    hdbk.log_api.LOG_ADD(p_proc_name=>'client_insteadof_user', p_msg_type=>'UNHANDLED_ERROR');      
     return null;
   end;
 
@@ -381,9 +377,7 @@ create  or replace package BODY blng.fwdr as
     ;
     return v_results;
   exception when others then 
-    hdbk.log_api.LOG_ADD(p_proc_name=>'balance', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=v_account,p_date=' 
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+    hdbk.log_api.LOG_ADD(p_proc_name=>'balance', p_msg_type=>'UNHANDLED_ERROR');      
     RAISE_APPLICATION_ERROR(-20002,'select row into v_account error. '||SQLERRM);
  --   return null;
   end;
@@ -427,8 +421,7 @@ create  or replace package BODY blng.fwdr as
 
     return v_results;
   exception when others then 
-    hdbk.log_api.LOG_ADD(p_proc_name=>'whoami', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_user='||p_user,P_ALERT_LEVEL=>10);      
+    hdbk.log_api.LOG_ADD(p_proc_name=>'whoami', p_msg_type=>'UNHANDLED_ERROR');      
     RAISE_APPLICATION_ERROR(-20002,'select row into usr error. '||SQLERRM);
   end;
 
@@ -525,15 +518,13 @@ create  or replace package BODY blng.fwdr as
   exception 
     when NO_DATA_FOUND then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_edit', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_edit', p_msg_type=>'NO_DATA_FOUND');
       open v_results for
         select 'false' res from dual;
       return v_results;
     when others then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_edit', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'usr_data_edit', p_msg_type=>'UNHANDLED_ERROR');      
 
       open v_results for
         select 'false' res from dual;
@@ -593,8 +584,7 @@ create  or replace package BODY blng.fwdr as
         
     return v_results;
   exception when others then 
-    hdbk.log_api.LOG_ADD(p_proc_name=>'statement', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);      
+    hdbk.log_api.LOG_ADD(p_proc_name=>'statement', p_msg_type=>'UNHANDLED_ERROR');      
     RAISE_APPLICATION_ERROR(-20002,'select row into user error. '||SQLERRM);
   end;
 
@@ -714,8 +704,7 @@ create  or replace package BODY blng.fwdr as
         
     return v_results;
   exception when others then 
-    hdbk.log_api.LOG_ADD(p_proc_name=>'statement', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);      
+    hdbk.log_api.LOG_ADD(p_proc_name=>'statement', p_msg_type=>'UNHANDLED_ERROR');      
     RAISE_APPLICATION_ERROR(-20002,'select row into user error. '||SQLERRM);
   end;
 
@@ -739,12 +728,11 @@ create  or replace package BODY blng.fwdr as
         item_avia.pnr_id pnr_id,
         to_char(del.date_to - 1,'yyyy-mm-dd') date_to ,
         case when trunc(date_to) <= sysdate then 'Y' else 'N' end is_overdue
-        from blng.delay del,blng.transaction,blng.document, ord.bill, ord.item_avia,
+        from blng.delay del,blng.document, ord.bill, ord.item_avia,
           blng.usr,
           blng.contract,
           blng.usr2contract
         where del.amnd_state = 'A'
-        and transaction.amnd_state = 'A'
         and document.amnd_state = 'A'
         and item_avia.amnd_state = 'A'
         and bill.amnd_state = 'A'
@@ -752,8 +740,7 @@ create  or replace package BODY blng.fwdr as
     --    and del.contract_oid = 21
         and del.contract_oid = contract.id
         and del.EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'b')
-        and del.transaction_oid = transaction.id
-        and transaction.doc_oid = document.id
+        and del.doc_oid = document.id
         and document.bill_oid = bill.id
         and document.bill_oid is not null
         and document.contract_oid = contract.id
@@ -773,8 +760,7 @@ create  or replace package BODY blng.fwdr as
         
     return v_results;
   exception when others then 
-    hdbk.log_api.LOG_ADD(p_proc_name=>'loan_list', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,P_ALERT_LEVEL=>10);      
+    hdbk.log_api.LOG_ADD(p_proc_name=>'loan_list', p_msg_type=>'UNHANDLED_ERROR');      
     RAISE_APPLICATION_ERROR(-20002,'select row into usr error. '||SQLERRM);
     return null;
   end;
@@ -793,8 +779,7 @@ create  or replace package BODY blng.fwdr as
     select * into r_account from blng.v_account where contract_oid = v_contract;
     return r_account;
   exception when others then 
-    hdbk.log_api.LOG_ADD(p_proc_name=>'v_account_get_info_r', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack);      
+    hdbk.log_api.LOG_ADD(p_proc_name=>'v_account_get_info_r', p_msg_type=>'UNHANDLED_ERROR');      
     RAISE_APPLICATION_ERROR(-20002,''||SQLERRM);
     return null;
   end v_account_get_info_r;
@@ -825,9 +810,7 @@ create  or replace package BODY blng.fwdr as
         
     return v_results;
   exception when others then 
-    hdbk.log_api.LOG_ADD(p_proc_name=>'contract_get', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+    hdbk.log_api.LOG_ADD(p_proc_name=>'contract_get', p_msg_type=>'UNHANDLED_ERROR');      
     RAISE_APPLICATION_ERROR(-20002,'select row into contract error. '||SQLERRM);
     return null;
   end;
@@ -876,18 +859,14 @@ create  or replace package BODY blng.fwdr as
   exception 
     when NO_DATA_FOUND then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'god_unblock', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => ''
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'god_unblock', p_msg_type=>'NO_DATA_FOUND');
 
       open v_results for
         select 'NO_DATA_FOUND' res from dual;
       return v_results;
     when others then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'god_unblock', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => '' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'god_unblock', p_msg_type=>'UNHANDLED_ERROR');      
 
       open v_results for
         select 'ERROR' res from dual;
@@ -912,18 +891,14 @@ create  or replace package BODY blng.fwdr as
   exception 
     when NO_DATA_FOUND then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'god_block', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => ''
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'god_block', p_msg_type=>'NO_DATA_FOUND');
 
       open v_results for
         select 'NO_DATA_FOUND' res from dual;
       return v_results;
     when others then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'god_block', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => '' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'god_block', p_msg_type=>'UNHANDLED_ERROR');      
 
       open v_results for
         select 'ERROR' res from dual;
@@ -953,18 +928,14 @@ create  or replace package BODY blng.fwdr as
   exception 
     when NO_DATA_FOUND then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'god_move', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '||  sys.DBMS_UTILITY.format_call_stack,p_info => ''
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'god_move', p_msg_type=>'NO_DATA_FOUND');
 
       open v_results for
         select 'NO_DATA_FOUND' res from dual;
       return v_results;
     when others then
       ROLLBACK;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'god_move', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => '' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'god_move', p_msg_type=>'UNHANDLED_ERROR');      
 
       open v_results for
         select 'ERROR' res from dual;
@@ -990,9 +961,7 @@ create  or replace package BODY blng.fwdr as
     return v_results;
 
   exception when others then 
-    hdbk.log_api.LOG_ADD(p_proc_name=>'client_list', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);    
+    hdbk.log_api.LOG_ADD(p_proc_name=>'client_list', p_msg_type=>'UNHANDLED_ERROR');    
     open v_results for
       select 'ERROR' res from dual;
     return v_results;
@@ -1017,9 +986,7 @@ create  or replace package BODY blng.fwdr as
         
     return v_results;
   exception when others then 
-    hdbk.log_api.LOG_ADD(p_proc_name=>'client_add', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+    hdbk.log_api.LOG_ADD(p_proc_name=>'client_add', p_msg_type=>'UNHANDLED_ERROR');      
       open v_results for
         select 'ERROR' res from dual;
       return v_results;
@@ -1056,9 +1023,7 @@ create  or replace package BODY blng.fwdr as
         
     return v_results;
   exception when others then 
-    hdbk.log_api.LOG_ADD(p_proc_name=>'contract_list', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+    hdbk.log_api.LOG_ADD(p_proc_name=>'contract_list', p_msg_type=>'UNHANDLED_ERROR');      
       open v_results for
         select 'ERROR' res from dual;
       return v_results;
@@ -1130,9 +1095,7 @@ create  or replace package BODY blng.fwdr as
       ;    
     return v_results;
   exception when others then 
-    hdbk.log_api.LOG_ADD(p_proc_name=>'contract_add', p_msg_type=>'UNHANDLED_ERROR', 
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+    hdbk.log_api.LOG_ADD(p_proc_name=>'contract_add', p_msg_type=>'UNHANDLED_ERROR');      
       open v_results for
         select 'ERROR' res from dual;
       return v_results;
@@ -1219,24 +1182,18 @@ create  or replace package BODY blng.fwdr as
     return v_results;
   exception 
     when VALUE_ERROR then 
-      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'VALUE_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'VALUE_ERROR');      
         open v_results for
           select 'ERROR' res from dual;
         return v_results;
     when NO_DATA_FOUND then 
-      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'NO_DATA_FOUND', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'NO_DATA_FOUND');      
         open v_results for
           select 'ERROR' res from dual;
         return v_results;
     when others then
       rollback;
-      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'UNHANDLED_ERROR', 
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=contract,p_date=' 
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'UNHANDLED_ERROR');      
         open v_results for
           select 'ERROR' res from dual;
         return v_results;

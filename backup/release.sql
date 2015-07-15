@@ -1,56 +1,16 @@
--- select * from  hdbk.dictionary  order by id desc
 
-insert into hdbk.dictionary (code, name, info, dictionary_type) values('1C_FIN_ACTS','1C_FIN_ACTS','fin doc ACTS from 1C','TASK');
---insert into hdbk.dictionary (code, name, info, dictionary_type) values('1C_FIN_INVOICE','1C_FIN_INVOICE','fin doc INVOICE from 1C','TASK');
-insert into hdbk.dictionary (code, name, info, dictionary_type) values('AVIA_ETICKET','AVIA_ETICKET','avia eticket for client','TASK');
+alter table blng.delay add doc_oid number(18,0) ;
 
-insert into hdbk.dictionary (code, name, info, dictionary_type) values('AVIATICKET_VAT_18','18','1c product and vat value','1C_PRODUCT_W_VAT');
-insert into hdbk.dictionary (code, name, info, dictionary_type) values('AVIATICKET_VAT_0','0','1c product and vat value','1C_PRODUCT_W_VAT');
-insert into hdbk.dictionary (code, name, info, dictionary_type) values('AVIATICKET_VAT_10','10','1c product and vat value','1C_PRODUCT_W_VAT');
-insert into hdbk.dictionary (code, name, info, dictionary_type) values('SERVICE_FEE','18','1c product and vat value','1C_PRODUCT_W_VAT');
+ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_DOC_OID_FK FOREIGN KEY (DOC_oid)
+  REFERENCES BLNG.DOCUMENT (ID) ENABLE;
+
+update  blng.delay set doc_oid = (select doc_oid from blng.transaction where id = delay.transaction_oid);
 commit;
 
+insert into hdbk.dictionary (code, name, info, dictionary_type) values('BILL_DEPOSIT','BILL_DEPOSIT','deposit bill for client','TASK');
+insert into hdbk.dictionary (code, name, info, dictionary_type) values('DEPOSIT','0','1c product and vat value','1C_PRODUCT_W_VAT');
 
-update hdbk.geo set country_id = 390 where id in ( 1130,11021,10762,5911,22521,20262);
-update hdbk.geo set parent_id = 390 where id in ( 1130);
 commit;
-
-
-alter table  ord.task1c add request clob;
-
-alter table  ORD.ITINERARY add validating_carrier number(18);
-alter table  ORD.segment add marketing_carrier number(18);
-alter table  ORD.segment add operating_carrier number(18);
-
-
-alter table  ORD.bill add vat_type_oid number(18);
-
-
-/*
-                  json_table  
-                    ( p_itinerary,'$[*]' 
-                    columns (
-                              validating_carrier VARCHAR2(250) path '$.validating_carrier',
-                              leg_num number(18,0) path '$.leg_num',
-                              leg_departure_iata VARCHAR2(250) path '$.departure_location',
-                              leg_departure_date VARCHAR2(250) path '$.departure_datetime',
-                              leg_arrival_iata VARCHAR2(250) path '$.arrival_location',
-                              leg_arrival_date VARCHAR2(250) path '$.arrival_datetime',
-                              NESTED PATH '$.segments[*]' COLUMNS (
-                                segment_num number(20,2) path '$.segment_num',
-                                segment_marketing_carrier VARCHAR2(250) path '$.marketing_carrier',
-                                segment_operating_carrier VARCHAR2(250) path '$.operating_carrier',
-                                segment_departure_iata VARCHAR2(250) path '$.departure_location',
-                                segment_departure_date VARCHAR2(250) path '$.departure_datetime',
-                                segment_arrival_iata VARCHAR2(250) path '$.arrival_location',
-                                segment_arrival_date VARCHAR2(250) path '$.arrival_datetime'
-                                )
-                              )
-                    ) as j
-*/
-
-
-
 
 @dba/GRANTS.sql;
 @metadata/view.sql;

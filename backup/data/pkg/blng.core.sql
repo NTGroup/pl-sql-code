@@ -76,7 +76,10 @@ $obj_param: p_contract: id of contract
 $obj_param: p_amount: how much money falls to delay list
 $obj_param: p_transaction: link to transaction id. later by this id cash_in operations may revokes
 */
-  procedure delay_remove(p_contract in hdbk.dtype.t_id, p_amount in hdbk.dtype.t_amount, p_transaction in hdbk.dtype.t_id default null);
+  procedure delay_remove(p_contract in hdbk.dtype.t_id, 
+                          p_amount in hdbk.dtype.t_amount, 
+                          --p_transaction in hdbk.dtype.t_id default null,
+                          p_doc in hdbk.dtype.t_id default null);
 
   /*
 $obj_type: procedure
@@ -347,7 +350,7 @@ end core;
     v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => P_DOC.id,P_AMOUNT => abs(p_doc.AMOUNT),
       P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'ci'), P_TRANS_DATE => p_doc.doc_date, P_TARGET_ACCOUNT => r_account.id, p_status => 'W');
 --            DBMS_OUTPUT.PUT_LINE('r_account.id = '|| r_account.id);
-    blng.core.delay_remove(p_doc.contract_oid, abs(p_doc.AMOUNT), p_transaction => v_transaction);
+    blng.core.delay_remove(p_doc.contract_oid, abs(p_doc.AMOUNT), p_doc => P_DOC.id);
   exception
     when hdbk.dtype.doc_waiting then
       hdbk.log_api.LOG_ADD(p_proc_name=>'cash_in', p_msg_type=>'Warning', P_MSG => to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20000)),p_info => 'p_doc=' || p_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
@@ -406,7 +409,8 @@ end core;
                       P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'ci'),
     --                              P_PRIORITY => 10,
                       p_transaction => v_transaction,
-                      p_parent_id => r_v_delay.delay_id
+                      p_parent_id => r_v_delay.delay_id,
+                      p_doc=>p_doc.id
                     );        
   --    hdbk.log_api.LOG_ADD(p_proc_name=>'pay_bill', p_msg_type=>'Warning', P_MSG => '10',p_info => 'p_doc=' || p_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
     
@@ -614,7 +618,8 @@ end core;
                               P_AMOUNT => abs(v_delay_amount),
                               P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'b'),
                               P_PRIORITY => 10,
-                              p_transaction => r_transaction.id
+                              p_transaction => r_transaction.id,
+                              p_doc=>p_document
                             );
         end if;
         blng_api.transaction_edit(p_id => r_transaction.id, p_status => 'P');
@@ -815,7 +820,8 @@ end core;
                               P_AMOUNT => abs(v_delay_amount),
                               P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'b'),
                               P_PRIORITY => 10,
-                              p_transaction => r_transaction.id
+                              p_transaction => r_transaction.id,
+                              p_doc=>r_transaction.doc_oid
                             );
         end if;
         blng_api.transaction_edit(p_id => r_transaction.id, p_status => 'P');
@@ -840,7 +846,10 @@ end core;
 null;
   end;
 
-  procedure delay_remove(p_contract in hdbk.dtype.t_id, p_amount in hdbk.dtype.t_amount, p_transaction in hdbk.dtype.t_id default null)
+  procedure delay_remove(p_contract in hdbk.dtype.t_id, 
+                          p_amount in hdbk.dtype.t_amount, 
+                          --p_transaction in hdbk.dtype.t_id default null, 
+                          p_doc in hdbk.dtype.t_id default null)
   is
     v_amount  hdbk.dtype.t_amount;
     v_next_delay_date hdbk.dtype.t_date;
@@ -889,8 +898,9 @@ null;
                               P_AMOUNT => abs(v_amount),
                               P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'ci'),
 --                              P_PRIORITY => 10,
-                              p_transaction => p_transaction,
-                              p_parent_id => i_delay.delay_id
+                              --p_transaction => p_transaction,
+                              p_parent_id => i_delay.delay_id,
+                              p_doc=>p_doc
                             );        
           exit;
         else
@@ -899,8 +909,9 @@ null;
                               P_AMOUNT => abs(i_delay.amount_need),
                               P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'ci'),
 --                              P_PRIORITY => 10,
-                              p_transaction => p_transaction,
-                              p_parent_id => i_delay.delay_id
+                              --p_transaction => p_transaction,
+                              p_parent_id => i_delay.delay_id,
+                              p_doc=>p_doc
                             );        
 
           BLNG_API.delay_edit(p_id => i_delay.delay_id, p_status => 'C');
@@ -1060,8 +1071,13 @@ null;
     
       v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_AMOUNT => -r_account.amount,
         P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'clu'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
-      v_delay:=BLNG_API.delay_add(P_CONTRACT => p_contract, P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'clu'),P_PRIORITY => 20,
-        p_transaction=>v_transaction,p_date_to => trunc(sysdate)+p_days);
+      v_delay:=BLNG_API.delay_add(P_CONTRACT => p_contract, 
+                                  P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'clu'),
+                                  P_PRIORITY => 20,
+                                  p_transaction=>v_transaction,
+                                  p_date_to => trunc(sysdate)+p_days,
+                                  p_doc=>null
+                                  );
         
     --end if;
     commit;
@@ -1113,51 +1129,6 @@ null;
           P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'rvk'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_transaction.target_account_oid,
           p_prev=>r_transaction.amnd_prev,p_status=>'R');
 
--- remove delays
-        if r_transaction.trans_type_oid = v_buy then --buy
--- reverse of buy document
--- delay will be one. so just find this row, update status and move cash_in's to other delay
-          begin
-            r_delay := BLNG_API.delay_get_info_r(P_transaction => r_transaction.id);
-            if r_delay.id is not null then 
-              BLNG_API.delay_edit(P_id => r_delay.id, p_status => 'R');
-              for i_cash_in in (
-                select * from blng.delay 
-                where parent_id = r_delay.id
-                and amnd_state = 'A'
-              )
-              loop
-  -- to move cash_in's delay just start remove_delay for each cash_in amount
-                CORE.delay_remove (  P_CONTRACT => r_delay.contract_oid,
-                  P_AMOUNT => i_cash_in.amount,P_TRANSACTION => i_cash_in.transaction_oid);
-                blng_api.delay_edit(P_id => i_cash_in.id, p_status => 'I');
-              end loop;        
-            end if;      
-          exception when NO_DATA_FOUND then 
--- its mean deposit > document.amount. need not reverse loan delays
-            NULL; 
-          end;
-        elsif r_transaction.trans_type_oid = v_cash_in then --cash_in
--- reverse of cash_in document
--- there could be any cash_in delays. because big cash_in can close all loan delays.
--- for reverse delays just close they. we can found them by transaction_oid
-          for i_cash_in in (
-            select * from blng.delay 
-            where parent_id is not null
-            and  transaction_oid = r_transaction.id
-            and amnd_state = 'A'
-          )
-          loop
--- start remove_delay for each cash_in amount
-            blng_api.delay_edit(P_id => i_cash_in.id, p_status => 'R');
--- when full amount of loan delay closed then status of delay updated to Closed.            
--- due to reverse of cash_in we have to open closed loan delays.
-            r_delay := BLNG_API.delay_get_info_r(p_id => i_cash_in.parent_id);
-            if r_delay.amnd_state = 'C' then
-              blng_api.delay_edit(P_id => r_delay.id, p_status => 'A');
-            end if;
-          end loop;
-        end if;
       exception when others then
         CLOSE c_transaction;  --process stop. so, we need to close cursor
         hdbk.log_api.LOG_ADD(p_proc_name=>'revoke_document.c_transaction', p_msg_type=>'UNHANDLED_ERROR',
@@ -1168,6 +1139,59 @@ null;
     END LOOP;
     CLOSE c_transaction;
 
+    begin
+-- remove delays
+      if hdbk.core.dictionary_get_code(r_document.account_trans_type_oid) in ('LOAN') then --buy
+-- reverse of buy document
+-- delay will be one. so just find this row, update status and move cash_in's to other delay
+        begin
+          r_delay := BLNG_API.delay_get_info_r(p_doc => p_document);
+          if r_delay.id is not null then 
+            BLNG_API.delay_edit(P_id => r_delay.id, p_status => 'R');
+            for i_loan in (
+              select * from blng.delay 
+              where parent_id = r_delay.id
+              and amnd_state = 'A'
+            )
+            loop
+-- to move cash_in's delay just start remove_delay for each cash_in amount
+              CORE.delay_remove (  P_CONTRACT => r_delay.contract_oid,
+                P_AMOUNT => i_loan.amount,P_doc => i_loan.doc_oid);
+              blng_api.delay_edit(P_id => i_loan.id, p_status => 'I');
+            end loop;        
+          end if;      
+        exception when NO_DATA_FOUND then 
+-- its mean deposit > document.amount. need not reverse loan delays
+          NULL; 
+        end;
+      elsif hdbk.core.dictionary_get_code(r_document.account_trans_type_oid) in ('PAY_BILL','CASH_IN')  then --cash_in
+-- reverse of cash_in document
+-- there could be any cash_in delays. because big cash_in can close all loan delays.
+-- for reverse delays just close they. we can found them by transaction_oid
+        for i_cash_in in (
+          select * from blng.delay 
+          where parent_id is not null
+          and  doc_oid = p_document
+          and amnd_state = 'A'
+        )
+        loop
+-- start remove_delay for each cash_in amount
+          blng_api.delay_edit(P_id => i_cash_in.id, p_status => 'R');
+-- when full amount of loan delay closed then status of delay updated to Closed.            
+-- due to reverse of cash_in we have to open closed loan delays.
+          r_delay := BLNG_API.delay_get_info_r(p_id => i_cash_in.parent_id);
+          if r_delay.amnd_state = 'C' then
+            blng_api.delay_edit(P_id => r_delay.id, p_status => 'A');
+          end if;
+        end loop;
+      end if;
+    exception when others then
+      CLOSE c_transaction;  --process stop. so, we need to close cursor
+      hdbk.log_api.LOG_ADD(p_proc_name=>'revoke_document.c_transaction', p_msg_type=>'UNHANDLED_ERROR',p_info => 'p_document=' || p_document);
+      raise;
+    end;
+      
+      
 -- check for wrong balance. if loan >0 o deposit <0 then push money to seautable place
 
     r_contract_info := blng.fwdr.v_account_get_info_r(p_contract => r_document.contract_oid);
@@ -1216,9 +1240,7 @@ null;
     commit;
   exception when others then
     rollback;
-    hdbk.log_api.LOG_ADD(p_proc_name=>'revoke_document', p_msg_type=>'UNHANDLED_ERROR',
-    P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_document=' || p_document || ',p_date=' ||
-    to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'revoke_document', p_msg_type=>'UNHANDLED_ERROR');
     raise_application_error(-20003,'revoke_document error');
   end revoke_document;
 
@@ -1231,9 +1253,7 @@ null;
     r_usr2contract:=blng.blng_api.usr2contract_get_info_r(p_user=>p_user, p_permission=>'B');
     return r_usr2contract.contract_oid;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'pay_contract_by_user', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=usr2contract,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'pay_contract_by_user', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into usr2contract error. '||SQLERRM);
     return null;
   end;

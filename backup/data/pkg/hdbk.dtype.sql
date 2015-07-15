@@ -137,6 +137,14 @@ $obj_desc: -60
 
 
 */
+
+
+/*
+$obj_type: exception variable
+$obj_name: NOT_AUTHORIZED
+$obj_desc: -20006
+
+*/
  
   INVALID_PARAMETER  EXCEPTION;                       
   PRAGMA EXCEPTION_INIT (INVALID_PARAMETER, -6502);  
@@ -165,6 +173,10 @@ $obj_desc: -60
 
   DEAD_LOCK EXCEPTION;
   PRAGMA EXCEPTION_INIT (DEAD_LOCK, -60);
+  
+  NOT_AUTHORIZED EXCEPTION;
+  PRAGMA EXCEPTION_INIT (NOT_AUTHORIZED, -20006);
+  
 
 end dtype;
 

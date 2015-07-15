@@ -192,19 +192,13 @@ create or replace package body hdbk.hdbk_api as
     return v_results;
   exception 
     when NO_DATA_FOUND then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=gds_nationality,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info', p_msg_type=>'NO_DATA_FOUND');
       RAISE;
     when TOO_MANY_ROWS then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info', p_msg_type=>'TOO_MANY_ROWS',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=gds_nationality,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info', p_msg_type=>'TOO_MANY_ROWS');
       RAISE;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=gds_nationality,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into gds_nationality error. '||SQLERRM);
       return null;
   end;
@@ -223,19 +217,13 @@ create or replace package body hdbk.hdbk_api as
     return v_results;
   exception 
     when NO_DATA_FOUND then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info_r', p_msg_type=>'NO_DATA_FOUND',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=gds_nationality,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info_r', p_msg_type=>'NO_DATA_FOUND');
       RAISE NO_DATA_FOUND;
     when TOO_MANY_ROWS then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info_r', p_msg_type=>'TOO_MANY_ROWS',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=gds_nationality,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info_r', p_msg_type=>'TOO_MANY_ROWS');
       RAISE TOO_MANY_ROWS;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=gds_nationality,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into gds_nationality error. '||SQLERRM);
   end;
 
@@ -253,19 +241,13 @@ create or replace package body hdbk.hdbk_api as
     return v_results;
   exception 
     when NO_DATA_FOUND then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info_name', p_msg_type=>'TOO_MANY_ROWS',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=gds_nationality,p_code='||p_code||',p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info_name', p_msg_type=>'TOO_MANY_ROWS');
       raise NO_DATA_FOUND;
     when TOO_MANY_ROWS then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info_name', p_msg_type=>'TOO_MANY_ROWS',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=gds_nationality,p_code='||p_code||',p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info_name', p_msg_type=>'TOO_MANY_ROWS');
       RAISE TOO_MANY_ROWS;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info_name', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=gds_nationality,p_code='||p_code||',p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'gds_nationality_get_info_name', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into gds_nationality error. '||SQLERRM);
   end;
 
@@ -288,9 +270,7 @@ create or replace package body hdbk.hdbk_api as
     insert into note values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'note_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=note,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'note_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into note error. '||SQLERRM);
   end;
 
@@ -329,9 +309,7 @@ create or replace package body hdbk.hdbk_api as
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'note_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=note,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'note_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into note error. '||SQLERRM);
   end;
 
@@ -357,9 +335,7 @@ create or replace package body hdbk.hdbk_api as
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'note_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=note,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'note_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into note error. '||SQLERRM);
   end;
 
@@ -380,9 +356,7 @@ create or replace package body hdbk.hdbk_api as
     insert into hdbk.note_ticket values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'note_ticket_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=note_ticket,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'note_ticket_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into note_ticket error. '||SQLERRM);
   end;
 
@@ -423,9 +397,7 @@ create or replace package body hdbk.hdbk_api as
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'note_ticket_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=note_ticket,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'note_ticket_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into note_ticket error. '||SQLERRM);
   end;
 
@@ -450,9 +422,7 @@ create or replace package body hdbk.hdbk_api as
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'note_ticket_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=note_ticket,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'note_ticket_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into note_ticket error. '||SQLERRM);
   end;
 
@@ -478,9 +448,7 @@ create or replace package body hdbk.hdbk_api as
     insert into hdbk.rate values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'rate_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=rate,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'rate_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into rate error. '||SQLERRM);
   end;
 
@@ -523,9 +491,7 @@ create or replace package body hdbk.hdbk_api as
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'rate_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=rate,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'rate_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into rate error. '||SQLERRM);
   end;
 
@@ -549,9 +515,7 @@ create or replace package body hdbk.hdbk_api as
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'rate_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=rate,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'rate_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into rate error. '||SQLERRM);
   end;
 
@@ -581,9 +545,7 @@ create or replace package body hdbk.hdbk_api as
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'rate_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=rate,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'rate_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into rate error. '||SQLERRM);
   end;
 
@@ -607,9 +569,7 @@ create or replace package body hdbk.hdbk_api as
     insert into hdbk.calendar values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'calendar_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=calendar,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'calendar_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into calendar error. '||SQLERRM);
   end;
 
@@ -649,9 +609,7 @@ create or replace package body hdbk.hdbk_api as
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'calendar_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=calendar,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'calendar_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into calendar error. '||SQLERRM);
   end;
 
@@ -677,9 +635,7 @@ create or replace package body hdbk.hdbk_api as
         order by id;
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'calendar_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=calendar,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'calendar_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into calendar error. '||SQLERRM);
   end;
 
@@ -707,9 +663,7 @@ create or replace package body hdbk.hdbk_api as
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'calendar_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=calendar,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'calendar_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into calendar error. '||SQLERRM);
   end;
 
@@ -733,9 +687,7 @@ create or replace package body hdbk.hdbk_api as
     insert into dictionary values v_obj_row returning id into v_id;
     return v_id;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_add', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=insert,p_table=dictionary,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_add', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'insert row into dictionary error. '||SQLERRM);
   end;
 
@@ -776,9 +728,7 @@ create or replace package body hdbk.hdbk_api as
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_edit', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=update,p_table=dictionary,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_edit', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'update row into dictionary error. '||SQLERRM);
   end;
 
@@ -812,9 +762,7 @@ create or replace package body hdbk.hdbk_api as
     end if;    
     return v_results;
   exception when others then
-    hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_get_info', p_msg_type=>'UNHANDLED_ERROR',
-      P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=dictionary,p_date='
-      || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+    hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into dictionary error. '||SQLERRM);
   end;
 
@@ -860,9 +808,7 @@ create or replace package body hdbk.hdbk_api as
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_get_info_r', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=dictionary,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'dictionary_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into dictionary error. '||SQLERRM);
   end;
 
@@ -889,9 +835,7 @@ create or replace package body hdbk.hdbk_api as
     when TOO_MANY_ROWS then 
       raise NO_DATA_FOUND;  
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'airline_get_id', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=dictionary,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'airline_get_id', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into airline_get_id error. '||SQLERRM);
   end;
 
@@ -919,9 +863,7 @@ create or replace package body hdbk.hdbk_api as
      -- raise NO_DATA_FOUND;  
      return null;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_type_get_id', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=dictionary,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_type_get_id', p_msg_type=>'UNHANDLED_ERROR');
  --     RAISE_APPLICATION_ERROR(-20002,'select row into markup_type_get_id error. '||SQLERRM);
       return null;
 
@@ -950,9 +892,7 @@ create or replace package body hdbk.hdbk_api as
      -- raise NO_DATA_FOUND;  
      return 810;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_type_get_id', p_msg_type=>'UNHANDLED_ERROR',
-        P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_process=select,p_table=dictionary,p_date='
-        || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_type_get_id', p_msg_type=>'UNHANDLED_ERROR');
  --     RAISE_APPLICATION_ERROR(-20002,'select row into markup_type_get_id error. '||SQLERRM);
       return 810;
 
