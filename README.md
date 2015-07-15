@@ -67,7 +67,7 @@ calls from credit\_online and close loan delay
 _PARAMETERS:_  
 **p\_contract:** id of contract  
 **p\_amount:** how much money falls to delay list  
-**p\_transaction:** link to transaction id. later by this id cash\_in operations may revokes  
+**p\_doc:** link to document id. later by this id cash\_in operations may revokes  
 
 ### _procedure_ BLNG.CORE.DELAY\_EXPIRE  
 _DESCRIPTION:_  
@@ -385,6 +385,10 @@ _DESCRIPTION:_
 ### _exception variable_ HDBK.DTYPE.DEAD\_LOCK  
 _DESCRIPTION:_  
 -60  
+
+### _exception variable_ HDBK.DTYPE.NOT\_AUTHORIZED  
+_DESCRIPTION:_  
+-20006  
 
 # HDBK.FWDR
 ---

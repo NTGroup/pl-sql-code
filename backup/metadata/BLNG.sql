@@ -1218,7 +1218,6 @@ ALTER TRIGGER BLNG.stt_TRGR ENABLE;
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
    event_type_oid NUMBER(18,0),
-   transaction_oid NUMBER(18,0),
    date_to date,
    contract_oid number(18,0),
    amount number(20,2),
@@ -1255,8 +1254,6 @@ ALTER TABLE BLNG.delay  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 
 ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_ETT_OID_FK FOREIGN KEY (event_type_oid)
   REFERENCES BLNG.event_type (ID) ENABLE;
-ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_TRN_OID_FK FOREIGN KEY (transaction_oid)
-  REFERENCES BLNG.transaction (ID) ENABLE;
 ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_CNTR_OID_FK FOREIGN KEY (contract_oid)
   REFERENCES BLNG.contract (ID) ENABLE;
 ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_DOC_OID_FK FOREIGN KEY (DOC_oid)

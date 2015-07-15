@@ -12,6 +12,9 @@ insert into hdbk.dictionary (code, name, info, dictionary_type) values('DEPOSIT'
 
 commit;
 
+
+alter TABLE blng.delay DROP COLUMN transaction_oid;
+
 @dba/GRANTS.sql;
 @metadata/view.sql;
 @data/pkg/hdbk.hdbk_api.sql;

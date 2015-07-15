@@ -348,7 +348,6 @@ $obj_param: p_contract: contract id
 
   function delay_add( p_contract in hdbk.dtype.t_id default null,
                       p_amount in hdbk.dtype.t_amount default null,
-                      p_transaction in hdbk.dtype.t_id default null,
                       p_date_to in hdbk.dtype.t_date default null,
                       p_event_type in hdbk.dtype.t_id default null,
                       p_status in hdbk.dtype.t_status default null,
@@ -362,7 +361,6 @@ $obj_param: p_contract: contract id
                         p_status in hdbk.dtype.t_status default null,
                         p_amount in hdbk.dtype.t_amount default null,
                         p_event_type   in hdbk.dtype.t_id default null,
-                        p_transaction  in hdbk.dtype.t_id default null,
                         p_parent_id  in hdbk.dtype.t_id default null,
                         p_doc  in hdbk.dtype.t_id default null
                       );
@@ -371,7 +369,6 @@ $obj_param: p_contract: contract id
                             p_contract in hdbk.dtype.t_id default null,
                             p_date_to in hdbk.dtype.t_date default null,
                             p_event_type in hdbk.dtype.t_id default null,
-                            p_transaction in hdbk.dtype.t_id default null,
                             p_priority in hdbk.dtype.t_id default null,
                             p_parent_id in hdbk.dtype.t_id default null,
                             p_doc  in hdbk.dtype.t_id default null
@@ -382,7 +379,6 @@ $obj_param: p_contract: contract id
                             p_contract in hdbk.dtype.t_id default null,
                             p_date_to in hdbk.dtype.t_date default NULL,
                             p_event_type in hdbk.dtype.t_id default null,
-                            p_transaction in hdbk.dtype.t_id default null,
                             p_priority in hdbk.dtype.t_id default null,
                             p_doc  in hdbk.dtype.t_id default null
                           )
@@ -1938,7 +1934,6 @@ $TODO: all this nullable fields are bad. document_get_info
 
   function delay_add( p_contract in hdbk.dtype.t_id default null,
                       p_amount in hdbk.dtype.t_amount default null,
-                      p_transaction in hdbk.dtype.t_id default null,
                       p_date_to in hdbk.dtype.t_date default null,
                       p_event_type in hdbk.dtype.t_id default null,
                       p_status in hdbk.dtype.t_status default null,
@@ -1953,7 +1948,6 @@ $TODO: all this nullable fields are bad. document_get_info
   begin
     v_obj_row.contract_oid := p_contract;
     v_obj_row.amount := p_amount;
-    v_obj_row.transaction_oid := p_transaction;
     v_obj_row.date_to := nvl(p_date_to,trunc(sysdate));
     v_obj_row.event_type_oid := p_event_type;
     v_obj_row.priority := p_priority;
@@ -1971,7 +1965,6 @@ $TODO: all this nullable fields are bad. document_get_info
                         p_status in hdbk.dtype.t_status default null,
                         p_amount in hdbk.dtype.t_amount default null,
                         p_event_type   in hdbk.dtype.t_id default null,
-                        p_transaction  in hdbk.dtype.t_id default null,
                         p_parent_id  in hdbk.dtype.t_id default null,
                             p_doc  in hdbk.dtype.t_id default null
                       )
@@ -1994,7 +1987,6 @@ $TODO: all this nullable fields are bad. document_get_info
 
     v_delay_row_new.amnd_date:=sysdate;
     v_delay_row_new.amnd_user:=user;
-    v_delay_row_new.transaction_oid:=nvl(p_transaction, v_delay_row_new.transaction_oid);
     v_delay_row_new.doc_oid:=nvl(p_doc, v_delay_row_new.doc_oid);
     v_delay_row_new.event_type_oid := nvl(p_event_type, v_delay_row_new.event_type_oid);
     if p_status in ('C') then v_delay_row_new.amnd_state :='C'; v_delay_row_new.status :='C'; end if;
@@ -2020,7 +2012,6 @@ $TODO: all this nullable fields are bad. document_get_info
                             p_contract in hdbk.dtype.t_id default null,
                             p_date_to in hdbk.dtype.t_date default NULL,
                             p_event_type in hdbk.dtype.t_id default null,
-                            p_transaction in hdbk.dtype.t_id default null,
                             p_priority in hdbk.dtype.t_id default null,
                             p_parent_id in hdbk.dtype.t_id default null,
                             p_doc  in hdbk.dtype.t_id default null
@@ -2036,7 +2027,6 @@ $TODO: all this nullable fields are bad. document_get_info
       from blng.delay
       where id = nvl(p_id,id)
       and contract_oid = nvl(p_contract,contract_oid)
---      and transaction_oid = nvl(p_transaction,transaction_oid)
       and doc_oid = nvl(p_doc,doc_oid)
       and event_type_oid = nvl(p_event_type,event_type_oid)
       and priority = nvl(p_priority,priority)
@@ -2058,7 +2048,6 @@ $TODO: all this nullable fields are bad. document_get_info
                             p_contract in hdbk.dtype.t_id default null,
                             p_date_to in hdbk.dtype.t_date default NULL,
                             p_event_type in hdbk.dtype.t_id default null,
-                            p_transaction in hdbk.dtype.t_id default null,
                             p_priority in hdbk.dtype.t_id default null,
                             p_doc  in hdbk.dtype.t_id default null
                           )
@@ -2074,7 +2063,6 @@ $TODO: all this nullable fields are bad. document_get_info
       where id = nvl(p_id,id)
       and contract_oid = nvl(p_contract,contract_oid)
       and doc_oid = nvl(p_doc,doc_oid)
---      and transaction_oid = nvl(p_transaction,transaction_oid)
       and event_type_oid = nvl(p_event_type,event_type_oid)
       and priority = nvl(p_priority,priority)
       and amnd_state != 'I'
