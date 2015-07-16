@@ -133,7 +133,7 @@ end core;
 
   CREATE OR REPLACE PACKAGE BODY BLNG.CORE as
 
-  procedure approve_documents
+/*  procedure approve_documents
   is
     mess hdbk.dtype.t_msg;
     c_doc SYS_REFCURSOR;
@@ -158,8 +158,7 @@ end core;
         -- TO DO: is it good to put id in choice
         if r_doc.TRANS_TYPE_OID in (blng_api.trans_type_get_id(p_code=>'b')) then
           CONTINUE;
-/*          if v_waiting_contract is not null and v_waiting_contract = r_doc.contract_oid then raise hdbk.dtype.doc_waiting; end if;
-          blng.core.buy(r_doc);*/
+
         end if;
         if r_doc.TRANS_TYPE_OID in (blng_api.trans_type_get_id(p_code=>'ci')) then
           if v_waiting_contract is not null and v_waiting_contract = r_doc.contract_oid then raise hdbk.dtype.doc_waiting; end if;
@@ -284,7 +283,7 @@ end core;
                                 p_nqt_status_cur => v_item_avia_r.nqt_status) ;  
       end if;
   end;
-
+*/
 
   procedure buy ( p_doc in blng.document%rowtype
                 )
@@ -893,9 +892,9 @@ null;
     v_last_amount hdbk.dtype.t_amount;
   begin
     r_document:=BLNG_API.document_get_info_r(p_id => P_document);
-    v_buy:=blng_api.trans_type_get_id(p_code=>'b');
-    v_cash_in:=blng_api.trans_type_get_id(p_code=>'ci');
-    if r_document.trans_type_oid not in (v_buy,v_cash_in) then raise_application_error(-20005,'document can not be revoked'); end if;
+--    v_buy:=blng_api.trans_type_get_id(p_code=>'b');
+--    v_cash_in:=blng_api.trans_type_get_id(p_code=>'ci');
+    if hdbk.core.dictionary_get_code(r_document.account_trans_type_oid) not in ('PAY_BILL','CASH_IN','LOAN') then raise_application_error(-20005,'document can not be revoked'); end if;
 
     c_transaction := BLNG_API.transaction_get_info(P_doc => P_document);
 

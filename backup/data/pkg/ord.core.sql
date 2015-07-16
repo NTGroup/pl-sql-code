@@ -81,7 +81,7 @@ END CORE;
   
           v_DOC := blng.BLNG_API.document_add(P_CONTRACT => r_bill.contract_oid,
                                               P_AMOUNT => r_bill.amount,
-                                              P_TRANS_TYPE => blng.blng_api.trans_type_get_id(p_code=>'b'),
+                                              --P_TRANS_TYPE => blng.blng_api.trans_type_get_id(p_code=>'b'),
                                               P_ACCOUNT_TRANS_TYPE => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'BUY'),
                                               p_bill => r_bill.id);
   --        hdbk.log_api.LOG_ADD(p_proc_name=>'bill_pay', p_msg_type=>'start',P_MSG => '1',P_ALERT_LEVEL=>10);          
@@ -233,7 +233,7 @@ END CORE;
 
           v_DOC := blng.BLNG_API.document_add(P_CONTRACT => r_bill.contract_oid,
                                               P_AMOUNT => r_bill.amount,
-                                              P_TRANS_TYPE => blng.blng_api.trans_type_get_id(p_code=>'ci'),
+                                              --P_TRANS_TYPE => blng.blng_api.trans_type_get_id(p_code=>'ci'),
                                               P_ACCOUNT_TRANS_TYPE => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'CASH_IN'),
                                               p_bill => r_bill.id);
   
@@ -296,7 +296,7 @@ END CORE;
           
           v_DOC := blng.BLNG_API.document_add(P_CONTRACT => r_bill.contract_oid,
                                               P_AMOUNT => r_bill.amount,
-                                              P_TRANS_TYPE => blng.blng_api.trans_type_get_id(p_code=>'ci'),
+                                              --P_TRANS_TYPE => blng.blng_api.trans_type_get_id(p_code=>'ci'),
                                               P_ACCOUNT_TRANS_TYPE => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=>'PAY_BILL'),
                                               p_bill => r_bill.id);
   
