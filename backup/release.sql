@@ -10,6 +10,13 @@ commit;
 insert into hdbk.dictionary (code, name, info, dictionary_type) values('BILL_DEPOSIT','BILL_DEPOSIT','deposit bill for client','TASK');
 insert into hdbk.dictionary (code, name, info, dictionary_type) values('DEPOSIT','0','1c product and vat value','1C_PRODUCT_W_VAT');
 
+insert into hdbk.dictionary (code, name, info, dictionary_type) values('LOAN','','','TRANS_TYPE');
+
+commit;
+
+
+update blng.document set account_trans_type_oid = HDbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>HDbk.core.dictionary_get_code(account_trans_type_oid)) 
+where account_trans_type_oid is not null;
 commit;
 
 

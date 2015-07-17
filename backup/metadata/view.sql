@@ -464,7 +464,7 @@ union all
         and document.contract_oid = contract.id
     --    and document.bill_oid is null
         and dictionary.id = document.account_trans_type_oid
-        and dictionary.dictionary_type = 'ACCOUNT_TYPE'
+        and dictionary.dictionary_type = 'TRANS_TYPE'
        and dictionary.code in ('PAY_BILL') 
     --    and contract.id = 22  
         )
