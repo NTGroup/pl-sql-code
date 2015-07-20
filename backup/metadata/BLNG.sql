@@ -561,7 +561,7 @@ ALTER TRIGGER BLNG.u2cntr_TRGR ENABLE;
 --  DDL for Table 
 --------------------------------------------------------
 
-  CREATE TABLE blng.account_type 
+/*  CREATE TABLE blng.account_type 
    (	ID NUMBER(18,0), 
    amnd_date date,
    amnd_user VARCHAR2(50),
@@ -609,7 +609,7 @@ ALTER TABLE BLNG.account_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   increment by 1
   start with 1
   nomaxvalue
-  nocache /*!!!*/
+  nocache 
   nocycle
   order;
   
@@ -632,7 +632,7 @@ ALTER TRIGGER BLNG.acct_TRGR ENABLE;
 
 /
 
-
+*/
 
 
 
@@ -649,10 +649,10 @@ ALTER TRIGGER BLNG.acct_TRGR ENABLE;
    amnd_state VARCHAR2(1), 
    amnd_prev NUMBER(18,0), 
 	 contract_oid NUMBER(18,0),
-   code varchar2(10),
    amount number,
    priority number,
-   account_type_oid number(18,0)
+   account_type_oid number(18,0),
+   code varchar2(50)
    
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
@@ -685,9 +685,9 @@ ALTER TABLE BLNG.account ADD CONSTRAINT ACC_CNTR_OID_FK FOREIGN KEY (contract_oi
   REFERENCES BLNG.contract (ID) ENABLE;
 
   
-ALTER TABLE BLNG.account ADD CONSTRAINT ACC_ACCT_OID_FK FOREIGN KEY (account_type_oid)
+/*ALTER TABLE BLNG.account ADD CONSTRAINT ACC_ACCT_OID_FK FOREIGN KEY (account_type_oid)
   REFERENCES BLNG.account_type (ID) ENABLE;
-  
+  */
 --------------------------------------------------------
 --  DDL for Secuence 
 --------------------------------------------------------

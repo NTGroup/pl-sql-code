@@ -19,6 +19,45 @@ update blng.document set account_trans_type_oid = HDbk.core.dictionary_get_id(p_
 where account_trans_type_oid is not null;
 commit;
 
+delete from hdbk.dictionary where dictionary_type = 'ACCOUNT_TYPE';
+commit;
+
+
+insert into hdbk.dictionary (code, name, info, dictionary_type)
+select 
+--id,
+decode(code, 'd','DEPOSIT','l','LOAN','cl','CREDIT_LIMIT','clb','CREDIT_LIMIT_BLOCK',
+'do','DEBIT_ONLINE','co','CREDIT_ONLINE','ult','UP_LIM_TRANS','dd','DELAY_DAYS') a,
+code,
+details,
+'ACCOUNT_TYPE'
+from blng.account_type;
+commit;
+
+
+
+
+ALTER TABLE BLNG.account DROP CONSTRAINT ACC_ACCT_OID_FK; 
+
+
+update BLNG.ACCOUNT set /*code=
+decode(code, 'd','DEPOSIT','l','LOAN','cl','CREDIT_LIMIT','clb','CREDIT_LIMIT_BLOCK',
+'do','DEBIT_ONLINE','co','CREDIT_ONLINE','ult','UP_LIM_TRANS','dd','DELAY_DAYS'),*/
+ACCOUNT_TYPE_OID = HDbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> decode(code, 'd','DEPOSIT','l','LOAN','cl','CREDIT_LIMIT','clb','CREDIT_LIMIT_BLOCK',
+'do','DEBIT_ONLINE','co','CREDIT_ONLINE','ult','UP_LIM_TRANS','dd','DELAY_DAYS') ) ;
+commit;
+
+
+update hdbk.dictionary set code = 'DELAY_DAYS' where code = 'DELAY_DAY';
+commit;
+
+
+alter table blng.account drop column code;
+
+alter table blng.account add code VARCHAR2(50);
+update  blng.account set code = (select code from hdbk.dictionary where id = account_type_oid) where amnd_state = 'A';
+commit;
+
 
 alter TABLE blng.delay DROP COLUMN transaction_oid;
 

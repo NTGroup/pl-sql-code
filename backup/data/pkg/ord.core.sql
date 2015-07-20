@@ -347,7 +347,7 @@ END CORE;
     loop
       begin
         if i_document.amount < 0 then raise VALUE_ERROR; end if;
-        r_account := blng.blng_api.account_get_info_r(p_contract => i_document.contract_oid, p_code => 'ult'  );
+        r_account := blng.blng_api.account_get_info_r(p_contract => i_document.contract_oid, p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'UP_LIM_TRANS') );
         v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => i_document.id,P_AMOUNT => abs(i_document.amount)-abs(r_account.amount),
           P_TRANS_TYPE => BLNG.blng_api.trans_type_get_id(p_code=>'ult'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
         blng.blng_api.document_edit(i_document.id, 'P');
@@ -378,7 +378,7 @@ END CORE;
     loop
       begin
         if i_document.amount < 0 then raise VALUE_ERROR; end if;
-        r_account := blng.blng_api.account_get_info_r(p_contract => i_document.contract_oid, p_code => 'cl'  );
+        r_account := blng.blng_api.account_get_info_r(p_contract => i_document.contract_oid, p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'CREDIT_LIMIT')  );
         v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => i_document.id,P_AMOUNT => abs(i_document.amount)-abs(r_account.amount),
           P_TRANS_TYPE => BLNG.blng_api.trans_type_get_id(p_code=>'cl'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
         --blng.blng_api.document_edit(i_document.id, p_account_trans_type=> hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'CREDIT_LIMIT'), p_status_ );
@@ -397,9 +397,8 @@ END CORE;
     END LOOP;
 --    CLOSE c_doc;
 
---    c_doc := blng.blng_api.document_get_info(p_status=>'W', p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'DELAY_DAY'));
     for i_document in ( select * from blng.document where amnd_state = 'A' and status = 'W'
-                    and account_trans_type_oid in hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'DELAY_DAY')
+                    and account_trans_type_oid in hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'DELAY_DAYS')
                     and contract_oid not in (
                       select contract_oid from ord.bill where amnd_state = 'A' and status = 'W'
                       and trans_type_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY')
@@ -410,7 +409,7 @@ END CORE;
     loop
       begin
         if i_document.amount < 0 then raise VALUE_ERROR; end if;
-        r_account := blng.blng_api.account_get_info_r(p_contract => i_document.contract_oid, p_code => 'dd'  );
+        r_account := blng.blng_api.account_get_info_r(p_contract => i_document.contract_oid, p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'DELAY_DAYS')  );
         v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => i_document.id,P_AMOUNT => abs(i_document.amount)-abs(r_account.amount),
           P_TRANS_TYPE => BLNG.blng_api.trans_type_get_id(p_code=>'dd'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
         blng.blng_api.document_edit(i_document.id, 'P');
@@ -418,10 +417,10 @@ END CORE;
       exception
         when hdbk.dtype.dead_lock then
           rollback;
-          hdbk.log_api.LOG_ADD(p_proc_name=>'DELAY_DAY', p_msg_type=>'DEAD_LOCK', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || i_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'DELAY_DAYS', p_msg_type=>'DEAD_LOCK', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || i_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
         when others then
           rollback;
-          hdbk.log_api.LOG_ADD(p_proc_name=>'DELAY_DAY', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || i_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'DELAY_DAYS', p_msg_type=>'UNHANDLED_ERROR', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || i_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
           blng.blng_api.document_edit(i_document.id, 'E');
           commit;
       end;

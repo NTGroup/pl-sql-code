@@ -116,18 +116,21 @@ order by ia.id desc;
   AS 
   select
 id,
-decode(code,'d',1,0) deposit,
-decode(code,'l',1,0) loan,
-decode(code,'cl',1,0) credit_limit,
-decode(code,'clb',1,0) credit_limit_block,
-decode(code,'do',1,0) debit_online,
-decode(code,'ult',1,0) max_loan_trans_amount,
-decode(code,'co',1,0) credit_online,
-decode(code,'dd',1,0) delay_days,
-case when code in ('l','cl') then 1 else 0 end unused_credit_limit,
-case when code in ('d','l','cl','clb') then 1 else 0 end available
-from blng.account_type act
-where amnd_state = 'A';
+decode(code,'DEPOSIT',1,0) deposit,
+decode(code,'LOAN',1,0) loan,
+decode(code,'CREDIT_LIMIT',1,0) credit_limit,
+decode(code,'CREDIT_LIMIT_BLOCK',1,0) credit_limit_block,
+decode(code,'DEBIT_ONLINE',1,0) debit_online,
+decode(code,'UP_LIM_TRANS',1,0) max_loan_trans_amount,
+decode(code,'CREDIT_ONLINE',1,0) credit_online,
+decode(code,'DELAY_DAYS',1,0) delay_days,
+case when code in ('LOAN','CREDIT_LIMIT') then 1 else 0 end unused_credit_limit,
+case when code in ('DEPOSIT','LOAN','CREDIT_LIMIT','CREDIT_LIMIT_BLOCK') then 1 else 0 end available
+from hdbk.dictionary act
+where amnd_state = 'A'
+and dictionary_type = 'ACCOUNT_TYPE';
+
+
 
 /
   CREATE OR REPLACE VIEW BLNG.V_ACCOUNT 

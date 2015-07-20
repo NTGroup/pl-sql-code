@@ -2135,8 +2135,6 @@ $TODO: there must be check for users with ISSUES permission
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
-    --v_contract hdbk.dtype.t_id;
- --   r_account_info blng.v_account%rowtype;
     v_task hdbk.dtype.t_id;
     v_type_id hdbk.dtype.t_id;
     v_type hdbk.dtype.t_long_code;
@@ -2355,8 +2353,6 @@ $TODO: there must be check for users with ISSUES permission
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
-    --v_contract hdbk.dtype.t_id;
---    r_account_info blng.v_account%rowtype;
     v_task hdbk.dtype.t_id;
     v_type hdbk.dtype.t_long_code;
     v_number_1c hdbk.dtype.t_long_code;

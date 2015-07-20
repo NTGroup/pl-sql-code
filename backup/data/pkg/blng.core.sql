@@ -314,7 +314,7 @@ end core;
 
 -- push all money to debit_online account. this account only for documents that decreasing money balance such as BUY 
     r_account := blng.blng_api.account_get_info_r(p_contract => p_doc.contract_oid,
-            p_code => 'do'  );
+            p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'DEBIT_ONLINE')  );
     v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => P_DOC.id,P_AMOUNT => -abs(p_doc.AMOUNT),
       P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'b'), P_TRANS_DATE => p_doc.doc_date, P_TARGET_ACCOUNT => r_account.id, p_status => 'W');
   exception
@@ -344,7 +344,7 @@ end core;
 --    DBMS_OUTPUT.PUT_LINE('doc = '|| p_doc.id);
 -- push all money to credit_online account. this account only for documents that increasing money balance such as CASH_IN 
     r_account := blng.blng_api.account_get_info_r(p_contract => p_doc.contract_oid,
-            p_code => 'co'  );
+            p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'CREDIT_ONLINE') );
     v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => P_DOC.id,P_AMOUNT => abs(p_doc.AMOUNT),
       P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'ci'), P_TRANS_DATE => p_doc.doc_date, P_TARGET_ACCOUNT => r_account.id, p_status => 'W');
 --            DBMS_OUTPUT.PUT_LINE('r_account.id = '|| r_account.id);
@@ -393,7 +393,7 @@ end core;
 --    DBMS_OUTPUT.PUT_LINE('doc = '|| p_doc.id);
 --      hdbk.log_api.LOG_ADD(p_proc_name=>'pay_bill', p_msg_type=>'Warning', P_MSG => '7',p_info => 'p_doc=' || p_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
     r_account := blng.blng_api.account_get_info_r(p_contract => p_doc.contract_oid,
-            p_code => 'co'  );
+            p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'CREDIT_ONLINE')  );
  --     hdbk.log_api.LOG_ADD(p_proc_name=>'pay_bill', p_msg_type=>'Warning', P_MSG => '8',p_info => 'p_doc=' || p_doc.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
     v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => P_DOC.id,P_AMOUNT => abs(p_doc.AMOUNT),
       P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'ci'), P_TRANS_DATE => p_doc.doc_date, P_TARGET_ACCOUNT => r_account.id, p_status => 'W');
@@ -469,8 +469,8 @@ end core;
 --      blng.blng_api.document_edit(r_transaction.doc_oid, p_account_trans_type=> hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'CASH_IN') );
 
         -- send money to loan account
-        r_loan := blng.blng_api.account_get_info_r(p_code => 'l', p_contract => r_credit_online.contract_oid);
-        r_deposit := blng.blng_api.account_get_info_r(p_code => 'd', p_contract => r_credit_online.contract_oid);
+        r_loan := blng.blng_api.account_get_info_r(p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'LOAN'), p_contract => r_credit_online.contract_oid);
+        r_deposit := blng.blng_api.account_get_info_r(p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'DEPOSIT'), p_contract => r_credit_online.contract_oid);
 
         if abs(r_loan.amount)=0 then
         --deposit
@@ -553,8 +553,8 @@ end core;
       v_doc := r_transaction.doc_oid;
 
         -- send money to loan account
-        r_loan := blng.blng_api.account_get_info_r(p_code => 'l', p_contract => r_debit_online.contract_oid);
-        r_deposit := blng.blng_api.account_get_info_r(p_code => 'd', p_contract => r_debit_online.contract_oid);
+        r_loan := blng.blng_api.account_get_info_r(p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'LOAN'), p_contract => r_debit_online.contract_oid);
+        r_deposit := blng.blng_api.account_get_info_r(p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'DEPOSIT'), p_contract => r_debit_online.contract_oid);
 
         if abs(r_deposit.amount)=0 then
         --loan
@@ -775,7 +775,7 @@ null;
     loop
       begin
         log_contract := r_delay.contract_oid;
-        r_account := blng.blng_api.account_get_info_r(p_contract => r_delay.contract_oid, p_code => 'clb');
+        r_account := blng.blng_api.account_get_info_r(p_contract => r_delay.contract_oid, p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'CREDIT_LIMIT_BLOCK'));
         r_contract_info := blng.fwdr.v_account_get_info_r(p_contract => r_delay.contract_oid);
         if r_account.amount = 0 then
           blng_api.contract_edit(p_id=>log_contract,p_status=>'B');
@@ -819,7 +819,7 @@ null;
     end;
     -- unblock
     if v_next_delay_date > sysdate or v_next_delay_date is null then
-      r_account := blng.blng_api.account_get_info_r(p_contract => p_contract, p_code => 'clb');
+      r_account := blng.blng_api.account_get_info_r(p_contract => p_contract, p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'CREDIT_LIMIT_BLOCK'));
       if r_account.amount <> 0 then
         blng_api.contract_edit(p_id=>p_contract,p_status=>'A');      
         v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_AMOUNT => -r_account.amount,
@@ -845,7 +845,7 @@ null;
     v_delay hdbk.dtype.t_id;
   begin
 -- executed by operators. can unblock contract for time, by adding unblock event/delay
-    r_account := blng.blng_api.account_get_info_r(p_contract => p_contract, p_code => 'clb');
+    r_account := blng.blng_api.account_get_info_r(p_contract => p_contract, p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'CREDIT_LIMIT_BLOCK'));
     --if r_account.amount <> 0 then
       blng_api.contract_edit(p_id=>p_contract,p_status=>'A');
     
@@ -975,36 +975,36 @@ null;
 
     r_contract_info := blng.fwdr.v_account_get_info_r(p_contract => r_document.contract_oid);
     if r_contract_info.loan > 0 then
-      r_account := blng.blng_api.account_get_info_r(p_contract => r_document.contract_oid, p_code => 'l'  );
+      r_account := blng.blng_api.account_get_info_r(p_contract => r_document.contract_oid, p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'LOAN')  );
       v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => p_document,P_AMOUNT => -r_contract_info.loan,
         P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'rvk'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
-      r_account := blng.blng_api.account_get_info_r(p_contract => r_document.contract_oid, p_code => 'd'  );
+      r_account := blng.blng_api.account_get_info_r(p_contract => r_document.contract_oid, p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'DEPOSIT')  );
       v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => p_document,P_AMOUNT => r_contract_info.loan,
         P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'rvk'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
     end if;
 
     if r_contract_info.deposit < 0 then
-      r_account := blng.blng_api.account_get_info_r(p_contract => r_document.contract_oid, p_code => 'd'  );
+      r_account := blng.blng_api.account_get_info_r(p_contract => r_document.contract_oid, p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'DEPOSIT')  );
       v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => p_document,P_AMOUNT => -r_contract_info.deposit,
         P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'rvk'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
-      r_account := blng.blng_api.account_get_info_r(p_contract => r_document.contract_oid, p_code => 'l'  );
+      r_account := blng.blng_api.account_get_info_r(p_contract => r_document.contract_oid, p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'LOAN')  );
       v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => p_document,P_AMOUNT => r_contract_info.deposit,
         P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'rvk'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
     end if;
 
     if r_contract_info.deposit > 0 and r_contract_info.loan < 0 then
       if abs(r_contract_info.deposit) > abs(r_contract_info.loan) then
-        r_account := blng.blng_api.account_get_info_r(p_contract => r_document.contract_oid, p_code => 'd'  );
+        r_account := blng.blng_api.account_get_info_r(p_contract => r_document.contract_oid, p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'DEPOSIT')  );
         v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => p_document,P_AMOUNT => -abs(r_contract_info.loan),
           P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'rvk'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
-        r_account := blng.blng_api.account_get_info_r(p_contract => r_document.contract_oid, p_code => 'l'  );
+        r_account := blng.blng_api.account_get_info_r(p_contract => r_document.contract_oid, p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'LOAN')  );
         v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => p_document,P_AMOUNT => abs(r_contract_info.loan),
           P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'rvk'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
       else
-        r_account := blng.blng_api.account_get_info_r(p_contract => r_document.contract_oid, p_code => 'd'  );
+        r_account := blng.blng_api.account_get_info_r(p_contract => r_document.contract_oid, p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'DEPOSIT')  );
         v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => p_document,P_AMOUNT => -abs(r_contract_info.deposit),
           P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'rvk'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
-        r_account := blng.blng_api.account_get_info_r(p_contract => r_document.contract_oid, p_code => 'l'  );
+        r_account := blng.blng_api.account_get_info_r(p_contract => r_document.contract_oid, p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'LOAN')  );
         v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => p_document,P_AMOUNT => abs(r_contract_info.deposit),
           P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'rvk'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
       end if;        

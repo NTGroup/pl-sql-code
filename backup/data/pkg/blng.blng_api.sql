@@ -153,7 +153,7 @@ $obj_param: p_contract: contract id
 
   function account_get_info ( p_id in hdbk.dtype.t_id default null,
                               p_contract in hdbk.dtype.t_id default null,
-                              p_code in hdbk.dtype.t_code default null,
+                              p_code in hdbk.dtype.t_long_code default null,
                               p_account_type in hdbk.dtype.t_id default null,
                               p_filter_amount in hdbk.dtype.t_amount  default null
                             )
@@ -161,7 +161,7 @@ $obj_param: p_contract: contract id
 
   function account_get_info_r ( p_id in hdbk.dtype.t_id default null,
                               p_contract in hdbk.dtype.t_id default null,
-                              p_code in hdbk.dtype.t_code default null,
+                              p_code in hdbk.dtype.t_long_code default null,
                               p_account_type in hdbk.dtype.t_id default null
                             )
   return blng.account%rowtype;
@@ -323,7 +323,7 @@ $obj_param: p_contract: contract id
                                 )
   return hdbk.dtype.t_id;
 
-  function account_type_add( p_name in hdbk.dtype.t_name default null,
+/*  function account_type_add( p_name in hdbk.dtype.t_name default null,
                             p_code in hdbk.dtype.t_code default null,
                             p_priority in hdbk.dtype.t_id default null,
                             p_details in hdbk.dtype.t_msg default null
@@ -344,7 +344,7 @@ $obj_param: p_contract: contract id
                                   p_priority in hdbk.dtype.t_id default null
                                 )
   return SYS_REFCURSOR;
-
+*/
 
   function delay_add( p_contract in hdbk.dtype.t_id default null,
                       p_amount in hdbk.dtype.t_amount default null,
@@ -980,10 +980,22 @@ end blng_api;
   begin
     if p_contract is null then raise NO_DATA_FOUND; end if; 
     insert into blng.account (contract_oid,code ,amount,priority,account_type_oid)
-    select --null id,null amnd_date,user amnd_user,'A' amnd_state,null amnd_prev,
+   /* select --null id,null amnd_date,user amnd_user,'A' amnd_state,null amnd_prev,
     p_contract contract_oid,code,0 amount,priority, id account_type_oid
     from blng.account_type
     where id not in (select account_type_oid from blng.account where contract_oid = p_contract);
+    */
+    select  --null id,null amnd_date,user amnd_user,'A' amnd_state,null amnd_prev,
+    p_contract contract_oid,
+    code,
+    0 amount,
+    0 priority,
+    id account_type_oid
+    from hdbk.dictionary act
+    where amnd_state = 'A'
+    and dictionary_type = 'ACCOUNT_TYPE'
+    and id not in (select account_type_oid from blng.account where contract_oid = p_contract);
+
   exception 
     when NO_DATA_FOUND then 
       raise NO_DATA_FOUND;
@@ -1042,7 +1054,7 @@ end blng_api;
 
   function account_get_info ( p_id in hdbk.dtype.t_id default null,
                               p_contract in hdbk.dtype.t_id default null,
-                              p_code in hdbk.dtype.t_code default null,
+                              p_code in hdbk.dtype.t_long_code default null,
                               p_account_type in hdbk.dtype.t_id default null,
                               p_filter_amount in hdbk.dtype.t_amount  default null
                             )
@@ -1070,7 +1082,7 @@ end blng_api;
 
   function account_get_info_r ( p_id in hdbk.dtype.t_id default null,
                               p_contract in hdbk.dtype.t_id default null,
-                              p_code in hdbk.dtype.t_code default null,
+                              p_code in hdbk.dtype.t_long_code default null,
                               p_account_type in hdbk.dtype.t_id default null
                             )
   return blng.account%rowtype
