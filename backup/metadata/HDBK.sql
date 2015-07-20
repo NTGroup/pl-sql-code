@@ -392,7 +392,7 @@ ALTER TRIGGER hdbk.gnt_TRGR ENABLE;
 --------------------------------------------------------
 --  DDL for Table 
 --------------------------------------------------------
-
+/*
   CREATE TABLE hdbk.markup_type 
    (	ID NUMBER(18,0), 
    amnd_date date,
@@ -433,7 +433,7 @@ ALTER TABLE hdbk.markup_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   increment by 1
   start with 1
   nomaxvalue
-  nocache /*!!!*/
+  nocache 
   nocycle
   order;
   
@@ -455,7 +455,7 @@ end;
 
 /
 ALTER TRIGGER hdbk.MKPT_TRGR ENABLE;
-
+*/
 /
 
 /* hdbk.note  */
@@ -617,7 +617,7 @@ ALTER TRIGGER hdbk.ntt_TRGR ENABLE;
   CREATE INDEX hdbk.curr_ID_IDX ON hdbk.currency (ID) 
   TABLESPACE USERS ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE hdbk.currency MODIFY (ID CONSTRAINT curr_ID_NN NOT NULL ENABLE);

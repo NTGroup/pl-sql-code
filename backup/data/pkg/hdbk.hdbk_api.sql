@@ -163,10 +163,11 @@ $obj_desc: *_get_info_r: return one row from table * with format *%rowtype.
                           )
   return hdbk.dtype.t_id;
 
-
+/*
   function markup_type_get_id (     p_name in hdbk.dtype.t_code default null
                           )
   return hdbk.dtype.t_id;
+*/
 
   function currency_get_id (     p_code in hdbk.dtype.t_code default null
                           )
@@ -839,7 +840,7 @@ create or replace package body hdbk.hdbk_api as
       RAISE_APPLICATION_ERROR(-20002,'select row into airline_get_id error. '||SQLERRM);
   end;
 
-
+/*
   function markup_type_get_id (     p_name in hdbk.dtype.t_code default null
                           )
   return hdbk.dtype.t_id
@@ -867,7 +868,7 @@ create or replace package body hdbk.hdbk_api as
  --     RAISE_APPLICATION_ERROR(-20002,'select row into markup_type_get_id error. '||SQLERRM);
       return null;
 
-  end;
+  end;*/
 
   function currency_get_id (     p_code in hdbk.dtype.t_code default null
                           )
@@ -892,8 +893,7 @@ create or replace package body hdbk.hdbk_api as
      -- raise NO_DATA_FOUND;  
      return 810;
     when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'markup_type_get_id', p_msg_type=>'UNHANDLED_ERROR');
- --     RAISE_APPLICATION_ERROR(-20002,'select row into markup_type_get_id error. '||SQLERRM);
+      hdbk.log_api.LOG_ADD(p_proc_name=>'currency_get_id', p_msg_type=>'UNHANDLED_ERROR');
       return 810;
 
   end;

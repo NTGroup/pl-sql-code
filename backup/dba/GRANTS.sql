@@ -29,7 +29,7 @@ grant execute on hdbk.fwdr to blng;
 grant select on hdbk.airline TO ord;
 grant select on hdbk.airline to po_fwdr;
 grant select on hdbk.geo TO ord;
-grant select on hdbk.markup_type TO ord;
+--grant select on hdbk.markup_type TO ord;
 grant select on hdbk.currency TO ord;
 grant select on hdbk.dictionary TO blng;
 grant select on hdbk.dictionary TO ord;

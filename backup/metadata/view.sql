@@ -250,9 +250,8 @@ order by 2;
         (select code from hdbk.currency where id = cmn.currency) currency,
         nvl(cmn.per_segment,'N') per_segment,
         nvl(cmn.per_fare,'N') per_fare,
-        (select name from hdbk.markup_type where id = cmn.rule_type) rule_type,
-        (select name from hdbk.markup_type where id = cmn.markup_type) markup_type
-        
+        hdbk.core.dictionary_get_code(cmn.rule_type) rule_type,
+        hdbk.core.dictionary_get_code(cmn.markup_type) markup_type
         from 
         ord.commission cmn ,
         hdbk.airline al,

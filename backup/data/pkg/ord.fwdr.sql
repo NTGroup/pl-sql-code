@@ -1423,8 +1423,8 @@ END FWDR;
                           p_contract_type => i.contract_type_id, --its contract_type of commission (self/interline/code-share)                          
                           p_contract => i.tenant_id,
                           p_min_absolut => i.rule_min_absolute,
-                          p_rule_type => hdbk.hdbk_api.markup_type_get_id(p_name=>i.rule_type), /*$TODO*/
-                          p_markup_type => hdbk.hdbk_api.markup_type_get_id(p_name=>i.markup_type), /*$TODO*/
+                          p_rule_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'RULE_TYPE',p_code=> i.rule_type),
+                          p_markup_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'MARKUP_TYPE',p_code=> i.markup_type), 
                           p_per_segment => i.per_segment,
                           p_currency => hdbk.hdbk_api.currency_get_id(i.currency),
                           p_per_fare => i.per_fare
@@ -1532,8 +1532,6 @@ END FWDR;
                         --p_status => i.rule_status,
                         --p_contract => p_tenant_id,
                         p_min_absolut => i.rule_min_absolute,
-                    --    p_rule_type => hdbk.hdbk_api.markup_type_get_id(p_name=>i.rule_type), 
-                   --     p_markup_type => hdbk.hdbk_api.markup_type_get_id(p_name=>i.markup_type), 
                         p_per_segment => i.per_segment,
                         p_currency => hdbk.hdbk_api.currency_get_id(i.currency),
                         p_per_fare => i.per_fare
@@ -1651,8 +1649,8 @@ END FWDR;
                           p_contract_type => i.contract_type_id, --its contract_type of commission (self/interline/code-share)                          
                           p_contract => p_tenant_id,
                           p_min_absolut => i.rule_min_absolute,
-                          p_rule_type => hdbk.hdbk_api.markup_type_get_id(p_name=>i.rule_type), /*$TODO*/
-                          p_markup_type => hdbk.hdbk_api.markup_type_get_id(p_name=>i.markup_type), /*$TODO*/
+                          p_rule_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'RULE_TYPE',p_code=> i.rule_type), 
+                          p_markup_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'MARKUP_TYPE',p_code=> i.markup_type),
                           p_per_segment => i.per_segment,
                           p_currency => hdbk.hdbk_api.currency_get_id(i.currency),
                           p_per_fare => i.per_fare
@@ -1673,8 +1671,8 @@ END FWDR;
                           p_status => i.rule_status,
                           p_contract => p_tenant_id,
                           p_min_absolut => i.rule_min_absolute,
-                          p_rule_type => hdbk.hdbk_api.markup_type_get_id(p_name=>i.rule_type), /*$TODO*/
-                          p_markup_type => hdbk.hdbk_api.markup_type_get_id(p_name=>i.markup_type), /*$TODO*/
+                          p_rule_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'RULE_TYPE',p_code=> i.rule_type), 
+                          p_markup_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'MARKUP_TYPE',p_code=> i.markup_type),
                           p_per_segment => i.per_segment,
                           p_currency => hdbk.hdbk_api.currency_get_id(i.currency),
                           p_per_fare => i.per_fare
@@ -1802,9 +1800,9 @@ END FWDR;
     elsif p_is_markup_type = 'Y' then
       OPEN v_results FOR
           SELECT
-          id, NAME
-          from hdbk.markup_type 
-          where id not in (4,5)
+          id, code name
+          from hdbk.dictionary 
+          where dictionary_type = 'MARKUP_TYPE'
           and amnd_state = 'A'
           order by id;
     else
@@ -1915,7 +1913,7 @@ END FWDR;
       to_char(sysdate,'yymmddhh24mi')*1 version,
       nvl(cmn.contract_oid,0) tenant_id,
       nvl(al.IATA,'YY') iata,
-      upper(nvl((select name from hdbk.markup_type where id = cmn.markup_type),'ERROR')) markup_type,
+      nvl(hdbk.core.dictionary_get_code(cmn.markup_type),'ERROR') markup_type,
       -------------------------------
       nvl(nvl(cmn.percent,cmn.fix),0) rule_amount,
       case 

@@ -85,7 +85,28 @@ where event_TYPE_OID is not null
 commit;
 
 
+--------------
 
+
+insert into hdbk.dictionary (code, name, info, dictionary_type)
+select 'MARKUP','MARKUP',null,'RULE_TYPE' from dual
+union all
+select 'COMMISSION','COMMISSION',null,'RULE_TYPE' from dual
+
+union all
+select 'BASE','BASE',null,'MARKUP_TYPE' from dual
+union all
+select 'PARTNER','PARTNER',null,'MARKUP_TYPE' from dual
+union all
+select 'SUPPLIER','SUPPLIER',null,'MARKUP_TYPE' from dual
+commit;
+
+
+update  ord.commission set rule_type = hdbk.core.dictionary_get_id(p_dictionary_type=>'RULE_TYPE',p_code=> (select name from hdbk.markup_type where id = rule_type)),
+markup_type = hdbk.core.dictionary_get_id(p_dictionary_type=>'MARKUP_TYPE',p_code=> (select name from hdbk.markup_type where id = markup_type))
+
+where amnd_state!='I' ;
+commit;
 
 
 @dba/GRANTS.sql;

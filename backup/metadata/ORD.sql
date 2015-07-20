@@ -2,7 +2,7 @@
 /* ord */
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE ord.ord 
@@ -24,7 +24,7 @@
   CREATE INDEX ord.ord_ID_IDX ON ord.ord (ID) 
   TABLESPACE USERS ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table
 --------------------------------------------------------
 
   ALTER TABLE ord.ord MODIFY (ID CONSTRAINT ord_ID_NN NOT NULL ENABLE);
@@ -75,7 +75,7 @@ ALTER TRIGGER ord.ord_TRGR ENABLE;
 /* bill */
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table
 --------------------------------------------------------
 
   CREATE TABLE ord.bill 
@@ -103,7 +103,7 @@ ALTER TRIGGER ord.ord_TRGR ENABLE;
   TABLESPACE USERS ;
   
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE ord.bill MODIFY (ID CONSTRAINT bill_ID_NN NOT NULL ENABLE);
@@ -162,7 +162,7 @@ ALTER TRIGGER ord.bill_TRGR ENABLE;
 
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE ord.item_avia 
@@ -192,7 +192,7 @@ ALTER TRIGGER ord.bill_TRGR ENABLE;
   TABLESPACE USERS ;
   
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE ord.item_avia MODIFY (ID CONSTRAINT iav_ID_NN NOT NULL ENABLE);
@@ -247,7 +247,7 @@ ALTER TRIGGER ord.iav_TRGR ENABLE;
 
 /*
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE ord.item_hotel 
@@ -268,7 +268,7 @@ ALTER TRIGGER ord.iav_TRGR ENABLE;
   TABLESPACE USERS ;
   
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE ord.item_hotel MODIFY (ID CONSTRAINT ihtl_ID_NN NOT NULL ENABLE);
@@ -321,7 +321,7 @@ ALTER TRIGGER ord.ihtl_TRGR ENABLE;
 /* item_insurance */
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 /*
   CREATE TABLE ord.item_insurance
@@ -342,7 +342,7 @@ ALTER TRIGGER ord.ihtl_TRGR ENABLE;
   TABLESPACE USERS ;
   
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE ord.item_insurance MODIFY (ID CONSTRAINT iins_ID_NN NOT NULL ENABLE);
@@ -397,7 +397,7 @@ ALTER TRIGGER ord.iins_TRGR ENABLE;
 
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 /*
   CREATE TABLE ord.pnr
@@ -418,7 +418,7 @@ ALTER TRIGGER ord.iins_TRGR ENABLE;
   TABLESPACE USERS ;
   
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE ord.pnr MODIFY (ID CONSTRAINT pnr_ID_NN NOT NULL ENABLE);
@@ -496,7 +496,7 @@ ALTER TRIGGER ord.pnr_TRGR ENABLE;
   TABLESPACE USERS ;
   
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE ord.ticket MODIFY (ID CONSTRAINT tkt_ID_NN NOT NULL ENABLE);
@@ -549,7 +549,7 @@ ALTER TRIGGER ord.tkt_TRGR ENABLE;
 
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 /*
   CREATE TABLE ord.price_quote
@@ -570,7 +570,7 @@ ALTER TRIGGER ord.tkt_TRGR ENABLE;
   TABLESPACE USERS ;
   
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE ord.price_quote MODIFY (ID CONSTRAINT pq_ID_NN NOT NULL ENABLE);
@@ -625,7 +625,7 @@ ALTER TRIGGER ord.pq_TRGR ENABLE;
 
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 /*
   CREATE TABLE ord.passenger
@@ -646,7 +646,7 @@ ALTER TRIGGER ord.pq_TRGR ENABLE;
   TABLESPACE USERS ;
   
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE ord.passenger MODIFY (ID CONSTRAINT pax_ID_NN NOT NULL ENABLE);
@@ -701,7 +701,7 @@ ALTER TRIGGER ord.pax_TRGR ENABLE;
 
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 /*
   CREATE TABLE ord.flight_stop
@@ -722,7 +722,7 @@ ALTER TRIGGER ord.pax_TRGR ENABLE;
   TABLESPACE USERS ;
   
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE ord.flight_stop MODIFY (ID CONSTRAINT stop_ID_NN NOT NULL ENABLE);
@@ -775,7 +775,7 @@ ALTER TRIGGER ord.stop_TRGR ENABLE;
 /* commission */
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE ord.commission
@@ -813,7 +813,7 @@ ALTER TRIGGER ord.stop_TRGR ENABLE;
   CREATE INDEX ord.CMN_ID_IDX ON ord.commission (ID) 
   TABLESPACE USERS ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE ord.commission MODIFY (ID CONSTRAINT CMN_ID_NN NOT NULL ENABLE);
@@ -874,7 +874,7 @@ ALTER TRIGGER ord.CMN_TRGR ENABLE;
 
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE ord.commission_template
@@ -915,7 +915,7 @@ ALTER TRIGGER ord.CMN_TRGR ENABLE;
   CREATE INDEX ord.CT_ID_IDX ON ord.commission_template (ID) 
   TABLESPACE USERS ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE ord.commission_template MODIFY (ID CONSTRAINT CT_ID_NN NOT NULL ENABLE);
@@ -974,7 +974,7 @@ ALTER TRIGGER ord.CT_TRGR ENABLE;
 /* commission_details */
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE ord.commission_details
@@ -999,7 +999,7 @@ ALTER TRIGGER ord.CT_TRGR ENABLE;
   CREATE INDEX ord.CD_ID_IDX ON ord.commission_details (ID) 
   TABLESPACE USERS ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE ord.commission_details MODIFY (ID CONSTRAINT CD_ID_NN NOT NULL ENABLE);
@@ -1055,7 +1055,7 @@ ALTER TRIGGER ord.CD_TRGR ENABLE;
 /* item_avia_status */
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE ord.item_avia_status 
@@ -1078,7 +1078,7 @@ ALTER TRIGGER ord.CD_TRGR ENABLE;
   TABLESPACE USERS ;
   
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE ord.item_avia_status MODIFY (ID CONSTRAINT iavs_ID_NN NOT NULL ENABLE);
@@ -1133,7 +1133,7 @@ ALTER TRIGGER ord.iavs_TRGR ENABLE;
 
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE ord.pos_rule 
@@ -1158,7 +1158,7 @@ ALTER TRIGGER ord.iavs_TRGR ENABLE;
   TABLESPACE USERS ;
   
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE ord.pos_rule MODIFY (ID CONSTRAINT posr_ID_NN NOT NULL ENABLE);
@@ -1212,7 +1212,7 @@ ALTER TRIGGER ord.posr_TRGR ENABLE;
 /* ord.currency */
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE ord.currency 
@@ -1234,7 +1234,7 @@ ALTER TRIGGER ord.posr_TRGR ENABLE;
   CREATE INDEX ord.curr_ID_IDX ON ord.currency (ID) 
   TABLESPACE USERS ;
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE ord.currency MODIFY (ID CONSTRAINT curr_ID_NN NOT NULL ENABLE);
@@ -1253,7 +1253,7 @@ ALTER TABLE ord.currency  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 /* ord.task1c */
 
 --------------------------------------------------------
---  DDL for Table MARKUP
+--  DDL for Table 
 --------------------------------------------------------
 
   CREATE TABLE ord.task1c 
@@ -1277,7 +1277,7 @@ ALTER TABLE ord.currency  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   TABLESPACE USERS ;
   
 --------------------------------------------------------
---  Constraints for Table MARKUP
+--  Constraints for Table 
 --------------------------------------------------------
 
   ALTER TABLE ord.task1c MODIFY (ID CONSTRAINT t1c_ID_NN NOT NULL ENABLE);
@@ -1647,47 +1647,3 @@ CREATE bitmap INDEX ord.itin_AS_IDX ON ord.itinerary (amnd_state) TABLESPACE USE
 CREATE bitmap INDEX ord.leg_AS_IDX ON ord.leg (amnd_state) TABLESPACE USERS ;
 CREATE bitmap INDEX ord.sgm_AS_IDX ON ord.segment (amnd_state) TABLESPACE USERS ;
 
---------------------------------------------------------
---  DDL for Grants
---------------------------------------------------------
-/*
-grant select on ord.bill to blng;
-grant select on ord.ord to blng;
-grant select on ord.ticket to blng;
-grant select on ord.item_avia to blng;
-grant select on ord.item_avia_status to blng;
-grant select on ord.commission to blng;
-grant select on ord.commission_details to blng;
-grant select on ord.commission_template to blng;
-grant select on ord.pos_rule to blng;
-
-grant select on ord.bill to dict;
-grant select on ord.ord to dict;
-grant select on ord.ticket to dict;
-grant select on ord.item_avia to dict;
-grant select on ord.item_avia_status to dict;
-grant select on ord.commission to dict;
-grant select on ord.commission_details to dict;
-grant select on ord.commission_template to dict;
-grant select on ord.pos_rule to dict;
-
---Foreign keys between tables in different schemas
-grant references on ord.bill to blng;
-grant references on ord.ord to blng;
-grant references on ord.ticket to blng;
-grant references on ord.item_avia to blng;
-grant references on ord.item_avia_status to blng;
-grant references on ord.commission to blng;
-grant references on ord.commission_details to blng;
-grant references on ord.commission_template to blng;
-grant references on ord.pos_rule to blng;
-
-grant references on ord.bill to dict;
-grant references on ord.ord to dict;
-grant references on ord.ticket to dict;
-grant references on ord.item_avia to dict;
-grant references on ord.item_avia_status to dict;
-grant references on ord.commission to dict;
-grant references on ord.commission_details to dict;
-grant references on ord.commission_template to dict;
-grant references on ord.pos_rule to dict;*/
