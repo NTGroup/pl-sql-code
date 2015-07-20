@@ -404,7 +404,7 @@ end core;
     v_delay:=BLNG_API.delay_add( P_CONTRACT => p_doc.contract_oid,
                       p_date_to => null,
                       P_AMOUNT => abs( p_doc.amount),
-                      P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'ci'),
+                      P_EVENT_TYPE => hdbk.core.dictionary_get_id(p_dictionary_type=>'EVENT_TYPE',p_code=> 'CASH_IN'),
     --                              P_PRIORITY => 10,
                       p_parent_id => r_v_delay.delay_id,
                       p_doc=>p_doc.id
@@ -612,7 +612,7 @@ end core;
 -- add 1 day to let client pay bill
                               p_date_to => hdbk.core.delay_payday(P_DELAY => r_contract_info.delay_days,p_contract => r_debit_online.contract_oid) + 1,
                               P_AMOUNT => abs(v_delay_amount),
-                              P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'b'),
+                              P_EVENT_TYPE => hdbk.core.dictionary_get_id(p_dictionary_type=>'EVENT_TYPE',p_code=> 'BUY'),
                               P_PRIORITY => 10,
                               p_doc=>p_document
                             );
@@ -682,7 +682,7 @@ null;
          v_delay:= BLNG_API.delay_add( P_CONTRACT => p_contract,
                               p_date_to => null,
                               P_AMOUNT => abs(v_amount),
-                              P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'ci'),
+                              P_EVENT_TYPE => hdbk.core.dictionary_get_id(p_dictionary_type=>'EVENT_TYPE',p_code=> 'CASH_IN'),
 --                              P_PRIORITY => 10,
                               p_parent_id => i_delay.delay_id,
                               p_doc=>p_doc
@@ -692,7 +692,7 @@ null;
          v_delay:= BLNG_API.delay_add( P_CONTRACT => p_contract,
                               p_date_to => null,
                               P_AMOUNT => abs(i_delay.amount_need),
-                              P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'ci'),
+                              P_EVENT_TYPE => hdbk.core.dictionary_get_id(p_dictionary_type=>'EVENT_TYPE',p_code=> 'CASH_IN'),
 --                              P_PRIORITY => 10,
                               p_parent_id => i_delay.delay_id,
                               p_doc=>p_doc
@@ -741,7 +741,7 @@ null;
     for r_delay in (
       select id, contract_oid from blng.delay
       where amnd_state = 'A'
-      and event_type_oid =  blng_api.event_type_get_id(p_code=>'clu')
+      and event_type_oid =  hdbk.core.dictionary_get_id(p_dictionary_type=>'EVENT_TYPE',p_code=> 'CREDIT_LIMIT_UNBLOCK')
       and date_to <= trunc(sysdate)
       and parent_id is null
     )
@@ -763,12 +763,12 @@ null;
     for r_delay in (
       select contract_oid from blng.delay block_delay
       where amnd_state = 'A'
-      and event_type_oid =  blng_api.event_type_get_id(p_code=>'b')
+      and event_type_oid =  hdbk.core.dictionary_get_id(p_dictionary_type=>'EVENT_TYPE',p_code=> 'BUY')
       and date_to <= trunc(sysdate)
       and contract_oid not in (
         select contract_oid from blng.delay
         where amnd_state = 'A'
-        and event_type_oid =  blng_api.event_type_get_id(p_code=>'clu')
+        and event_type_oid =  hdbk.core.dictionary_get_id(p_dictionary_type=>'EVENT_TYPE',p_code=> 'CREDIT_LIMIT_UNBLOCK')
       )
       group by contract_oid
     )
@@ -852,7 +852,7 @@ null;
       v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_AMOUNT => -r_account.amount,
         P_TRANS_TYPE => blng_api.trans_type_get_id(p_code=>'clu'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
       v_delay:=BLNG_API.delay_add(P_CONTRACT => p_contract, 
-                                  P_EVENT_TYPE => blng_api.event_type_get_id(p_code=>'clu'),
+                                  P_EVENT_TYPE => hdbk.core.dictionary_get_id(p_dictionary_type=>'EVENT_TYPE',p_code=> 'CREDIT_LIMIT_UNBLOCK'),
                                   P_PRIORITY => 20,
                                   p_date_to => trunc(sysdate)+p_days,
                                   p_doc=>null

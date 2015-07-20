@@ -977,7 +977,7 @@ ALTER TRIGGER BLNG.trn_TRGR ENABLE;
 --------------------------------------------------------
 --  DDL for Table 
 --------------------------------------------------------
-
+/*
   CREATE TABLE blng.event_type 
    (	ID NUMBER(18,0), 
    amnd_date date,
@@ -1021,7 +1021,7 @@ ALTER TABLE BLNG.event_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   increment by 1
   start with 1
   nomaxvalue
-  nocache /*!!!*/
+  nocache 
   nocycle
   order;
   
@@ -1043,7 +1043,7 @@ end;
 /
 
 ALTER TRIGGER BLNG.ett_TRGR ENABLE;
-
+*/
 /
 
 /* event */
@@ -1091,8 +1091,8 @@ ALTER TABLE BLNG.event  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   ALTER TABLE blng.event ADD CONSTRAINT EVNT_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.EVNT_ID_IDX ENABLE;
  
-ALTER TABLE BLNG.event ADD CONSTRAINT EVNT_ETT_OID_FK FOREIGN KEY (event_type_oid)
-  REFERENCES BLNG.event_type (ID) ENABLE;
+/*ALTER TABLE BLNG.event ADD CONSTRAINT EVNT_ETT_OID_FK FOREIGN KEY (event_type_oid)
+  REFERENCES BLNG.event_type (ID) ENABLE;*/
 ALTER TABLE BLNG.event ADD CONSTRAINT EVNT_TRN_OID_FK FOREIGN KEY (transaction_oid)
   REFERENCES BLNG.transaction (ID) ENABLE;
 ALTER TABLE BLNG.event ADD CONSTRAINT EVNT_CNTR_OID_FK FOREIGN KEY (contract_oid)
@@ -1252,8 +1252,9 @@ ALTER TABLE BLNG.delay  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   ALTER TABLE blng.delay ADD CONSTRAINT DLY_ID_PK PRIMARY KEY (ID)
   USING INDEX BLNG.DLY_ID_IDX ENABLE;
 
+/*
 ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_ETT_OID_FK FOREIGN KEY (event_type_oid)
-  REFERENCES BLNG.event_type (ID) ENABLE;
+  REFERENCES BLNG.event_type (ID) ENABLE;*/
 ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_CNTR_OID_FK FOREIGN KEY (contract_oid)
   REFERENCES BLNG.contract (ID) ENABLE;
 ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_DOC_OID_FK FOREIGN KEY (DOC_oid)
@@ -1268,7 +1269,7 @@ ALTER TABLE BLNG.delay ADD CONSTRAINT DLY_DOC_OID_FK FOREIGN KEY (DOC_oid)
   increment by 1
   start with 1
   nomaxvalue
-  nocache /*!!!*/
+  nocache 
   nocycle
   order;
   

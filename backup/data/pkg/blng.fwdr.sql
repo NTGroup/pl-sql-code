@@ -722,7 +722,7 @@ create  or replace package BODY blng.fwdr as
         select
         del.id,
         del.contract_oid,
-        del.amount - nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = del.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount,
+        del.amount - nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = del.id and amnd_state = 'A' and EVENT_TYPE_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'EVENT_TYPE',p_code=> 'CASH_IN')),0) amount,
         --nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = d.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount_have,
         item_avia.pnr_locator order_number,
         item_avia.pnr_id pnr_id,
@@ -739,7 +739,7 @@ create  or replace package BODY blng.fwdr as
         and del.parent_id is null
     --    and del.contract_oid = 21
         and del.contract_oid = contract.id
-        and del.EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'b')
+        and del.EVENT_TYPE_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'EVENT_TYPE',p_code=> 'BUY')
         and del.doc_oid = document.id
         and document.bill_oid = bill.id
         and document.bill_oid is not null

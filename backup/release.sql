@@ -61,6 +61,33 @@ commit;
 
 alter TABLE blng.delay DROP COLUMN transaction_oid;
 
+-------------
+ALTER TABLE BLNG.event drop CONSTRAINT EVNT_ETT_OID_FK;
+ALTER TABLE BLNG.delay drop CONSTRAINT DLY_ETT_OID_FK; 
+
+
+insert into hdbk.dictionary (code, name, info, dictionary_type)
+select 
+--id,
+decode(code, 'b','BUY','ci','CASH_IN','clu','CREDIT_LIMIT_UNBLOCK') a,
+code,
+--details,
+name,
+'EVENT_TYPE'
+from blng.event_type where id in (3,6,7);
+commit;
+
+
+update BLNG.delay set 
+event_TYPE_OID = HDbk.core.dictionary_get_id(p_dictionary_type=>'EVENT_TYPE',p_code=> decode((select code from BLNG.EVENT_TYPE where id = event_type_oid), 'b','BUY','ci','CASH_IN','clu','CREDIT_LIMIT_UNBLOCK') ) 
+where event_TYPE_OID is not null
+;
+commit;
+
+
+
+
+
 @dba/GRANTS.sql;
 @metadata/view.sql;
 @data/pkg/hdbk.hdbk_api.sql;

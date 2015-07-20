@@ -297,8 +297,8 @@ create or replace view blng.v_total as
     amount,
     id,
     d.contract_oid,
-    nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = d.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount_have,
-    amount - nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = d.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount_need,
+    nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = d.id and amnd_state = 'A' and EVENT_TYPE_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'EVENT_TYPE',p_code=> 'CASH_IN')),0) amount_have,
+    amount - nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = d.id and amnd_state = 'A' and EVENT_TYPE_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'EVENT_TYPE',p_code=> 'CASH_IN')),0) amount_need,
     date_to date_to,
   min(case when date_to-1 >= trunc(sysdate) then date_to-1 else null end)  over (partition by contract_oid) block_date ,
   min(case when date_to < sysdate then date_to else null end) over (partition by contract_oid) expiry_date
@@ -306,7 +306,7 @@ create or replace view blng.v_total as
     where d.amnd_state = 'A'
     and parent_id is null
     --and contract_oid = 21
-    and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'b')
+    and EVENT_TYPE_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'EVENT_TYPE',p_code=> 'BUY')
     order by contract_oid asc, date_to asc, id asc  
   ) ddd
   group by ddd.contract_oid,block_date,expiry_date;
@@ -503,14 +503,14 @@ document.bill_oid bill_id,
 document.id doc_id,
 delay_buy.id delay_id,
 delay_buy.amount,
-nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = delay_buy.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount_have,
-delay_buy.amount - nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = delay_buy.id and amnd_state = 'A' and EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'ci')),0) amount_need,
+nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = delay_buy.id and amnd_state = 'A' and EVENT_TYPE_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'EVENT_TYPE',p_code=> 'CASH_IN')),0) amount_have,
+delay_buy.amount - nvl((select sum(amount) from blng.delay where parent_id is not null and parent_id = delay_buy.id and amnd_state = 'A' and EVENT_TYPE_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'EVENT_TYPE',p_code=> 'CASH_IN')),0) amount_need,
 delay_buy.date_to
 from blng.delay delay_buy, blng.document
 where delay_buy.amnd_state = 'A'
 and parent_id is null
 --      and contract_oid = p_contract
-and delay_buy.EVENT_TYPE_oid = blng.blng_api.event_type_get_id(p_code=>'b')
+and delay_buy.EVENT_TYPE_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'EVENT_TYPE',p_code=> 'BUY')
 and document.amnd_state = 'A'
 and document.id = delay_buy.doc_oid
 order by delay_buy.contract_oid asc, date_to asc, delay_buy.id asc;

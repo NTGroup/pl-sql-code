@@ -277,7 +277,7 @@ $obj_param: p_contract: contract id
                                 )
   return SYS_REFCURSOR;
 
-  function event_type_add( p_name in hdbk.dtype.t_name default null,
+/*  function event_type_add( p_name in hdbk.dtype.t_name default null,
                             p_code in hdbk.dtype.t_code default null,
                             p_details in hdbk.dtype.t_msg default null
                           )
@@ -298,7 +298,7 @@ $obj_param: p_contract: contract id
   function event_type_get_id (    p_name in hdbk.dtype.t_name default null,
                                   p_code in hdbk.dtype.t_code default null
                                 )
-  return hdbk.dtype.t_id;
+  return hdbk.dtype.t_id;*/
 
   function trans_type_add( p_name in hdbk.dtype.t_name default null,
                             p_code in hdbk.dtype.t_code default null,
