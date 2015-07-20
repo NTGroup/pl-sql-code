@@ -67,3 +67,19 @@ grant debug on erp.erp_api to hdbk;
 grant execute on erp.gate to erp_gate;
 grant debug on erp.gate to hdbk;
 
+
+
+---- NOT_SORTED
+grant select on blng.contract to ord;
+grant select on blng.usr to ord;
+grant select on blng.client to ord;
+grant select on blng.domain to ord;
+grant select on blng.USR2CONTRACT to ord;
+grant select on blng.USR_DATA to ord;
+grant select on blng.account to ord;
+grant select on blng.document to ord;
+grant select on blng.transaction to ord;
+grant select on blng.delay to ord;
+grant select on blng.event to ord;
+grant select on blng.trans_type to ord;
+

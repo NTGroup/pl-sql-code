@@ -1136,7 +1136,7 @@ ALTER TRIGGER BLNG.evnt_TRGR ENABLE;
 --------------------------------------------------------
 --  DDL for Table 
 --------------------------------------------------------
-
+/*
   CREATE TABLE blng.status_type 
    (	ID NUMBER(18,0), 
    amnd_date date,
@@ -1180,7 +1180,7 @@ ALTER TABLE BLNG.status_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   increment by 1
   start with 1
   nomaxvalue
-  nocache /*!!!*/
+  nocache 
   nocycle
   order;
   
@@ -1203,7 +1203,7 @@ end;
 /
 ALTER TRIGGER BLNG.stt_TRGR ENABLE;
 
-
+*/
 /
 
 /* delay */
@@ -1473,9 +1473,9 @@ CREATE bitmap INDEX blng.dly_AS_IDX ON blng.delay (amnd_state) TABLESPACE USERS 
 CREATE bitmap INDEX blng.dmn_AS_IDX ON blng.domain (amnd_state) TABLESPACE USERS ;
 CREATE bitmap INDEX blng.usrd_AS_IDX ON blng.USR_DATA (amnd_state) TABLESPACE USERS ;
 CREATE bitmap INDEX blng.trt_AS_IDX ON blng.trans_type (amnd_state) TABLESPACE USERS ;
-CREATE bitmap INDEX blng.ett_AS_IDX ON blng.event_type (amnd_state) TABLESPACE USERS ;
-CREATE bitmap INDEX blng.stt_AS_IDX ON blng.status_type (amnd_state) TABLESPACE USERS ;
-CREATE bitmap INDEX blng.acct_AS_IDX ON blng.account_type (amnd_state) TABLESPACE USERS ;
+--CREATE bitmap INDEX blng.ett_AS_IDX ON blng.event_type (amnd_state) TABLESPACE USERS ;
+--CREATE bitmap INDEX blng.stt_AS_IDX ON blng.status_type (amnd_state) TABLESPACE USERS ;
+--CREATE bitmap INDEX blng.acct_AS_IDX ON blng.account_type (amnd_state) TABLESPACE USERS ;
 CREATE bitmap INDEX blng.evnt_AS_IDX ON blng.event (amnd_state) TABLESPACE USERS ;
 
 
@@ -1483,78 +1483,3 @@ CREATE INDEX blng.doc_dd_IDX ON blng.document (doc_date) TABLESPACE USERS ;
 CREATE INDEX blng.trn_td_IDX ON blng.transaction (trans_date) TABLESPACE USERS ;
 CREATE INDEX blng.dly_dt_IDX ON blng.delay (date_to) TABLESPACE USERS ;
 
---------------------------------------------------------
---  DDL for Grants
---------------------------------------------------------
-
-grant select on blng.contract to ord;
-grant select on blng.usr to ord;
-grant select on blng.client to ord;
-grant select on blng.domain to ord;
-grant select on blng.USR2CONTRACT to ord;
-grant select on blng.USR_DATA to ord;
-grant select on blng.account to ord;
-grant select on blng.document to ord;
-grant select on blng.transaction to ord;
-grant select on blng.delay to ord;
-grant select on blng.event to ord;
-grant select on blng.account_type to ord;
-grant select on blng.status_type to ord;
-grant select on blng.trans_type to ord;
-grant select on blng.event_type to ord;
-
-grant select on blng.contract to ntg;
-grant select on blng.usr to ntg;
-grant select on blng.client to ntg;
-grant select on blng.domain to ntg;
-grant select on blng.USR2CONTRACT to ntg;
-grant select on blng.USR_DATA to ntg;
-grant select on blng.account to ntg;
-grant select on blng.document to ntg;
-grant select on blng.transaction to ntg;
-grant select on blng.delay to ntg;
-grant select on blng.event to ntg;
-grant select on blng.account_type to ntg;
-grant select on blng.status_type to ntg;
-grant select on blng.trans_type to ntg;
-grant select on blng.event_type to ntg;
-
-
---Foreign keys between tables in different schemas
-
-/*
-?????????????????????????????????????????
-
-grant references on blng.contract to ord;
-grant references on blng.usr to ord;
-grant references on blng.client to ord;
-grant references on blng.domain to ord;
-grant references on blng.USR2CONTRACT to ord;
-grant references on blng.USR_DATA to ord;
-grant references on blng.account to ord;
-grant references on blng.document to ord;
-grant references on blng.transaction to ord;
-grant references on blng.delay to ord;
-grant references on blng.event to ord;
-grant references on blng.account_type to ord;
-grant references on blng.status_type to ord;
-grant references on blng.trans_type to ord;
-grant references on blng.event_type to ord;
-
-grant references on blng.contract to ntg;
-grant references on blng.usr to ntg;
-grant references on blng.client to ntg;
-grant references on blng.domain to ntg;
-grant references on blng.USR2CONTRACT to ntg;
-grant references on blng.USR_DATA to ntg;
-grant references on blng.account to ntg;
-grant references on blng.document to ntg;
-grant references on blng.transaction to ntg;
-grant references on blng.delay to ntg;
-grant references on blng.event to ntg;
-grant references on blng.account_type to ntg;
-grant references on blng.status_type to ntg;
-grant references on blng.trans_type to ntg;
-grant references on blng.event_type to ntg;
-
-*/
