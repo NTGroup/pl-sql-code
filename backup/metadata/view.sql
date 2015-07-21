@@ -532,7 +532,8 @@ and document.status = 'P'
 and transaction.amnd_state = 'A'
 and transaction.status = 'P'
 and transaction.doc_oid = document.id
-and transaction.trans_type_oid not in (5,6)
+and transaction.trans_type_oid not in (hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=> 'DEBIT_ADJUSTMENT'),
+hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=> 'CREDIT_ADJUSTMENT'))
 and dictionary.id = document.account_trans_type_oid
 and document.contract_oid = contract.id
 and contract.amnd_state in  ('A','C')

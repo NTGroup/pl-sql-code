@@ -81,5 +81,5 @@ grant select on blng.document to ord;
 grant select on blng.transaction to ord;
 grant select on blng.delay to ord;
 grant select on blng.event to ord;
-grant select on blng.trans_type to ord;
+----grant select on blng.trans_type to ord;
 

@@ -107,6 +107,41 @@ markup_type = hdbk.core.dictionary_get_id(p_dictionary_type=>'MARKUP_TYPE',p_cod
 
 where amnd_state!='I' ;
 commit;
+------------
+
+ALTER TABLE BLNG.document DROP CONSTRAINT DOC_TRT_OID_FK;
+ALTER TABLE BLNG.transaction DROP CONSTRAINT TRN_TRT_OID_FK;
+
+
+insert into hdbk.dictionary (code, name, info, dictionary_type)
+select 
+decode(code, 'da','DEBIT_ADJUSTMENT','ca','CREDIT_ADJUSTMENT','clb','CREDIT_LIMIT_BLOCK','clu','CREDIT_LIMIT_UNBLOCK','rvk','REVOKE') a,
+code,
+---name,
+details,
+'TRANS_TYPE'
+from blng.trans_type
+where code in ('da','ca','clb','clu','rvk');
+commit;
+
+update blng.transaction  set trans_type_oid = hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=> decode((select code from blng.trans_type where id = trans_type_oid),'b','BUY','da','DEBIT_ADJUSTMENT','ca','CREDIT_ADJUSTMENT','clb','CREDIT_LIMIT_BLOCK','clu','CREDIT_LIMIT_UNBLOCK','rvk','REVOKE',
+'d','DEPOSIT','l','LOAN','cl','CREDIT_LIMIT','clb','CREDIT_LIMIT_BLOCK',
+'do','DEBIT_ONLINE','co','CREDIT_ONLINE','ult','UP_LIM_TRANS','dd','DELAY_DAYS','ci','CASH_IN'));
+commit;
+
+-------------
+drop table HDBK.MARKUP_TYPE;
+drop table BLNG.ACCOUNT_TYPE;
+drop table BLNG.STATUS_TYPE;
+drop table BLNG.TRANS_TYPE;
+drop table BLNG.EVENT_TYPE;
+
+drop SEQUENCE BLNG.acct_seq;
+drop SEQUENCE BLNG.ett_seq;
+drop SEQUENCE BLNG.stt_seq;
+drop SEQUENCE BLNG.trt_seq;
+drop SEQUENCE hdbk.mkpt_seq;
+
 
 
 @dba/GRANTS.sql;

@@ -349,7 +349,7 @@ END CORE;
         if i_document.amount < 0 then raise VALUE_ERROR; end if;
         r_account := blng.blng_api.account_get_info_r(p_contract => i_document.contract_oid, p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'UP_LIM_TRANS') );
         v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => i_document.id,P_AMOUNT => abs(i_document.amount)-abs(r_account.amount),
-          P_TRANS_TYPE => BLNG.blng_api.trans_type_get_id(p_code=>'ult'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
+          P_TRANS_TYPE => hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=> 'UP_LIM_TRANS'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
         blng.blng_api.document_edit(i_document.id, 'P');
         commit;
       exception
@@ -380,7 +380,7 @@ END CORE;
         if i_document.amount < 0 then raise VALUE_ERROR; end if;
         r_account := blng.blng_api.account_get_info_r(p_contract => i_document.contract_oid, p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'CREDIT_LIMIT')  );
         v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => i_document.id,P_AMOUNT => abs(i_document.amount)-abs(r_account.amount),
-          P_TRANS_TYPE => BLNG.blng_api.trans_type_get_id(p_code=>'cl'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
+          P_TRANS_TYPE => hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'CREDIT_LIMIT'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
         --blng.blng_api.document_edit(i_document.id, p_account_trans_type=> hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'CREDIT_LIMIT'), p_status_ );
         blng.blng_api.document_edit(i_document.id, 'P');
         commit;
@@ -411,7 +411,7 @@ END CORE;
         if i_document.amount < 0 then raise VALUE_ERROR; end if;
         r_account := blng.blng_api.account_get_info_r(p_contract => i_document.contract_oid, p_account_type => hdbk.core.dictionary_get_id(p_dictionary_type=>'ACCOUNT_TYPE',p_code=> 'DELAY_DAYS')  );
         v_transaction := BLNG.BLNG_API.transaction_add_with_acc(P_DOC => i_document.id,P_AMOUNT => abs(i_document.amount)-abs(r_account.amount),
-          P_TRANS_TYPE => BLNG.blng_api.trans_type_get_id(p_code=>'dd'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
+          P_TRANS_TYPE => hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'DELAY_DAYS'), P_TRANS_DATE => sysdate, P_TARGET_ACCOUNT => r_account.id);
         blng.blng_api.document_edit(i_document.id, 'P');
         commit;
       exception

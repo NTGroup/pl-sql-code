@@ -301,7 +301,7 @@ $obj_param: p_contract: contract id
                                 )
   return hdbk.dtype.t_id;*/
 
-  function trans_type_add( p_name in hdbk.dtype.t_name default null,
+/*  function trans_type_add( p_name in hdbk.dtype.t_name default null,
                             p_code in hdbk.dtype.t_code default null,
                             p_details in hdbk.dtype.t_msg default null
                           )
@@ -322,7 +322,7 @@ $obj_param: p_contract: contract id
   function trans_type_get_id (    p_name in hdbk.dtype.t_name default null,
                                   p_code in hdbk.dtype.t_code default null
                                 )
-  return hdbk.dtype.t_id;
+  return hdbk.dtype.t_id;*/
 
 /*  function account_type_add( p_name in hdbk.dtype.t_name default null,
                             p_code in hdbk.dtype.t_code default null,
@@ -1530,7 +1530,7 @@ $TODO: all this nullable fields are bad. document_get_info
     RAISE_APPLICATION_ERROR(-20002,'select row into event error. '||SQLERRM);
   end;
 
-
+/*
   function status_type_add( p_name in hdbk.dtype.t_name default null,
                             p_code in hdbk.dtype.t_code default null,
                             p_details in hdbk.dtype.t_msg default null
@@ -1943,7 +1943,7 @@ $TODO: all this nullable fields are bad. document_get_info
     hdbk.log_api.LOG_ADD(p_proc_name=>'status_type_get_info', p_msg_type=>'UNHANDLED_ERROR');
     RAISE_APPLICATION_ERROR(-20002,'select row into status_type error. '||SQLERRM);
   end;
-
+*/
 
   function delay_add( p_contract in hdbk.dtype.t_id default null,
                       p_amount in hdbk.dtype.t_amount default null,

@@ -725,7 +725,7 @@ ALTER TRIGGER BLNG.acc_TRGR ENABLE;
 --------------------------------------------------------
 --  DDL for Table 
 --------------------------------------------------------
-
+/*
   CREATE TABLE blng.trans_type 
    (	ID NUMBER(18,0), 
    amnd_date date,
@@ -770,7 +770,7 @@ ALTER TABLE BLNG.trans_type  MODIFY (AMND_STATE DEFAULT  on null  'A' );
   increment by 1
   start with 1
   nomaxvalue
-  nocache /*!!!*/
+  nocache 
   nocycle
   order;
   
@@ -790,7 +790,7 @@ FOR EACH ROW
 end;
 /
 ALTER TRIGGER BLNG.trt_TRGR ENABLE;
-
+*/
 /
 
 /* documents */
@@ -850,8 +850,8 @@ ALTER TABLE BLNG.document  MODIFY (STATUS DEFAULT on null 'W' );
 ALTER TABLE BLNG.document ADD CONSTRAINT DOC_CNTR_OID_FK FOREIGN KEY (contract_oid)
   REFERENCES BLNG.contract (ID) ENABLE;
 
-ALTER TABLE BLNG.document ADD CONSTRAINT DOC_TRT_OID_FK FOREIGN KEY (trans_type_oid)
-  REFERENCES BLNG.trans_type (ID) ENABLE;
+/*ALTER TABLE BLNG.document ADD CONSTRAINT DOC_TRT_OID_FK FOREIGN KEY (trans_type_oid)
+  REFERENCES BLNG.trans_type (ID) ENABLE;*/
 
 ALTER TABLE BLNG.document ADD CONSTRAINT DOC_BILL_OID_FK FOREIGN KEY (bill_oid)
   REFERENCES ord.bill (ID) ENABLE;
@@ -934,9 +934,9 @@ ALTER TABLE BLNG.transaction  MODIFY (AMND_STATE DEFAULT  on null  'A' );
 ALTER TABLE BLNG.transaction ADD CONSTRAINT TRN_ACC_OID_FK FOREIGN KEY (target_account_oid)
   REFERENCES BLNG.account (ID) ENABLE;
 
-
+/*
 ALTER TABLE BLNG.transaction ADD CONSTRAINT TRN_TRT_OID_FK FOREIGN KEY (trans_type_oid)
-  REFERENCES BLNG.trans_type (ID) ENABLE;
+  REFERENCES BLNG.trans_type (ID) ENABLE;*/
 
 ALTER TABLE BLNG.transaction ADD CONSTRAINT TRN_DOC_OID_FK FOREIGN KEY (doc_oid)
   REFERENCES BLNG.document (ID) ENABLE;
@@ -1472,7 +1472,7 @@ CREATE bitmap INDEX blng.acc_AS_IDX ON blng.account (amnd_state) TABLESPACE USER
 CREATE bitmap INDEX blng.dly_AS_IDX ON blng.delay (amnd_state) TABLESPACE USERS ;
 CREATE bitmap INDEX blng.dmn_AS_IDX ON blng.domain (amnd_state) TABLESPACE USERS ;
 CREATE bitmap INDEX blng.usrd_AS_IDX ON blng.USR_DATA (amnd_state) TABLESPACE USERS ;
-CREATE bitmap INDEX blng.trt_AS_IDX ON blng.trans_type (amnd_state) TABLESPACE USERS ;
+--CREATE bitmap INDEX blng.trt_AS_IDX ON blng.trans_type (amnd_state) TABLESPACE USERS ;
 --CREATE bitmap INDEX blng.ett_AS_IDX ON blng.event_type (amnd_state) TABLESPACE USERS ;
 --CREATE bitmap INDEX blng.stt_AS_IDX ON blng.status_type (amnd_state) TABLESPACE USERS ;
 --CREATE bitmap INDEX blng.acct_AS_IDX ON blng.account_type (amnd_state) TABLESPACE USERS ;
