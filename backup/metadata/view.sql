@@ -526,14 +526,19 @@ transaction.trans_date transaction_date,
 transaction.amount amount,
 dictionary.code transaction_type,
 contract.utc_offset
-from blng.document,blng.transaction,hdbk.dictionary, blng.contract where 
+from blng.document,blng.transaction,hdbk.dictionary, blng.contract,
+(
+select hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=> 'CREDIT_ADJUSTMENT') ADJUSTMENT from dual
+union all
+select hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=> 'DEBIT_ADJUSTMENT') ADJUSTMENT from dual
+) TRANS_TYPE
+where 
 document.amnd_state = 'A'
 and document.status = 'P'
 and transaction.amnd_state = 'A'
 and transaction.status = 'P'
 and transaction.doc_oid = document.id
-and transaction.trans_type_oid not in (hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=> 'DEBIT_ADJUSTMENT'),
-hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=> 'CREDIT_ADJUSTMENT'))
+and transaction.trans_type_oid <> trans_type.ADJUSTMENT
 and dictionary.id = document.account_trans_type_oid
 and document.contract_oid = contract.id
 and contract.amnd_state in  ('A','C')
