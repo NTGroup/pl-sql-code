@@ -1,6 +1,3 @@
-
-/
-
 CREATE OR REPLACE PACKAGE ORD.FWDR AS 
 
 
@@ -15,11 +12,12 @@ $pkg: ORD.FWDR
 
 $obj_type: function
 $obj_name: order_create
-$obj_desc: fake function. used in avia_register for creating emty order
-$obj_param: p_date: date for wich we need create order
-$obj_param: p_order_number: number could set or generate inside
-$obj_param: p_status: status like 'W' waiting or smth else 
-$obj_return: id of created order
+$obj_desc: for creating empty order
+$obj_param: p_date(t_date): is null. date for which we need to create order. now equals sysdate 
+$obj_param: p_order_number(t_long_code): is null. number could set or generate inside. now generates by p_user
+$obj_param: p_user(t_id): is not null. number could set or generate inside
+$obj_param: p_status(t_status): is null. status like 'W' waiting or smth else. now equals 'A' 
+$obj_return: id(t_id) of created order
 
 */
   function order_create(p_date  in hdbk.dtype.t_date default null, 
@@ -53,14 +51,14 @@ $obj_return: id of created item
 $obj_type: procedure
 $obj_name: avia_update
 $obj_desc: procedure update item_avia row searched by pnr_id.
-$obj_param: p_pnr_id: id from NQT. search perform by this id
-$obj_param: p_pnr_locator: record locator just for info
-$obj_param: p_time_limit: time limit just for info
-$obj_param: p_total_amount: total amount including markup
-$obj_param: p_total_markup: just total markup
-$obj_param: p_pnr_object: json for backup
-$obj_param: p_nqt_status: current NQT process
-$obj_param: p_tenant_id: id of contract in text format, for authorization
+$obj_param: p_pnr_id(t_long_code): id from NQT. search perform by this id
+$obj_param: p_pnr_locator(t_long_code): record locator just for info
+$obj_param: p_time_limit(t_date): time limit just for info
+$obj_param: p_total_amount(t_amount): total amount including markup
+$obj_param: p_total_markup(t_amount): just total markup
+$obj_param: p_pnr_object(t_clob): json for backup from nqt db
+$obj_param: p_nqt_status(t_long_code): current NQT process
+$obj_param: p_tenant_id(t_long_code): id of contract in text format, for authorization
 
 */
 
@@ -80,9 +78,16 @@ $obj_type: procedure
 $obj_name: avia_reg_ticket
 $obj_desc: procedure get ticket info by pnr_id.
 $obj_desc: its create row for ticket. later this info will send to managers
-$obj_param: p_pnr_id: id from NQT. search perform by this id
-$obj_param: p_tenant_id: id of contract in text format, for authorization
-$obj_param: p_ticket: json[p_number,p_name,p_fare_amount,p_tax_amount,p_markup_amount,p_type]
+$obj_param: p_pnr_id(t_long_code): is not null. id from NQT. search perform by this id
+$obj_param: p_tenant_id(t_long_code): is not null. id of contract in text format, for authorization
+$obj_param: p_ticket: json {
+$obj_param: p_ticket:   p_number(t_long_code) is null - ticket number
+$obj_param: p_ticket:   p_name(t_name) is null - passenger FIRST_NAME + LAST_NAME
+$obj_param: p_ticket:   p_fare_amount(t_amount) is null - fare amount
+$obj_param: p_ticket:   p_tax_amount(t_amount) is null - taxes amount
+$obj_param: p_ticket:   p_markup_amount(t_amount) is null - markup amount
+$obj_param: p_ticket:   p_type(t_code) is null - passenger age type ADT, CNN, INF, etc.
+$obj_param: p_ticket: }
 
 */
   procedure avia_reg_ticket(  p_pnr_id in hdbk.dtype.t_long_code default null,
@@ -95,8 +100,8 @@ $obj_param: p_ticket: json[p_number,p_name,p_fare_amount,p_tax_amount,p_markup_a
 $obj_type: procedure
 $obj_name: avia_pay
 $obj_desc: procedure send all bills in status [M]arked to [W]aiting in billing for pay.
-$obj_param: p_user_id: user identifire. at this moment email
-$obj_param: p_pnr_id: id from NQT. search perform by this id
+$obj_param: p_user_id(t_long_code): is not null. user identifire. at this moment email
+$obj_param: p_pnr_id(t_long_code): is not null. id from NQT. search perform by this id
 
 */
   procedure avia_pay( p_user_id in hdbk.dtype.t_long_code default null,
@@ -139,23 +144,47 @@ $obj_desc: fake
 $obj_type: function
 $obj_name: pnr_list
 $obj_desc: get pnr list whith statuses listed in p_nqt_status_list and with paging by p_rownum count.
-$obj_param: p_nqt_status_list: json[status]
-$obj_param: p_rownum: filter for rows count
-$obj_return: sys_refcursor[pnr_id, nqt_status, po_status, nqt_status_cur, null po_msg, 'avia' item_type, pnr_locator, tenant_id]
+$obj_desc: written for yaNQT.
+$obj_param: p_nqt_status_list(t_clob): is null. list of statuses. json {
+$obj_param: p_nqt_status_list(t_clob):   status(t_long_code) - status name
+$obj_param: p_nqt_status_list(t_clob): }
+$obj_param: p_rownum(t_id): is null. filter for rows count. if null then fetch all rows
+$obj_return: sys_refcursor {
+$obj_return:   pnr_id(t_long_code) - id from nqt
+$obj_return:   nqt_status(t_long_code) - name of task that scheduled by NQT and processed by PO
+$obj_return:   po_status(t_long_code) - progress status of task that scheduled by nqt
+$obj_return:   nqt_status_cur(t_long_code) - name of current task that scheduled by nqt
+$obj_return:   po_msg(t_msg) is null - equal NULL
+$obj_return:   item_type(t_long_code) is not null  - equal 'avia' 
+$obj_return:   pnr_locator(t_long_code) - pnr locator code
+$obj_return:   tenant_id(t_long_code) - id of contract
+$obj_return: }
 
 */
-  function pnr_list(p_nqt_status_list in hdbk.dtype.t_clob, p_rownum in hdbk.dtype.t_id default null)
+  function pnr_list(p_nqt_status_list in hdbk.dtype.t_clob, 
+                    p_rownum in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 
 /*
 
 $obj_type: function
 $obj_name: pnr_list
-$obj_desc: get pnr list whith id listed in p_pnr_list.
-$obj_param: p_pnr_list: json[p_pnr_id,p_tenant_id], where
-$obj_param: p_pnr_id: id from NQT. search perform by this id
-$obj_param: p_tenant_id: id of contract in text format, for authorization
-$obj_return: sys_refcursor[pnr_id, nqt_status, po_status, nqt_status_cur, null po_msg, 'avia' item_type, pnr_locator,tenant_id]
+$obj_desc: get pnr list whith id listed in p_pnr_list. written for NQT.
+$obj_param: p_pnr_list(t_clob): is not null. json {
+$obj_param: p_pnr_list(t_clob):   p_pnr_id(t_long_code) is not null - id from NQT. search perform by this id
+$obj_param: p_pnr_list(t_clob):   p_tenant_id(t_long_code) is not null - id of contract in text format, for authorization
+$obj_param: p_pnr_list(t_clob): }
+$obj_param: p_rownum(t_id): is null. filter for rows count. if null then fetch all rows
+$obj_return: sys_refcursor {
+$obj_return:   pnr_id(t_long_code) - id from nqt
+$obj_return:   nqt_status(t_long_code) - name of task that scheduled by NQT and processed by PO
+$obj_return:   po_status(t_long_code) - progress status of task that scheduled by nqt
+$obj_return:   nqt_status_cur(t_long_code) - name of current task that scheduled by nqt
+$obj_return:   po_msg(t_msg) is null - equal NULL
+$obj_return:   item_type(t_long_code) is not null  - equal 'avia' 
+$obj_return:   pnr_locator(t_long_code) - pnr locator code
+$obj_return:   tenant_id(t_long_code) - id of contract
+$obj_return: }
 
 */
  
@@ -166,11 +195,11 @@ $obj_return: sys_refcursor[pnr_id, nqt_status, po_status, nqt_status_cur, null p
 
 $obj_type: procedure
 $obj_name: commission_get
-$obj_desc: calculate commission for pnr_id
-$obj_param: p_pnr_id: id from NQT. search perform by this id
-$obj_param: p_tenant_id: id of contract in text format, for authorization
-$obj_param: o_fix: in this paraveter returned fix commission value
-$obj_param: o_percent: in this paraveter returned percent commission value
+$obj_desc: calculates commission for pnr_id
+$obj_param: p_pnr_id(t_long_code): is not null. id from NQT. search perform by this id
+$obj_param: p_tenant_id(t_long_code): is not null. id of contract in text format, for authorization
+$obj_param: o_fix(t_amount): is null. in this parameter returned fix commission value
+$obj_param: o_percent(t_amount): is null. in this parameter returned percent commission value
 
 */
   procedure commission_get( p_pnr_id in hdbk.dtype.t_long_code,
@@ -183,9 +212,9 @@ $obj_param: o_percent: in this paraveter returned percent commission value
 
 $obj_type: function
 $obj_name: order_number_generate
-$obj_desc: generate order number as last number + 1 by user id
-$obj_param: p_user: user id.
-$obj_return: string like 0012410032, where 1241 - user id and 32 is a counter of order
+$obj_desc: generates order number as last number + 1 by user id
+$obj_param: p_user(t_id): is not null. user id.
+$obj_return: string(t_long_code) like 0012410032, where 1241 - user id and 32 is a counter of order
 
 */
 
@@ -196,10 +225,10 @@ $obj_return: string like 0012410032, where 1241 - user id and 32 is a counter of
 
 $obj_type: procedure
 $obj_name: avia_manual
-$obj_desc: update order status to p_result[ERROR/SUCCESS] or to INPROGRESS, if ERROR then return all money.
-$obj_param: p_pnr_id: id from NQT. search perform by this id
-$obj_param: p_tenant_id: id of contract in text format, for authorization
-$obj_param: p_result: [ERROR/SUCCESS/ if null then INPROGRESS] 
+$obj_desc: update order status to p_result, if p_result = ERROR then return all money.
+$obj_param: p_pnr_id(t_long_code): is not null. id from NQT. search perform by this id
+$obj_param: p_tenant_id(t_long_code): is not null. id of contract in text format, for authorization
+$obj_param: p_result(t_long_code): is null. ERROR, SUCCESS, INPROGRESS. if null then INPROGRESS 
 
 */
   procedure avia_manual( p_pnr_id in hdbk.dtype.t_long_code default null, 
@@ -212,7 +241,7 @@ $obj_type: procedure
 $obj_name: cash_back
 $obj_desc: perform reverse for order scheme. return bill to Waiting status
 $obj_desc: and call revoke_document from billing
-$obj_param: p_pnr_id: id from NQT. search perform by this id
+$obj_param: p_pnr_id(t_long_code): is not null. id from NQT. search perform by this id
 */
   procedure cash_back(p_pnr_id in hdbk.dtype.t_long_code);
 
@@ -228,8 +257,34 @@ $obj_desc: fake
 $obj_type: function
 $obj_name: rule_view
 $obj_desc: return all rules by iata code of airline
-$obj_param: p_iata: iata 2 char code
-$obj_return: SYS_REFCURSOR[fields from v_rule view]
+$obj_param: p_iata(t_code): is not null. iata 2 char code
+$obj_return: SYS_REFCURSOR {
+$obj_return:   AIRLINE_ID(t_id) is not null - id of airline
+$obj_return:   IATA(t_code) is null - airline iata code
+$obj_return:   NLS_AIRLINE(t_name) is not null - name of airline
+$obj_return:   CONTRACT_TYPE_ID(t_id) is not null - id of contract type with airline. self, code-share, interline
+$obj_return:   TENANT_ID(t_id) is not null - id of the contract
+$obj_return:   CONTRACT_TYPE_NAME(t_long_code) is not null - name of contract type with airline. self, code-share, interline
+$obj_return:   RULE_ID(t_id) is not null - id of the rule. rules is a statements describes how to calculate commission.
+$obj_return:   RULE_DESCRIPTION(t_msg) is null - some additional info. this copied from document.
+$obj_return:   RULE_AMOUNT(t_amount) is null - amount of rule
+$obj_return:   RULE_MIN_ABSOLUTE(t_amount) is null - minimal absolute amount for rules with percents
+$obj_return:   RULE_AMOUNT_MEASURE(t_long_code) is null - measure of rule. percent, fix
+$obj_return:   PRIORITY(t_id) is null - number for ordering
+$obj_return:   RULE_LIFE_FROM(t_long_code) is null - rule is active due to this dates. date from  
+$obj_return:   RULE_LIFE_TO(t_long_code) is null - rule is active due to this dates. date to
+$obj_return:   CONDITION_ID(t_id) is null - id of condition. condition its additional parameters into rule.
+$obj_return:   TEMPLATE_TYPE_ID(t_id) is not null - template id. template is a statement for description conditions.
+$obj_return:   TEMPLATE_TYPE(t_long_code) is not null - name of template
+$obj_return:   TEMPLATE_TYPE_CODE(t_long_code) is null - code of template
+$obj_return:   TEMPLATE_VALUE(t_msg) is null - value for this template
+$obj_return:   IS_VALUE(t_status) is null - flag. is this template nead a value?
+$obj_return:   CURRENCY(t_code) is null - currency of rule amount
+$obj_return:   PER_SEGMENT(t_status) is not null - flag. is this rule calculated for each segment? else for ticket.
+$obj_return:   PER_FARE(t_status) is not null - flag. is this rule calculated only for fare? else for full amount.
+$obj_return:   RULE_TYPE(t_long_code) is null - type of rule. commission, markup
+$obj_return:   MARKUP_TYPE(t_long_code) is null - base, partner, etc.
+$obj_return: }
 */
   function rule_view( 
                       p_rule_id in hdbk.dtype.t_id default null,
@@ -247,9 +302,9 @@ $obj_return: SYS_REFCURSOR[fields from v_rule view]
 $obj_type: procedure
 $obj_name: avia_create
 $obj_desc: procedure create item_avia row only. it cant update item. add PNR info like who, where, when
-$obj_param: p_pnr_id: id from NQT. search perform by this id
-$obj_param: p_user_id: user identifire. at this moment email
-$obj_param: p_itinerary: PNR info like who, where, when
+$obj_param: p_pnr_id(t_long_code): is not null. id from NQT. search perform by this id
+$obj_param: p_user_id(t_long_code): is not null. user identifire. at this moment email
+$obj_param: p_itinerary(t_clob): is null. PNR info like who, where, when
 
 */
 
@@ -264,8 +319,8 @@ $obj_param: p_itinerary: PNR info like who, where, when
 $obj_type: procedure
 $obj_name: avia_booked
 $obj_desc: procedure send item/order/bill to billing for pay.
-$obj_param: p_pnr_id: id from NQT. search perform by this id
-$obj_param: p_user_id: user identifire. at this moment email
+$obj_param: p_pnr_id(t_long_code): is not null. id from NQT. search perform by this id
+$obj_param: p_user_id(t_long_code): is not null. user identifire. at this moment email
 
 */
   procedure avia_booked(
@@ -279,9 +334,19 @@ $obj_type: function
 $obj_name: pos_rule_get
 $obj_desc: when p_version is null then return all active rows. if not null then  
 $obj_desc: get all active and deleted rows that changed after p_version id
-$obj_param: p_version: id
-$obj_return: SYS_REFCURSOR[ID, TENANT_ID, VALIDATING_CARRIER,booking_pos,ticketing_pos,stock,printer,VERSION, IS_ACTIVE]
-$obj_return: default tenant_id = 0, default validating_carrier = 'YY'
+$obj_param: p_version(t_id): is null. id
+$obj_return: SYS_REFCURSOR {
+$obj_return:   ID(t_id) is not null - rule id
+$obj_return:   TENANT_ID(t_id) is not null - id of contract. default value 0
+$obj_return:   VALIDATING_CARRIER(t_code) is not null - airline code. default value 'YY'
+$obj_return:   booking_pos(t_code) is not null - pos code. in that pos ticket must be booked
+$obj_return:   ticketing_pos(t_code) is not null - pos code. in that pos ticket must be issued?
+$obj_return:   stock(t_code) is not null - code of country where stock is situated 
+$obj_return:   printer(t_code) is not null - code of printer
+$obj_return:   VERSION(t_id) is not null - current last id from table 
+$obj_return:   IS_ACTIVE(t_status) is not null - flag. is it pos_rule active?
+$obj_return: }
+
 */  
   function pos_rule_get(p_version in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
@@ -292,9 +357,19 @@ $obj_type: function
 $obj_name: pos_rule_edit
 $obj_desc: update pos_rules or create new pos_rules. if success return true else false.
 $obj_desc: if status equals [C]lose or [D]elete then delete pos_rule.
-$obj_param: p_data: data for update. format json[id, tenant_id, validating_carrier, 
-$obj_param: p_data: booking_pos, ticketing_pos, stock, printer, status]
-$obj_return: SYS_REFCURSOR[res:true/false]
+$obj_param: p_data(t_clob): data for update. format json {
+$obj_param: p_data(t_clob):   ID(t_id) is not null - rule id
+$obj_param: p_data(t_clob):   TENANT_ID(t_id) is not null - id of contract. default value 0
+$obj_param: p_data(t_clob):   VALIDATING_CARRIER(t_code) is not null - airline code. default value 'YY'
+$obj_param: p_data(t_clob):   booking_pos(t_code) is not null - pos code. in that pos ticket must be booked
+$obj_param: p_data(t_clob):   ticketing_pos(t_code) is not null - pos code. in that pos ticket must be issued?
+$obj_param: p_data(t_clob):   stock(t_code) is not null - code of country where stock is situated 
+$obj_param: p_data(t_clob):   printer(t_code) is not null - code of printer
+$obj_param: p_data(t_clob):   status(t_status) is null - status of pos_rule. if 'C' or 'D' then delete this pos_rule
+$obj_param: p_data(t_clob): }
+$obj_return: SYS_REFCURSOR {
+$obj_return:   res(t_code) is not null - 'true' is SUCCESS, else 'false'
+$obj_return: }
 */
   function pos_rule_edit(p_data in hdbk.dtype.t_clob)
   return SYS_REFCURSOR;
@@ -303,12 +378,34 @@ $obj_return: SYS_REFCURSOR[res:true/false]
 /*
 $obj_type: function
 $obj_name: rule_add
-$obj_desc: add rule.
-$obj_param: p_data: data for update. format json[AIRLINE_IATA, tenant_ID, contract_type_id, RULE_ID, 
-$obj_param: p_data: RULE_DESCRIPTION, RULE_LIFE_FROM, RULE_LIFE_TO, RULE_AMOUNT, 
-$obj_param: p_data: RULE_AMOUNT_MEASURE, RULE_PRIORITY, CONDITION_ID,condition_status, TEMPLATE_TYPE_ID, 
-$obj_param: p_data: TEMPLATE_NAME_NLS, TEMPLATE_VALUE]
-$obj_return: SYS_REFCURSOR[res:true/false]
+$obj_desc: add new rule
+$obj_param: p_data: data for add new rule. format json {
+$obj_param: p_data:   AIRLINE_IATA(t_code) is null - airline iata code
+$obj_param: p_data:   TENANT_ID(t_id) is not null - id of the contract
+$obj_param: p_data:   CONTRACT_TYPE_ID(t_id) is not null - id of contract type with airline. self, code-share, interline
+$obj_param: p_data:   RULE_ID(t_id) is not null - id of the rule. rules is a statements describes how to calculate commission.
+$obj_param: p_data:   RULE_DESCRIPTION(t_msg) is null - some additional info. this copied from document.
+$obj_param: p_data:   RULE_AMOUNT(t_amount) is null - amount of rule
+$obj_param: p_data:   RULE_MIN_ABSOLUTE(t_amount) is null - minimal absolute amount for rules with percents
+$obj_param: p_data:   RULE_AMOUNT_MEASURE(t_long_code) is null - measure of rule. percent, fix
+$obj_param: p_data:   RULE_PRIORITY(t_id) is not null - number for ordering
+$obj_param: p_data:   RULE_STATUS(t_status) is null - status of rule. if 'C' or 'D' then delete this pos_rulestatus of pos_rule. if 'C' or 'D' then delete this rule
+$obj_param: p_data:   RULE_LIFE_FROM(t_long_code) is null - rule is active due to this dates. date from  
+$obj_param: p_data:   RULE_LIFE_TO(t_long_code) is null - rule is active due to this dates. date to
+$obj_param: p_data:   PER_SEGMENT(t_status) is not null - flag. is this rule calculated for each segment? else for ticket.
+$obj_param: p_data:   PER_FARE(t_status) is not null - flag. is this rule calculated only for fare? else for full amount.
+$obj_param: p_data:   RULE_TYPE(t_long_code) is null - type of rule. commission, markup
+$obj_param: p_data:   MARKUP_TYPE(t_long_code) is null - base, partner, etc.
+$obj_param: p_data:   CURRENCY(t_code) is null - currency of rule amount
+$obj_param: p_data:   CONDITION_ID(t_id) is null - id of condition. condition its additional parameters into rule.
+$obj_param: p_data:   CONDITION_STATUS(t_status) is null - status of condition. if 'C' or 'D' then delete this pos_rulestatus of pos_rule. if 'C' or 'D' then delete this rulestatus of rule. if 'C' or 'D' then delete this pos_rulestatus of pos_rule. if 'C' or 'D' then delete this condition
+$obj_param: p_data:   TEMPLATE_TYPE_ID(t_id) is not null - template id. template is a statement for description conditions.
+$obj_param: p_data:   TEMPLATE_TYPE_NAME(t_long_code) is not null - name of template
+$obj_param: p_data:   TEMPLATE_VALUE(t_msg) is null - value for this template
+$obj_param: p_data: }
+$obj_return: SYS_REFCURSOR {
+$obj_return:   res(t_code) is not null - 'true' is SUCCESS, else 'false'
+$obj_return: }
 */
 
   function rule_add(p_data in hdbk.dtype.t_clob)
@@ -320,11 +417,30 @@ $obj_name: rule_edit
 $obj_desc: update rule info.
 $obj_desc: add new condition or update info. 
 $obj_desc: if condition status equals [D]elete then delete condition from rule. 
-$obj_param: p_data: data for update. format json[RULE_ID, 
-$obj_param: p_data: RULE_DESCRIPTION, RULE_LIFE_FROM, RULE_LIFE_TO, RULE_AMOUNT, 
-$obj_param: p_data: RULE_AMOUNT_MEASURE, RULE_PRIORITY, CONDITION_ID,condition_status, TEMPLATE_TYPE_ID, 
-$obj_param: p_data: TEMPLATE_NAME_NLS, TEMPLATE_VALUE]
-$obj_return: SYS_REFCURSOR[res:true/false]
+$obj_param: p_data: data for update rule. format json {
+$obj_param: p_data:   RULE_ID(t_id) is not null - id of the rule. rules is a statements describes how to calculate commission.
+$obj_param: p_data:   RULE_DESCRIPTION(t_msg) is null - some additional info. this copied from document.
+$obj_param: p_data:   RULE_AMOUNT(t_amount) is null - amount of rule
+$obj_param: p_data:   RULE_MIN_ABSOLUTE(t_amount) is null - minimal absolute amount for rules with percents
+$obj_param: p_data:   RULE_AMOUNT_MEASURE(t_long_code) is null - measure of rule. percent, fix
+$obj_param: p_data:   RULE_PRIORITY(t_id) is not null - number for ordering
+$obj_param: p_data:   RULE_STATUS(t_status) is null - status of rule. if 'C' or 'D' then delete this pos_rulestatus of pos_rule. if 'C' or 'D' then delete this rule
+$obj_param: p_data:   RULE_LIFE_FROM(t_long_code) is null - rule is active due to this dates. date from  
+$obj_param: p_data:   RULE_LIFE_TO(t_long_code) is null - rule is active due to this dates. date to
+$obj_param: p_data:   PER_SEGMENT(t_status) is not null - flag. is this rule calculated for each segment? else for ticket.
+$obj_param: p_data:   PER_FARE(t_status) is not null - flag. is this rule calculated only for fare? else for full amount.
+$obj_param: p_data:   RULE_TYPE(t_long_code) is null - type of rule. commission, markup
+$obj_param: p_data:   MARKUP_TYPE(t_long_code) is null - base, partner, etc.
+$obj_param: p_data:   CURRENCY(t_code) is null - currency of rule amount
+$obj_param: p_data:   CONDITION_ID(t_id) is null - id of condition. condition its additional parameters into rule.
+$obj_param: p_data:   CONDITION_STATUS(t_status) is null - status of condition. if 'C' or 'D' then delete this pos_rulestatus of pos_rule. if 'C' or 'D' then delete this rulestatus of rule. if 'C' or 'D' then delete this pos_rulestatus of pos_rule. if 'C' or 'D' then delete this condition
+$obj_param: p_data:   TEMPLATE_TYPE_ID(t_id) is not null - template id. template is a statement for description conditions.
+$obj_param: p_data:   TEMPLATE_VALUE(t_msg) is null - value for this template
+$obj_param: p_data: }
+$obj_return: SYS_REFCURSOR {
+$obj_return:   res(t_code) is not null - 'true' is SUCCESS, else 'false'
+$obj_return: }
+
 */
 
   function rule_edit(p_data in hdbk.dtype.t_clob)
@@ -335,8 +451,10 @@ $obj_return: SYS_REFCURSOR[res:true/false]
 $obj_type: function
 $obj_name: rule_delete
 $obj_desc: delete commission rule.
-$obj_param: p_rule_id: rule id
-$obj_return: SYS_REFCURSOR[res:true/false]
+$obj_param: p_rule_id(t_id): is not null. rule id
+$obj_return: SYS_REFCURSOR {
+$obj_return:   res(t_code) is not null - 'true' is SUCCESS, else 'false'
+$obj_return: }
 */
 
   function rule_delete(p_rule_id in hdbk.dtype.t_id)
@@ -346,29 +464,45 @@ $obj_return: SYS_REFCURSOR[res:true/false]
 /*
 $obj_type: function
 $obj_name: rule_template_list
-$obj_desc: return all commission templates
-$obj_param: p_is_contract_type: if 'Y' then return all contract_types else all template_types
-$obj_return: SYS_REFCURSOR[ID, TEMPLATE_TYPE, PRIORITY, DETAILS, IS_CONTRACT_TYPE, NAME, NLS_NAME, IS_VALUE]
+$obj_desc: if p_is_contract_type='Y' then returns all contract_types. else 
+$obj_desc: if p_is_markup_type = 'Y' then returns all markup_types. 
+$obj_desc: else returns all commission templates
+$obj_param: p_is_contract_type(t_status): is null. flag. is contract types requested?
+$obj_param: p_is_markup_type(t_status):  is null. flag. is markup types requested?
+$obj_return: SYS_REFCURSOR {
+$obj_return:   ID(t_id) is not null - type id
+$obj_return:   NAME(t_name) is not null - type name
+$obj_return: }
 */  
   function rule_template_list(p_is_contract_type in hdbk.dtype.t_status default null,
                               p_is_markup_type in hdbk.dtype.t_status default null)
   return SYS_REFCURSOR;
 
-/*
-$obj_type: function
-$obj_name: bill_import_list
-$obj_desc: return all bills info for import into 1C
-$obj_return: SYS_REFCURSOR[BILL_OID, ITEM, IS_NDS, FLIGHT_FROM, FLIGHT_TO, FARE_AMOUNT, CONTRACT_NUMBER, PASSENGER_NAME]
-*/  
-  function bill_import_list
+
+/*  function bill_import_list
   return SYS_REFCURSOR;
+*/
 
 /*
 $obj_type: function
 $obj_name: markup_rule_get
 $obj_desc: return all markup rules
 $obj_param: p_version: version id. filter new changes
-$obj_return: SYS_REFCURSOR[ID, IS_ACTIVE, VERSION, TENANT_ID, IATA, MARKUP_TYPE, RULE_AMOUNT, RULE_AMOUNT_MEASURE, MIN_ABSOLUT, PRIORITY, PER_SEGMENT,CONTRACT_TYPE,CONDITION_COUNT]
+$obj_return: SYS_REFCURSOR {
+$obj_return:   RULE_ID(t_id) is not null - id of the rule. rules is a statements describes how to calculate commission.
+$obj_return:   IS_ACTIVE(t_status) is not null - flag. is it pos_rule active?
+$obj_return:   VERSION(t_id) is not null - current last id from table 
+$obj_return:   TENANT_ID(t_id) is not null - id of the contract
+$obj_return:   IATA(t_code) is null - airline iata code
+$obj_return:   MARKUP_TYPE(t_long_code) is null - base, partner, etc.
+$obj_return:   RULE_AMOUNT(t_amount) is null - amount of rule
+$obj_return:   RULE_AMOUNT_MEASURE(t_long_code) is null - measure of rule. percent, fix
+$obj_return:   MIN_ABSOLUTE(t_amount) is null - minimal absolute amount for rules with percents
+$obj_return:   PRIORITY(t_id) is not null - number for ordering
+$obj_return:   PER_SEGMENT(t_status) is not null - flag. is this rule calculated for each segment? else for ticket.
+$obj_return:   CONTRACT_TYPE(t_long_code) is not null - name of contract type with airline. self, code-share, interline
+$obj_return:   CONDITION_COUNT(t_id) is not null - COUNT OF CONDITIONS FOR ir rule
+$obj_return: }
 */
   function markup_rule_get(p_version in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
@@ -377,15 +511,34 @@ $obj_return: SYS_REFCURSOR[ID, IS_ACTIVE, VERSION, TENANT_ID, IATA, MARKUP_TYPE,
 $obj_type: function
 $obj_name: markup_templ_get
 $obj_desc: return all markup templates for rule id
-$obj_param: p_rule_id: id of rule
-$obj_return: SYS_REFCURSOR[ID, TEMPLATE_TYPE_CODE, TEMPLATE_VALUE]
+$obj_param: p_rule_id(t_id): is not null. id of rule
+$obj_return: SYS_REFCURSOR {
+$obj_return:   ID(t_id) is not null - id of template
+$obj_return:   TEMPLATE_TYPE_CODE(t_id) is not null - code of template
+$obj_return:   TEMPLATE_VALUE(t_id) is not null - value for it template
+$obj_return: }
 */  
   function markup_templ_get(p_rule_id in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
   
+/*
+$obj_type: procedure
+$obj_name: check_request
+$obj_desc: authorize user or contract. check that pnr is correct
+$obj_param: p_contract(t_id): is not null. id of contract
+$obj_param: p_pnr_id(t_long_code): is not null. pnr id from nqt
+*/   
   procedure check_request(  p_contract in hdbk.dtype.t_id default null,
                             p_pnr_id in hdbk.dtype.t_long_code default null
                             );
+/*
+$obj_type: procedure
+$obj_name: check_request
+$obj_desc: authorize user or contract. check that pnr is correct
+$obj_param: p_email(t_long_code): is not null. email of user
+$obj_param: p_pnr_id(t_long_code): is not null. pnr id from nqt
+$obj_param: p_is_createp_is_create(t_statust_status): is null. if 'Y' then its creating procedure. default 'N'
+*/   
   procedure check_request(  
                             p_email in hdbk.dtype.t_long_code default null,
                             p_pnr_id in hdbk.dtype.t_long_code default null,
@@ -443,7 +596,21 @@ $obj_return: ID of dictionary 1C_PRODUCT_W_VAT code
                         p_amount in hdbk.dtype.t_amount default null)
   return SYS_REFCURSOR;
 
-  
+  procedure reg_task(
+                    p_task in hdbk.dtype.t_long_code default null,
+                    p_tenant_id in hdbk.dtype.t_long_code default null,
+                    p_user_id in hdbk.dtype.t_long_code default null,
+                    p_pnr_id in hdbk.dtype.t_long_code default null,
+                    p_data in hdbk.dtype.t_clob default null)
+                    ;
+
+
+
+  function reg_task_list(
+                    p_tenant_id in hdbk.dtype.t_long_code default null,
+                    p_pnr_id in hdbk.dtype.t_long_code default null,
+                    p_task in hdbk.dtype.t_long_code default null)
+  return SYS_REFCURSOR;  
   
 END FWDR;
 
@@ -1270,13 +1437,13 @@ END FWDR;
       isr.ticketing_pos,
       isr.stock,
       isr.printer,
-      (select max(id) from pos_rule)  version,
+      (select max(id) from ord.pos_rule)  version,
       decode(isr.amnd_state, 'A','Y','C','N','E') is_active
-      from pos_rule isr, hdbk.airline air
+      from ord.pos_rule isr, hdbk.airline air
       where air.amnd_state = 'A'
       and air.id = isr.airline_oid
       and ((isr.amnd_state in ('C','A') 
-            and isr.id in (select amnd_prev from pos_rule where id > p_version)
+            and isr.id in (select amnd_prev from ord.pos_rule where id > p_version)
             and p_version is not null)
         or
           (isr.amnd_state = 'A'
@@ -1284,7 +1451,7 @@ END FWDR;
           );
     return v_results;
   exception when others then
-      hdbk.log_api.LOG_ADD(p_proc_name=>'get_full', p_msg_type=>'UNHANDLED_ERROR');      
+      hdbk.log_api.LOG_ADD(p_proc_name=>'pos_rule_get', p_msg_type=>'UNHANDLED_ERROR');      
       RAISE_APPLICATION_ERROR(-20002,'select row into markup error. '||SQLERRM);
     return null;  
   end;
@@ -1830,7 +1997,7 @@ END FWDR;
     return null;  
   end;
 
-  function bill_import_list
+/*  function bill_import_list
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -1887,7 +2054,7 @@ END FWDR;
       RAISE_APPLICATION_ERROR(-20002,'select row error. '||SQLERRM);
     return null;  
   end;
-
+*/
 
   function markup_rule_get(p_version in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR
@@ -2549,6 +2716,109 @@ $TODO: there must be check for users with ISSUES permission
         open v_results for
           select 'ERROR' res from dual;
         return v_results;
+  end;
+
+
+
+  procedure reg_task(
+                    p_task in hdbk.dtype.t_long_code default null,
+                    p_tenant_id in hdbk.dtype.t_long_code default null,
+                    p_user_id in hdbk.dtype.t_long_code default null,
+                    p_pnr_id in hdbk.dtype.t_long_code default null,
+                    p_data in hdbk.dtype.t_clob default null)
+  is
+    v_event hdbk.dtype.t_id;
+    r_user blng.usr%rowtype;
+    r_contract blng.contract%rowtype;
+    v_results SYS_REFCURSOR; 
+    v_contract hdbk.dtype.t_id;
+    v_request hdbk.dtype.t_clob;
+  begin
+
+  v_contract:=to_number(p_tenant_id);
+
+      hdbk.log_api.LOG_ADD(p_proc_name=>'reg_task', p_msg_type=>'ok',
+      p_msg=>'p_task='||p_task||',p_tenant_id='||p_tenant_id||',p_user_id='||p_user_id||',p_pnr_id='||p_pnr_id||',p_data='||p_data);      
+--      if p_user_id is null or p_amount <= 0 then raise VALUE_ERROR; end if;
+
+      r_contract := blng.blng_api.contract_get_info_r(p_id=>v_contract);
+      r_user := blng.blng_api.usr_get_info_r(p_email=>p_user_id);
+
+            
+      v_event:= ord_api.event_add( 
+                    p_task =>p_task,
+                    p_contract =>r_contract.id,
+                    p_user =>r_user.id,
+                    p_pnr_id =>p_pnr_id,
+                    p_request =>P_DATA,
+                    --p_status =>,
+                    p_result => 'INPROGRESS',
+                    p_error => null
+                    )   ;      
+
+    COMMIT;
+    
+  exception 
+    when VALUE_ERROR then 
+      rollback;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'reg_task', p_msg_type=>'VALUE_ERROR');      
+
+    when hdbk.dtype.not_authorized then 
+      rollback;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'reg_task', p_msg_type=>'NOT_AUTHORIZED');      
+
+    when NO_DATA_FOUND then 
+      rollback;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'reg_task', p_msg_type=>'NO_DATA_FOUND');      
+
+    when others then
+      rollback;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'reg_task', p_msg_type=>'UNHANDLED_ERROR');      
+
+  end;
+
+
+
+  function reg_task_list(
+                    p_tenant_id in hdbk.dtype.t_long_code default null,
+                    p_pnr_id in hdbk.dtype.t_long_code default null,
+                    p_task in hdbk.dtype.t_long_code default null)
+  return SYS_REFCURSOR                    
+  is
+    v_results SYS_REFCURSOR; 
+    v_contract hdbk.dtype.t_id;
+    v_task1c hdbk.dtype.t_id;
+    v_request hdbk.dtype.t_clob;
+    r_user blng.usr%rowtype;
+  begin
+
+      hdbk.log_api.LOG_ADD(p_proc_name=>'reg_task_list', p_msg_type=>'ok',
+      p_msg=>'p_task='||p_task||',p_tenant_id='||p_tenant_id||',p_pnr_id='||p_pnr_id);      
+--      if p_user_id is null or p_amount <= 0 then raise VALUE_ERROR; end if;
+      
+      open v_results for
+        select task,pnr_id,result,error, contract_oid tenant_id from event
+        where amnd_state = 'A'
+        and status = 'A'
+        and contract_oid = nvl(to_number(p_tenant_id),contract_oid)
+        and task = nvl(p_task,task)
+        and pnr_id = nvl(p_pnr_id,pnr_id);
+        
+      return v_results;
+    
+  exception 
+    when VALUE_ERROR then 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'reg_task_list', p_msg_type=>'VALUE_ERROR');      
+
+    when hdbk.dtype.not_authorized then 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'reg_task_list', p_msg_type=>'NOT_AUTHORIZED');      
+
+    when NO_DATA_FOUND then 
+      hdbk.log_api.LOG_ADD(p_proc_name=>'reg_task_list', p_msg_type=>'NO_DATA_FOUND');      
+
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'reg_task_list', p_msg_type=>'UNHANDLED_ERROR');      
+
   end;
 
 

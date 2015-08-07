@@ -27,7 +27,8 @@ $obj_desc: this procedure executed from job scheduler
 */ 
   procedure doc_task_list;
 
-
+  procedure event_handler;
+  
 END CORE;
 
 /
@@ -496,6 +497,92 @@ END CORE;
       || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);
     RAISE_APPLICATION_ERROR(-20002,'bill_pay error. '||SQLERRM);
   end;*/
+
+  procedure event_handler
+  is
+--    v_ord_row ord%rowtype;
+    v_id hdbk.dtype.t_id;
+    v_order hdbk.dtype.t_id;
+    v_avia hdbk.dtype.t_id;
+    r_item_avia item_avia%rowtype;
+    r_item_avia_status item_avia_status%rowtype;
+    r_order ord%rowtype;
+    v_bill hdbk.dtype.t_id;
+    v_contract hdbk.dtype.t_id;
+    r_document blng.document%rowtype;
+    v_DOC hdbk.dtype.t_id;
+    
+  begin
+--  return;
+--      c_bill := ord_api.bill_get_info(p_status=>'W', p_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'BUY'));
+    
+    for i_event in ( select * from ord.event where amnd_state = 'A' 
+                    and status = 'A' 
+                    and result = 'INPROGRESS'
+                  )
+    LOOP
+      begin
+        if i_event.task = 'AVIA_CREATE' then
+          ord_api.event_edit(p_id=>i_event.id, p_result=>'SUCCESS');
+        end if;
+        
+        commit;             
+      exception
+/*        when hdbk.dtype.dead_lock then
+          rollback;
+          hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'DEAD_LOCK', P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
+        when hdbk.dtype.insufficient_funds then
+          rollback;
+          hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'Warning', P_MSG => 'insufficient_funds '||to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => ',p_process=set,p_status=D,p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
+          r_item_avia := ord_api.item_avia_get_info_r(p_order => r_bill.order_oid);
+          r_item_avia_status := ord_api.item_avia_status_get_info_r(p_item_avia => r_item_avia.id);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'ERROR',
+            P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
+            || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
+          ord_api.item_avia_status_edit (  p_item_avia => r_item_avia.id, p_po_status => 'ERROR',
+                                  p_nqt_status_cur => r_item_avia.nqt_status) ;  
+          ORD_API.bill_edit( P_id => r_bill.id, P_STATUS => 'M');   --[M]anaged
+          commit;
+        when hdbk.dtype.doc_waiting then
+          rollback;
+--???          v_waiting_contract := r_document.contract_oid;
+          hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'Warning', P_MSG => 'doc_waiting ' || to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20000)),p_info => 'p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>5);
+ --         ORD_API.bill_edit( P_id => r_bill.id, P_STATUS => 'W');   --[M]anaged
+ --         commit;
+        when VALUE_ERROR then
+          rollback;
+          hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'Warning', P_MSG => 'VALUE_ERROR ' || to_char(SQLCODE) || ' '|| TO_CHAR(SQLERRM(-20001)),p_info => ',p_process=set,p_status=D,p_doc=' || r_document.id || ',p_date=' || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>2);
+          r_item_avia := ord_api.item_avia_get_info_r(p_order => r_bill.order_oid);
+          r_item_avia_status := ord_api.item_avia_status_get_info_r(p_item_avia => r_item_avia.id);
+          hdbk.log_api.LOG_ADD(p_proc_name=>'core.buy', p_msg_type=>'ERROR',
+            P_MSG => to_char(SQLCODE) || ' '|| SQLERRM|| ' '|| chr(13)||chr(10)|| ' '|| sys.DBMS_UTILITY.format_call_stack,p_info => ',item_avia='|| r_item_avia.id||'p_process=update,p_table=item_avia_status,p_date='
+            || to_char(sysdate,'dd.mm.yyyy HH24:mi:ss'),P_ALERT_LEVEL=>10);          
+          ord_api.item_avia_status_edit (  p_item_avia => r_item_avia.id, p_po_status => 'ERROR',
+                                  p_nqt_status_cur => r_item_avia.nqt_status) ;  
+          ORD_API.bill_edit( P_id => r_bill.id, P_STATUS => 'M');   --[M]anaged
+          commit;*/
+        when others then
+          rollback;
+          hdbk.log_api.LOG_ADD(p_proc_name=>'event_handler', p_msg_type=>'Warning');
+          commit;
+      end;
+
+    END LOOP;
+ --   CLOSE c_bill;    
+
+    
+
+  exception 
+    when NO_DATA_FOUND then 
+      rollback;
+      null;
+    when others then
+      rollback;
+      hdbk.log_api.LOG_ADD(p_proc_name=>'event_handler', p_msg_type=>'UNHANDLED_ERROR');
+      --RAISE_APPLICATION_ERROR(-20002,'doc_task_list error. '||SQLERRM);
+  end;
+
+
 
 END CORE;
 

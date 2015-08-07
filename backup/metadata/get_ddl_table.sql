@@ -7,20 +7,20 @@ set feedback OFF
 SPOOL ../README.md;
 
 declare
-v_out varchar2(255);
-v_pkg varchar2(255);
-v_obj_type varchar2(255);
-v_obj_name varchar2(255);
-v_obj_desc varchar2(255);
-v_obj_desc_name varchar2(255);
-v_obj_desc_desc varchar2(255);
-v_obj_param_name varchar2(255);
-v_obj_param_desc varchar2(255);
-v_obj_param varchar2(255);
-v_obj_return varchar2(255);
-v_is_cursor varchar2(255):='N';
-v_is_tab varchar2(255):='N';
-v_text varchar2(255);
+v_out varchar2(2550);
+v_pkg varchar2(2550);
+v_obj_type varchar2(2550);
+v_obj_name varchar2(2550);
+v_obj_desc varchar2(2550);
+v_obj_desc_name varchar2(2550);
+v_obj_desc_desc varchar2(2550);
+v_obj_param_name varchar2(2550);
+v_obj_param_desc varchar2(2550);
+v_obj_param varchar2(2550);
+v_obj_return varchar2(2550);
+v_is_cursor varchar2(2550):='N';
+v_is_tab varchar2(2550):='N';
+v_text varchar2(2550);
 
 begin 
 for i in  (

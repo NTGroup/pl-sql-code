@@ -222,6 +222,24 @@ end;
 ALTER TRIGGER ord.sgm_TRGR ENABLE;
 /
 
+
+CREATE OR REPLACE EDITIONABLE TRIGGER ord.evnt_TRGR 
+BEFORE
+INSERT
+ON ord.event
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select evnt_SEQ.NEXTVAL into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
+end;
+/
+
+ALTER TRIGGER ord.evnt_TRGR ENABLE;
+
+/
+
+
 CREATE OR REPLACE EDITIONABLE TRIGGER hdbk.log_TRGR 
 BEFORE
 INSERT

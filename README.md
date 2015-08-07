@@ -492,13 +492,14 @@ this procedure executed from job scheduler
 
 ### _function_ ORD.FWDR.ORDER\_CREATE  
 _DESCRIPTION:_  
-fake function. used in avia\_register for creating emty order  
+for creating empty order  
 _PARAMETERS:_  
-**p\_date:** date for wich we need create order  
-**p\_order\_number:** number could set or generate inside  
-**p\_status:** status like 'w' waiting or smth else  
+**p\_date**(_t\_date_): is null. date for which we need to create order. now equals sysdate  
+**p\_order\_number**(_t\_long\_code_): is null. number could set or generate inside. now generates by p\_user  
+**p\_user**(_t\_id_): is not null. number could set or generate inside  
+**p\_status**(_t\_status_): is null. status like 'w' waiting or smth else. now equals 'a'  
 _RETURN:_  
-id of created order  
+id(t\_id) of created order  
 
 ### _function_ ORD.FWDR.ITEM\_ADD  
 _DESCRIPTION:_  
@@ -510,30 +511,39 @@ id of created item
 _DESCRIPTION:_  
 procedure update item\_avia row searched by pnr\_id.  
 _PARAMETERS:_  
-**p\_pnr\_id:** id from nqt. search perform by this id  
-**p\_pnr\_locator:** record locator just for info  
-**p\_time\_limit:** time limit just for info  
-**p\_total\_amount:** total amount including markup  
-**p\_total\_markup:** just total markup  
-**p\_pnr\_object:** json for backup  
-**p\_nqt\_status:** current nqt process  
-**p\_tenant\_id:** id of contract in text format, for authorization  
+**p\_pnr\_id**(_t\_long\_code_): id from nqt. search perform by this id  
+**p\_pnr\_locator**(_t\_long\_code_): record locator just for info  
+**p\_time\_limit**(_t\_date_): time limit just for info  
+**p\_total\_amount**(_t\_amount_): total amount including markup  
+**p\_total\_markup**(_t\_amount_): just total markup  
+**p\_pnr\_object**(_t\_clob_): json for backup from nqt db  
+**p\_nqt\_status**(_t\_long\_code_): current nqt process  
+**p\_tenant\_id**(_t\_long\_code_): id of contract in text format, for authorization  
 
 ### _procedure_ ORD.FWDR.AVIA\_REG\_TICKET  
 _DESCRIPTION:_  
 procedure get ticket info by pnr\_id.  
 its create row for ticket. later this info will send to managers  
 _PARAMETERS:_  
-**p\_pnr\_id:** id from nqt. search perform by this id  
-**p\_tenant\_id:** id of contract in text format, for authorization  
-**p\_ticket:** json[p\_number,p\_name,p\_fare\_amount,p\_tax\_amount,p\_markup\_amount,p\_type]  
+**p\_pnr\_id**(_t\_long\_code_): is not null. id from nqt. search perform by this id  
+**p\_tenant\_id**(_t\_long\_code_): is not null. id of contract in text format, for authorization  
+**p\_ticket:** json {  
+
+  * p\_number(t\_long\_code) is null - ticket number  
+  * p\_name(t\_name) is null - passenger first\_name + last\_name  
+  * p\_fare\_amount(t\_amount) is null - fare amount  
+  * p\_tax\_amount(t\_amount) is null - taxes amount  
+  * p\_markup\_amount(t\_amount) is null - markup amount  
+  * p\_type(t\_code) is null - passenger age type adt, cnn, inf, etc.  
+
+}  
 
 ### _procedure_ ORD.FWDR.AVIA\_PAY  
 _DESCRIPTION:_  
 procedure send all bills in status [m]arked to [w]aiting in billing for pay.  
 _PARAMETERS:_  
-**p\_user\_id:** user identifire. at this moment email  
-**p\_pnr\_id:** id from nqt. search perform by this id  
+**p\_user\_id**(_t\_long\_code_): is not null. user identifire. at this moment email  
+**p\_pnr\_id**(_t\_long\_code_): is not null. id from nqt. search perform by this id  
 
 ### _function_ ORD.FWDR.ORDER\_GET  
 _DESCRIPTION:_  
@@ -550,53 +560,84 @@ fake
 ### _function_ ORD.FWDR.PNR\_LIST  
 _DESCRIPTION:_  
 get pnr list whith statuses listed in p\_nqt\_status\_list and with paging by p\_rownum count.  
+written for yanqt.  
 _PARAMETERS:_  
-**p\_nqt\_status\_list:** json[status]  
-**p\_rownum:** filter for rows count  
+**p\_nqt\_status\_list**(_t\_clob_): is null. list of statuses. json {  
+
+  * status(t\_long\_code) - status name  
+
+}  
+**p\_rownum**(_t\_id_): is null. filter for rows count. if null then fetch all rows  
 _RETURN:_  
-sys\_refcursor[pnr\_id, nqt\_status, po\_status, nqt\_status\_cur, null po\_msg, 'avia' item\_type, pnr\_locator, tenant\_id]  
+sys\_refcursor {  
+
+  * pnr\_id(t\_long\_code) - id from nqt  
+  * nqt\_status(t\_long\_code) - name of task that scheduled by nqt and processed by po  
+  * po\_status(t\_long\_code) - progress status of task that scheduled by nqt  
+  * nqt\_status\_cur(t\_long\_code) - name of current task that scheduled by nqt  
+  * po\_msg(t\_msg) is null - equal null  
+  * item\_type(t\_long\_code) is not null  - equal 'avia'  
+  * pnr\_locator(t\_long\_code) - pnr locator code  
+  * tenant\_id(t\_long\_code) - id of contract  
+
+}  
 
 ### _function_ ORD.FWDR.PNR\_LIST  
 _DESCRIPTION:_  
-get pnr list whith id listed in p\_pnr\_list.  
+get pnr list whith id listed in p\_pnr\_list. written for nqt.  
 _PARAMETERS:_  
-**p\_pnr\_list:** json[p\_pnr\_id,p\_tenant\_id], where  
-**p\_pnr\_id:** id from nqt. search perform by this id  
-**p\_tenant\_id:** id of contract in text format, for authorization  
+**p\_pnr\_list**(_t\_clob_): is not null. json {  
+
+  * p\_pnr\_id(t\_long\_code) is not null - id from nqt. search perform by this id  
+  * p\_tenant\_id(t\_long\_code) is not null - id of contract in text format, for authorization  
+
+}  
+**p\_rownum**(_t\_id_): is null. filter for rows count. if null then fetch all rows  
 _RETURN:_  
-sys\_refcursor[pnr\_id, nqt\_status, po\_status, nqt\_status\_cur, null po\_msg, 'avia' item\_type, pnr\_locator,tenant\_id]  
+sys\_refcursor {  
+
+  * pnr\_id(t\_long\_code) - id from nqt  
+  * nqt\_status(t\_long\_code) - name of task that scheduled by nqt and processed by po  
+  * po\_status(t\_long\_code) - progress status of task that scheduled by nqt  
+  * nqt\_status\_cur(t\_long\_code) - name of current task that scheduled by nqt  
+  * po\_msg(t\_msg) is null - equal null  
+  * item\_type(t\_long\_code) is not null  - equal 'avia'  
+  * pnr\_locator(t\_long\_code) - pnr locator code  
+  * tenant\_id(t\_long\_code) - id of contract  
+
+}  
 
 ### _procedure_ ORD.FWDR.COMMISSION\_GET  
 _DESCRIPTION:_  
-calculate commission for pnr\_id  
+calculates commission for pnr\_id  
 _PARAMETERS:_  
-**p\_pnr\_id:** id from nqt. search perform by this id  
-**p\_tenant\_id:** id of contract in text format, for authorization  
-**o\_fix:** in this paraveter returned fix commission value  
-**o\_percent:** in this paraveter returned percent commission value  
+**p\_pnr\_id**(_t\_long\_code_): is not null. id from nqt. search perform by this id  
+**p\_tenant\_id**(_t\_long\_code_): is not null. id of contract in text format, for authorization  
+**o\_fix**(_t\_amount_): is null. in this parameter returned fix commission value  
+**o\_percent**(_t\_amount_): is null. in this parameter returned percent commission value  
 
 ### _function_ ORD.FWDR.ORDER\_NUMBER\_GENERATE  
 _DESCRIPTION:_  
-generate order number as last number + 1 by user id  
+generates order number as last number + 1 by user id  
 _PARAMETERS:_  
-**p\_user:** user id.  
+**p\_user**(_t\_id_): is not null. user id.  
 _RETURN:_  
-string like 0012410032, where 1241 - user id and 32 is a counter of order  
+string(t\_long\_code) like 0012410032, where 1241 - user id and 32 is a counter of order  
 
 ### _procedure_ ORD.FWDR.AVIA\_MANUAL  
 _DESCRIPTION:_  
-update order status to p\_result[error/success] or to inprogress, if error then return all money.  
+update order status to p\_result, if p\_result = error then return all money.  
 _PARAMETERS:_  
-**p\_pnr\_id:** id from nqt. search perform by this id  
-**p\_tenant\_id:** id of contract in text format, for authorization  
-**p\_result:** [error/success/ if null then inprogress]  
+**p\_pnr\_id**(_t\_long\_code_): is not null. id from nqt. search perform by this id  
+**p\_tenant\_id**(_t\_long\_code_): is not null. id of contract in text format, for authorization  
+**p\_result**(_t\_long\_code_): is null. error, success, inprogress. if null then inprogress  
 
 ### _procedure_ ORD.FWDR.CASH\_BACK  
 _DESCRIPTION:_  
 perform reverse for order scheme. return bill to waiting status  
 and call revoke\_document from billing  
 _PARAMETERS:_  
-**p\_pnr\_id:** id from nqt. search perform by this id  
+**p\_pnr\_id**(_t\_long\_code_): is not null. id from nqt. search perform by this id  
 
 ### _function_ ORD.FWDR.GET\_SALES\_LIST  
 _DESCRIPTION:_  
@@ -606,55 +647,134 @@ fake
 _DESCRIPTION:_  
 return all rules by iata code of airline  
 _PARAMETERS:_  
-**p\_iata:** iata 2 char code  
+**p\_iata**(_t\_code_): is not null. iata 2 char code  
 _RETURN:_  
-sys\_refcursor[fields from v\_rule view]  
+sys\_refcursor {  
+
+  * airline\_id(t\_id) is not null - id of airline  
+  * iata(t\_code) is null - airline iata code  
+  * nls\_airline(t\_name) is not null - name of airline  
+  * contract\_type\_id(t\_id) is not null - id of contract type with airline. self, code-share, interline  
+  * tenant\_id(t\_id) is not null - id of the contract  
+  * contract\_type\_name(t\_long\_code) is not null - name of contract type with airline. self, code-share, interline  
+  * rule\_id(t\_id) is not null - id of the rule. rules is a statements describes how to calculate commission.  
+  * rule\_description(t\_msg) is null - some additional info. this copied from document.  
+  * rule\_amount(t\_amount) is null - amount of rule  
+  * rule\_min\_absolute(t\_amount) is null - minimal absolute amount for rules with percents  
+  * rule\_amount\_measure(t\_long\_code) is null - measure of rule. percent, fix  
+  * priority(t\_id) is null - number for ordering  
+  * rule\_life\_from(t\_long\_code) is null - rule is active due to this dates. date from  
+  * rule\_life\_to(t\_long\_code) is null - rule is active due to this dates. date to  
+  * condition\_id(t\_id) is null - id of condition. condition its additional parameters into rule.  
+  * template\_type\_id(t\_id) is not null - template id. template is a statement for description conditions.  
+  * template\_type(t\_long\_code) is not null - name of template  
+  * template\_type\_code(t\_long\_code) is null - code of template  
+  * template\_value(t\_msg) is null - value for this template  
+  * is\_value(t\_status) is null - flag. is this template nead a value?  
+  * currency(t\_code) is null - currency of rule amount  
+  * per\_segment(t\_status) is not null - flag. is this rule calculated for each segment? else for ticket.  
+  * per\_fare(t\_status) is not null - flag. is this rule calculated only for fare? else for full amount.  
+  * rule\_type(t\_long\_code) is null - type of rule. commission, markup  
+  * markup\_type(t\_long\_code) is null - base, partner, etc.  
+
+}  
 
 ### _procedure_ ORD.FWDR.AVIA\_CREATE  
 _DESCRIPTION:_  
 procedure create item\_avia row only. it cant update item. add pnr info like who, where, when  
 _PARAMETERS:_  
-**p\_pnr\_id:** id from nqt. search perform by this id  
-**p\_user\_id:** user identifire. at this moment email  
-**p\_itinerary:** pnr info like who, where, when  
+**p\_pnr\_id**(_t\_long\_code_): is not null. id from nqt. search perform by this id  
+**p\_user\_id**(_t\_long\_code_): is not null. user identifire. at this moment email  
+**p\_itinerary**(_t\_clob_): is null. pnr info like who, where, when  
 
 ### _procedure_ ORD.FWDR.AVIA\_BOOKED  
 _DESCRIPTION:_  
 procedure send item/order/bill to billing for pay.  
 _PARAMETERS:_  
-**p\_pnr\_id:** id from nqt. search perform by this id  
-**p\_user\_id:** user identifire. at this moment email  
+**p\_pnr\_id**(_t\_long\_code_): is not null. id from nqt. search perform by this id  
+**p\_user\_id**(_t\_long\_code_): is not null. user identifire. at this moment email  
 
 ### _function_ ORD.FWDR.POS\_RULE\_GET  
 _DESCRIPTION:_  
 when p\_version is null then return all active rows. if not null then  
 get all active and deleted rows that changed after p\_version id  
 _PARAMETERS:_  
-**p\_version:** id  
+**p\_version**(_t\_id_): is null. id  
 _RETURN:_  
-sys\_refcursor[id, tenant\_id, validating\_carrier,booking\_pos,ticketing\_pos,stock,printer,version, is\_active]  
-default tenant\_id = 0, default validating\_carrier = 'yy'  
+sys\_refcursor {  
+
+  * id(t\_id) is not null - rule id  
+  * tenant\_id(t\_id) is not null - id of contract. default value 0  
+  * validating\_carrier(t\_code) is not null - airline code. default value 'yy'  
+  * booking\_pos(t\_code) is not null - pos code. in that pos ticket must be booked  
+  * ticketing\_pos(t\_code) is not null - pos code. in that pos ticket must be issued?  
+  * stock(t\_code) is not null - code of country where stock is situated  
+  * printer(t\_code) is not null - code of printer  
+  * version(t\_id) is not null - current last id from table  
+  * is\_active(t\_status) is not null - flag. is it pos\_rule active?  
+
+}  
 
 ### _function_ ORD.FWDR.POS\_RULE\_EDIT  
 _DESCRIPTION:_  
 update pos\_rules or create new pos\_rules. if success return true else false.  
 if status equals [c]lose or [d]elete then delete pos\_rule.  
 _PARAMETERS:_  
-**p\_data:** data for update. format json[id, tenant\_id, validating\_carrier,  
-booking\_pos, ticketing\_pos, stock, printer, status]  
+**p\_data**(_t\_clob_): data for update. format json {  
+
+  * id(t\_id) is not null - rule id  
+  * tenant\_id(t\_id) is not null - id of contract. default value 0  
+  * validating\_carrier(t\_code) is not null - airline code. default value 'yy'  
+  * booking\_pos(t\_code) is not null - pos code. in that pos ticket must be booked  
+  * ticketing\_pos(t\_code) is not null - pos code. in that pos ticket must be issued?  
+  * stock(t\_code) is not null - code of country where stock is situated  
+  * printer(t\_code) is not null - code of printer  
+  * status(t\_status) is null - status of pos\_rule. if 'c' or 'd' then delete this pos\_rule  
+
+}  
 _RETURN:_  
-sys\_refcursor[res:true/false]  
+sys\_refcursor {  
+
+  * res(t\_code) is not null - 'true' is success, else 'false'  
+
+}  
 
 ### _function_ ORD.FWDR.RULE\_ADD  
 _DESCRIPTION:_  
-add rule.  
+add new rule  
 _PARAMETERS:_  
-**p\_data:** data for update. format json[airline\_iata, tenant\_id, contract\_type\_id, rule\_id,  
-rule\_description, rule\_life\_from, rule\_life\_to, rule\_amount,  
-rule\_amount\_measure, rule\_priority, condition\_id,condition\_status, template\_type\_id,  
-template\_name\_nls, template\_value]  
+**p\_data:** data for add new rule. format json {  
+
+  * airline\_iata(t\_code) is null - airline iata code  
+  * tenant\_id(t\_id) is not null - id of the contract  
+  * contract\_type\_id(t\_id) is not null - id of contract type with airline. self, code-share, interline  
+  * rule\_id(t\_id) is not null - id of the rule. rules is a statements describes how to calculate commission.  
+  * rule\_description(t\_msg) is null - some additional info. this copied from document.  
+  * rule\_amount(t\_amount) is null - amount of rule  
+  * rule\_min\_absolute(t\_amount) is null - minimal absolute amount for rules with percents  
+  * rule\_amount\_measure(t\_long\_code) is null - measure of rule. percent, fix  
+  * rule\_priority(t\_id) is not null - number for ordering  
+  * rule\_status(t\_status) is null - status of rule. if 'c' or 'd' then delete this pos\_rulestatus of pos\_rule. if 'c' or 'd' then delete this rule  
+  * rule\_life\_from(t\_long\_code) is null - rule is active due to this dates. date from  
+  * rule\_life\_to(t\_long\_code) is null - rule is active due to this dates. date to  
+  * per\_segment(t\_status) is not null - flag. is this rule calculated for each segment? else for ticket.  
+  * per\_fare(t\_status) is not null - flag. is this rule calculated only for fare? else for full amount.  
+  * rule\_type(t\_long\_code) is null - type of rule. commission, markup  
+  * markup\_type(t\_long\_code) is null - base, partner, etc.  
+  * currency(t\_code) is null - currency of rule amount  
+  * condition\_id(t\_id) is null - id of condition. condition its additional parameters into rule.  
+  * condition\_status(t\_status) is null - status of condition. if 'c' or 'd' then delete this pos\_rulestatus of pos\_rule. if 'c' or 'd' then delete this rulestatus of rule. if 'c' or 'd' then delete this pos\_rulestatus of pos\_rule. if 'c' or 'd' then delete this condition  
+  * template\_type\_id(t\_id) is not null - template id. template is a statement for description conditions.  
+  * template\_type\_name(t\_long\_code) is not null - name of template  
+  * template\_value(t\_msg) is null - value for this template  
+
+}  
 _RETURN:_  
-sys\_refcursor[res:true/false]  
+sys\_refcursor {  
+
+  * res(t\_code) is not null - 'true' is success, else 'false'  
+
+}  
 
 ### _function_ ORD.FWDR.RULE\_EDIT  
 _DESCRIPTION:_  
@@ -662,34 +782,62 @@ update rule info.
 add new condition or update info.  
 if condition status equals [d]elete then delete condition from rule.  
 _PARAMETERS:_  
-**p\_data:** data for update. format json[rule\_id,  
-rule\_description, rule\_life\_from, rule\_life\_to, rule\_amount,  
-rule\_amount\_measure, rule\_priority, condition\_id,condition\_status, template\_type\_id,  
-template\_name\_nls, template\_value]  
+**p\_data:** data for update rule. format json {  
+
+  * rule\_id(t\_id) is not null - id of the rule. rules is a statements describes how to calculate commission.  
+  * rule\_description(t\_msg) is null - some additional info. this copied from document.  
+  * rule\_amount(t\_amount) is null - amount of rule  
+  * rule\_min\_absolute(t\_amount) is null - minimal absolute amount for rules with percents  
+  * rule\_amount\_measure(t\_long\_code) is null - measure of rule. percent, fix  
+  * rule\_priority(t\_id) is not null - number for ordering  
+  * rule\_status(t\_status) is null - status of rule. if 'c' or 'd' then delete this pos\_rulestatus of pos\_rule. if 'c' or 'd' then delete this rule  
+  * rule\_life\_from(t\_long\_code) is null - rule is active due to this dates. date from  
+  * rule\_life\_to(t\_long\_code) is null - rule is active due to this dates. date to  
+  * per\_segment(t\_status) is not null - flag. is this rule calculated for each segment? else for ticket.  
+  * per\_fare(t\_status) is not null - flag. is this rule calculated only for fare? else for full amount.  
+  * rule\_type(t\_long\_code) is null - type of rule. commission, markup  
+  * markup\_type(t\_long\_code) is null - base, partner, etc.  
+  * currency(t\_code) is null - currency of rule amount  
+  * condition\_id(t\_id) is null - id of condition. condition its additional parameters into rule.  
+  * condition\_status(t\_status) is null - status of condition. if 'c' or 'd' then delete this pos\_rulestatus of pos\_rule. if 'c' or 'd' then delete this rulestatus of rule. if 'c' or 'd' then delete this pos\_rulestatus of pos\_rule. if 'c' or 'd' then delete this condition  
+  * template\_type\_id(t\_id) is not null - template id. template is a statement for description conditions.  
+  * template\_value(t\_msg) is null - value for this template  
+
+}  
 _RETURN:_  
-sys\_refcursor[res:true/false]  
+sys\_refcursor {  
+
+  * res(t\_code) is not null - 'true' is success, else 'false'  
+
+}  
 
 ### _function_ ORD.FWDR.RULE\_DELETE  
 _DESCRIPTION:_  
 delete commission rule.  
 _PARAMETERS:_  
-**p\_rule\_id:** rule id  
+**p\_rule\_id**(_t\_id_): is not null. rule id  
 _RETURN:_  
-sys\_refcursor[res:true/false]  
+sys\_refcursor {  
+
+  * res(t\_code) is not null - 'true' is success, else 'false'  
+
+}  
 
 ### _function_ ORD.FWDR.RULE\_TEMPLATE\_LIST  
 _DESCRIPTION:_  
-return all commission templates  
+if p\_is\_contract\_type='y' then returns all contract\_types. else  
+if p\_is\_markup\_type = 'y' then returns all markup\_types.  
+else returns all commission templates  
 _PARAMETERS:_  
-**p\_is\_contract\_type:** if 'y' then return all contract\_types else all template\_types  
+**p\_is\_contract\_type**(_t\_status_): is null. flag. is contract types requested?  
+**p\_is\_markup\_type**(_t\_status_): is null. flag. is markup types requested?  
 _RETURN:_  
-sys\_refcursor[id, template\_type, priority, details, is\_contract\_type, name, nls\_name, is\_value]  
+sys\_refcursor {  
 
-### _function_ ORD.FWDR.BILL\_IMPORT\_LIST  
-_DESCRIPTION:_  
-return all bills info for import into 1c  
-_RETURN:_  
-sys\_refcursor[bill\_oid, item, is\_nds, flight\_from, flight\_to, fare\_amount, contract\_number, passenger\_name]  
+  * id(t\_id) is not null - type id  
+  * name(t\_name) is not null - type name  
+
+}  
 
 ### _function_ ORD.FWDR.MARKUP\_RULE\_GET  
 _DESCRIPTION:_  
@@ -697,15 +845,52 @@ return all markup rules
 _PARAMETERS:_  
 **p\_version:** version id. filter new changes  
 _RETURN:_  
-sys\_refcursor[id, is\_active, version, tenant\_id, iata, markup\_type, rule\_amount, rule\_amount\_measure, min\_absolut, priority, per\_segment,contract\_type,condition\_count]  
+sys\_refcursor {  
+
+  * rule\_id(t\_id) is not null - id of the rule. rules is a statements describes how to calculate commission.  
+  * is\_active(t\_status) is not null - flag. is it pos\_rule active?  
+  * version(t\_id) is not null - current last id from table  
+  * tenant\_id(t\_id) is not null - id of the contract  
+  * iata(t\_code) is null - airline iata code  
+  * markup\_type(t\_long\_code) is null - base, partner, etc.  
+  * rule\_amount(t\_amount) is null - amount of rule  
+  * rule\_amount\_measure(t\_long\_code) is null - measure of rule. percent, fix  
+  * min\_absolute(t\_amount) is null - minimal absolute amount for rules with percents  
+  * priority(t\_id) is not null - number for ordering  
+  * per\_segment(t\_status) is not null - flag. is this rule calculated for each segment? else for ticket.  
+  * contract\_type(t\_long\_code) is not null - name of contract type with airline. self, code-share, interline  
+  * condition\_count(t\_id) is not null - count of conditions for ir rule  
+
+}  
 
 ### _function_ ORD.FWDR.MARKUP\_TEMPL\_GET  
 _DESCRIPTION:_  
 return all markup templates for rule id  
 _PARAMETERS:_  
-**p\_rule\_id:** id of rule  
+**p\_rule\_id**(_t\_id_): is not null. id of rule  
 _RETURN:_  
-sys\_refcursor[id, template\_type\_code, template\_value]  
+sys\_refcursor {  
+
+  * id(t\_id) is not null - id of template  
+  * template\_type\_code(t\_id) is not null - code of template  
+  * template\_value(t\_id) is not null - value for it template  
+
+}  
+
+### _procedure_ ORD.FWDR.CHECK\_REQUEST  
+_DESCRIPTION:_  
+authorize user or contract. check that pnr is correct  
+_PARAMETERS:_  
+**p\_contract**(_t\_id_): is not null. id of contract  
+**p\_pnr\_id**(_t\_long\_code_): is not null. pnr id from nqt  
+
+### _procedure_ ORD.FWDR.CHECK\_REQUEST  
+_DESCRIPTION:_  
+authorize user or contract. check that pnr is correct  
+_PARAMETERS:_  
+**p\_email**(_t\_long\_code_): is not null. email of user  
+**p\_pnr\_id**(_t\_long\_code_): is not null. pnr id from nqt  
+**p\_is\_createp\_is\_create**(_t\_statust\_status_): is null. if 'y' then its creating procedure. default 'n'  
 
 ### _function_ ORD.FWDR.TASK\_GET  
 _DESCRIPTION:_  

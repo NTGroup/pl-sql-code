@@ -1631,6 +1631,81 @@ end;
 ALTER TRIGGER ord.sgm_TRGR ENABLE;
 
 /
+/* event */
+
+  CREATE TABLE ord.event
+   (	ID NUMBER(18,0), 
+   amnd_date date,
+   amnd_user VARCHAR2(50),
+   amnd_state VARCHAR2(1), 
+   amnd_prev NUMBER(18,0), 
+   task varchar2(50),
+   contract_oid NUMBER(18,0),
+   user_oid number(18,0),
+   pnr_id varchar2(50),
+   request clob,
+   status varchar2(1),
+   result  varchar2(50),
+   error  varchar2(255)
+   ) SEGMENT CREATION IMMEDIATE
+  TABLESPACE USERS ;
+--------------------------------------------------------
+--  DDL for Index 
+--------------------------------------------------------
+
+  CREATE INDEX ord.evnt_ID_IDX ON ord.event (ID) 
+  TABLESPACE USERS ;
+  
+--------------------------------------------------------
+--  Constraints for Table 
+--------------------------------------------------------
+
+  ALTER TABLE ord.event MODIFY (ID CONSTRAINT evnt_ID_NN NOT NULL ENABLE);
+  ALTER TABLE ord.event MODIFY (AMND_DATE CONSTRAINT evnt_ADT_NN NOT NULL ENABLE);
+  ALTER TABLE ord.event MODIFY (AMND_USER CONSTRAINT evnt_AUR_NN NOT NULL ENABLE);
+  ALTER TABLE ord.event MODIFY (AMND_STATE CONSTRAINT evnt_AST_NN NOT NULL ENABLE);
+ALTER TABLE ord.event  MODIFY (AMND_DATE DEFAULT  on null  sysdate );
+ALTER TABLE ord.event  MODIFY (AMND_USER DEFAULT  on null  user );
+ALTER TABLE ord.event  MODIFY (AMND_STATE DEFAULT  on null  'A' );
+  ALTER TABLE ord.event ADD CONSTRAINT evnt_ID_PK PRIMARY KEY (ID)
+  USING INDEX ord.evnt_ID_IDX ENABLE;
+ 
+ 
+  
+/*  ALTER TABLE ord.event ADD CONSTRAINT evnt_leg_oid_FK FOREIGN KEY (leg_oid)
+  REFERENCES ord.leg (ID) ENABLE;
+ */
+ 
+--------------------------------------------------------
+--  DDL for Secuence 
+--------------------------------------------------------
+ 
+  create sequence  ORD.evnt_SEQ
+  increment by 1
+  start with 1
+  nomaxvalue
+  nocache 
+  nocycle
+  order;
+--------------------------------------------------------
+--  DDL for Trigger 
+--------------------------------------------------------
+
+CREATE OR REPLACE EDITIONABLE TRIGGER ord.evnt_TRGR 
+BEFORE
+INSERT
+ON ord.event
+REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+ WHEN (new.id is null) BEGIN
+  select evnt_SEQ.NEXTVAL into :new.id from dual; 
+  select nvl(:new.amnd_prev,:new.id) into :new.amnd_prev from dual; 
+end;
+/
+
+ALTER TRIGGER ord.evnt_TRGR ENABLE;
+
+/
 
 CREATE bitmap INDEX ord.ord_AS_IDX ON ord.ord (amnd_state) TABLESPACE USERS ;
 CREATE bitmap INDEX ord.bill_AS_IDX ON ord.bill (amnd_state) TABLESPACE USERS ;
@@ -1646,4 +1721,5 @@ CREATE bitmap INDEX ord.p2t_AS_IDX ON ord.bill2task (amnd_state) TABLESPACE USER
 CREATE bitmap INDEX ord.itin_AS_IDX ON ord.itinerary (amnd_state) TABLESPACE USERS ;
 CREATE bitmap INDEX ord.leg_AS_IDX ON ord.leg (amnd_state) TABLESPACE USERS ;
 CREATE bitmap INDEX ord.sgm_AS_IDX ON ord.segment (amnd_state) TABLESPACE USERS ;
+CREATE bitmap INDEX ord.evnt_AS_IDX ON ord.event (amnd_state) TABLESPACE USERS ;
 

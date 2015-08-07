@@ -472,6 +472,40 @@ $obj_desc: *_get_info_r: return one row from table * with format *%rowtype.
   return segment%rowtype;
 
 
+  function event_add( 
+                    p_task in hdbk.dtype.t_long_code default null,
+                    p_contract in hdbk.dtype.t_id default null,
+                    p_user in hdbk.dtype.t_id default null,
+                    p_pnr_id in hdbk.dtype.t_long_code default null,
+                    p_request in hdbk.dtype.t_clob default null,
+                    p_status in hdbk.dtype.t_status default null,
+                    p_result in hdbk.dtype.t_long_code default null,
+                    p_error in hdbk.dtype.t_name default null
+                  )
+  return hdbk.dtype.t_id;
+
+
+  procedure event_edit(   P_ID  in hdbk.dtype.t_id default null,
+                    p_task in hdbk.dtype.t_long_code default null,
+                    p_contract in hdbk.dtype.t_id default null,
+                    p_user in hdbk.dtype.t_id default null,
+                    p_pnr_id in hdbk.dtype.t_long_code default null,
+                    p_request in hdbk.dtype.t_clob default null,
+                    p_status in hdbk.dtype.t_status default null,
+                    p_result in hdbk.dtype.t_long_code default null,
+                    p_error in hdbk.dtype.t_name default null
+                      );
+
+
+  function event_get_info(   P_ID  in hdbk.dtype.t_id default null
+                          )
+  return SYS_REFCURSOR;
+
+
+  function event_get_info_r (    P_ID  in hdbk.dtype.t_id default null
+                          )
+  return event%rowtype;
+
 
   
 END ORD_API;
@@ -2363,6 +2397,139 @@ END ORD_API;
       hdbk.log_api.LOG_ADD(p_proc_name=>'segment_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
       RAISE_APPLICATION_ERROR(-20002,'select row into segment error. '||SQLERRM);
   end;
+
+
+
+  function event_add( 
+                    p_task in hdbk.dtype.t_long_code default null,
+                    p_contract in hdbk.dtype.t_id default null,
+                    p_user in hdbk.dtype.t_id default null,
+                    p_pnr_id in hdbk.dtype.t_long_code default null,
+                    p_request in hdbk.dtype.t_clob default null,
+                    p_status in hdbk.dtype.t_status default null,
+                    p_result in hdbk.dtype.t_long_code default null,
+                    p_error in hdbk.dtype.t_name default null
+                  )
+  return hdbk.dtype.t_id
+  is
+    v_obj_row event%rowtype;
+    v_id hdbk.dtype.t_id;
+  begin
+    v_obj_row.task:=  p_task;
+    v_obj_row.contract_oid:=  p_contract;
+    v_obj_row.user_oid:=  p_user;
+    v_obj_row.pnr_id:=  p_pnr_id;
+    v_obj_row.request:=  p_request;
+    v_obj_row.status:=  nvl(p_status,'A');
+    v_obj_row.result:=  p_result;
+    v_obj_row.error:=  p_error;
+
+
+    insert into ord.event values v_obj_row returning id into v_id;
+    return v_id;
+  exception when others then
+    hdbk.log_api.LOG_ADD(p_proc_name=>'event_add', p_msg_type=>'UNHANDLED_ERROR');
+    RAISE_APPLICATION_ERROR(-20002,'insert row into event error. '||SQLERRM);
+  end;
+
+
+  procedure event_edit(   P_ID  in hdbk.dtype.t_id default null,
+                    p_task in hdbk.dtype.t_long_code default null,
+                    p_contract in hdbk.dtype.t_id default null,
+                    p_user in hdbk.dtype.t_id default null,
+                    p_pnr_id in hdbk.dtype.t_long_code default null,
+                    p_request in hdbk.dtype.t_clob default null,
+                    p_status in hdbk.dtype.t_status default null,
+                    p_result in hdbk.dtype.t_long_code default null,
+                    p_error in hdbk.dtype.t_name default null
+                      )
+  is
+    v_obj_row_new event%rowtype;
+    v_obj_row_old event%rowtype;
+  begin
+    if p_id is null  then raise NO_DATA_FOUND; end if;   
+  
+    select * into v_obj_row_old from event 
+        where id = nvl(p_id,id)
+        and amnd_state = 'A'
+    ;
+    v_obj_row_new := v_obj_row_old;
+
+
+
+    v_obj_row_new.amnd_date:=sysdate;
+    v_obj_row_new.amnd_user:=user;
+    v_obj_row_new.task := nvl(p_task,v_obj_row_new.task);
+    v_obj_row_new.contract_oid := nvl(p_contract,v_obj_row_new.contract_oid);
+    v_obj_row_new.user_oid := nvl(p_user,v_obj_row_new.user_oid);
+    v_obj_row_new.pnr_id := nvl(p_pnr_id,v_obj_row_new.pnr_id);
+    v_obj_row_new.request := nvl(p_request,v_obj_row_new.request);
+    v_obj_row_new.status := nvl(p_status,v_obj_row_new.status);
+    v_obj_row_new.result := nvl(p_result,v_obj_row_new.result);
+    v_obj_row_new.error := nvl(p_error,v_obj_row_new.error);
+    if p_status in ('C','D') then  v_obj_row_new.amnd_state := 'C'; end if;
+
+    v_obj_row_old.amnd_state:='I';
+    v_obj_row_old.id:=null;
+    insert into event values v_obj_row_old;
+
+    update event set row = v_obj_row_new where id = v_obj_row_new.id;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'event_edit', p_msg_type=>'UNHANDLED_ERROR');
+      RAISE_APPLICATION_ERROR(-20002,'update row into event error. '||SQLERRM);
+  end;
+
+
+  function event_get_info(   P_ID  in hdbk.dtype.t_id default null
+                          )
+  return SYS_REFCURSOR
+  is
+    v_results SYS_REFCURSOR;
+  begin
+      OPEN v_results FOR
+        SELECT
+        *
+        from ord.event 
+        where id = nvl(p_id,id)
+        and amnd_state = 'A'
+        order by id;
+    return v_results;
+  exception when others then
+    hdbk.log_api.LOG_ADD(p_proc_name=>'event_get_info', p_msg_type=>'UNHANDLED_ERROR');
+    RAISE_APPLICATION_ERROR(-20002,'select row into event error. '||SQLERRM);
+  end;
+
+
+  function event_get_info_r (    P_ID  in hdbk.dtype.t_id default null
+                          )
+  return event%rowtype
+  is
+    r_obj event%rowtype;
+  begin
+    if p_id is null then raise NO_DATA_FOUND; end if;   
+    
+    SELECT
+    * into r_obj
+    from ord.event 
+    where id = nvl(p_id,id)
+    and amnd_state = 'A'
+    order by id;
+    return r_obj;
+  exception 
+    when NO_DATA_FOUND then 
+      raise NO_DATA_FOUND;
+    when TOO_MANY_ROWS then 
+      raise NO_DATA_FOUND;  
+    when others then
+      hdbk.log_api.LOG_ADD(p_proc_name=>'event_get_info_r', p_msg_type=>'UNHANDLED_ERROR');
+      RAISE_APPLICATION_ERROR(-20002,'select row into event error. '||SQLERRM);
+  end;
+
 
 
 END ORD_API;

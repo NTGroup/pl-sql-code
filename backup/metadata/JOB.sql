@@ -15,6 +15,16 @@ DBMS_SCHEDULER.CREATE_SCHEDULE (
   schedule_name     => 'HDBK.DOC_TASK_LIST_SCHEDULE');    
 END;
 /
+
+BEGIN
+DBMS_SCHEDULER.CREATE_SCHEDULE (    	   
+  repeat_interval   => 'FREQ=SECONDLY;INTERVAL=2',     
+  start_date        => SYSTIMESTAMP,
+  comments          => 'Every 10 second',
+  schedule_name     => 'HDBK.EVENT_HANDLER_SCHEDULE');    
+END;
+/
+
 /*
 BEGIN
 DBMS_SCHEDULER.CREATE_SCHEDULE (
@@ -70,6 +80,17 @@ BEGIN
    job_action         =>  'HDBK.CORE.DOC_TASK_LIST_RUN',
    enabled            =>  TRUE,
    COMMENTS           =>  'approve tasks with contract like set parameters or cash in' );
+END;
+/
+
+BEGIN
+  DBMS_SCHEDULER.CREATE_JOB (
+   job_name           =>  'HDBK.EVENT_HANDLER',
+   schedule_name      =>  'HDBK.EVENT_HANDLER_SCHEDULE',
+   job_type           =>  'STORED_PROCEDURE',
+   job_action         =>  'ORD.CORE.EVENT_HANDLER',
+   enabled            =>  TRUE,
+   COMMENTS           =>  'check event tasks from NQT' );
 END;
 /
 
