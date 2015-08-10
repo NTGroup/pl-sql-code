@@ -479,13 +479,18 @@ _PARAMETERS:_
 _DESCRIPTION:_  
 procedure perform transit bills with status [w]aiting to billing system.  
 that means bill requested for pay. after that bill marked as [t]ransported  
-this procedure executed from job scheduler  
+this procedure execute from job scheduler  
 
 ### _procedure_ ORD.CORE.DOC\_TASK\_LIST  
 _DESCRIPTION:_  
 procedure perform document tasks like pay for bills, set cledit limit and others money tasks.  
 main idea of function is to separate buy process from others.  
-this procedure executed from job scheduler  
+this procedure execute from job scheduler  
+
+### _procedure_ ORD.CORE.EVENT\_HANDLER  
+_DESCRIPTION:_  
+procedure perform events. event is a task from nqt. get all inprogress events. after execute event move it to error or success status  
+this procedure execute from job scheduler  
 
 # ORD.FWDR
 ---

@@ -13,7 +13,7 @@ $obj_type: procedure
 $obj_name: bill_pay
 $obj_desc: procedure perform transit bills with status [W]aiting to billing system. 
 $obj_desc: that means bill requested for pay. after that bill marked as [T]ransported
-$obj_desc: this procedure executed from job scheduler
+$obj_desc: this procedure execute from job scheduler
 */
 
   procedure buy;
@@ -23,10 +23,16 @@ $obj_type: procedure
 $obj_name: doc_task_list
 $obj_desc: procedure perform document tasks like pay for bills, set cledit limit and others money tasks. 
 $obj_desc: main idea of function is to separate BUY process from others.
-$obj_desc: this procedure executed from job scheduler
+$obj_desc: this procedure execute from job scheduler
 */ 
   procedure doc_task_list;
 
+/*
+$obj_type: procedure
+$obj_name: event_handler
+$obj_desc: procedure perform events. event is a task from NQT. get all INPROGRESS events. after execute event move it to ERROR or SUCCESS status
+$obj_desc: this procedure execute from job scheduler
+*/ 
   procedure event_handler;
   
 END CORE;
