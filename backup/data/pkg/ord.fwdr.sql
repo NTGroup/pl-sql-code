@@ -395,7 +395,7 @@ $obj_param: p_data:   RULE_LIFE_TO(t_long_code) is null - rule is active due to 
 $obj_param: p_data:   PER_SEGMENT(t_status) is not null - flag. is this rule calculated for each segment? else for ticket.
 $obj_param: p_data:   PER_FARE(t_status) is not null - flag. is this rule calculated only for fare? else for full amount.
 $obj_param: p_data:   RULE_TYPE(t_long_code) is null - type of rule. commission, markup
-$obj_param: p_data:   MARKUP_TYPE(t_long_code) is null - base, partner, etc.
+$obj_param: p_data:   MARKUP_TYPE(t_long_code) is null - type of commission. base, partner, etc.
 $obj_param: p_data:   CURRENCY(t_code) is null - currency of rule amount
 $obj_param: p_data:   CONDITION_ID(t_id) is null - id of condition. condition its additional parameters into rule.
 $obj_param: p_data:   CONDITION_STATUS(t_status) is null - status of condition. if 'C' or 'D' then delete this pos_rulestatus of pos_rule. if 'C' or 'D' then delete this rulestatus of rule. if 'C' or 'D' then delete this pos_rulestatus of pos_rule. if 'C' or 'D' then delete this condition
@@ -430,7 +430,7 @@ $obj_param: p_data:   RULE_LIFE_TO(t_long_code) is null - rule is active due to 
 $obj_param: p_data:   PER_SEGMENT(t_status) is not null - flag. is this rule calculated for each segment? else for ticket.
 $obj_param: p_data:   PER_FARE(t_status) is not null - flag. is this rule calculated only for fare? else for full amount.
 $obj_param: p_data:   RULE_TYPE(t_long_code) is null - type of rule. commission, markup
-$obj_param: p_data:   MARKUP_TYPE(t_long_code) is null - base, partner, etc.
+$obj_param: p_data:   MARKUP_TYPE(t_long_code) is null - type of commission. base, partner, etc.
 $obj_param: p_data:   CURRENCY(t_code) is null - currency of rule amount
 $obj_param: p_data:   CONDITION_ID(t_id) is null - id of condition. condition its additional parameters into rule.
 $obj_param: p_data:   CONDITION_STATUS(t_status) is null - status of condition. if 'C' or 'D' then delete this pos_rulestatus of pos_rule. if 'C' or 'D' then delete this rulestatus of rule. if 'C' or 'D' then delete this pos_rulestatus of pos_rule. if 'C' or 'D' then delete this condition
@@ -547,8 +547,51 @@ $obj_param: p_is_createp_is_create(t_statust_status): is null. if 'Y' then its c
 /*
 $obj_type: function
 $obj_name: task_get
-$obj_desc: return task for 1c
-$obj_return: SYS_REFCURSOR[email, TASK_ID, CONTRACT_ID, DESCRIPTION, QUANTITY, PRICE, VAT]
+$obj_desc: fetch 1 nearest task. return task data. task is a feature to do some work. send email, transport bills, etc. apdate status of task as [W]aiting
+$obj_return: BILL_ADD task. transit bill to 1c
+$obj_return: SYS_REFCURSOR {
+$obj_return:   email(t_long_code) is not null - email for sending letter to user
+$obj_return:   task_id(t_id) is not null - id of task at PO
+$obj_return:   task_type(t_long_code) is not null - task type equal 'BILL'
+$obj_return:   contract_id(t_id) is not null - id of contract
+$obj_return:   PRODUCT(t_long_code) is not null - info about bill for 1c to add correct bill item
+$obj_return:   description(t_msg) is not null - description for adding to 1c bill
+$obj_return:   quantity(t_id) is not null - quatity of 1c bill item
+$obj_return:   price(t_amount) is not null - price of item
+$obj_return:   vat(t_id) is not null - vat of item
+$obj_return:   date_to(t_long_code) is not null - minimal date_to from all bills in string format yyyy-mm-dd
+$obj_return: }
+$obj_return: AVIA_ETICKET task. send avia eticket to client
+$obj_return: SYS_REFCURSOR {
+$obj_return:   email(t_long_code) is not null - email for sending letter to user
+$obj_return:   task_id(t_id) is not null - id of task at PO
+$obj_return:   task_type(t_long_code) is not null - task type equals 'ETICKET'
+$obj_return:   pnr_id(t_long_code) is not null - id of pnr from NQT
+$obj_return:   order_number(t_long_code) is not null - order number from ticket buy order
+$obj_return:   city_from(t_name) is not null - departure city name
+$obj_return:   city_to(t_name) is not null - arrival city name
+$obj_return:   IS_ONE_LEG(t_status) is not null - flag. is itinerary has 1 leg? 
+$obj_return: }
+$obj_return: 1C_FIN_ACTS task. send fin acts to client from 1c
+$obj_return: SYS_REFCURSOR {
+$obj_return:   email(t_long_code) is not null - email for sending letter to user
+$obj_return:   task_id(t_id) is not null - id of task at PO
+$obj_return:   task_type(t_long_code) is not null - task type equals 'FIN_ACTS'
+$obj_return:   bill_number(t_long_code) is not null - 1c bill number
+$obj_return: }
+$obj_return: BILL_DEPOSIT task. CREATES DEPOSIT bill to 1c
+$obj_return: SYS_REFCURSOR {
+$obj_return:   email(t_long_code) is not null - email for sending letter to user
+$obj_return:   task_id(t_id) is not null - id of task at PO
+$obj_return:   task_type(t_long_code) is not null - task type equal 'BILL_DEPOSIT'
+$obj_return:   contract_id(t_id) is not null - id of contract
+$obj_return:   PRODUCT(t_long_code) is not null - info about bill for 1c to add correct bill item
+$obj_return:   description(t_msg) is not null - description for adding to 1c bill item
+$obj_return:   quantity(t_id) is not null - quatity of 1c bill item
+$obj_return:   price(t_amount) is not null - price of item
+$obj_return:   vat(t_id) is not null - vat of item
+$obj_return: }
+
 */  
   function task_get
   return SYS_REFCURSOR;
@@ -557,9 +600,12 @@ $obj_return: SYS_REFCURSOR[email, TASK_ID, CONTRACT_ID, DESCRIPTION, QUANTITY, P
 $obj_type: function
 $obj_name: task_close
 $obj_desc: mark task as [C]losed
-$obj_param: p_task: task id
-$obj_param: p_number_1c: 1c bill number
-$obj_return: SYS_REFCURSOR[res]
+$obj_param: p_task(t_id): is not null. task id
+$obj_param: p_number_1c(t_long_code): is not null. 1c bill number
+$obj_param: p_data(t_clob): is null. task could be updated by this info-result
+$obj_return: SYS_REFCURSOR {
+$obj_return:   res(t_code) is not null - result of operation. equal SUCCESS or ERROR.
+$obj_return: }
 */   
   function task_close(p_task in hdbk.dtype.t_id default null,
                       p_number_1c in hdbk.dtype.t_long_code default null,
@@ -571,9 +617,9 @@ $obj_return: SYS_REFCURSOR[res]
 $obj_type: function
 $obj_name: bill_1c_payed
 $obj_desc: create task that sends fin docs.
-$obj_param: p_number_1c: 1c bill number
-$obj_return: SYS_REFCURSOR{
-$obj_return: res - result. could get values ERROR, SUCCESS
+$obj_param: p_number_1c(t_long_code): is not null. 1c bill number
+$obj_return: SYS_REFCURSOR {
+$obj_return:   res(t_code) is not null - result of operation. equal SUCCESS or ERROR.
 $obj_return: }
 */  
   function bill_1c_payed(p_number_1c in hdbk.dtype.t_long_code default null)
@@ -583,19 +629,39 @@ $obj_return: }
 /*
 $obj_type: function
 $obj_name: vat_calc
-$obj_desc: calculate vat. vat values saved at dictionary 1C_PRODUCT_W_VAT code.
-$obj_param: p_itinerary: itinerary id 
-$obj_return: ID of dictionary 1C_PRODUCT_W_VAT code
-
+$obj_desc: calculates vat. vat values saved at dictionary with 1C_PRODUCT_W_VAT code.
+$obj_param: p_itinerary(t_id): is not null. itinerary id
+$obj_return: ID(t_id) of dictionary 1C_PRODUCT_W_VAT code
 */  
   function vat_calc(p_itinerary in hdbk.dtype.t_id default null)
   return hdbk.dtype.t_id;
   
-
+/*
+$obj_type: function
+$obj_name: bill_deposit
+$obj_desc: create task thats add deposit bill to 1c.
+$obj_param: p_user_id(t_long_code): is not null. user email who call this request
+$obj_param: p_amount(t_amount): is not null. amount of deposit
+$obj_return: SYS_REFCURSOR {
+$obj_return:   res(t_code) is not null - result of operation. equal SUCCESS, ERROR, NOT_AUTHORIZED, VALUE_ERROR, NO_DATA_FOUND
+$obj_return: }
+*/  
   function bill_deposit(p_user_id in hdbk.dtype.t_long_code default null,
                         p_amount in hdbk.dtype.t_amount default null)
   return SYS_REFCURSOR;
 
+
+/*
+$obj_type: procedure
+$obj_name: reg_task
+$obj_desc: catch events from NQT. in terms of NQT event means task. task creates with result status 'INPROGRESS'
+$obj_param: p_task(t_long_code): is not null. name of registered event
+$obj_param: p_tenant_id(t_long_code): is null. contract id. needs for authorization
+$obj_param: p_user_id(t_long_code): is null. user email who call this request. needs for authorization
+$obj_param: p_pnr_id(t_long_code): is not null. pnr id from nqt 
+$obj_param: p_data(t_clob): is null. data in json format contains event details
+
+*/  
   procedure reg_task(
                     p_task in hdbk.dtype.t_long_code default null,
                     p_tenant_id in hdbk.dtype.t_long_code default null,
@@ -605,6 +671,21 @@ $obj_return: ID of dictionary 1C_PRODUCT_W_VAT code
                     ;
 
 
+/*
+$obj_type: function
+$obj_name: reg_task_list
+$obj_desc: return list of tasks for NQT (events at PO).
+$obj_param: p_tenant_id(t_long_code): is null. contract id. if null do not use this filter
+$obj_param: p_pnr_id(t_long_code): is null. pnr id from NQT. if null do not use this filter
+$obj_param: p_task(t_long_code): is null. task code. if null do not use this filter
+$obj_return: SYS_REFCURSOR {
+$obj_return:   task(t_code) is not null - task code
+$obj_return:   pnr_id(t_code) is not null - pnr id from NQT
+$obj_return:   result(t_code) is not null - status of task(event). INPROGRESS,SUCCESS,ERROR
+$obj_return:   error(t_code) is null - there could be codes of errors
+$obj_return:   tenant_id(t_code) is not null - contract id
+$obj_return: }
+*/  
 
   function reg_task_list(
                     p_tenant_id in hdbk.dtype.t_long_code default null,

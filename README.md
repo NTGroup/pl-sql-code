@@ -760,7 +760,7 @@ _PARAMETERS:_
   * per\_segment(t\_status) is not null - flag. is this rule calculated for each segment? else for ticket.  
   * per\_fare(t\_status) is not null - flag. is this rule calculated only for fare? else for full amount.  
   * rule\_type(t\_long\_code) is null - type of rule. commission, markup  
-  * markup\_type(t\_long\_code) is null - base, partner, etc.  
+  * markup\_type(t\_long\_code) is null - type of commission. base, partner, etc.  
   * currency(t\_code) is null - currency of rule amount  
   * condition\_id(t\_id) is null - id of condition. condition its additional parameters into rule.  
   * condition\_status(t\_status) is null - status of condition. if 'c' or 'd' then delete this pos\_rulestatus of pos\_rule. if 'c' or 'd' then delete this rulestatus of rule. if 'c' or 'd' then delete this pos\_rulestatus of pos\_rule. if 'c' or 'd' then delete this condition  
@@ -796,7 +796,7 @@ _PARAMETERS:_
   * per\_segment(t\_status) is not null - flag. is this rule calculated for each segment? else for ticket.  
   * per\_fare(t\_status) is not null - flag. is this rule calculated only for fare? else for full amount.  
   * rule\_type(t\_long\_code) is null - type of rule. commission, markup  
-  * markup\_type(t\_long\_code) is null - base, partner, etc.  
+  * markup\_type(t\_long\_code) is null - type of commission. base, partner, etc.  
   * currency(t\_code) is null - currency of rule amount  
   * condition\_id(t\_id) is null - id of condition. condition its additional parameters into rule.  
   * condition\_status(t\_status) is null - status of condition. if 'c' or 'd' then delete this pos\_rulestatus of pos\_rule. if 'c' or 'd' then delete this rulestatus of rule. if 'c' or 'd' then delete this pos\_rulestatus of pos\_rule. if 'c' or 'd' then delete this condition  
@@ -894,38 +894,134 @@ _PARAMETERS:_
 
 ### _function_ ORD.FWDR.TASK\_GET  
 _DESCRIPTION:_  
-return task for 1c  
+fetch 1 nearest task. return task data. task is a feature to do some work. send email, transport bills, etc. apdate status of task as [w]aiting  
 _RETURN:_  
-sys\_refcursor[email, task\_id, contract\_id, description, quantity, price, vat]  
+bill\_add task. transit bill to 1c  
+sys\_refcursor {  
+
+  * email(t\_long\_code) is not null - email for sending letter to user  
+  * task\_id(t\_id) is not null - id of task at po  
+  * task\_type(t\_long\_code) is not null - task type equal 'bill'  
+  * contract\_id(t\_id) is not null - id of contract  
+  * product(t\_long\_code) is not null - info about bill for 1c to add correct bill item  
+  * description(t\_msg) is not null - description for adding to 1c bill  
+  * quantity(t\_id) is not null - quatity of 1c bill item  
+  * price(t\_amount) is not null - price of item  
+  * vat(t\_id) is not null - vat of item  
+  * date\_to(t\_long\_code) is not null - minimal date\_to from all bills in string format yyyy-mm-dd  
+
+}  
+avia\_eticket task. send avia eticket to client  
+sys\_refcursor {  
+
+  * email(t\_long\_code) is not null - email for sending letter to user  
+  * task\_id(t\_id) is not null - id of task at po  
+  * task\_type(t\_long\_code) is not null - task type equals 'eticket'  
+  * pnr\_id(t\_long\_code) is not null - id of pnr from nqt  
+  * order\_number(t\_long\_code) is not null - order number from ticket buy order  
+  * city\_from(t\_name) is not null - departure city name  
+  * city\_to(t\_name) is not null - arrival city name  
+  * is\_one\_leg(t\_status) is not null - flag. is itinerary has 1 leg?  
+
+}  
+1c\_fin\_acts task. send fin acts to client from 1c  
+sys\_refcursor {  
+
+  * email(t\_long\_code) is not null - email for sending letter to user  
+  * task\_id(t\_id) is not null - id of task at po  
+  * task\_type(t\_long\_code) is not null - task type equals 'fin\_acts'  
+  * bill\_number(t\_long\_code) is not null - 1c bill number  
+
+}  
+bill\_deposit task. creates deposit bill to 1c  
+sys\_refcursor {  
+
+  * email(t\_long\_code) is not null - email for sending letter to user  
+  * task\_id(t\_id) is not null - id of task at po  
+  * task\_type(t\_long\_code) is not null - task type equal 'bill\_deposit'  
+  * contract\_id(t\_id) is not null - id of contract  
+  * product(t\_long\_code) is not null - info about bill for 1c to add correct bill item  
+  * description(t\_msg) is not null - description for adding to 1c bill item  
+  * quantity(t\_id) is not null - quatity of 1c bill item  
+  * price(t\_amount) is not null - price of item  
+  * vat(t\_id) is not null - vat of item  
+
+}  
 
 ### _function_ ORD.FWDR.TASK\_CLOSE  
 _DESCRIPTION:_  
 mark task as [c]losed  
 _PARAMETERS:_  
-**p\_task:** task id  
-**p\_number\_1c:** 1c bill number  
+**p\_task**(_t\_id_): is not null. task id  
+**p\_number\_1c**(_t\_long\_code_): is not null. 1c bill number  
+**p\_data**(_t\_clob_): is null. task could be updated by this info-result  
 _RETURN:_  
-sys\_refcursor[res]  
+sys\_refcursor {  
+
+  * res(t\_code) is not null - result of operation. equal success or error.  
+
+}  
 
 ### _function_ ORD.FWDR.BILL\_1C\_PAYED  
 _DESCRIPTION:_  
 create task that sends fin docs.  
 _PARAMETERS:_  
-**p\_number\_1c:** 1c bill number  
+**p\_number\_1c**(_t\_long\_code_): is not null. 1c bill number  
 _RETURN:_  
-sys\_refcursor{  
+sys\_refcursor {  
 
-  * res - result. could get values error, success  
+  * res(t\_code) is not null - result of operation. equal success or error.  
 
 }  
 
 ### _function_ ORD.FWDR.VAT\_CALC  
 _DESCRIPTION:_  
-calculate vat. vat values saved at dictionary 1c\_product\_w\_vat code.  
+calculates vat. vat values saved at dictionary with 1c\_product\_w\_vat code.  
 _PARAMETERS:_  
-**p\_itinerary:** itinerary id  
+**p\_itinerary**(_t\_id_): is not null. itinerary id  
 _RETURN:_  
-id of dictionary 1c\_product\_w\_vat code  
+id(t\_id) of dictionary 1c\_product\_w\_vat code  
+
+### _function_ ORD.FWDR.BILL\_DEPOSIT  
+_DESCRIPTION:_  
+create task thats add deposit bill to 1c.  
+_PARAMETERS:_  
+**p\_user\_id**(_t\_long\_code_): is not null. user email who call this request  
+**p\_amount**(_t\_amount_): is not null. amount of deposit  
+_RETURN:_  
+sys\_refcursor {  
+
+  * res(t\_code) is not null - result of operation. equal success, error, not\_authorized, value\_error, no\_data\_found  
+
+}  
+
+### _procedure_ ORD.FWDR.REG\_TASK  
+_DESCRIPTION:_  
+catch events from nqt. in terms of nqt event means task. task creates with result status 'inprogress'  
+_PARAMETERS:_  
+**p\_task**(_t\_long\_code_): is not null. name of registered event  
+**p\_tenant\_id**(_t\_long\_code_): is null. contract id. needs for authorization  
+**p\_user\_id**(_t\_long\_code_): is null. user email who call this request. needs for authorization  
+**p\_pnr\_id**(_t\_long\_code_): is not null. pnr id from nqt  
+**p\_data**(_t\_clob_): is null. data in json format contains event details  
+
+### _function_ ORD.FWDR.REG\_TASK\_LIST  
+_DESCRIPTION:_  
+return list of tasks for nqt (events at po).  
+_PARAMETERS:_  
+**p\_tenant\_id**(_t\_long\_code_): is null. contract id. if null do not use this filter  
+**p\_pnr\_id**(_t\_long\_code_): is null. pnr id from nqt. if null do not use this filter  
+**p\_task**(_t\_long\_code_): is null. task code. if null do not use this filter  
+_RETURN:_  
+sys\_refcursor {  
+
+  * task(t\_code) is not null - task code  
+  * pnr\_id(t\_code) is not null - pnr id from nqt  
+  * result(t\_code) is not null - status of task(event). inprogress,success,error  
+  * error(t\_code) is null - there could be codes of errors  
+  * tenant\_id(t\_code) is not null - contract id  
+
+}  
 
 # ORD.ORD\_API
 ---
