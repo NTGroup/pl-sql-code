@@ -199,7 +199,7 @@ $obj_return: on success SYS_REFCURSOR[client_id,name].
 $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 */
 
-  function client_list
+  function client_list(p_id in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 
 /*
@@ -222,7 +222,8 @@ $obj_return: on success SYS_REFCURSOR[client_id, CONTRACT_ID, TENANT_ID, IS_BLOC
 $obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, contract_number,CONTACT_PHONE]
 $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 */
-  function contract_list(p_client in hdbk.dtype.t_id default null)
+  function contract_list(p_client in hdbk.dtype.t_id default null,
+                          p_id in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 
 /*
@@ -942,7 +943,7 @@ create  or replace package BODY blng.fwdr as
       return v_results;
   end;
 
-  function client_list
+  function client_list(p_id in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -955,6 +956,7 @@ create  or replace package BODY blng.fwdr as
         client.name name
         from blng.client
         where client.amnd_state = 'A'
+        and id = nvl(p_id,id)
         order by id
         ;
 
@@ -993,7 +995,8 @@ create  or replace package BODY blng.fwdr as
   end;
 
 
-  function contract_list(p_client in hdbk.dtype.t_id default null)
+  function contract_list(p_client in hdbk.dtype.t_id default null,
+                          p_id in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -1013,11 +1016,21 @@ create  or replace package BODY blng.fwdr as
         v_account.max_loan_trans_amount max_credit,
         contract.utc_offset,
         contract.contact_name,
-        contract.contact_phone
+        contract.contact_phone,
+        'legal_name' legal_name,
+        'inn' inn,
+        'kpp' kpp,
+        'ogrn' ogrn,
+        'legal_address' legal_address,
+        'bank_account' bank_account,
+        'bank_bik' bank_bik,
+        'signatory_name' signatory_name,
+        'signatory_title' signatory_title
         from blng.contract, blng.v_account
         where contract.amnd_state = 'A'
         and contract.id = v_account.contract_oid
         and contract.client_oid = nvl(p_client,contract.client_oid)
+        and contract.id = nvl(p_id,contract.id)
         order by id
         ;
         
@@ -1067,13 +1080,13 @@ create  or replace package BODY blng.fwdr as
       v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => i.credit_limit,
         p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'CREDIT_LIMIT'));
       v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => i.delay_days,
-        p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'DELAY_DAY'));
+        p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'DELAY_DAYS'));
       v_DOC := blng.BLNG_API.document_add(P_CONTRACT => v_contract,P_AMOUNT => i.max_credit,
         p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'UP_LIM_TRANS'));
       commit;
     end loop;
 
-    OPEN v_results FOR
+  /*  OPEN v_results FOR
       select 
       contract.client_oid client_id,
       contract.id contract_id,
@@ -1092,8 +1105,8 @@ create  or replace package BODY blng.fwdr as
       and contract.id = v_account.contract_oid
       and contract.id = v_contract
       order by id
-      ;    
-    return v_results;
+      ;   */ 
+    return fwdr.contract_list(p_id => v_contract);
   exception when others then 
     hdbk.log_api.LOG_ADD(p_proc_name=>'contract_add', p_msg_type=>'UNHANDLED_ERROR');      
       open v_results for
@@ -1153,13 +1166,13 @@ create  or replace package BODY blng.fwdr as
       v_DOC := blng.BLNG_API.document_add(P_CONTRACT => p_contract,P_AMOUNT => i.credit_limit,
         p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'CREDIT_LIMIT'));
       v_DOC := blng.BLNG_API.document_add(P_CONTRACT => p_contract,P_AMOUNT => i.delay_days,
-        p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'DELAY_DAY'));
+        p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'DELAY_DAYS'));
       v_DOC := blng.BLNG_API.document_add(P_CONTRACT => p_contract,P_AMOUNT => i.max_credit,
         p_account_trans_type=>hdbk.core.dictionary_get_id(p_dictionary_type=>'TRANS_TYPE',p_code=>'UP_LIM_TRANS'));
       commit;
     end loop;
 
-    OPEN v_results FOR
+/*    OPEN v_results FOR
       select 
       contract.client_oid client_id,
       contract.id contract_id,
@@ -1178,18 +1191,18 @@ create  or replace package BODY blng.fwdr as
       and contract.id = v_account.contract_oid
       and contract.id = p_contract
       order by id
-      ;    
-    return v_results;
+      ;    */
+    return fwdr.contract_list(p_id => p_contract);
   exception 
     when VALUE_ERROR then 
       hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'VALUE_ERROR');      
         open v_results for
-          select 'ERROR' res from dual;
+          select 'VALUE_ERROR' res from dual;
         return v_results;
     when NO_DATA_FOUND then 
       hdbk.log_api.LOG_ADD(p_proc_name=>'contract_update', p_msg_type=>'NO_DATA_FOUND');      
         open v_results for
-          select 'ERROR' res from dual;
+          select 'NO_DATA_FOUND' res from dual;
         return v_results;
     when others then
       rollback;
