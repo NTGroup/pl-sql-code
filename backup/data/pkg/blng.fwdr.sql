@@ -1017,15 +1017,15 @@ create  or replace package BODY blng.fwdr as
         contract.utc_offset,
         contract.contact_name,
         contract.contact_phone,
-        'legal_name' legal_name,
-        'inn' inn,
-        'kpp' kpp,
-        'ogrn' ogrn,
-        'legal_address' legal_address,
-        'bank_account' bank_account,
-        'bank_bik' bank_bik,
-        'signatory_name' signatory_name,
-        'signatory_title' signatory_title
+        legal_name,
+        inn, --'1657138342'
+        kpp,--'165701001' 
+        ogrn,--'1141690010967' 
+        legal_address,
+        bank_bik,--'049205804' 
+        bank_account,--'40702810211010000481' 
+        signatory_name,
+        signatory_title
         from blng.contract, blng.v_account
         where contract.amnd_state = 'A'
         and contract.id = v_account.contract_oid
@@ -1064,16 +1064,40 @@ create  or replace package BODY blng.fwdr as
            max_credit number PATH '$.max_credit',
            utc_offset number PATH '$.utc_offset',
            contact_name VARCHAR2(256 CHAR) PATH '$.contact_name',
-           contact_phone VARCHAR2(256 CHAR) PATH '$.contact_phone'
+           contact_phone VARCHAR2(256 CHAR) PATH '$.contact_phone',
+           legal_name VARCHAR2(4000 CHAR) PATH '$.legal_name',
+           inn VARCHAR2(256 CHAR) PATH '$.inn',
+           kpp VARCHAR2(256 CHAR) PATH '$.kpp',
+           ogrn VARCHAR2(256 CHAR) PATH '$.ogrn',
+           legal_address VARCHAR2(4000 CHAR) PATH '$.legal_address',
+           bank_bik VARCHAR2(256 CHAR) PATH '$.bank_bik',
+           bank_account VARCHAR2(256 CHAR) PATH '$.bank_account',
+           signatory_name VARCHAR2(4000 CHAR) PATH '$.signatory_name',
+           signatory_title VARCHAR2(256 CHAR) PATH '$.signatory_title'
           )
         ) 
     )
     loop
+      if i.inn is not null and length(trim(i.inn)) not in (10,12) then raise VALUE_ERROR; end if;
+      if i.kpp is not null and length(trim(i.kpp)) not in (9) then raise VALUE_ERROR; end if;
+      if i.ogrn is not null and length(trim(i.ogrn)) not in (13) then raise VALUE_ERROR; end if;
+      if i.bank_bik is not null and length(trim(i.bank_bik)) not in (9) then raise VALUE_ERROR; end if;
+      if i.bank_account is not null and length(trim(i.bank_account)) not in (20,25) then raise VALUE_ERROR; end if;
+          
       v_contract := blng.BLNG_API.contract_add( P_client => p_client, 
                                                 p_name=>i.contract_name, 
                                                 p_utc_offset=>i.utc_offset,
-                                                p_contact_name=>i.contact_name,
-                                                p_contact_phone=>i.contact_phone
+                                                 p_contact_name=>i.contact_name,
+                                                p_contact_phone=>i.contact_phone,
+                                                p_legal_name=>i.legal_name,
+                                                p_inn=>i.inn,
+                                                p_kpp=>i.kpp,
+                                                p_ogrn=>i.ogrn,
+                                                p_legal_address=>i.legal_address,
+                                                p_bank_bik=>i.bank_bik,
+                                                p_bank_account=>i.bank_account,
+                                                p_signatory_name=>i.signatory_name,
+                                                p_signatory_title=>i.signatory_title              
                                                 );
       BLNG.BLNG_API.account_init(v_contract);
     
@@ -1139,16 +1163,40 @@ create  or replace package BODY blng.fwdr as
            max_credit number PATH '$.max_credit',
            utc_offset number PATH '$.utc_offset',
            contact_name VARCHAR2(256 CHAR) PATH '$.contact_name',
-           contact_phone VARCHAR2(256 CHAR) PATH '$.contact_phone'
+           contact_phone VARCHAR2(256 CHAR) PATH '$.contact_phone',
+           legal_name VARCHAR2(4000 CHAR) PATH '$.legal_name',
+           inn VARCHAR2(256 CHAR) PATH '$.inn',
+           kpp VARCHAR2(256 CHAR) PATH '$.kpp',
+           ogrn VARCHAR2(256 CHAR) PATH '$.ogrn',
+           legal_address VARCHAR2(4000 CHAR) PATH '$.legal_address',
+           bank_bik VARCHAR2(256 CHAR) PATH '$.bank_bik',
+           bank_account VARCHAR2(256 CHAR) PATH '$.bank_account',
+           signatory_name VARCHAR2(4000 CHAR) PATH '$.signatory_name',
+           signatory_title VARCHAR2(256 CHAR) PATH '$.signatory_title'   
           )
         ) 
     )
     loop
+      if i.inn is not null and length(trim(i.inn)) not in (10,12) then raise VALUE_ERROR; end if;
+      if i.kpp is not null and length(trim(i.kpp)) not in (9) then raise VALUE_ERROR; end if;
+      if i.ogrn is not null and length(trim(i.ogrn)) not in (13) then raise VALUE_ERROR; end if;
+      if i.bank_bik is not null and length(trim(i.bank_bik)) not in (9) then raise VALUE_ERROR; end if;
+      if i.bank_account is not null and length(trim(i.bank_account)) not in (20,25) then raise VALUE_ERROR; end if;
+
       blng.BLNG_API.contract_edit( P_id => p_contract, 
                                                 p_name=>i.contract_name, 
                                                 p_utc_offset=>i.utc_offset,
                                                 p_contact_name=>i.contact_name,
-                                                p_contact_phone=>i.contact_phone
+                                                p_contact_phone=>i.contact_phone,
+                                                p_legal_name=>i.legal_name,
+                                                p_inn=>i.inn,
+                                                p_kpp=>i.kpp,
+                                                p_ogrn=>i.ogrn,
+                                                p_legal_address=>i.legal_address,
+                                                p_bank_bik=>i.bank_bik,
+                                                p_bank_account=>i.bank_account,
+                                                p_signatory_name=>i.signatory_name,
+                                                p_signatory_title=>i.signatory_title     
                                                 );
                                                       
       r_account_info := fwdr.v_account_get_info_r(p_contract);

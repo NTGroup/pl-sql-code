@@ -242,6 +242,18 @@ END;
 
 
 
+alter table blng.contract    add   legal_name varchar2(4000);
+alter table blng.contract   add    inn varchar2(50);
+alter table blng.contract   add    kpp varchar2(50);
+alter table blng.contract   add    ogrn varchar2(50);
+alter table blng.contract   add    legal_address varchar2(4000);
+alter table blng.contract   add    bank_bik varchar2(50);
+alter table blng.contract   add    bank_account varchar2(50);
+alter table blng.contract  add     signatory_name varchar2(4000);
+alter table blng.contract  add     signatory_title varchar2(255);
+      
+      
+      
 
 @dba/GRANTS.sql;
 @metadata/view.sql;

@@ -115,7 +115,16 @@ $obj_desc: *_get_info_r: return one row from table * with format *%rowtype.
                          p_name in hdbk.dtype.t_name default null,
                          p_utc_offset in hdbk.dtype.t_id default null,
                          p_contact_name in hdbk.dtype.t_name default null,
-                         p_contact_phone in hdbk.dtype.t_long_code default null
+                         p_contact_phone in hdbk.dtype.t_long_code default null,
+                          p_legal_name  in hdbk.dtype.t_msg default null,
+                          p_inn  in hdbk.dtype.t_long_code default null,
+                          p_kpp  in hdbk.dtype.t_long_code default null,
+                          p_ogrn  in hdbk.dtype.t_long_code default null,
+                          p_legal_address  in hdbk.dtype.t_msg default null,
+                          p_bank_bik  in hdbk.dtype.t_long_code default null,
+                          p_bank_account  in hdbk.dtype.t_long_code default null,
+                          p_signatory_name  in hdbk.dtype.t_msg default null,
+                          p_signatory_title  in hdbk.dtype.t_name default null
                   )
   return hdbk.dtype.t_id;
 
@@ -125,7 +134,16 @@ $obj_desc: *_get_info_r: return one row from table * with format *%rowtype.
                             p_utc_offset in hdbk.dtype.t_id default null,
                             p_contact_name in hdbk.dtype.t_name default null,
                             p_contact_phone in hdbk.dtype.t_long_code default null,
-                            p_status in hdbk.dtype.t_status default null
+                            p_status in hdbk.dtype.t_status default null,
+                          p_legal_name  in hdbk.dtype.t_msg default null,
+                          p_inn  in hdbk.dtype.t_long_code default null,
+                          p_kpp  in hdbk.dtype.t_long_code default null,
+                          p_ogrn  in hdbk.dtype.t_long_code default null,
+                          p_legal_address  in hdbk.dtype.t_msg default null,
+                          p_bank_bik  in hdbk.dtype.t_long_code default null,
+                          p_bank_account  in hdbk.dtype.t_long_code default null,
+                          p_signatory_name  in hdbk.dtype.t_msg default null,
+                          p_signatory_title  in hdbk.dtype.t_name default null
                   );
 
   function contract_get_info(p_id in hdbk.dtype.t_id default null,p_client  in hdbk.dtype.t_id default null)
@@ -860,7 +878,16 @@ end blng_api;
                         p_name in hdbk.dtype.t_name default null,
                         p_utc_offset in hdbk.dtype.t_id default null,
                             p_contact_name in hdbk.dtype.t_name default null,
-                            p_contact_phone in hdbk.dtype.t_long_code default null
+                            p_contact_phone in hdbk.dtype.t_long_code default null,
+                          p_legal_name  in hdbk.dtype.t_msg default null,
+                          p_inn  in hdbk.dtype.t_long_code default null,
+                          p_kpp  in hdbk.dtype.t_long_code default null,
+                          p_ogrn  in hdbk.dtype.t_long_code default null,
+                          p_legal_address  in hdbk.dtype.t_msg default null,
+                          p_bank_bik  in hdbk.dtype.t_long_code default null,
+                          p_bank_account  in hdbk.dtype.t_long_code default null,
+                          p_signatory_name  in hdbk.dtype.t_msg default null,
+                          p_signatory_title  in hdbk.dtype.t_name default null
                       )
   return hdbk.dtype.t_id
   is
@@ -882,6 +909,16 @@ end blng_api;
     v_contract_row.status := 'A';
     v_contract_row.contact_name := p_contact_name;
     v_contract_row.contact_phone := p_contact_phone;
+    v_contract_row.legal_name := p_legal_name;
+    v_contract_row.inn := p_inn;
+    v_contract_row.kpp := p_kpp;
+    v_contract_row.ogrn := p_ogrn;
+    v_contract_row.legal_address := p_legal_address;
+    v_contract_row.bank_bik := p_bank_bik;
+    v_contract_row.bank_account := p_bank_account;
+    v_contract_row.signatory_name := p_signatory_name;
+    v_contract_row.signatory_title := p_signatory_title;                          
+                          
     insert into blng.contract values v_contract_row returning id into v_id;
     return v_id;
   exception when others then
@@ -895,7 +932,16 @@ end blng_api;
                             p_utc_offset in hdbk.dtype.t_id default null,
                             p_contact_name in hdbk.dtype.t_name default null,
                             p_contact_phone in hdbk.dtype.t_long_code default null,
-                            p_status in hdbk.dtype.t_status default null
+                            p_status in hdbk.dtype.t_status default null,
+                          p_legal_name  in hdbk.dtype.t_msg default null,
+                          p_inn  in hdbk.dtype.t_long_code default null,
+                          p_kpp  in hdbk.dtype.t_long_code default null,
+                          p_ogrn  in hdbk.dtype.t_long_code default null,
+                          p_legal_address  in hdbk.dtype.t_msg default null,
+                          p_bank_bik  in hdbk.dtype.t_long_code default null,
+                          p_bank_account  in hdbk.dtype.t_long_code default null,
+                          p_signatory_name  in hdbk.dtype.t_msg default null,
+                          p_signatory_title  in hdbk.dtype.t_name default null
                             
                          )
   is
@@ -922,6 +968,16 @@ end blng_api;
     v_contract_row_new.status := nvl(p_status,v_contract_row_new.status);
     v_contract_row_new.contact_name := nvl(p_contact_name,v_contract_row_new.contact_name);
     v_contract_row_new.contact_phone := nvl(p_contact_phone,v_contract_row_new.contact_phone);
+
+    v_contract_row_new.legal_name := nvl(p_legal_name,v_contract_row_new.legal_name);
+    v_contract_row_new.inn := nvl(p_inn,v_contract_row_new.inn);
+    v_contract_row_new.kpp := nvl(p_kpp,v_contract_row_new.kpp);
+    v_contract_row_new.ogrn := nvl(p_ogrn,v_contract_row_new.ogrn);
+    v_contract_row_new.legal_address := nvl(p_legal_address,v_contract_row_new.legal_address);
+    v_contract_row_new.bank_bik := nvl(p_bank_bik,v_contract_row_new.bank_bik);
+    v_contract_row_new.bank_account := nvl(p_bank_account,v_contract_row_new.bank_account);
+    v_contract_row_new.signatory_name := nvl(p_signatory_name,v_contract_row_new.signatory_name);
+    v_contract_row_new.signatory_title := nvl(p_signatory_title,v_contract_row_new.signatory_title);
 
     update blng.contract set row = v_contract_row_new where id = p_id;
   exception 

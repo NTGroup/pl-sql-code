@@ -397,17 +397,26 @@ ALTER TRIGGER BLNG.p2cntr_TRGR ENABLE;
 
   CREATE TABLE blng.contract 
    (	ID NUMBER(18,0), 
-   amnd_date date,
-   amnd_user VARCHAR2(50),
-   amnd_state VARCHAR2(1), 
-   amnd_prev NUMBER(18,0), 
-   contract_number VARCHAR2(50),
-   status VARCHAR2(1),
-   client_oid NUMBER(18,0),
-   utc_offset number,
-   name  VARCHAR2(255),
-   contact_name varchar2(255),
-   contact_phone varchar2(50)
+      amnd_date date,
+      amnd_user VARCHAR2(50),
+      amnd_state VARCHAR2(1), 
+      amnd_prev NUMBER(18,0), 
+      contract_number VARCHAR2(50),
+      status VARCHAR2(1),
+      client_oid NUMBER(18,0),
+      utc_offset number,
+      name  VARCHAR2(255),
+      contact_name varchar2(255),
+      contact_phone varchar2(50),
+      legal_name varchar2(4000),
+      inn varchar2(50),
+      kpp varchar2(50),
+      ogrn varchar2(50),
+      legal_address varchar2(4000),
+      bank_bik varchar2(50),
+      bank_account varchar2(50),
+      signatory_name varchar2(4000),
+      signatory_title varchar2(255)
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
