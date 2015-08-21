@@ -8,8 +8,8 @@ $obj_type: function
 $obj_name: get_tenant
 $obj_desc: return tenant. tenant is contract identifire. tenant using 
 $obj_desc: for checking is user registered in the system.
-$obj_param: p_email: user email
-$obj_return: contract identifire
+$obj_param: p_email(t_name): is not null. user email
+$obj_return: contract identifire (t_id)
 */
   function get_tenant (p_email in hdbk.dtype.t_name default null)
   return hdbk.dtype.t_id;  
@@ -18,7 +18,7 @@ $obj_return: contract identifire
 $obj_type: function
 $obj_name: client_insteadof_user
 $obj_desc: return id of user with max id across client
-$obj_param: p_client: client id where we looking for user
+$obj_param: p_client(t_id): is not null. client id where we looking for user
 $obj_return: user id
 */
   function client_insteadof_user(p_client in hdbk.dtype.t_id)
@@ -27,22 +27,22 @@ $obj_return: user id
 /*
 $obj_type: function
 $obj_name: balance
-$obj_desc: return info of contract for show balance to the client. function return this filds {
-$obj_desc:   DEPOSIT: self money
-$obj_desc:   LOAN: money thatspent from credit limit
-$obj_desc:   CREDIT_LIMIT: credit limit
-$obj_desc:   UNUSED_CREDIT_LIMIT: credit limit - abs(loan)
-$obj_desc:   AVAILABLE: credit limit + deposit - abs(loan). if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ.
-$obj_desc:   BLOCK_DATE: expiration date of the next bill
-$obj_desc:   UNBLOCK_SUM: sum next neares bills (with one day) + all bills before current day
-$obj_desc:   NEAR_UNBLOCK_SUM: unblock sum + bills for 2 next days after after first bill
-$obj_desc:   EXPIRY_DATE: date of first expired bill
-$obj_desc:   EXPIRY_SUM: summ of all expired bills
-$obj_desc:   STATUS: if bills are expired and contract blocked then 'BLOCK', if bills are expired and contract unblocked then 'UNBLOCK', else 'ACTIVE'
-$obj_desc: }
-$obj_param: P_TENANT_ID: contract id
-$obj_return: SYS_REFCURSOR[CONTRACT_OID, DEPOSIT, LOAN, CREDIT_LIMIT, UNUSED_CREDIT_LIMIT, 
-$obj_return: AVAILABLE, BLOCK_DATE, UNBLOCK_SUM, NEAR_UNBLOCK_SUM, EXPIRY_DATE, EXPIRY_SUM, status]
+$obj_desc: return info of contract for show balance to the client. 
+$obj_param: P_TENANT_ID(t_id): is not null. contract id
+$obj_return: SYS_REFCURSOR {
+$obj_return:   CONTRACT_OID(t_id) is not null - contract id
+$obj_return:   DEPOSIT(t_amount) is not null - self money
+$obj_return:   LOAN(t_amount) is not null - money thatspent from credit limit
+$obj_return:   CREDIT_LIMIT(t_amount) is not null - credit limit
+$obj_return:   UNUSED_CREDIT_LIMIT(t_amount) is not null - credit limit - abs(loan)
+$obj_return:   AVAILABLE(t_amount) is not null - credit limit + deposit - abs(loan). if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ.
+$obj_return:   BLOCK_DATE(t_long_code) is null - expiration date of the next bill. format yyyy-mm-dd
+$obj_return:   UNBLOCK_SUM(t_amount) is not null - sum next neares bills (with one day) + all bills before current day
+$obj_return:   NEAR_UNBLOCK_SUM(t_amount) is not null - unblock sum + bills for 2 next days after after first bill
+$obj_return:   EXPIRY_DATE(t_long_code) is null - date of first expired bill. format yyyy-mm-dd
+$obj_return:   EXPIRY_SUM(t_amount) is not null - summ of all expired bills
+$obj_return:   STATUS(t_long_code) is not null - if bills are expired and contract blocked then 'BLOCK', if bills are expired and contract unblocked then 'UNBLOCK', else 'ACTIVE'
+$obj_return: }
 
 */
   function balance( P_TENANT_ID in hdbk.dtype.t_id  default null
@@ -53,11 +53,33 @@ $obj_return: AVAILABLE, BLOCK_DATE, UNBLOCK_SUM, NEAR_UNBLOCK_SUM, EXPIRY_DATE, 
 $obj_type: function
 $obj_name: whoami
 $obj_desc: return info for user
-$obj_param: p_user: email
-$obj_return: SYS_REFCURSOR[USER_ID, LAST_NAME, FIRST_NAME, EMAIL, PHONE, --TENANT_ID, 
-$obj_return: BIRTH_DATE, GENDER, NATIONALITY, NLS_NATIONALITY, DOC_ID, DOC_EXPIRY_DATE, 
-$obj_return: DOC_NUMBER, DOC_LAST_NAME, DOC_FIRST_NAME, DOC_OWNER, DOC_GENDER, 
-$obj_return: DOC_BIRTH_DATE, DOC_NATIONALITY, DOC_NLS_NATIONALITY, DOC_PHONE, client_id, client_NAME,is_tester]
+$obj_param: p_user(t_name): is nt null. email
+$obj_return: SYS_REFCURSOR {
+$obj_return:   USER_ID(t_id) is not null - user id
+$obj_return:   LAST_NAME(t_name) is null - user last name 
+$obj_return:   FIRST_NAME(t_name) is null - user first name
+$obj_return:   EMAIL(t_name) is not null - user email
+$obj_return:   PHONE(t_long_code) is null - user phone
+$obj_return:   BIRTH_DATE(t_long_code) is null - user birth date
+$obj_return:   GENDER(t_status) is null - user gender
+$obj_return:   NATIONALITY(t_code) is null - user nationality code. like RU
+$obj_return:   NLS_NATIONALITY(t_name) is null - user nationality name. like russia
+$obj_return:   DOC_ID(t_id) is null - id of identity card(document). users or other persons traveler cards. like family or friends
+$obj_return:   DOC_EXPIRY_DATE(t_long_code) is null - document expiration date
+$obj_return:   DOC_NUMBER(t_long_code) is null - document number
+$obj_return:   DOC_LAST_NAME(t_name) is null - document last name
+$obj_return:   DOC_FIRST_NAME(t_name) is null - document first name
+$obj_return:   DOC_OWNER(t_status) is null - document owner status. is it users document?
+$obj_return:   DOC_GENDER(t_status) is null - document gender
+$obj_return:   DOC_BIRTH_DATE(t_long_code) is null - document birth date
+$obj_return:   DOC_NATIONALITY(t_code) is null - document nationality code. like RU
+$obj_return:   DOC_NLS_NATIONALITY(t_name) is null - document nationality name. like russia
+$obj_return:   DOC_PHONE(t_long_code) is null - document additionl info phone
+$obj_return:   CLIENT_ID(t_id) is not null - client id
+$obj_return:   CLIENT_NAME(t_name) is not null - client name
+$obj_return:   IS_TESTER(t_status) is not null - is this user tester. if 'Y' then possible to get info about some application errors
+$obj_return: }
+
 */
   function whoami(p_user in hdbk.dtype.t_name)
   return SYS_REFCURSOR;
@@ -65,12 +87,34 @@ $obj_return: DOC_BIRTH_DATE, DOC_NATIONALITY, DOC_NLS_NATIONALITY, DOC_PHONE, cl
 /*
 $obj_type: function
 $obj_name: user_data_edit
-$obj_desc: update user documents. if success return true else false
-$obj_param: p_data: data for update. format json[email, first_name, last_name, 
-$obj_param: p_data: gender, birth_date, nationality, phone, docs[doc_expiry_date, 
-$obj_param: p_data: doc_gender, doc_first_name, doc_last_name, doc_number, doc_owner, 
-$obj_param: p_data: doc_id, doc_nationality, doc_birth_date,doc_phone]]
-$obj_return: SYS_REFCURSOR[res:true/false]
+$obj_desc: update user documents. if success return true else false. if doc_id is null then add document
+$obj_param: p_data(t_clob): is null. data for update. format json {
+$obj_param: p_data(t_clob):   LAST_NAME(t_name) is null - user last name 
+$obj_param: p_data(t_clob):   FIRST_NAME(t_name) is null - user first name
+$obj_param: p_data(t_clob):   EMAIL(t_name) is not null - user email
+$obj_param: p_data(t_clob):   PHONE(t_long_code) is null - user phone
+$obj_param: p_data(t_clob):   BIRTH_DATE(t_long_code) is null - user birth date
+$obj_param: p_data(t_clob):   GENDER(t_status) is null - user gender
+$obj_param: p_data(t_clob):   NATIONALITY(t_code) is null - user nationality code. like RU
+$obj_param: p_data(t_clob):   NLS_NATIONALITY(t_name) is null - user nationality name. like russia
+$obj_param: p_data(t_clob):   DOC_ID(t_id) is null - id of identity card(document). users or other persons traveler cards. like family or friends
+$obj_param: p_data(t_clob):   DOC_EXPIRY_DATE(t_long_code) is null - document expiration date
+$obj_param: p_data(t_clob):   DOC_NUMBER(t_long_code) is null - document number
+$obj_param: p_data(t_clob):   DOC_LAST_NAME(t_name) is null - document last name
+$obj_param: p_data(t_clob):   DOC_FIRST_NAME(t_name) is null - document first name
+$obj_param: p_data(t_clob):   DOC_OWNER(t_status) is null - document owner status. is it users document?
+$obj_param: p_data(t_clob):   DOC_GENDER(t_status) is null - document gender
+$obj_param: p_data(t_clob):   DOC_BIRTH_DATE(t_long_code) is null - document birth date
+$obj_param: p_data(t_clob):   DOC_NATIONALITY(t_code) is null - document nationality code. like RU
+$obj_param: p_data(t_clob):   DOC_NLS_NATIONALITY(t_name) is null - document nationality name. like russia
+$obj_param: p_data(t_clob):   DOC_PHONE(t_long_code) is null - document additionl info phone
+$obj_param: p_data(t_clob):   CLIENT_ID(t_id) is not null - client id
+$obj_param: p_data(t_clob):   CLIENT_NAME(t_name) is not null - client name
+$obj_param: p_data(t_clob):   IS_TESTER(t_status) is not null - is this user tester. if 'Y' then possible to get info about some application errors
+$obj_param: p_data(t_clob): }
+$obj_return: SYS_REFCURSOR {
+$obj_return:   res(t_code) is not null - true/false
+$obj_return: }
 */
   function user_data_edit(p_data in hdbk.dtype.t_clob)
   return SYS_REFCURSOR;
@@ -79,13 +123,34 @@ $obj_return: SYS_REFCURSOR[res:true/false]
 /*
 $obj_type: function
 $obj_name: statement
-$obj_desc: return list of transactions between dates in user timezone format
-$obj_param: p_email: user email which request statement
-$obj_param: p_row_count: count rows per page
-$obj_param: p_page_number: page number to show
-$obj_param: p_date_from: date filter.
-$obj_param: p_date_to: date filter.
-$obj_return: SYS_REFCURSOR[rn(row_number),all v_statemen filds + amount_cash_in,amount_buy,amount_from,amount_to,page_count,row_count]
+$obj_desc: return list of transactions between dates in user timezone format. page and row parameters are fake
+$obj_param: p_email(t_name): is not null. user email which request statement
+$obj_param: p_row_count(t_id): null
+$obj_param: p_page_number(t_id): null
+$obj_param: p_date_from(t_code): is null. date from filter.
+$obj_param: p_date_to(t_code): is null. date to filter.
+$obj_return: SYS_REFCURSOR {
+$obj_return:   RN(t_id) is not null - row number
+$obj_return:   DOC_ID(t_id) is not null - document id
+$obj_return:   TRANSACTION_ID(t_id) is not null - transaction id
+$obj_return:   TRANSACTION_DATE(t_code) is not null - date of transaction. format YYYY-MM-DD
+$obj_return:   TRANSACTION_TIME(t_code) is not null - time of transaction. format HH24:MI:SS
+$obj_return:   AMOUNT_BEFORE(t_amount) is not null - amount before transaction
+$obj_return:   AMOUNT(t_amount) is not null - amount of transaction
+$obj_return:   AMOUNT_AFTER(t_amount) is not null - amount after transaction
+$obj_return:   TRANSACTION_TYPE(t_long_code) is not null - name of transaction
+$obj_return:   PNR_ID(t_long_code) is null - pnr id from NQT
+$obj_return:   ORDER_NUMBER(t_long_code) is null - order number
+$obj_return:   LAST_NAME(t_name) is null - last name of transaction owner(user)
+$obj_return:   FIRST_NAME(t_name) is null - first name of transaction owner(user)
+$obj_return:   EMAIL(t_name) is null - email of transaction owner(user)
+$obj_return:   AMOUNT_BUY(t_amount) is not null - summ of buy transactions across result
+$obj_return:   AMOUNT_CASH_IN(t_amount) is not null - summ of cash_in transactions across result
+$obj_return:   AMOUNT_FROM(t_amount) is not null - amount before of first transaction across result
+$obj_return:   AMOUNT_TO(t_amount) is not null - amount after of last transaction across result
+$obj_return:   PAGE_COUNT(t_id) is not null - count of pages across all contract transactions
+$obj_return:   ROW_COUNT(t_id) is not null - count of rows across all contract transactions
+$obj_return: }
 */
   function statement(p_email  in hdbk.dtype.t_name, 
                       p_row_count  in hdbk.dtype.t_id, 
@@ -98,11 +163,32 @@ $obj_return: SYS_REFCURSOR[rn(row_number),all v_statemen filds + amount_cash_in,
 /*
 $obj_type: function
 $obj_name: statement
-$obj_desc: return list of transactions in user timezone format by pages
-$obj_param: p_email: user email which request statement
-$obj_param: p_row_count: count rows per page
-$obj_param: p_page_number: page number to show
-$obj_return: SYS_REFCURSOR[rn(row_number),all v_statemen filds + amount_cash_in,amount_buy,amount_from,amount_to,page_count,row_count]
+$obj_desc: return list of transactions in user timezone format by pages. result is a rows only for one page with number p_page_number
+$obj_param: p_email(t_name): is not null. user email which request statement
+$obj_param: p_row_count(t_id): is null. count rows per page
+$obj_param: p_page_number(t_id): is null. page number to show
+$obj_return: SYS_REFCURSOR {
+$obj_return:   RN(t_id) is not null - row number
+$obj_return:   DOC_ID(t_id) is not null - document id
+$obj_return:   TRANSACTION_ID(t_id) is not null - transaction id
+$obj_return:   TRANSACTION_DATE(t_code) is not null - date of transaction. format YYYY-MM-DD
+$obj_return:   TRANSACTION_TIME(t_code) is not null - time of transaction. format HH24:MI:SS
+$obj_return:   AMOUNT_BEFORE(t_amount) is not null - amount before transaction
+$obj_return:   AMOUNT(t_amount) is not null - amount of transaction
+$obj_return:   AMOUNT_AFTER(t_amount) is not null - amount after transaction
+$obj_return:   TRANSACTION_TYPE(t_long_code) is not null - name of transaction
+$obj_return:   PNR_ID(t_long_code) is null - pnr id from NQT
+$obj_return:   ORDER_NUMBER(t_long_code) is null - order number
+$obj_return:   LAST_NAME(t_name) is null - last name of transaction owner(user)
+$obj_return:   FIRST_NAME(t_name) is null - first name of transaction owner(user)
+$obj_return:   EMAIL(t_name) is null - email of transaction owner(user)
+$obj_return:   AMOUNT_BUY(t_amount) is not null - summ of buy transactions across result
+$obj_return:   AMOUNT_CASH_IN(t_amount) is not null - summ of cash_in transactions across result
+$obj_return:   AMOUNT_FROM(t_amount) is not null - amount before of first transaction across result
+$obj_return:   AMOUNT_TO(t_amount) is not null - amount after of last transaction across result
+$obj_return:   PAGE_COUNT(t_id) is not null - count of pages across all contract transactions
+$obj_return:   ROW_COUNT(t_id) is not null - count of rows across all contract transactions
+$obj_return: }
 */
   function statement(p_email  in hdbk.dtype.t_name, 
                       p_row_count  in hdbk.dtype.t_id, 
@@ -114,9 +200,17 @@ $obj_return: SYS_REFCURSOR[rn(row_number),all v_statemen filds + amount_cash_in,
 $obj_type: function
 $obj_name: loan_list
 $obj_desc: return list of loans with expired flag
-$obj_param: p_email: user email who request loan_list
-$obj_param: p_rownum: cuts rows for paging
-$obj_return: SYS_REFCURSOR[ID, CONTRACT_OID, AMOUNT, ORDER_NUMBER, PNR_ID, DATE_TO, IS_OVERDUE]
+$obj_param: p_email(t_name): is not null. user email who request loan_list
+$obj_param: p_rownum(t_id): is null. cuts rows for paging. null
+$obj_return: SYS_REFCURSOR {
+$obj_return:   ID(t_id) is not null - delay id
+$obj_return:   CONTRACT_OID(t_id) is not null - contract id
+$obj_return:   AMOUNT(t_amount) is not null - amount of delay
+$obj_return:   ORDER_NUMBER(t_long_code) is not null - order number
+$obj_return:   PNR_ID(t_long_code) is not null - pnr id from NQT
+$obj_return:   DATE_TO(t_long_code) is not null - date of delay expiration. last day when client must bring money. format yyyy-mm-dd
+$obj_return:   IS_OVERDUE(t_status) is not null - did delay was expired?
+$obj_return: }
 */
   function loan_list( p_email  in hdbk.dtype.t_name,
                       p_rownum  in hdbk.dtype.t_id default null
@@ -127,9 +221,9 @@ $obj_return: SYS_REFCURSOR[ID, CONTRACT_OID, AMOUNT, ORDER_NUMBER, PNR_ID, DATE_
 /*
 $obj_type: function
 $obj_name: v_account_get_info_r
-$obj_desc: return all fields from blng.v_account
-$obj_param: p_contract: contract id
-$obj_return: SYS_REFCURSOR[all v_statemen fields]
+$obj_desc: inturnal function. (may be have to move to core) return all fields from blng.v_account view
+$obj_param: p_contract(t_id): is not null. contract id
+$obj_return: SYS_REFCURSOR(blng.v_account%rowtype). all v_statemen fields
 */
  
   function v_account_get_info_r ( p_contract in hdbk.dtype.t_id default null
@@ -141,8 +235,14 @@ $obj_return: SYS_REFCURSOR[all v_statemen fields]
 $obj_type: function
 $obj_name: contract_get
 $obj_desc: return list of contract with client
-$obj_param: p_contract: contract id
-$obj_return: SYS_REFCURSOR[client_ID, CONTRACT_ID, client_NAME, CONTRACT_NUMBER]
+$obj_param: p_contract(t_id): is not null. contract id
+$obj_return: SYS_REFCURSOR {
+$obj_return:   client_ID(t_id) is not null - id of client
+$obj_return:   CONTRACT_ID(t_id) is not null - id of contract
+$obj_return:   client_NAME(t_name) is not null - name of client
+$obj_return:   CONTRACT_name(t_name) is not null - name of contarct
+$obj_return:   CONTRACT_NUMBER(t_long_code) is not null - number of contract
+$obj_return: }
 */
   function contract_get(
                         p_contract  in hdbk.dtype.t_id default null
@@ -154,8 +254,16 @@ $obj_type: function
 $obj_name: check_tenant
 $obj_desc: return tenant. tenant is contract identifire. tenant using 
 $obj_desc: for checking is user registered in the system. if user dosnt exist then return NULL
-$obj_param: p_email: user email
-$obj_return: contract identifire
+$obj_param: p_email(t_name): is not null. user email
+$obj_return: if user exist then
+$obj_return: SYS_REFCURSOR {
+$obj_return:   tenant_id(t_id) is not null - contract identifire
+$obj_return: }
+$obj_return: if user dose not exist then
+$obj_return: SYS_REFCURSOR {
+$obj_return:   res(t_long_code) is not null - error code. NO_DATA_FOUND, ERROR
+$obj_return: }
+
 */
   function check_tenant (p_email in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR;  
@@ -164,7 +272,9 @@ $obj_return: contract identifire
 $obj_type: function
 $obj_name: god_unblock
 $obj_desc: unblock user god@ntg-one.com. this user must be usually at blocked status [C]losed
-$obj_return: res[SUCCESS/ERROR/NO_DATA_FOUND]
+$obj_return: SYS_REFCURSOR {
+$obj_return:   res(t_long_code) is not null - result code. SUCCESS, NO_DATA_FOUND, ERROR
+$obj_return: }
 */
   function god_unblock  
   return SYS_REFCURSOR;
@@ -173,7 +283,9 @@ $obj_return: res[SUCCESS/ERROR/NO_DATA_FOUND]
 $obj_type: function
 $obj_name: god_block
 $obj_desc: block user god@ntg-one.com. this user must be usually at blocked status [C]losed
-$obj_return: res[SUCCESS/ERROR/NO_DATA_FOUND]
+$obj_return: SYS_REFCURSOR {
+$obj_return:   res(t_long_code) is not null - result code. SUCCESS, NO_DATA_FOUND, ERROR
+$obj_return: }
 */
   function god_block  
   return SYS_REFCURSOR;
@@ -184,8 +296,10 @@ $obj_name: god_move
 $obj_desc: move user god@ntg-one.com to contract with id equals p_tenant. 
 $obj_desc: mission of god@ntg-one.com is to login under one of a contract and check errors.
 $obj_desc: god can help others to understand some problems 
-$obj_param: p_tenant: id of contract
-$obj_return: res[SUCCESS/ERROR/NO_DATA_FOUND]
+$obj_param: p_tenant(t_id): is not null. id of contract where god user must be moved
+$obj_return: SYS_REFCURSOR {
+$obj_return:   res(t_long_code) is not null - result code. SUCCESS, NO_DATA_FOUND, ERROR
+$obj_return: }
 */
   function god_move(p_tenant in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
@@ -193,10 +307,16 @@ $obj_return: res[SUCCESS/ERROR/NO_DATA_FOUND]
 
 /*
 $obj_type: function
-$obj_name: client_list()
+$obj_name: client_list
 $obj_desc: return list of clients. 
-$obj_return: on success SYS_REFCURSOR[client_id,name].
-$obj_return: on error SYS_REFCURSOR[res]. res=ERROR
+$obj_param: p_id(t_id): is null. id of client for filter one client
+$obj_return: on success SYS_REFCURSOR { 
+$obj_return:   client_id(t_id) is not null - id of client
+$obj_return:   name(t_name) is not null - name of client
+$obj_return: }
+$obj_return: on error SYS_REFCURSOR {
+$obj_return:   res(t_long_code) is not null - result code. SUCCESS, NO_DATA_FOUND, ERROR
+$obj_return: }
 */
 
   function client_list(p_id in hdbk.dtype.t_id default null)
@@ -206,9 +326,14 @@ $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 $obj_type: function
 $obj_name: client_add
 $obj_desc: create client and return info about this new client. 
-$obj_param: p_name: name of client
-$obj_return: on success SYS_REFCURSOR[res,client_id,name]
-$obj_return: on error SYS_REFCURSOR[res]. res=ERROR
+$obj_param: p_name(t_name): is not null. name of client
+$obj_return: on success SYS_REFCURSOR { 
+$obj_return:   client_id(t_id) is not null - id of client
+$obj_return:   name(t_name) is not null - name of client
+$obj_return: }
+$obj_return: on error SYS_REFCURSOR {
+$obj_return:   res(t_long_code) is not null - result code. SUCCESS, NO_DATA_FOUND, ERROR
+$obj_return: }
 */
   function client_add(p_name in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR;
@@ -216,11 +341,35 @@ $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 /*
 $obj_type: function
 $obj_name: contract_list
-$obj_desc: return list of contracts by client id 
-$obj_param: p_client: id of client
-$obj_return: on success SYS_REFCURSOR[client_id, CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, 
-$obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, contract_number,CONTACT_PHONE]
-$obj_return: on error SYS_REFCURSOR[res]. res=ERROR
+$obj_desc: return list of contracts filtered by client id and contarct id 
+$obj_param: p_client(t_id): is null. id of client
+$obj_param: p_idt(t_id): is null. id of contract
+$obj_return: on success SYS_REFCURSOR {
+$obj_return:   CLIENT_ID(t_id) is not null - id of client
+$obj_return:   CONTRACT_ID(t_id) is not null - id of contract
+$obj_return:   TENANT_ID(t_id) is not null - contract id
+$obj_return:   IS_BLOCKED(t_status) is not null - flag. is contract blocked
+$obj_return:   CONTRACT_NAME(t_name) is not null - contract name
+$obj_return:   CONTRACT_NUMBER(t_long_code) is not null - contract number
+$obj_return:   CREDIT_LIMIT(t_amount) is not null - credit limit of contract
+$obj_return:   DELAY_DAYS(t_id) is not null - delay days parameter on contract
+$obj_return:   MAX_CREDIT(t_amount) is not null - max credit amount parameter on contract
+$obj_return:   UTC_OFFSET(t_id) is not null - utc offset parameter on contract
+$obj_return:   CONTACT_NAME(t_name) is not null - name of contact person
+$obj_return:   CONTACT_PHONE(t_long_code) is not null - phone of contact person
+$obj_return:   LEGAL_NAME(t_msg) is not null - legal name of client. for correct bill info filling to client
+$obj_return:   INN(t_long_code) is not null - inn of contract. for correct bill info filling to client. 10-12 numbers
+$obj_return:   KPP(t_long_code) is not null - kpp of contract. for correct bill info filling to client. 9 numbers
+$obj_return:   OGRN(t_long_code) is not null - ogrn of contract. for correct bill info filling to client. 13 numbers
+$obj_return:   LEGAL_ADDRESS(t_msg) is not null - legal address of client. for correct bill info filling to client
+$obj_return:   BANK_BIK(t_long_code) is not null - bank bik of contract. for correct bill info filling to client. 9 numbers started from 04 for russia
+$obj_return:   BANK_ACCOUNT(t_long_code) is not null - bank account of contract. for correct bill info filling to client. 20 numbers
+$obj_return:   SIGNATORY_NAME(t_msg) is not null - name of signator on contract. for correct bill info filling to client
+$obj_return:   SIGNATORY_TITLE(t_name) is not null - title of signatir on contarct. for correct bill info filling to client
+$obj_return: }
+$obj_return: on error SYS_REFCURSOR {
+$obj_return:   res(t_long_code) is not null - result code. SUCCESS, NO_DATA_FOUND, ERROR
+$obj_return: }
 */
   function contract_list(p_client in hdbk.dtype.t_id default null,
                           p_id in hdbk.dtype.t_id default null)
@@ -230,11 +379,29 @@ $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 $obj_type: function
 $obj_name: contract_add
 $obj_desc: add contract for client and return info about this new contract. 
-$obj_param: p_client: id of client
-$obj_param: p_data: json[CONTRACT_NAME, CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE]
-$obj_return: on success SYS_REFCURSOR[client_id, CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, contract_number,
-$obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE
-$obj_return: on error SYS_REFCURSOR[res]. res=ERROR
+$obj_param: p_client(t_id): is not null. id of client
+$obj_param: p_data(t_clob): is null. json {
+$obj_param: p_data(t_clob):   CONTRACT_NAME(t_name) is not null - contract name
+$obj_param: p_data(t_clob):   CREDIT_LIMIT(t_amount) is not null - credit limit of contract
+$obj_param: p_data(t_clob):   DELAY_DAYS(t_id) is not null - delay days parameter on contract
+$obj_param: p_data(t_clob):   MAX_CREDIT(t_amount) is not null - max credit amount parameter on contract
+$obj_param: p_data(t_clob):   UTC_OFFSET(t_id) is not null - utc offset parameter on contract
+$obj_param: p_data(t_clob):   CONTACT_NAME(t_name) is not null - name of contact person
+$obj_param: p_data(t_clob):   CONTACT_PHONE(t_long_code) is not null - phone of contact person
+$obj_param: p_data(t_clob):   LEGAL_NAME(t_msg) is not null - legal name of client. for correct bill info filling to client
+$obj_param: p_data(t_clob):   INN(t_long_code) is not null - inn of contract. for correct bill info filling to client. 10-12 numbers
+$obj_param: p_data(t_clob):   KPP(t_long_code) is not null - kpp of contract. for correct bill info filling to client. 9 numbers
+$obj_param: p_data(t_clob):   OGRN(t_long_code) is not null - ogrn of contract. for correct bill info filling to client. 13 numbers
+$obj_param: p_data(t_clob):   LEGAL_ADDRESS(t_msg) is not null - legal address of client. for correct bill info filling to client
+$obj_param: p_data(t_clob):   BANK_BIK(t_long_code) is not null - bank bik of contract. for correct bill info filling to client. 9 numbers started from 04 for russia
+$obj_param: p_data(t_clob):   BANK_ACCOUNT(t_long_code) is not null - bank account of contract. for correct bill info filling to client. 20 numbers
+$obj_param: p_data(t_clob):   SIGNATORY_NAME(t_msg) is not null - name of signator on contract. for correct bill info filling to client
+$obj_param: p_data(t_clob):   SIGNATORY_TITLE(t_name) is not null - title of signatir on contarct. for correct bill info filling to client
+$obj_param: p_data(t_clob): }
+$obj_return: on success return contract_list() for added contract
+$obj_return: on error SYS_REFCURSOR {
+$obj_return:   res(t_long_code) is not null - result code. SUCCESS, NO_DATA_FOUND, ERROR
+$obj_return: }
 */
   function contract_add(p_client in hdbk.dtype.t_id default null, p_data in hdbk.dtype.t_clob default null)
   return SYS_REFCURSOR;
@@ -243,11 +410,29 @@ $obj_return: on error SYS_REFCURSOR[res]. res=ERROR
 $obj_type: function
 $obj_name: contract_update
 $obj_desc: update contract info for client and return info about this new contract. 
-$obj_param: p_contract: id of contract
-$obj_param: p_data: json[CONTRACT_NAME, CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME, CONTACT_PHONE]
-$obj_return: on success SYS_REFCURSOR[client_id, CONTRACT_ID, TENANT_ID, IS_BLOCKED, CONTRACT_NAME, 
-$obj_return: CREDIT_LIMIT, DELAY_DAYS, MAX_CREDIT, UTC_OFFSET, CONTACT_NAME,contract_number, CONTACT_PHONE
-$obj_return: on error SYS_REFCURSOR[res]. res=ERROR
+$obj_param: p_contract(t_id): is not null. id of contract
+$obj_param: p_data(t_clob): is null. json {
+$obj_param: p_data(t_clob):   CONTRACT_NAME(t_name) is not null - contract name
+$obj_param: p_data(t_clob):   CREDIT_LIMIT(t_amount) is not null - credit limit of contract
+$obj_param: p_data(t_clob):   DELAY_DAYS(t_id) is not null - delay days parameter on contract
+$obj_param: p_data(t_clob):   MAX_CREDIT(t_amount) is not null - max credit amount parameter on contract
+$obj_param: p_data(t_clob):   UTC_OFFSET(t_id) is not null - utc offset parameter on contract
+$obj_param: p_data(t_clob):   CONTACT_NAME(t_name) is not null - name of contact person
+$obj_param: p_data(t_clob):   CONTACT_PHONE(t_long_code) is not null - phone of contact person
+$obj_param: p_data(t_clob):   LEGAL_NAME(t_msg) is not null - legal name of client. for correct bill info filling to client
+$obj_param: p_data(t_clob):   INN(t_long_code) is not null - inn of contract. for correct bill info filling to client. 10-12 numbers
+$obj_param: p_data(t_clob):   KPP(t_long_code) is not null - kpp of contract. for correct bill info filling to client. 9 numbers
+$obj_param: p_data(t_clob):   OGRN(t_long_code) is not null - ogrn of contract. for correct bill info filling to client. 13 numbers
+$obj_param: p_data(t_clob):   LEGAL_ADDRESS(t_msg) is not null - legal address of client. for correct bill info filling to client
+$obj_param: p_data(t_clob):   BANK_BIK(t_long_code) is not null - bank bik of contract. for correct bill info filling to client. 9 numbers started from 04 for russia
+$obj_param: p_data(t_clob):   BANK_ACCOUNT(t_long_code) is not null - bank account of contract. for correct bill info filling to client. 20 numbers
+$obj_param: p_data(t_clob):   SIGNATORY_NAME(t_msg) is not null - name of signator on contract. for correct bill info filling to client
+$obj_param: p_data(t_clob):   SIGNATORY_TITLE(t_name) is not null - title of signatir on contarct. for correct bill info filling to client
+$obj_param: p_data(t_clob): }
+$obj_return: on success return contract_list() for added contract
+$obj_return: on error SYS_REFCURSOR {
+$obj_return:   res(t_long_code) is not null - result code. SUCCESS, NO_DATA_FOUND, ERROR
+$obj_return: }
 */
   function contract_update(p_contract in hdbk.dtype.t_id default null, p_data in hdbk.dtype.t_clob default null)
   return SYS_REFCURSOR;

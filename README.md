@@ -112,130 +112,262 @@ _DESCRIPTION:_
 return tenant. tenant is contract identifire. tenant using  
 for checking is user registered in the system.  
 _PARAMETERS:_  
-**p\_email:** user email  
+**p\_email**(_t\_name_): is not null. user email  
 _RETURN:_  
-contract identifire  
+contract identifire (t\_id)  
 
 ### _function_ BLNG.FWDR.CLIENT\_INSTEADOF\_USER  
 _DESCRIPTION:_  
 return id of user with max id across client  
 _PARAMETERS:_  
-**p\_client:** client id where we looking for user  
+**p\_client**(_t\_id_): is not null. client id where we looking for user  
 _RETURN:_  
 user id  
 
 ### _function_ BLNG.FWDR.BALANCE  
 _DESCRIPTION:_  
-return info of contract for show balance to the client. function return this filds {  
+return info of contract for show balance to the client.  
+_PARAMETERS:_  
+**p\_tenant\_id**(_t\_id_): is not null. contract id  
+_RETURN:_  
+sys\_refcursor {  
 
-  * deposit: self money  
-  * loan: money thatspent from credit limit  
-  * credit\_limit: credit limit  
-  * unused\_credit\_limit: credit limit - abs(loan)  
-  * available: credit limit + deposit - abs(loan). if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ.  
-  * block\_date: expiration date of the next bill  
-  * unblock\_sum: sum next neares bills (with one day) + all bills before current day  
-  * near\_unblock\_sum: unblock sum + bills for 2 next days after after first bill  
-  * expiry\_date: date of first expired bill  
-  * expiry\_sum: summ of all expired bills  
-  * status: if bills are expired and contract blocked then 'block', if bills are expired and contract unblocked then 'unblock', else 'active'  
+  * contract\_oid(t\_id) is not null - contract id  
+  * deposit(t\_amount) is not null - self money  
+  * loan(t\_amount) is not null - money thatspent from credit limit  
+  * credit\_limit(t\_amount) is not null - credit limit  
+  * unused\_credit\_limit(t\_amount) is not null - credit limit - abs(loan)  
+  * available(t\_amount) is not null - credit limit + deposit - abs(loan). if contract bills are expired and contract blocked then 0. if contract bills are expired and contract unblocked then ussual summ.  
+  * block\_date(t\_long\_code) is null - expiration date of the next bill. format yyyy-mm-dd  
+  * unblock\_sum(t\_amount) is not null - sum next neares bills (with one day) + all bills before current day  
+  * near\_unblock\_sum(t\_amount) is not null - unblock sum + bills for 2 next days after after first bill  
+  * expiry\_date(t\_long\_code) is null - date of first expired bill. format yyyy-mm-dd  
+  * expiry\_sum(t\_amount) is not null - summ of all expired bills  
+  * status(t\_long\_code) is not null - if bills are expired and contract blocked then 'block', if bills are expired and contract unblocked then 'unblock', else 'active'  
 
 }  
-_PARAMETERS:_  
-**p\_tenant\_id:** contract id  
-_RETURN:_  
-sys\_refcursor[contract\_oid, deposit, loan, credit\_limit, unused\_credit\_limit,  
-available, block\_date, unblock\_sum, near\_unblock\_sum, expiry\_date, expiry\_sum, status]  
 
 ### _function_ BLNG.FWDR.WHOAMI  
 _DESCRIPTION:_  
 return info for user  
 _PARAMETERS:_  
-**p\_user:** email  
+**p\_user**(_t\_name_): is nt null. email  
 _RETURN:_  
-sys\_refcursor[user\_id, last\_name, first\_name, email, phone, --tenant\_id,  
-birth\_date, gender, nationality, nls\_nationality, doc\_id, doc\_expiry\_date,  
-doc\_number, doc\_last\_name, doc\_first\_name, doc\_owner, doc\_gender,  
-doc\_birth\_date, doc\_nationality, doc\_nls\_nationality, doc\_phone, client\_id, client\_name,is\_tester]  
+sys\_refcursor {  
+
+  * user\_id(t\_id) is not null - user id  
+  * last\_name(t\_name) is null - user last name  
+  * first\_name(t\_name) is null - user first name  
+  * email(t\_name) is not null - user email  
+  * phone(t\_long\_code) is null - user phone  
+  * birth\_date(t\_long\_code) is null - user birth date  
+  * gender(t\_status) is null - user gender  
+  * nationality(t\_code) is null - user nationality code. like ru  
+  * nls\_nationality(t\_name) is null - user nationality name. like russia  
+  * doc\_id(t\_id) is null - id of identity card(document). users or other persons traveler cards. like family or friends  
+  * doc\_expiry\_date(t\_long\_code) is null - document expiration date  
+  * doc\_number(t\_long\_code) is null - document number  
+  * doc\_last\_name(t\_name) is null - document last name  
+  * doc\_first\_name(t\_name) is null - document first name  
+  * doc\_owner(t\_status) is null - document owner status. is it users document?  
+  * doc\_gender(t\_status) is null - document gender  
+  * doc\_birth\_date(t\_long\_code) is null - document birth date  
+  * doc\_nationality(t\_code) is null - document nationality code. like ru  
+  * doc\_nls\_nationality(t\_name) is null - document nationality name. like russia  
+  * doc\_phone(t\_long\_code) is null - document additionl info phone  
+  * client\_id(t\_id) is not null - client id  
+  * client\_name(t\_name) is not null - client name  
+  * is\_tester(t\_status) is not null - is this user tester. if 'y' then possible to get info about some application errors  
+
+}  
 
 ### _function_ BLNG.FWDR.USER\_DATA\_EDIT  
 _DESCRIPTION:_  
-update user documents. if success return true else false  
+update user documents. if success return true else false. if doc\_id is null then add document  
 _PARAMETERS:_  
-**p\_data:** data for update. format json[email, first\_name, last\_name,  
-gender, birth\_date, nationality, phone, docs[doc\_expiry\_date,  
-doc\_gender, doc\_first\_name, doc\_last\_name, doc\_number, doc\_owner,  
-doc\_id, doc\_nationality, doc\_birth\_date,doc\_phone]]  
+**p\_data**(_t\_clob_): is null. data for update. format json {  
+
+  * last\_name(t\_name) is null - user last name  
+  * first\_name(t\_name) is null - user first name  
+  * email(t\_name) is not null - user email  
+  * phone(t\_long\_code) is null - user phone  
+  * birth\_date(t\_long\_code) is null - user birth date  
+  * gender(t\_status) is null - user gender  
+  * nationality(t\_code) is null - user nationality code. like ru  
+  * nls\_nationality(t\_name) is null - user nationality name. like russia  
+  * doc\_id(t\_id) is null - id of identity card(document). users or other persons traveler cards. like family or friends  
+  * doc\_expiry\_date(t\_long\_code) is null - document expiration date  
+  * doc\_number(t\_long\_code) is null - document number  
+  * doc\_last\_name(t\_name) is null - document last name  
+  * doc\_first\_name(t\_name) is null - document first name  
+  * doc\_owner(t\_status) is null - document owner status. is it users document?  
+  * doc\_gender(t\_status) is null - document gender  
+  * doc\_birth\_date(t\_long\_code) is null - document birth date  
+  * doc\_nationality(t\_code) is null - document nationality code. like ru  
+  * doc\_nls\_nationality(t\_name) is null - document nationality name. like russia  
+  * doc\_phone(t\_long\_code) is null - document additionl info phone  
+  * client\_id(t\_id) is not null - client id  
+  * client\_name(t\_name) is not null - client name  
+  * is\_tester(t\_status) is not null - is this user tester. if 'y' then possible to get info about some application errors  
+
+}  
 _RETURN:_  
-sys\_refcursor[res:true/false]  
+sys\_refcursor {  
+
+  * res(t\_code) is not null - true/false  
+
+}  
 
 ### _function_ BLNG.FWDR.STATEMENT  
 _DESCRIPTION:_  
-return list of transactions between dates in user timezone format  
+return list of transactions between dates in user timezone format. page and row parameters are fake  
 _PARAMETERS:_  
-**p\_email:** user email which request statement  
-**p\_row\_count:** count rows per page  
-**p\_page\_number:** page number to show  
-**p\_date\_from:** date filter.  
-**p\_date\_to:** date filter.  
+**p\_email**(_t\_name_): is not null. user email which request statement  
+**p\_row\_count**(_t\_id_): null  
+**p\_page\_number**(_t\_id_): null  
+**p\_date\_from**(_t\_code_): is null. date from filter.  
+**p\_date\_to**(_t\_code_): is null. date to filter.  
 _RETURN:_  
-sys\_refcursor[rn(row\_number),all v\_statemen filds + amount\_cash\_in,amount\_buy,amount\_from,amount\_to,page\_count,row\_count]  
+sys\_refcursor {  
+
+  * rn(t\_id) is not null - row number  
+  * doc\_id(t\_id) is not null - document id  
+  * transaction\_id(t\_id) is not null - transaction id  
+  * transaction\_date(t\_code) is not null - date of transaction. format yyyy-mm-dd  
+  * transaction\_time(t\_code) is not null - time of transaction. format hh24:mi:ss  
+  * amount\_before(t\_amount) is not null - amount before transaction  
+  * amount(t\_amount) is not null - amount of transaction  
+  * amount\_after(t\_amount) is not null - amount after transaction  
+  * transaction\_type(t\_long\_code) is not null - name of transaction  
+  * pnr\_id(t\_long\_code) is null - pnr id from nqt  
+  * order\_number(t\_long\_code) is null - order number  
+  * last\_name(t\_name) is null - last name of transaction owner(user)  
+  * first\_name(t\_name) is null - first name of transaction owner(user)  
+  * email(t\_name) is null - email of transaction owner(user)  
+  * amount\_buy(t\_amount) is not null - summ of buy transactions across result  
+  * amount\_cash\_in(t\_amount) is not null - summ of cash\_in transactions across result  
+  * amount\_from(t\_amount) is not null - amount before of first transaction across result  
+  * amount\_to(t\_amount) is not null - amount after of last transaction across result  
+  * page\_count(t\_id) is not null - count of pages across all contract transactions  
+  * row\_count(t\_id) is not null - count of rows across all contract transactions  
+
+}  
 
 ### _function_ BLNG.FWDR.STATEMENT  
 _DESCRIPTION:_  
-return list of transactions in user timezone format by pages  
+return list of transactions in user timezone format by pages. result is a rows only for one page with number p\_page\_number  
 _PARAMETERS:_  
-**p\_email:** user email which request statement  
-**p\_row\_count:** count rows per page  
-**p\_page\_number:** page number to show  
+**p\_email**(_t\_name_): is not null. user email which request statement  
+**p\_row\_count**(_t\_id_): is null. count rows per page  
+**p\_page\_number**(_t\_id_): is null. page number to show  
 _RETURN:_  
-sys\_refcursor[rn(row\_number),all v\_statemen filds + amount\_cash\_in,amount\_buy,amount\_from,amount\_to,page\_count,row\_count]  
+sys\_refcursor {  
+
+  * rn(t\_id) is not null - row number  
+  * doc\_id(t\_id) is not null - document id  
+  * transaction\_id(t\_id) is not null - transaction id  
+  * transaction\_date(t\_code) is not null - date of transaction. format yyyy-mm-dd  
+  * transaction\_time(t\_code) is not null - time of transaction. format hh24:mi:ss  
+  * amount\_before(t\_amount) is not null - amount before transaction  
+  * amount(t\_amount) is not null - amount of transaction  
+  * amount\_after(t\_amount) is not null - amount after transaction  
+  * transaction\_type(t\_long\_code) is not null - name of transaction  
+  * pnr\_id(t\_long\_code) is null - pnr id from nqt  
+  * order\_number(t\_long\_code) is null - order number  
+  * last\_name(t\_name) is null - last name of transaction owner(user)  
+  * first\_name(t\_name) is null - first name of transaction owner(user)  
+  * email(t\_name) is null - email of transaction owner(user)  
+  * amount\_buy(t\_amount) is not null - summ of buy transactions across result  
+  * amount\_cash\_in(t\_amount) is not null - summ of cash\_in transactions across result  
+  * amount\_from(t\_amount) is not null - amount before of first transaction across result  
+  * amount\_to(t\_amount) is not null - amount after of last transaction across result  
+  * page\_count(t\_id) is not null - count of pages across all contract transactions  
+  * row\_count(t\_id) is not null - count of rows across all contract transactions  
+
+}  
 
 ### _function_ BLNG.FWDR.LOAN\_LIST  
 _DESCRIPTION:_  
 return list of loans with expired flag  
 _PARAMETERS:_  
-**p\_email:** user email who request loan\_list  
-**p\_rownum:** cuts rows for paging  
+**p\_email**(_t\_name_): is not null. user email who request loan\_list  
+**p\_rownum**(_t\_id_): is null. cuts rows for paging. null  
 _RETURN:_  
-sys\_refcursor[id, contract\_oid, amount, order\_number, pnr\_id, date\_to, is\_overdue]  
+sys\_refcursor {  
+
+  * id(t\_id) is not null - delay id  
+  * contract\_oid(t\_id) is not null - contract id  
+  * amount(t\_amount) is not null - amount of delay  
+  * order\_number(t\_long\_code) is not null - order number  
+  * pnr\_id(t\_long\_code) is not null - pnr id from nqt  
+  * date\_to(t\_long\_code) is not null - date of delay expiration. last day when client must bring money. format yyyy-mm-dd  
+  * is\_overdue(t\_status) is not null - did delay was expired?  
+
+}  
 
 ### _function_ BLNG.FWDR.V\_ACCOUNT\_GET\_INFO\_R  
 _DESCRIPTION:_  
-return all fields from blng.v\_account  
+inturnal function. (may be have to move to core) return all fields from blng.v\_account view  
 _PARAMETERS:_  
-**p\_contract:** contract id  
+**p\_contract**(_t\_id_): is not null. contract id  
 _RETURN:_  
-sys\_refcursor[all v\_statemen fields]  
+sys\_refcursor(blng.v\_account%rowtype). all v\_statemen fields  
 
 ### _function_ BLNG.FWDR.CONTRACT\_GET  
 _DESCRIPTION:_  
 return list of contract with client  
 _PARAMETERS:_  
-**p\_contract:** contract id  
+**p\_contract**(_t\_id_): is not null. contract id  
 _RETURN:_  
-sys\_refcursor[client\_id, contract\_id, client\_name, contract\_number]  
+sys\_refcursor {  
+
+  * client\_id(t\_id) is not null - id of client  
+  * contract\_id(t\_id) is not null - id of contract  
+  * client\_name(t\_name) is not null - name of client  
+  * contract\_name(t\_name) is not null - name of contarct  
+  * contract\_number(t\_long\_code) is not null - number of contract  
+
+}  
 
 ### _function_ BLNG.FWDR.CHECK\_TENANT  
 _DESCRIPTION:_  
 return tenant. tenant is contract identifire. tenant using  
 for checking is user registered in the system. if user dosnt exist then return null  
 _PARAMETERS:_  
-**p\_email:** user email  
+**p\_email**(_t\_name_): is not null. user email  
 _RETURN:_  
-contract identifire  
+if user exist then  
+sys\_refcursor {  
+
+  * tenant\_id(t\_id) is not null - contract identifire  
+
+}  
+if user dose not exist then  
+sys\_refcursor {  
+
+  * res(t\_long\_code) is not null - error code. no\_data\_found, error  
+
+}  
 
 ### _function_ BLNG.FWDR.GOD\_UNBLOCK  
 _DESCRIPTION:_  
 unblock user god@ntg-one.com. this user must be usually at blocked status [c]losed  
 _RETURN:_  
-res[success/error/no\_data\_found]  
+sys\_refcursor {  
+
+  * res(t\_long\_code) is not null - result code. success, no\_data\_found, error  
+
+}  
 
 ### _function_ BLNG.FWDR.GOD\_BLOCK  
 _DESCRIPTION:_  
 block user god@ntg-one.com. this user must be usually at blocked status [c]losed  
 _RETURN:_  
-res[success/error/no\_data\_found]  
+sys\_refcursor {  
+
+  * res(t\_long\_code) is not null - result code. success, no\_data\_found, error  
+
+}  
 
 ### _function_ BLNG.FWDR.GOD\_MOVE  
 _DESCRIPTION:_  
@@ -243,57 +375,153 @@ move user god@ntg-one.com to contract with id equals p\_tenant.
 mission of god@ntg-one.com is to login under one of a contract and check errors.  
 god can help others to understand some problems  
 _PARAMETERS:_  
-**p\_tenant:** id of contract  
+**p\_tenant**(_t\_id_): is not null. id of contract where god user must be moved  
 _RETURN:_  
-res[success/error/no\_data\_found]  
+sys\_refcursor {  
 
-### _function_ BLNG.FWDR.CLIENT\_LIST()  
+  * res(t\_long\_code) is not null - result code. success, no\_data\_found, error  
+
+}  
+
+### _function_ BLNG.FWDR.CLIENT\_LIST  
 _DESCRIPTION:_  
 return list of clients.  
+_PARAMETERS:_  
+**p\_id**(_t\_id_): is null. id of client for filter one client  
 _RETURN:_  
-on success sys\_refcursor[client\_id,name].  
-on error sys\_refcursor[res]. res=error  
+on success sys\_refcursor {  
+
+  * client\_id(t\_id) is not null - id of client  
+  * name(t\_name) is not null - name of client  
+
+}  
+on error sys\_refcursor {  
+
+  * res(t\_long\_code) is not null - result code. success, no\_data\_found, error  
+
+}  
 
 ### _function_ BLNG.FWDR.CLIENT\_ADD  
 _DESCRIPTION:_  
 create client and return info about this new client.  
 _PARAMETERS:_  
-**p\_name:** name of client  
+**p\_name**(_t\_name_): is not null. name of client  
 _RETURN:_  
-on success sys\_refcursor[res,client\_id,name]  
-on error sys\_refcursor[res]. res=error  
+on success sys\_refcursor {  
+
+  * client\_id(t\_id) is not null - id of client  
+  * name(t\_name) is not null - name of client  
+
+}  
+on error sys\_refcursor {  
+
+  * res(t\_long\_code) is not null - result code. success, no\_data\_found, error  
+
+}  
 
 ### _function_ BLNG.FWDR.CONTRACT\_LIST  
 _DESCRIPTION:_  
-return list of contracts by client id  
+return list of contracts filtered by client id and contarct id  
 _PARAMETERS:_  
-**p\_client:** id of client  
+**p\_client**(_t\_id_): is null. id of client  
+**p\_idt**(_t\_id_): is null. id of contract  
 _RETURN:_  
-on success sys\_refcursor[client\_id, contract\_id, tenant\_id, is\_blocked, contract\_name,  
-credit\_limit, delay\_days, max\_credit, utc\_offset, contact\_name, contract\_number,contact\_phone]  
-on error sys\_refcursor[res]. res=error  
+on success sys\_refcursor {  
+
+  * client\_id(t\_id) is not null - id of client  
+  * contract\_id(t\_id) is not null - id of contract  
+  * tenant\_id(t\_id) is not null - contract id  
+  * is\_blocked(t\_status) is not null - flag. is contract blocked  
+  * contract\_name(t\_name) is not null - contract name  
+  * contract\_number(t\_long\_code) is not null - contract number  
+  * credit\_limit(t\_amount) is not null - credit limit of contract  
+  * delay\_days(t\_id) is not null - delay days parameter on contract  
+  * max\_credit(t\_amount) is not null - max credit amount parameter on contract  
+  * utc\_offset(t\_id) is not null - utc offset parameter on contract  
+  * contact\_name(t\_name) is not null - name of contact person  
+  * contact\_phone(t\_long\_code) is not null - phone of contact person  
+  * legal\_name(t\_msg) is not null - legal name of client. for correct bill info filling to client  
+  * inn(t\_long\_code) is not null - inn of contract. for correct bill info filling to client. 10-12 numbers  
+  * kpp(t\_long\_code) is not null - kpp of contract. for correct bill info filling to client. 9 numbers  
+  * ogrn(t\_long\_code) is not null - ogrn of contract. for correct bill info filling to client. 13 numbers  
+  * legal\_address(t\_msg) is not null - legal address of client. for correct bill info filling to client  
+  * bank\_bik(t\_long\_code) is not null - bank bik of contract. for correct bill info filling to client. 9 numbers started from 04 for russia  
+  * bank\_account(t\_long\_code) is not null - bank account of contract. for correct bill info filling to client. 20 numbers  
+  * signatory\_name(t\_msg) is not null - name of signator on contract. for correct bill info filling to client  
+  * signatory\_title(t\_name) is not null - title of signatir on contarct. for correct bill info filling to client  
+
+}  
+on error sys\_refcursor {  
+
+  * res(t\_long\_code) is not null - result code. success, no\_data\_found, error  
+
+}  
 
 ### _function_ BLNG.FWDR.CONTRACT\_ADD  
 _DESCRIPTION:_  
 add contract for client and return info about this new contract.  
 _PARAMETERS:_  
-**p\_client:** id of client  
-**p\_data:** json[contract\_name, credit\_limit, delay\_days, max\_credit, utc\_offset, contact\_name, contact\_phone]  
+**p\_client**(_t\_id_): is not null. id of client  
+**p\_data**(_t\_clob_): is null. json {  
+
+  * contract\_name(t\_name) is not null - contract name  
+  * credit\_limit(t\_amount) is not null - credit limit of contract  
+  * delay\_days(t\_id) is not null - delay days parameter on contract  
+  * max\_credit(t\_amount) is not null - max credit amount parameter on contract  
+  * utc\_offset(t\_id) is not null - utc offset parameter on contract  
+  * contact\_name(t\_name) is not null - name of contact person  
+  * contact\_phone(t\_long\_code) is not null - phone of contact person  
+  * legal\_name(t\_msg) is not null - legal name of client. for correct bill info filling to client  
+  * inn(t\_long\_code) is not null - inn of contract. for correct bill info filling to client. 10-12 numbers  
+  * kpp(t\_long\_code) is not null - kpp of contract. for correct bill info filling to client. 9 numbers  
+  * ogrn(t\_long\_code) is not null - ogrn of contract. for correct bill info filling to client. 13 numbers  
+  * legal\_address(t\_msg) is not null - legal address of client. for correct bill info filling to client  
+  * bank\_bik(t\_long\_code) is not null - bank bik of contract. for correct bill info filling to client. 9 numbers started from 04 for russia  
+  * bank\_account(t\_long\_code) is not null - bank account of contract. for correct bill info filling to client. 20 numbers  
+  * signatory\_name(t\_msg) is not null - name of signator on contract. for correct bill info filling to client  
+  * signatory\_title(t\_name) is not null - title of signatir on contarct. for correct bill info filling to client  
+
+}  
 _RETURN:_  
-on success sys\_refcursor[client\_id, contract\_id, tenant\_id, is\_blocked, contract\_name, contract\_number,  
-credit\_limit, delay\_days, max\_credit, utc\_offset, contact\_name, contact\_phone  
-on error sys\_refcursor[res]. res=error  
+on success return contract\_list() for added contract  
+on error sys\_refcursor {  
+
+  * res(t\_long\_code) is not null - result code. success, no\_data\_found, error  
+
+}  
 
 ### _function_ BLNG.FWDR.CONTRACT\_UPDATE  
 _DESCRIPTION:_  
 update contract info for client and return info about this new contract.  
 _PARAMETERS:_  
-**p\_contract:** id of contract  
-**p\_data:** json[contract\_name, credit\_limit, delay\_days, max\_credit, utc\_offset, contact\_name, contact\_phone]  
+**p\_contract**(_t\_id_): is not null. id of contract  
+**p\_data**(_t\_clob_): is null. json {  
+
+  * contract\_name(t\_name) is not null - contract name  
+  * credit\_limit(t\_amount) is not null - credit limit of contract  
+  * delay\_days(t\_id) is not null - delay days parameter on contract  
+  * max\_credit(t\_amount) is not null - max credit amount parameter on contract  
+  * utc\_offset(t\_id) is not null - utc offset parameter on contract  
+  * contact\_name(t\_name) is not null - name of contact person  
+  * contact\_phone(t\_long\_code) is not null - phone of contact person  
+  * legal\_name(t\_msg) is not null - legal name of client. for correct bill info filling to client  
+  * inn(t\_long\_code) is not null - inn of contract. for correct bill info filling to client. 10-12 numbers  
+  * kpp(t\_long\_code) is not null - kpp of contract. for correct bill info filling to client. 9 numbers  
+  * ogrn(t\_long\_code) is not null - ogrn of contract. for correct bill info filling to client. 13 numbers  
+  * legal\_address(t\_msg) is not null - legal address of client. for correct bill info filling to client  
+  * bank\_bik(t\_long\_code) is not null - bank bik of contract. for correct bill info filling to client. 9 numbers started from 04 for russia  
+  * bank\_account(t\_long\_code) is not null - bank account of contract. for correct bill info filling to client. 20 numbers  
+  * signatory\_name(t\_msg) is not null - name of signator on contract. for correct bill info filling to client  
+  * signatory\_title(t\_name) is not null - title of signatir on contarct. for correct bill info filling to client  
+
+}  
 _RETURN:_  
-on success sys\_refcursor[client\_id, contract\_id, tenant\_id, is\_blocked, contract\_name,  
-credit\_limit, delay\_days, max\_credit, utc\_offset, contact\_name,contract\_number, contact\_phone  
-on error sys\_refcursor[res]. res=error  
+on success return contract\_list() for added contract  
+on error sys\_refcursor {  
+
+  * res(t\_long\_code) is not null - result code. success, no\_data\_found, error  
+
+}  
 
 # HDBK.CORE
 ---
