@@ -223,7 +223,7 @@ $obj_type: function
 $obj_name: v_account_get_info_r
 $obj_desc: inturnal function. (may be have to move to core) return all fields from blng.v_account view
 $obj_param: p_contract(t_id): is not null. contract id
-$obj_return: SYS_REFCURSOR(blng.v_account%rowtype). all v_statemen fields
+$obj_return: SYS_REFCURSOR(blng.v_account%rowtype). all v_account fields
 */
  
   function v_account_get_info_r ( p_contract in hdbk.dtype.t_id default null
@@ -259,7 +259,7 @@ $obj_return: if user exist then
 $obj_return: SYS_REFCURSOR {
 $obj_return:   tenant_id(t_id) is not null - contract identifire
 $obj_return: }
-$obj_return: if user dose not exist then
+$obj_return: if user does not exist then
 $obj_return: SYS_REFCURSOR {
 $obj_return:   res(t_long_code) is not null - error code. NO_DATA_FOUND, ERROR
 $obj_return: }

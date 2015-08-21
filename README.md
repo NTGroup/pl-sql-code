@@ -22,39 +22,37 @@ _PARAMETERS:_
 _DESCRIPTION:_  
 means how many days client has for pay loan  
 
-### _procedure_ BLNG.CORE.APPROVE\_DOCUMENTS  
-_DESCRIPTION:_  
-calls from scheduler. get list of document and separate it by transaction type.  
-documents like increase credit limit or loan days approve immediately  
-docs like cash\_in/buy push to credit/debit\_online accounts.  
-
 ### _procedure_ BLNG.CORE.BUY  
 _DESCRIPTION:_  
 calls inside approve\_documents and push buy documents to debit\_online account  
 _PARAMETERS:_  
-**p\_doc:** id of document  
+**p\_doc**(_document%rowtype_): is not null. row from document  
 
 ### _procedure_ BLNG.CORE.CASH\_IN  
 _DESCRIPTION:_  
 calls inside approve\_documents and push cash\_in documents to credit\_online account  
 _PARAMETERS:_  
-**p\_doc:** row from document  
+**p\_doc**(_document%rowtype_): is not null. row from document  
 
 ### _procedure_ BLNG.CORE.PAY\_BILL  
 _DESCRIPTION:_  
 procedure make paing for one bill  
 _PARAMETERS:_  
-**p\_doc:** row from document  
+**p\_doc**(_document%rowtype_): is not null. row from document  
 
 ### _procedure_ BLNG.CORE.CREDIT\_ONLINE  
 _DESCRIPTION:_  
 calls from scheduler. get list of credit\_online accounts and separate money to debit or loan accounts.  
 then close loan delay  
+_PARAMETERS:_  
+**p\_document**(_t\_id_): is not null. id of document  
 
 ### _procedure_ BLNG.CORE.DEBIT\_ONLINE  
 _DESCRIPTION:_  
 calls from scheduler. get list of debit\_online accounts and separate money to debit or loan accounts.  
 then create loan delay  
+_PARAMETERS:_  
+**p\_document**(_t\_id_): is not null. id of document  
 
 ### _procedure_ BLNG.CORE.ONLINE  
 _DESCRIPTION:_  
@@ -65,9 +63,9 @@ then create loan delay
 _DESCRIPTION:_  
 calls from credit\_online and close loan delay  
 _PARAMETERS:_  
-**p\_contract:** id of contract  
-**p\_amount:** how much money falls to delay list  
-**p\_doc:** link to document id. later by this id cash\_in operations may revokes  
+**p\_contract**(_t\_id_): is not null. id of contract  
+**p\_amount**(_t\_amount_): is not null. how much money falls to delay list  
+**p\_doc**(_t\_id_): is not null. link to document id. later by this id cash\_in operations may revokes  
 
 ### _procedure_ BLNG.CORE.DELAY\_EXPIRE  
 _DESCRIPTION:_  
@@ -79,20 +77,20 @@ calls by office user and give chance to pay smth for p\_days.
 due to this days expired contract have unblocked credit limit.  
 after p\_days it blocks again  
 _PARAMETERS:_  
-**p\_contract:** id of expired contract  
-**p\_days:** how much days gifted to client  
+**p\_contract**(_t\_id_): is not null. id of expired contract  
+**p\_days**(_t\_id_): is null. how much days gifted to client. default 1  
 
 ### _procedure_ BLNG.CORE.UNBLOCK  
 _DESCRIPTION:_  
 check if contract do not have expired delays and unblock it  
 _PARAMETERS:_  
-**p\_contract:** id of expired contract  
+**p\_contract**(_t\_id_): is not null. id of expired contract  
 
 ### _procedure_ BLNG.CORE.REVOKE\_DOCUMENT  
 _DESCRIPTION:_  
 get back money and erase transactions by p\_document id  
 _PARAMETERS:_  
-**p\_document:** id of document  
+**p\_document**(_t\_id_): is not null. id of document  
 
 ### _function_ BLNG.CORE.PAY\_CONTRACT\_BY\_USER  
 _DESCRIPTION:_  
@@ -100,9 +98,9 @@ get contract which user can spend money
 documents like increase credit limit or loan days approve immediately  
 docs like buy or cash\_in push to credit/debit\_online accounts.  
 _PARAMETERS:_  
-**p\_user:** user id  
+**p\_user**(_t\_id_): is not null. user id  
 _RETURN:_  
-contract id  
+contract id (t\_id)  
 
 # BLNG.FWDR
 ---
