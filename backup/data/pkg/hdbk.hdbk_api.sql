@@ -25,14 +25,14 @@ $obj_desc: *_get_info_r: return one row from table * with format *%rowtype.
   return hdbk.dtype.t_name;
   
   function note_add( 
-                    p_name in hdbk.dtype.t_name default null,
+                    p_name in hdbk.dtype.t_msg default null,
                     p_user in hdbk.dtype.t_id default null
                   )
   return hdbk.dtype.t_id;
 
 
   procedure note_edit(  P_ID  in hdbk.dtype.t_id default null,
-                              p_name in hdbk.dtype.t_name default null,
+                              p_name in hdbk.dtype.t_msg default null,
                     p_user in hdbk.dtype.t_id default null,
                     p_status in hdbk.dtype.t_status default null
                       );
@@ -256,7 +256,7 @@ create or replace package body hdbk.hdbk_api as
 
 
   function note_add( 
-                    p_name in hdbk.dtype.t_name default null,
+                    p_name in hdbk.dtype.t_msg default null,
                     p_user in hdbk.dtype.t_id default null
                   )
   return hdbk.dtype.t_id
@@ -277,7 +277,7 @@ create or replace package body hdbk.hdbk_api as
 
 
   procedure note_edit(    P_ID  in hdbk.dtype.t_id default null,
-                              p_name in hdbk.dtype.t_name default null,
+                              p_name in hdbk.dtype.t_msg default null,
                             p_user in hdbk.dtype.t_id default null,
                             p_status in hdbk.dtype.t_status default null
                       )

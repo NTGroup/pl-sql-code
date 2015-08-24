@@ -6,21 +6,58 @@
 $pkg: HDBK.FWDR
 */
 
+/*
+$obj_type: function
+$obj_name: utc_offset_mow
+$obj_desc: just return constant 3. value of uts offset for Moscow. TODO move to dictionary
+$obj_return: 3
+*/
+
 function utc_offset_mow return number;
 
+/*
+$obj_type: type
+$obj_name: iata_record
+$obj_desc: record type. TODO rewrite this to %rowtype
+*/
 type iata_record IS record (IATA hdbk.GEO.IATA%type);
+
+/*
+$obj_type: type
+$obj_name: iata_table
+$obj_desc: table of iata_record type. TODO rewrite this to %rowtype
+*/
 type iata_table is table of iata_record  index by pls_integer;
+
+/*
+$obj_type: type
+$obj_name: iata_array
+$obj_desc: table of hdbk.GEO.IATA%type type. TODO rewrite this to %rowtype
+*/
 type iata_array is table of hdbk.GEO.IATA%type index by pls_integer;
 
 /*
 $obj_type: function
 $obj_name: get_utc_offset
-$obj_desc: list of airlines with utc_offset
-$obj_return: SYS_REFCURSOR[iata,utc_offset]
+$obj_desc: list of airlines with utc_offset. TODO rewrite to %rowtype 
+$obj_param: p_iata(iata_array): is not null. list of iata code for filter result
+$obj_return: SYS_REFCURSOR {
+$obj_return:   iata(t_code) is not null - code of airline iata
+$obj_return:   utc_offset(t_amount) is null - utc offset at airport place
+$obj_return: }
 */
 function get_utc_offset (p_iata in iata_array)
 return SYS_REFCURSOR;
 
+/*
+$obj_type: function
+$obj_name: get_utc_offset
+$obj_desc: list of airlines with utc_offset
+$obj_return: SYS_REFCURSOR {
+$obj_return:   iata(t_code) is not null - code of airline iata
+$obj_return:   utc_offset(t_amount) is null - utc offset at airport place
+$obj_return: }
+*/
 function get_utc_offset
 return SYS_REFCURSOR;
 
@@ -28,7 +65,14 @@ return SYS_REFCURSOR;
 $obj_type: function
 $obj_name: geo_get_list
 $obj_desc: list of airports and city of airport
-$obj_return: SYS_REFCURSOR[iata,name,NLS_NAME,city_iata,city_name,city_nls_name]
+$obj_return: SYS_REFCURSOR {
+$obj_return:   iata(t_code) is not null - iata code of airport
+$obj_return:   name(t_name) is null - name of airport
+$obj_return:   NLS_NAME(t_name) is null - native language (russian) name of airport
+$obj_return:   city_iata(t_code) is null - name of city
+$obj_return:   city_name(t_name) is null - name of city
+$obj_return:   city_nls_name(t_name) is null - native language (russian) name of city
+$obj_return: }
 */
 function geo_get_list
 return SYS_REFCURSOR;
@@ -37,7 +81,11 @@ return SYS_REFCURSOR;
 $obj_type: function
 $obj_name: airline_get_list
 $obj_desc: list of airlines names and iata codes
-$obj_return: SYS_REFCURSOR[iata,name,nls_name]
+$obj_return: SYS_REFCURSOR {
+$obj_return:   iata(t_code) is not null - iata code of airport
+$obj_return:   name(t_name) is null - name of airport
+$obj_return:   NLS_NAME(t_name) is null - native language (russian) name of airport
+$obj_return: }
 */
 function airline_get_list
 return SYS_REFCURSOR;
@@ -46,19 +94,26 @@ return SYS_REFCURSOR;
 $obj_type: function
 $obj_name: airplane_get_list
 $obj_desc: list of airplane names and iata codes
-$obj_return: SYS_REFCURSOR[iata,name,nls_name]
+$obj_return: SYS_REFCURSOR {
+$obj_return:   iata(t_code) is not null - iata code of airplane
+$obj_return:   name(t_name) is null - name of airplane
+$obj_return:   NLS_NAME(t_name) is null - native language (russian) name of airplane
+$obj_return: }
 */
 function airplane_get_list
 return SYS_REFCURSOR;
 
 
 /*
-
 $obj_type: function
 $obj_name: airline_commission_list
 $obj_desc: list of airlines with flag commission(it means, is airline have rules for calc commission).
-$obj_return: SYS_REFCURSOR[airline_oid,name,IATA,commission[Y/N]]
-
+$obj_return: SYS_REFCURSOR {
+$obj_return:   airline_oid(t_name) is not null - airline id
+$obj_return:   name(t_name) is null - name of airline
+$obj_return:   iata(t_code) is not null - iata code of airline
+$obj_return:   commission(t_status) is not null - flag. has it info about commissions?
+$obj_return: }
 */
   
   function airline_commission_list
@@ -67,10 +122,10 @@ $obj_return: SYS_REFCURSOR[airline_oid,name,IATA,commission[Y/N]]
 
 
 /*
-$obj_type: function
-$obj_name: get_full
-$obj_desc: return all from v_markup
-$obj_return: SYS_REFCURSOR
+--$obj_type: function
+--$obj_name: get_full
+--$obj_desc: return all from v_markup
+--$obj_return: SYS_REFCURSOR
 */
 /*  
 function get_full
@@ -79,79 +134,210 @@ function get_full
   
 
 /*
-$obj_type: function
-$obj_name: markup_get
-$obj_desc: when p_version is null then return all active rows. if not null then  
-$obj_desc: get all active and deleted rows that changed after p_version id
-$obj_param: p_version: id
-$obj_return: SYS_REFCURSOR[ID, TENANT_ID, VALIDATING_CARRIER, CLASS_OF_SERVICE, 
-$obj_return: SEGMENT, V_FROM, V_TO, ABSOLUT_AMOUNT, PERCENT_AMOUNT, MIN_ABSOLUT, VERSION, IS_ACTIVE, markup_type]
+--$obj_type: function
+--$obj_name: markup_get
+--$obj_desc: when p_version is null then return all active rows. if not null then  
+--$obj_desc: get all active and deleted rows that changed after p_version id
+--$obj_param: p_version: id
+--$obj_return: SYS_REFCURSOR[ID, TENANT_ID, VALIDATING_CARRIER, CLASS_OF_SERVICE, 
+--$obj_return: SEGMENT, V_FROM, V_TO, ABSOLUT_AMOUNT, PERCENT_AMOUNT, MIN_ABSOLUT, VERSION, IS_ACTIVE, markup_type]
 */  
 /*  function markup_get(p_version in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 */
 
 
+
+/*
+$obj_type: function
+$obj_name: note_add
+$obj_desc: add note row
+$obj_param: p_user(t_name): is not null. user email who want add note
+$obj_param: p_name(t_msg): is null. note name
+$obj_return: SYS_REFCURSOR {
+$obj_return:   res(t_code) is not null - result of operation. equal SUCCESS, ERROR, NOT_AUTHORIZED, VALUE_ERROR, NO_DATA_FOUND
+$obj_return:   note_id(t_id) is null - if success then id of note
+$obj_return: }
+*/
   function note_add(p_user in hdbk.dtype.t_name default null,
-                    p_name in hdbk.dtype.t_clob default null)
+                    p_name in hdbk.dtype.t_msg default null)
   return SYS_REFCURSOR;
 
+/*
+$obj_type: function
+$obj_name: note_edit
+$obj_desc: edit note row
+$obj_param: p_id(t_id): is not null. id of note
+$obj_param: p_user(t_name): is not null. user email
+$obj_param: p_name(t_msg): is null. note name
+$obj_return: SYS_REFCURSOR {
+$obj_return:   res(t_code) is not null - result of operation. equal SUCCESS, ERROR, NOT_AUTHORIZED, VALUE_ERROR, NO_DATA_FOUND
+$obj_return: }
+*/
   function note_edit(   p_id  in hdbk.dtype.t_id default null,
                         p_user in hdbk.dtype.t_name default null,
-                        p_name in hdbk.dtype.t_clob default null)
+                        p_name in hdbk.dtype.t_msg default null)
   return SYS_REFCURSOR;
 
+/*
+$obj_type: function
+$obj_name: note_delete
+$obj_desc: delete note row
+$obj_param: p_id(t_id): is not null. id of note
+$obj_param: p_user(t_name): is not null. user email
+$obj_return: SYS_REFCURSOR {
+$obj_return:   res(t_code) is not null - result of operation. equal SUCCESS, ERROR, NOT_AUTHORIZED, VALUE_ERROR, NO_DATA_FOUND
+$obj_return: }
+*/
   function note_delete(   p_id  in hdbk.dtype.t_id default null,
                         p_user in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR;
 
+/*
+$obj_type: function
+$obj_name: note_recovery
+$obj_desc: cancel delete note row
+$obj_param: p_id(t_id): is not null. id of note
+$obj_param: p_user(t_name): is not null. user email
+$obj_return: SYS_REFCURSOR {
+$obj_return:   res(t_code) is not null - result of operation. equal SUCCESS, ERROR, NOT_AUTHORIZED, VALUE_ERROR, NO_DATA_FOUND
+$obj_return: }
+*/
   function note_recovery(   p_id  in hdbk.dtype.t_id default null,
                         p_user in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR;
 
+/*
+$obj_type: function
+$obj_name: note_ticket_add
+$obj_desc: add tickets info into note
+$obj_param: p_note(t_id): is not null. id of note
+$obj_param: p_user(t_name): is not null. user email
+$obj_param: p_tickets(t_clob): is null. info about ticket/pnr info. actually big json
+$obj_return: SYS_REFCURSOR {
+$obj_return:   res(t_code) is not null - result of operation. equal SUCCESS, ERROR, NOT_AUTHORIZED, VALUE_ERROR, NO_DATA_FOUND
+$obj_return:   note_ticket_id(t_id) is null - if success then id of ticket info row
+$obj_return: }
+*/
   function note_ticket_add(   p_note  in hdbk.dtype.t_id default null,
                         p_user in hdbk.dtype.t_name default null,
                         p_tickets in hdbk.dtype.t_clob default null)
   return SYS_REFCURSOR;
 
+/*
+$obj_type: function
+$obj_name: note_ticket_delete
+$obj_desc: delete tickets info from note
+$obj_param: p_note(t_id): is not null. id of note
+$obj_param: p_user(t_name): is not null. user email
+$obj_param: p_ticket(t_id): is not null. id of ticket info row
+$obj_return: SYS_REFCURSOR {
+$obj_return:   res(t_code) is not null - result of operation. equal SUCCESS, ERROR, NOT_AUTHORIZED, VALUE_ERROR, NO_DATA_FOUND
+$obj_return: }
+*/
   function note_ticket_delete(   p_note  in hdbk.dtype.t_id default null,
                                 p_user in hdbk.dtype.t_name default null,
                                 p_ticket in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 
+/*
+$obj_type: function
+$obj_name: note_ticket_recovery
+$obj_desc: cancel delete tickets info from note
+$obj_param: p_note(t_id): is not null. id of note
+$obj_param: p_user(t_name): is not null. user email
+$obj_param: p_ticket(t_id): is not null. id of ticket info row
+$obj_return: SYS_REFCURSOR {
+$obj_return:   res(t_code) is not null - result of operation. equal SUCCESS, ERROR, NOT_AUTHORIZED, VALUE_ERROR, NO_DATA_FOUND
+$obj_return: }
+*/
   function note_ticket_recovery(   p_note  in hdbk.dtype.t_id default null,
                                 p_user in hdbk.dtype.t_name default null,
                                 p_ticket in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
 
+/*
+$obj_type: function
+$obj_name: note_list
+$obj_desc: list of notes for user
+$obj_param: p_user(t_name): is not null. user email
+$obj_return: if success SYS_REFCURSOR {
+$obj_return:   note_id(t_id) is not null - id of note
+$obj_return:   name(t_msg) is not null - name of note
+$obj_return:   guid(t_name) is not null - note guid for public url
+$obj_return: }
+$obj_return: on error SYS_REFCURSOR {
+$obj_return:   res(t_code) is not null - result of operation. equal SUCCESS, ERROR, NOT_AUTHORIZED, VALUE_ERROR, NO_DATA_FOUND
+$obj_return: }
+*/
   function note_list(     p_user in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR;
 
+/*
+$obj_type: function
+$obj_name: note_ticket_list
+$obj_desc: list of notes with tickets for user by note id
+$obj_param: p_note(t_id): is not null. note id
+$obj_param: p_user(t_name): is not null. user email
+$obj_return: if success SYS_REFCURSOR {
+$obj_return:   note_id(t_id) is not null - id of note
+$obj_return:   note_ticket_id(t_id) is not null - note ticket row id
+$obj_return:   name(t_msg) is not null - name of note
+$obj_return:   guid(t_name) is not null - note guid for public url
+$obj_return:   tickets(t_clob) is not null - ticket json info
+$obj_return: }
+$obj_return: on error SYS_REFCURSOR {
+$obj_return:   res(t_code) is not null - result of operation. equal SUCCESS, ERROR, NOT_AUTHORIZED, VALUE_ERROR, NO_DATA_FOUND
+$obj_return: }
+*/
   function note_ticket_list(p_note in hdbk.dtype.t_id default null,
                             p_user in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR;
 
+/*
+$obj_type: function
+$obj_name: note_ticket_list
+$obj_desc: list of notes with tickets by note guid
+$obj_param: P_GUID(t_name): is not null. user email
+$obj_return: if success SYS_REFCURSOR {
+$obj_return:   note_id(t_id) is not null - id of note
+$obj_return:   note_ticket_id(t_id) is not null - note ticket row id
+$obj_return:   name(t_msg) is not null - name of note
+$obj_return:   guid(t_name) is not null - note guid for public url
+$obj_return:   tickets(t_clob) is not null - ticket json info
+$obj_return: }
+$obj_return: on error SYS_REFCURSOR {
+$obj_return:   res(t_code) is not null - result of operation. equal SUCCESS, ERROR, NOT_AUTHORIZED, VALUE_ERROR, NO_DATA_FOUND
+$obj_return: }
+*/
   function note_ticket_list(P_GUID  in hdbk.dtype.t_name default null)
   return SYS_REFCURSOR;
 
+/*
+$obj_type: function
+$obj_name: punto_switcher
+$obj_desc: translate russian keyboard keys to english and english to russian in p_text 
+$obj_param: p_text(t_msg): is null. text to translate
+$obj_return: translated text (t_msg)
+*/
   function punto_switcher(p_text in hdbk.dtype.t_msg)
   return hdbk.dtype.t_msg;
 
 
-
 /*
-
 $obj_type: function
 $obj_name: rate_list
 $obj_desc: return all active rates for current moment. its not depends of p_version
-$obj_param: p_version: version. not useful now. 
-$obj_return: SYS_REFCURSOR[code,rate,version,is_active(Y,N)]
+$obj_param: p_version(t_id): is null. version. not useful now. 
+$obj_return: SYS_REFCURSOR {
+$obj_return:   code(t_code) is not null - code of currency
+$obj_return:   rate(t_amount) is not null - rate
+$obj_return:   version(t_id) is not null - max id from table
+$obj_return:   is_active(t_status) is not null - flag. is it rate active?
+$obj_return: }
 */
-
   function rate_list( p_version in hdbk.dtype.t_id default null)
   return SYS_REFCURSOR;
-
-
 
 
 END fwdr;
@@ -421,7 +607,7 @@ end;
 
 
   function note_add(p_user in hdbk.dtype.t_name default null,
-                    p_name in hdbk.dtype.t_clob default null)
+                    p_name in hdbk.dtype.t_msg default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 
@@ -456,7 +642,7 @@ end;
 
   function note_edit(   p_id  in hdbk.dtype.t_id default null,
                         p_user in hdbk.dtype.t_name default null,
-                        p_name in hdbk.dtype.t_clob default null)
+                        p_name in hdbk.dtype.t_msg default null)
   return SYS_REFCURSOR
   is
     v_results SYS_REFCURSOR; 

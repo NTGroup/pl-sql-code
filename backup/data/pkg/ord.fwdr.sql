@@ -285,6 +285,11 @@ $obj_return:   PER_FARE(t_status) is not null - flag. is this rule calculated on
 $obj_return:   RULE_TYPE(t_long_code) is null - type of rule. commission, markup
 $obj_return:   MARKUP_TYPE(t_long_code) is null - base, partner, etc.
 $obj_return: }
+$obj_return: if NO_DATA_FOUND then SYS_REFCURSOR {
+$obj_return:   IATA(t_code) is null - airline iata code
+$obj_return:   NLS_AIRLINE(t_name) is not null - name of airline
+$obj_return:   TENANT_ID(t_id) is not null - id of the contract
+$obj_return: }
 */
   function rule_view( 
                       p_rule_id in hdbk.dtype.t_id default null,
@@ -1249,11 +1254,18 @@ END FWDR;
                       )
   return SYS_REFCURSOR
   is
-    v_results SYS_REFCURSOR; 
+    v_results SYS_REFCURSOR;
+    v_count hdbk.dtype.t_id:=0;
   begin
     if p_rule_id is null then    
-      OPEN v_results FOR  
-        select * from ord.v_rule where IATA = p_iata and rule_type = p_rule_type and tenant_id = p_tenant_id;         
+      select count(*) into v_count from ord.v_rule where IATA = p_iata and rule_type = p_rule_type and tenant_id = p_tenant_id;    
+      if v_count <> 0 then
+        OPEN v_results FOR  
+          select * from ord.v_rule where IATA = p_iata and rule_type = p_rule_type and tenant_id = p_tenant_id;         
+      else
+        OPEN v_results FOR  
+          select iata, nls_name nls_airline, p_tenant_id tenant_id from hdbk.airline where iata = p_iata and amnd_state = 'A';               
+      end if;
     else
       OPEN v_results FOR  
         select * from ord.v_rule where rule_id = p_rule_id;         
@@ -1631,35 +1643,39 @@ END FWDR;
             airline_iata VARCHAR2(10) path '$.airline_iata',
             contract_type_id number(20,2) path '$.contract_type_id',
     --        contract_type VARCHAR2(250) path '$.contract_type',
-            NESTED PATH '$.rule[*]' COLUMNS (
-              rule_id number(20,2) path '$.rule_id',
-              rule_type VARCHAR2(250) path '$.rule_type',
-              markup_type VARCHAR2(250) path '$.markup_type',
-              rule_description VARCHAR2(250) path '$.rule_description',
-              rule_life_from VARCHAR2(250) path '$.rule_life_from',
-              rule_life_to VARCHAR2(250) path '$.rule_life_to',
-              rule_amount number(20,2) path '$.rule_amount',
-              rule_amount_measure VARCHAR2(250) path '$.rule_amount_measure',
-              rule_min_absolute number(20,2) path '$.rule_min_absolute',
-              currency  varchar2(250) path '$.currency',
-              per_segment  VARCHAR2(250) path '$.per_segment',
-              per_fare  VARCHAR2(250) path '$.per_fare',
-              rule_priority number(20,2) path '$.rule_priority',
-              rule_status VARCHAR2(10) path '$.rule_status',
-              NESTED PATH '$.conditions[*]' COLUMNS (
+           -- NESTED PATH '$.rule[*]' COLUMNS (
+              rule_id number(20,2) path '$.rule.rule_id',
+              rule_type VARCHAR2(250) path '$.rule.rule_type',
+              markup_type VARCHAR2(250) path '$.rule.markup_type',
+              rule_description VARCHAR2(250) path '$.rule.rule_description',
+              rule_life_from VARCHAR2(250) path '$.rule.rule_life_from',
+              rule_life_to VARCHAR2(250) path '$.rule.rule_life_to',
+              rule_amount number(20,2) path '$.rule.rule_amount',
+              rule_amount_measure VARCHAR2(250) path '$.rule.rule_amount_measure',
+              rule_min_absolute number(20,2) path '$.rule.rule_min_absolute',
+              currency  varchar2(250) path '$.rule.currency',
+              per_segment  VARCHAR2(250) path '$.rule.per_segment',
+              per_fare  VARCHAR2(250) path '$.rule.per_fare',
+              rule_priority number(20,2) path '$.rule.rule_priority',
+              rule_status VARCHAR2(10) path '$.rule.rule_status',
+              NESTED PATH '$.rule.conditions[*]' COLUMNS (
                 condition_id number(20,2) path '$.condition_id',
                 condition_status VARCHAR2(10) path '$.condition_status',
                 template_type_id number(20,2) path '$.template_type_id',
                 template_type_name VARCHAR2(250) path '$.template_type_name',
                 template_value VARCHAR2(250) path '$.template_value'
               )          
-            )
+            --)
         ))
     )
     loop
+--    hdbk.log_api.LOG_ADD(p_proc_name=>'rule_add', p_msg_type=>'1',P_MSG => '1');
       if i.rule_id is not null then raise VALUE_ERROR; end if;
+--    hdbk.log_api.LOG_ADD(p_proc_name=>'rule_add', p_msg_type=>'1',P_MSG => '2');
       if v_rule is null then
+--    hdbk.log_api.LOG_ADD(p_proc_name=>'rule_add', p_msg_type=>'1',P_MSG => '22');
         v_airline:=hdbk.hdbk_api.airline_get_id(p_iata => i.airline_iata);    
+--    hdbk.log_api.LOG_ADD(p_proc_name=>'rule_add', p_msg_type=>'1',P_MSG => i.rule_type||' '||i.markup_type||' '||i.currency);
         v_rule:=ord_api.commission_add( 
                           p_airline => v_airline,
                           p_details => i.rule_description,
@@ -1678,16 +1694,20 @@ END FWDR;
                           p_per_fare => i.per_fare
                           );
       end if;
+--    hdbk.log_api.LOG_ADD(p_proc_name=>'rule_add', p_msg_type=>'1',P_MSG => '3');
       
       if i.template_type_id <> 0 and v_rule is not null then
+--    hdbk.log_api.LOG_ADD(p_proc_name=>'rule_add', p_msg_type=>'1',P_MSG => '4');
         v_commission_details:=ord_api.commission_details_add( 
                                     p_commission => v_rule,
                                     p_commission_template => i.template_type_id,
                                     p_value => i.template_value               
                           );
       end if;
+--    hdbk.log_api.LOG_ADD(p_proc_name=>'rule_add', p_msg_type=>'1',P_MSG => '5');
       
     end loop;
+--    hdbk.log_api.LOG_ADD(p_proc_name=>'rule_add', p_msg_type=>'1',P_MSG => '6');
     
     commit;
       open v_results for

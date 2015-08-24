@@ -309,7 +309,7 @@ inturnal function. (may be have to move to core) return all fields from blng.v\_
 _PARAMETERS:_  
 **p\_contract**(_t\_id_): is not null. contract id  
 _RETURN:_  
-sys\_refcursor(blng.v\_account%rowtype). all v\_statemen fields  
+sys\_refcursor(blng.v\_account%rowtype). all v\_account fields  
 
 ### _function_ BLNG.FWDR.CONTRACT\_GET  
 _DESCRIPTION:_  
@@ -340,7 +340,7 @@ sys\_refcursor {
   * tenant\_id(t\_id) is not null - contract identifire  
 
 }  
-if user dose not exist then  
+if user does not exist then  
 sys\_refcursor {  
 
   * res(t\_long\_code) is not null - error code. no\_data\_found, error  
@@ -619,59 +619,281 @@ _DESCRIPTION:_
 # HDBK.FWDR
 ---
 
+### _function_ HDBK.FWDR.UTC\_OFFSET\_MOW  
+_DESCRIPTION:_  
+just return constant 3. value of uts offset for moscow. todo move to dictionary  
+_RETURN:_  
+3  
+
+### _type_ HDBK.FWDR.IATA\_RECORD  
+_DESCRIPTION:_  
+record type. todo rewrite this to %rowtype  
+
+### _type_ HDBK.FWDR.IATA\_TABLE  
+_DESCRIPTION:_  
+table of iata\_record type. todo rewrite this to %rowtype  
+
+### _type_ HDBK.FWDR.IATA\_ARRAY  
+_DESCRIPTION:_  
+table of hdbk.geo.iata%type type. todo rewrite this to %rowtype  
+
+### _function_ HDBK.FWDR.GET\_UTC\_OFFSET  
+_DESCRIPTION:_  
+list of airlines with utc\_offset. todo rewrite to %rowtype  
+_PARAMETERS:_  
+**p\_iata**(_iata\_array_): is not null. list of iata code for filter result  
+_RETURN:_  
+sys\_refcursor {  
+
+  * iata(t\_code) is not null - code of airline iata  
+  * utc\_offset(t\_amount) is null - utc offset at airport place  
+
+}  
+
 ### _function_ HDBK.FWDR.GET\_UTC\_OFFSET  
 _DESCRIPTION:_  
 list of airlines with utc\_offset  
 _RETURN:_  
-sys\_refcursor[iata,utc\_offset]  
+sys\_refcursor {  
+
+  * iata(t\_code) is not null - code of airline iata  
+  * utc\_offset(t\_amount) is null - utc offset at airport place  
+
+}  
 
 ### _function_ HDBK.FWDR.GEO\_GET\_LIST  
 _DESCRIPTION:_  
 list of airports and city of airport  
 _RETURN:_  
-sys\_refcursor[iata,name,nls\_name,city\_iata,city\_name,city\_nls\_name]  
+sys\_refcursor {  
+
+  * iata(t\_code) is not null - iata code of airport  
+  * name(t\_name) is null - name of airport  
+  * nls\_name(t\_name) is null - native language (russian) name of airport  
+  * city\_iata(t\_code) is null - name of city  
+  * city\_name(t\_name) is null - name of city  
+  * city\_nls\_name(t\_name) is null - native language (russian) name of city  
+
+}  
 
 ### _function_ HDBK.FWDR.AIRLINE\_GET\_LIST  
 _DESCRIPTION:_  
 list of airlines names and iata codes  
 _RETURN:_  
-sys\_refcursor[iata,name,nls\_name]  
+sys\_refcursor {  
+
+  * iata(t\_code) is not null - iata code of airport  
+  * name(t\_name) is null - name of airport  
+  * nls\_name(t\_name) is null - native language (russian) name of airport  
+
+}  
 
 ### _function_ HDBK.FWDR.AIRPLANE\_GET\_LIST  
 _DESCRIPTION:_  
 list of airplane names and iata codes  
 _RETURN:_  
-sys\_refcursor[iata,name,nls\_name]  
+sys\_refcursor {  
+
+  * iata(t\_code) is not null - iata code of airplane  
+  * name(t\_name) is null - name of airplane  
+  * nls\_name(t\_name) is null - native language (russian) name of airplane  
+
+}  
 
 ### _function_ HDBK.FWDR.AIRLINE\_COMMISSION\_LIST  
 _DESCRIPTION:_  
 list of airlines with flag commission(it means, is airline have rules for calc commission).  
 _RETURN:_  
-sys\_refcursor[airline\_oid,name,iata,commission[y/n]]  
+sys\_refcursor {  
 
-### _function_ HDBK.FWDR.GET\_FULL  
-_DESCRIPTION:_  
-return all from v\_markup  
-_RETURN:_  
-sys\_refcursor  
+  * airline\_oid(t\_name) is not null - airline id  
+  * name(t\_name) is null - name of airline  
+  * iata(t\_code) is not null - iata code of airline  
+  * commission(t\_status) is not null - flag. has it info about commissions?  
 
-### _function_ HDBK.FWDR.MARKUP\_GET  
+}  
+
+### _function_ HDBK.FWDR.NOTE\_ADD  
 _DESCRIPTION:_  
-when p\_version is null then return all active rows. if not null then  
-get all active and deleted rows that changed after p\_version id  
+add note row  
 _PARAMETERS:_  
-**p\_version:** id  
+**p\_user**(_t\_name_): is not null. user email who want add note  
+**p\_name**(_t\_msg_): is null. note name  
 _RETURN:_  
-sys\_refcursor[id, tenant\_id, validating\_carrier, class\_of\_service,  
-segment, v\_from, v\_to, absolut\_amount, percent\_amount, min\_absolut, version, is\_active, markup\_type]  
+sys\_refcursor {  
+
+  * res(t\_code) is not null - result of operation. equal success, error, not\_authorized, value\_error, no\_data\_found  
+  * note\_id(t\_id) is null - if success then id of note  
+
+}  
+
+### _function_ HDBK.FWDR.NOTE\_EDIT  
+_DESCRIPTION:_  
+edit note row  
+_PARAMETERS:_  
+**p\_id**(_t\_id_): is not null. id of note  
+**p\_user**(_t\_name_): is not null. user email  
+**p\_name**(_t\_msg_): is null. note name  
+_RETURN:_  
+sys\_refcursor {  
+
+  * res(t\_code) is not null - result of operation. equal success, error, not\_authorized, value\_error, no\_data\_found  
+
+}  
+
+### _function_ HDBK.FWDR.NOTE\_DELETE  
+_DESCRIPTION:_  
+delete note row  
+_PARAMETERS:_  
+**p\_id**(_t\_id_): is not null. id of note  
+**p\_user**(_t\_name_): is not null. user email  
+_RETURN:_  
+sys\_refcursor {  
+
+  * res(t\_code) is not null - result of operation. equal success, error, not\_authorized, value\_error, no\_data\_found  
+
+}  
+
+### _function_ HDBK.FWDR.NOTE\_RECOVERY  
+_DESCRIPTION:_  
+cancel delete note row  
+_PARAMETERS:_  
+**p\_id**(_t\_id_): is not null. id of note  
+**p\_user**(_t\_name_): is not null. user email  
+_RETURN:_  
+sys\_refcursor {  
+
+  * res(t\_code) is not null - result of operation. equal success, error, not\_authorized, value\_error, no\_data\_found  
+
+}  
+
+### _function_ HDBK.FWDR.NOTE\_TICKET\_ADD  
+_DESCRIPTION:_  
+add tickets info into note  
+_PARAMETERS:_  
+**p\_note**(_t\_id_): is not null. id of note  
+**p\_user**(_t\_name_): is not null. user email  
+**p\_tickets**(_t\_clob_): is null. info about ticket/pnr info. actually big json  
+_RETURN:_  
+sys\_refcursor {  
+
+  * res(t\_code) is not null - result of operation. equal success, error, not\_authorized, value\_error, no\_data\_found  
+  * note\_ticket\_id(t\_id) is null - if success then id of ticket info row  
+
+}  
+
+### _function_ HDBK.FWDR.NOTE\_TICKET\_DELETE  
+_DESCRIPTION:_  
+delete tickets info from note  
+_PARAMETERS:_  
+**p\_note**(_t\_id_): is not null. id of note  
+**p\_user**(_t\_name_): is not null. user email  
+**p\_ticket**(_t\_id_): is not null. id of ticket info row  
+_RETURN:_  
+sys\_refcursor {  
+
+  * res(t\_code) is not null - result of operation. equal success, error, not\_authorized, value\_error, no\_data\_found  
+
+}  
+
+### _function_ HDBK.FWDR.NOTE\_TICKET\_RECOVERY  
+_DESCRIPTION:_  
+cancel delete tickets info from note  
+_PARAMETERS:_  
+**p\_note**(_t\_id_): is not null. id of note  
+**p\_user**(_t\_name_): is not null. user email  
+**p\_ticket**(_t\_id_): is not null. id of ticket info row  
+_RETURN:_  
+sys\_refcursor {  
+
+  * res(t\_code) is not null - result of operation. equal success, error, not\_authorized, value\_error, no\_data\_found  
+
+}  
+
+### _function_ HDBK.FWDR.NOTE\_LIST  
+_DESCRIPTION:_  
+list of notes for user  
+_PARAMETERS:_  
+**p\_user**(_t\_name_): is not null. user email  
+_RETURN:_  
+if success sys\_refcursor {  
+
+  * note\_id(t\_id) is not null - id of note  
+  * name(t\_msg) is not null - name of note  
+  * guid(t\_name) is not null - note guid for public url  
+
+}  
+on error sys\_refcursor {  
+
+  * res(t\_code) is not null - result of operation. equal success, error, not\_authorized, value\_error, no\_data\_found  
+
+}  
+
+### _function_ HDBK.FWDR.NOTE\_TICKET\_LIST  
+_DESCRIPTION:_  
+list of notes with tickets for user by note id  
+_PARAMETERS:_  
+**p\_note**(_t\_id_): is not null. note id  
+**p\_user**(_t\_name_): is not null. user email  
+_RETURN:_  
+if success sys\_refcursor {  
+
+  * note\_id(t\_id) is not null - id of note  
+  * note\_ticket\_id(t\_id) is not null - note ticket row id  
+  * name(t\_msg) is not null - name of note  
+  * guid(t\_name) is not null - note guid for public url  
+  * tickets(t\_clob) is not null - ticket json info  
+
+}  
+on error sys\_refcursor {  
+
+  * res(t\_code) is not null - result of operation. equal success, error, not\_authorized, value\_error, no\_data\_found  
+
+}  
+
+### _function_ HDBK.FWDR.NOTE\_TICKET\_LIST  
+_DESCRIPTION:_  
+list of notes with tickets by note guid  
+_PARAMETERS:_  
+**p\_guid**(_t\_name_): is not null. user email  
+_RETURN:_  
+if success sys\_refcursor {  
+
+  * note\_id(t\_id) is not null - id of note  
+  * note\_ticket\_id(t\_id) is not null - note ticket row id  
+  * name(t\_msg) is not null - name of note  
+  * guid(t\_name) is not null - note guid for public url  
+  * tickets(t\_clob) is not null - ticket json info  
+
+}  
+on error sys\_refcursor {  
+
+  * res(t\_code) is not null - result of operation. equal success, error, not\_authorized, value\_error, no\_data\_found  
+
+}  
+
+### _function_ HDBK.FWDR.PUNTO\_SWITCHER  
+_DESCRIPTION:_  
+translate russian keyboard keys to english and english to russian in p\_text  
+_PARAMETERS:_  
+**p\_text**(_t\_msg_): is null. text to translate  
+_RETURN:_  
+translated text (t\_msg)  
 
 ### _function_ HDBK.FWDR.RATE\_LIST  
 _DESCRIPTION:_  
 return all active rates for current moment. its not depends of p\_version  
 _PARAMETERS:_  
-**p\_version:** version. not useful now.  
+**p\_version**(_t\_id_): is null. version. not useful now.  
 _RETURN:_  
-sys\_refcursor[code,rate,version,is\_active(y,n)]  
+sys\_refcursor {  
+
+  * code(t\_code) is not null - code of currency  
+  * rate(t\_amount) is not null - rate  
+  * version(t\_id) is not null - max id from table  
+  * is\_active(t\_status) is not null - flag. is it rate active?  
+
+}  
 
 # HDBK.HDBK\_API
 ---
@@ -907,6 +1129,13 @@ sys\_refcursor {
   * per\_fare(t\_status) is not null - flag. is this rule calculated only for fare? else for full amount.  
   * rule\_type(t\_long\_code) is null - type of rule. commission, markup  
   * markup\_type(t\_long\_code) is null - base, partner, etc.  
+
+}  
+if no\_data\_found then sys\_refcursor {  
+
+  * iata(t\_code) is null - airline iata code  
+  * nls\_airline(t\_name) is not null - name of airline  
+  * tenant\_id(t\_id) is not null - id of the contract  
 
 }  
 
