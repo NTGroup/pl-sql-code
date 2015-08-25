@@ -1,47 +1,92 @@
   CREATE OR REPLACE PACKAGE hdbk.core as 
 
- /*
- 
-$pkg: HDBK.CORE
- 
- */
+/*
+$pkg: HDBK.CORE 
+*/
   
 
   
 /*
 $obj_type: function
 $obj_name: delay_payday
-$obj_desc: find nearest date for get money from client
-$obj_param: P_DELAY: count of days to delay bill paying.
-$obj_param: P_CONTRACT: id of contract. maybe at custom calendar we will find special PAYDAY
-$obj_return: day of pay
+$obj_desc: find nearest date for get money from client. after that day contr5act will be blocked
+$obj_param: P_DELAY(t_id): is not null. count of days to delay bill paying.
+$obj_param: P_CONTRACT(t_id): is not null. id of contract. maybe at custom calendar we will find special PAYDAY
+$obj_return: day of pay (t_date)
 */
   function delay_payday(
     P_DELAY   in hdbk.dtype.t_id default null,
     P_CONTRACT   in hdbk.dtype.t_id default null )
   return hdbk.dtype.t_date;
 
+
   
+/*
+$obj_type: procedure
+$obj_name: buy_run
+$obj_desc: handler for buy bills
+*/
   procedure buy_run;
   
   
+/*
+$obj_type: procedure
+$obj_name: DOC_TASK_LIST_run
+$obj_desc: handler for cash_in bills and contract limit documents(credit limit, delay days, etc.)
+*/
   procedure DOC_TASK_LIST_run;
 
+
+/*
+$obj_type: function
+$obj_name: dictionary_get_id
+$obj_desc: find id of dictionary row. dictionary is a list of names and codes 
+$obj_desc: associated with dictionary types. for example dictionary of letters: 
+$obj_desc: dictionary_type = LETTERS, name and/or code = A, B, C, etc. 
+$obj_desc: each letter is a new row. dictionary_get_* fn-s is a useful api for dictionary 
+$obj_param: p_dictionary_type(t_name): is not null. code of dictionary type
+$obj_param: p_code(t_code): is null. code value
+$obj_param: p_name(t_name): is null. name value
+$obj_return: id of dictionary row (t_id)
+*/
   function dictionary_get_id (    p_dictionary_type  in hdbk.dtype.t_name default null,
                                 p_code in hdbk.dtype.t_code default null,
                                 p_name in hdbk.dtype.t_name default null
                           )
   return hdbk.dtype.t_id;
 
+
+/*
+$obj_type: function
+$obj_name: dictionary_get_name_by_code
+$obj_desc: find name in dictionary by code. 
+$obj_param: p_dictionary_type(t_name): is not null. code of dictionary type
+$obj_param: p_code(t_code): is not null. code value
+$obj_return: name (t_name)
+*/
   function dictionary_get_name_by_code (    p_dictionary_type  in hdbk.dtype.t_name default null,
                                 p_code in hdbk.dtype.t_code default null
                           )
   return hdbk.dtype.t_name;
 
+/*
+$obj_type: function
+$obj_name: dictionary_get_code
+$obj_desc: find code in dictionary by id. 
+$obj_param: p_id(t_id): is not null. dictionary id
+$obj_return: code (t_name)
+*/
   function dictionary_get_code (    p_id  in hdbk.dtype.t_id default null
                           )
   return hdbk.dtype.t_name;
   
+/*
+$obj_type: function
+$obj_name: dictionary_get_name
+$obj_desc: find name in dictionary by id. 
+$obj_param: p_id(t_id): is not null. dictionary id
+$obj_return: name (t_name)
+*/
   function dictionary_get_name (    p_id  in hdbk.dtype.t_id default null
                           )
   return hdbk.dtype.t_name;

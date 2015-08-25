@@ -526,12 +526,58 @@ on error sys\_refcursor {
 
 ### _function_ HDBK.CORE.DELAY\_PAYDAY  
 _DESCRIPTION:_  
-find nearest date for get money from client  
+find nearest date for get money from client. after that day contr5act will be blocked  
 _PARAMETERS:_  
-**p\_delay:** count of days to delay bill paying.  
-**p\_contract:** id of contract. maybe at custom calendar we will find special payday  
+**p\_delay**(_t\_id_): is not null. count of days to delay bill paying.  
+**p\_contract**(_t\_id_): is not null. id of contract. maybe at custom calendar we will find special payday  
 _RETURN:_  
-day of pay  
+day of pay (t\_date)  
+
+### _procedure_ HDBK.CORE.BUY\_RUN  
+_DESCRIPTION:_  
+handler for buy bills  
+
+### _procedure_ HDBK.CORE.DOC\_TASK\_LIST\_RUN  
+_DESCRIPTION:_  
+handler for cash\_in bills and contract limit documents(credit limit, delay days, etc.)  
+
+### _function_ HDBK.CORE.DICTIONARY\_GET\_ID  
+_DESCRIPTION:_  
+find id of dictionary row. dictionary is a list of names and codes  
+associated with dictionary types. for example dictionary of letters:  
+dictionary\_type = letters, name and/or code = a, b, c, etc.  
+each letter is a new row. dictionary\_get\_\* fn-s is a useful api for dictionary  
+_PARAMETERS:_  
+**p\_dictionary\_type**(_t\_name_): is not null. code of dictionary type  
+**p\_code**(_t\_code_): is null. code value  
+**p\_name**(_t\_name_): is null. name value  
+_RETURN:_  
+id of dictionary row (t\_id)  
+
+### _function_ HDBK.CORE.DICTIONARY\_GET\_NAME\_BY\_CODE  
+_DESCRIPTION:_  
+find name in dictionary by code.  
+_PARAMETERS:_  
+**p\_dictionary\_type**(_t\_name_): is not null. code of dictionary type  
+**p\_code**(_t\_code_): is not null. code value  
+_RETURN:_  
+name (t\_name)  
+
+### _function_ HDBK.CORE.DICTIONARY\_GET\_CODE  
+_DESCRIPTION:_  
+find code in dictionary by id.  
+_PARAMETERS:_  
+**p\_id**(_t\_id_): is not null. dictionary id  
+_RETURN:_  
+code (t\_name)  
+
+### _function_ HDBK.CORE.DICTIONARY\_GET\_NAME  
+_DESCRIPTION:_  
+find name in dictionary by id.  
+_PARAMETERS:_  
+**p\_id**(_t\_id_): is not null. dictionary id  
+_RETURN:_  
+name (t\_name)  
 
 # HDBK.DTYPE
 ---
